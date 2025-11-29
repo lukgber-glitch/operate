@@ -1,0 +1,47 @@
+// SAF-T Export Prisma Schema
+// Add this model to your main schema.prisma file
+
+model SaftExport {
+  id             String   @id @default(uuid())
+  organizationId String
+  createdBy      String
+
+  // Export configuration
+  variant        String   // SaftVariant enum
+  scope          String   // ExportScope enum
+  startDate      DateTime
+  endDate        DateTime
+
+  // Status tracking
+  status         String   @default("PENDING") // ExportStatus enum
+
+  // File information
+  filePath       String?
+  fileSize       Int?
+  checksum       String?
+
+  // Metadata
+  numberOfEntries Int?
+  totalDebit      Float?
+  totalCredit     Float?
+
+  // Validation
+  validationErrors String[]
+
+  // Timestamps
+  createdAt      DateTime  @default(now())
+  completedAt    DateTime?
+
+  // Optional description
+  description    String?
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  creator        User         @relation(fields: [createdBy], references: [id])
+
+  @@index([organizationId])
+  @@index([createdBy])
+  @@index([status])
+  @@index([createdAt])
+  @@map("saft_exports")
+}

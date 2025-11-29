@@ -1,0 +1,12 @@
+import 'express';
+
+declare global {
+  namespace Express {
+    interface User {
+      userId: string;
+      email: string;
+      orgId: string;
+      role: string;
+    }
+  }
+}

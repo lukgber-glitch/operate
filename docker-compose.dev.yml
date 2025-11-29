@@ -1,0 +1,100 @@
+version: '3.8'
+
+# Development overrides for docker-compose.yml
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  # API Development Configuration
+  api:
+    build:
+      target: builder
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    volumes:
+      # Mount source code for hot reload
+      - ./apps/api:/app/apps/api
+      - ./packages:/app/packages
+      - ./tsconfig.json:/app/tsconfig.json
+      # Preserve node_modules
+      - /app/node_modules
+      - /app/apps/api/node_modules
+    command: pnpm --filter @operate/api dev
+    ports:
+      - '${API_PORT:-3000}:3000'
+      - '9229:9229' # Node.js debugger
+    healthcheck:
+      # More relaxed health checks for development
+      interval: 60s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Web Development Configuration
+  web:
+    build:
+      target: builder
+    environment:
+      NODE_ENV: development
+      NEXT_TELEMETRY_DISABLED: 1
+    volumes:
+      # Mount source code for hot reload
+      - ./apps/web:/app/apps/web
+      - ./packages/shared:/app/packages/shared
+      - ./tsconfig.json:/app/tsconfig.json
+      # Preserve node_modules and Next.js cache
+      - /app/node_modules
+      - /app/apps/web/node_modules
+      - /app/apps/web/.next
+    command: pnpm --filter @operate/web dev
+    ports:
+      - '${WEB_PORT:-3001}:3000'
+    healthcheck:
+      # More relaxed health checks for development
+      interval: 60s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Workers Development Configuration
+  workers:
+    build:
+      target: builder
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    volumes:
+      # Mount source code for hot reload
+      - ./apps/workers:/app/apps/workers
+      - ./packages:/app/packages
+      - ./tsconfig.json:/app/tsconfig.json
+      # Preserve node_modules
+      - /app/node_modules
+      - /app/apps/workers/node_modules
+    command: pnpm --filter @operate/workers dev
+    healthcheck:
+      # More relaxed health checks for development
+      interval: 60s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Database - Expose more ports for development
+  postgres:
+    environment:
+      POSTGRES_DB: operate_dev
+    ports:
+      - '5432:5432'
+
+  # Redis - Expose more ports for development
+  redis:
+    ports:
+      - '6379:6379'
+
+  # Enable PgAdmin by default in development
+  pgadmin:
+    profiles: [] # Remove profile requirement
+
+  # Enable Redis Commander by default in development
+  redis-commander:
+    profiles: [] # Remove profile requirement

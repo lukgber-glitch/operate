@@ -1,0 +1,223 @@
+{
+  "wave": 10,
+  "name": "Stabilization Sprint",
+  "description": "Fix critical issues identified in project analysis",
+  "createdAt": "2025-11-29T07:00:00Z",
+  "priority": "CRITICAL",
+  "tasks": [
+    {
+      "id": "OP-100",
+      "title": "Import missing modules in AppModule",
+      "agent": "FORGE",
+      "priority": "CRITICAL",
+      "status": "PENDING",
+      "description": "Import ComplianceModule, DeductionsModule, FraudPreventionModule, ElsterModule, FinanzOnlineModule, SvMeldungModule into app.module.ts",
+      "files": ["apps/api/src/app.module.ts"],
+      "estimatedEffort": "15min"
+    },
+    {
+      "id": "OP-101",
+      "title": "Enable auth guards on unprotected controllers",
+      "agent": "SENTINEL",
+      "priority": "CRITICAL",
+      "status": "PENDING",
+      "description": "Uncomment/add JwtAuthGuard on DeductionsController, ElsterController, LeaveController",
+      "files": [
+        "apps/api/src/modules/tax/deductions/deductions.controller.ts",
+        "apps/api/src/modules/integrations/elster/elster.controller.ts",
+        "apps/api/src/modules/hr/leave/leave.controller.ts"
+      ],
+      "estimatedEffort": "30min"
+    },
+    {
+      "id": "OP-102",
+      "title": "Fix hardcoded user/org IDs in controllers",
+      "agent": "SENTINEL",
+      "priority": "CRITICAL",
+      "status": "PENDING",
+      "description": "Replace hardcoded 'test-org-id' and 'current-user-id' with @CurrentUser() decorator values",
+      "files": [
+        "apps/api/src/modules/tax/deductions/deductions.controller.ts",
+        "apps/api/src/modules/hr/leave/leave.controller.ts"
+      ],
+      "estimatedEffort": "45min"
+    },
+    {
+      "id": "OP-103",
+      "title": "Move JWT tokens from localStorage to HTTP-only cookies",
+      "agent": "SENTINEL",
+      "priority": "CRITICAL",
+      "status": "PENDING",
+      "description": "Refactor auth flow to use secure HTTP-only cookies instead of localStorage for token storage",
+      "files": [
+        "apps/api/src/modules/auth/auth.service.ts",
+        "apps/api/src/modules/auth/auth.controller.ts",
+        "apps/web/src/hooks/use-auth.ts",
+        "apps/web/src/lib/api/client.ts"
+      ],
+      "estimatedEffort": "2h"
+    },
+    {
+      "id": "OP-104",
+      "title": "Fix Prisma version mismatch",
+      "agent": "VAULT",
+      "priority": "HIGH",
+      "status": "PENDING",
+      "description": "Align @prisma/client to ^5.8.1 in apps/api/package.json",
+      "files": ["apps/api/package.json"],
+      "estimatedEffort": "10min"
+    },
+    {
+      "id": "OP-105",
+      "title": "Fix @operate/ai package.json configuration",
+      "agent": "FORGE",
+      "priority": "HIGH",
+      "status": "PENDING",
+      "description": "Change main and types fields to point to dist/ instead of src/",
+      "files": ["packages/ai/package.json"],
+      "estimatedEffort": "5min"
+    },
+    {
+      "id": "OP-106",
+      "title": "Add missing Prisma relations for User references",
+      "agent": "VAULT",
+      "priority": "HIGH",
+      "status": "PENDING",
+      "description": "Add @relation annotations for reviewedBy, approvedBy, processedBy, performedBy fields across audit models",
+      "files": ["packages/database/prisma/schema.prisma"],
+      "estimatedEffort": "1h"
+    },
+    {
+      "id": "OP-107",
+      "title": "Add cascade delete to orgId relations",
+      "agent": "VAULT",
+      "priority": "HIGH",
+      "status": "PENDING",
+      "description": "Add onDelete: Cascade to Membership, AuditLog, and other org-scoped models",
+      "files": ["packages/database/prisma/schema.prisma"],
+      "estimatedEffort": "30min"
+    },
+    {
+      "id": "OP-108",
+      "title": "Add email uniqueness constraint per organization",
+      "agent": "VAULT",
+      "priority": "MEDIUM",
+      "status": "PENDING",
+      "description": "Add @@unique([orgId, email]) to Employee model",
+      "files": ["packages/database/prisma/schema.prisma"],
+      "estimatedEffort": "10min"
+    },
+    {
+      "id": "OP-109",
+      "title": "Add permission checks to Country Context endpoints",
+      "agent": "SENTINEL",
+      "priority": "HIGH",
+      "status": "PENDING",
+      "description": "Implement permission checks for organization-level endpoints in CountryContextController",
+      "files": ["apps/api/src/modules/country-context/country-context.controller.ts"],
+      "estimatedEffort": "45min"
+    },
+    {
+      "id": "OP-110",
+      "title": "Add rate limiting to auth endpoints",
+      "agent": "SENTINEL",
+      "priority": "HIGH",
+      "status": "PENDING",
+      "description": "Add @Throttle decorator to login, register, and refresh endpoints",
+      "files": ["apps/api/src/modules/auth/auth.controller.ts"],
+      "estimatedEffort": "20min"
+    },
+    {
+      "id": "OP-111",
+      "title": "Implement database queries in GoBD export",
+      "agent": "BRIDGE",
+      "priority": "MEDIUM",
+      "status": "PENDING",
+      "description": "Replace placeholder implementations with actual Prisma queries in gobd-builder.service.ts",
+      "files": ["apps/api/src/modules/compliance/exports/gobd/gobd-builder.service.ts"],
+      "estimatedEffort": "3h"
+    },
+    {
+      "id": "OP-112",
+      "title": "Implement ELSTER status check API",
+      "agent": "BRIDGE",
+      "priority": "MEDIUM",
+      "status": "PENDING",
+      "description": "Complete checkSubmissionStatus() and parseSubmissionResponse() methods",
+      "files": ["apps/api/src/modules/integrations/elster/elster.service.ts"],
+      "estimatedEffort": "2h"
+    },
+    {
+      "id": "OP-113",
+      "title": "Replace in-memory storage in ComplianceService",
+      "agent": "FORGE",
+      "priority": "MEDIUM",
+      "status": "PENDING",
+      "description": "Replace Map-based storage with Prisma repository for export records",
+      "files": ["apps/api/src/modules/compliance/compliance.service.ts"],
+      "estimatedEffort": "2h"
+    },
+    {
+      "id": "OP-114",
+      "title": "Implement export download stream",
+      "agent": "FORGE",
+      "priority": "MEDIUM",
+      "status": "PENDING",
+      "description": "Implement getExportStream() method that currently throws NotImplementedError",
+      "files": ["apps/api/src/modules/compliance/compliance.service.ts"],
+      "estimatedEffort": "1h"
+    },
+    {
+      "id": "OP-115",
+      "title": "Populate @operate/shared package",
+      "agent": "FORGE",
+      "priority": "LOW",
+      "status": "PENDING",
+      "description": "Add common DTOs, enums, utilities, and error classes to shared package",
+      "files": ["packages/shared/src/index.ts"],
+      "estimatedEffort": "2h"
+    },
+    {
+      "id": "OP-116",
+      "title": "Implement notification system for HR",
+      "agent": "FORGE",
+      "priority": "LOW",
+      "status": "PENDING",
+      "description": "Implement TODO notifications for leave approvals and manager alerts",
+      "files": ["apps/api/src/modules/hr/leave/leave.service.ts"],
+      "estimatedEffort": "3h"
+    },
+    {
+      "id": "OP-117",
+      "title": "Add ELSTER audit logging to database",
+      "agent": "BRIDGE",
+      "priority": "LOW",
+      "status": "PENDING",
+      "description": "Implement logAuditTrail() to persist audit logs instead of console.log",
+      "files": ["apps/api/src/modules/integrations/elster/elster.service.ts"],
+      "estimatedEffort": "1h"
+    }
+  ],
+  "agentSummary": {
+    "FORGE": {
+      "tasks": ["OP-100", "OP-105", "OP-113", "OP-114", "OP-115", "OP-116"],
+      "totalTasks": 6,
+      "criticalTasks": 1
+    },
+    "SENTINEL": {
+      "tasks": ["OP-101", "OP-102", "OP-103", "OP-109", "OP-110"],
+      "totalTasks": 5,
+      "criticalTasks": 3
+    },
+    "VAULT": {
+      "tasks": ["OP-104", "OP-106", "OP-107", "OP-108"],
+      "totalTasks": 4,
+      "criticalTasks": 0
+    },
+    "BRIDGE": {
+      "tasks": ["OP-111", "OP-112", "OP-117"],
+      "totalTasks": 3,
+      "criticalTasks": 0
+    }
+  }
+}

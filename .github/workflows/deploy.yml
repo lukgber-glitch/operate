@@ -1,0 +1,359 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to deploy (e.g., v1.2.3)'
+        required: true
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8'
+
+jobs:
+  build-images:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service: [api, web, worker]
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.version || github.ref }}
+
+      - name: Extract version
+        id: version
+        run: |
+          if [ "${{ github.event.inputs.version }}" != "" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "version_no_v=${VERSION#v}" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest
+            type=sha,prefix={{branch}}-
+
+      - name: Build and push ${{ matrix.service }} image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+          build-args: |
+            NODE_VERSION=${{ env.NODE_VERSION }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ steps.version.outputs.version_no_v }}
+
+      - name: Generate image digest
+        id: digest
+        run: |
+          echo "Image pushed: ${{ steps.meta.outputs.tags }}"
+          echo "${{ matrix.service }}=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}:${{ steps.version.outputs.version_no_v }}" >> $GITHUB_OUTPUT
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build-images
+    environment:
+      name: staging
+      url: https://staging.operate-coachos.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure kubectl for staging
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ secrets.AWS_REGION }} \
+            --name ${{ secrets.EKS_CLUSTER_NAME_STAGING }}
+
+      - name: Deploy to Staging Kubernetes
+        run: |
+          VERSION="${{ needs.build-images.outputs.version }}"
+          VERSION_NO_V="${VERSION#v}"
+
+          cd infrastructure/k8s/staging
+
+          # Apply configurations
+          kubectl apply -f namespace.yaml
+          kubectl apply -f configmap.yaml
+          kubectl apply -f secrets.yaml
+
+          # Run database migrations
+          kubectl apply -f migrations-job.yaml
+          kubectl wait --for=condition=complete --timeout=300s job/db-migrate -n staging
+
+          # Deploy services
+          kubectl apply -f deployments/
+          kubectl apply -f services/
+          kubectl apply -f ingress.yaml
+
+          # Update container images
+          kubectl set image deployment/web web=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:${VERSION_NO_V} -n staging
+          kubectl set image deployment/api api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api:${VERSION_NO_V} -n staging
+          kubectl set image deployment/worker worker=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/worker:${VERSION_NO_V} -n staging
+
+          # Wait for rollout to complete
+          kubectl rollout status deployment/web -n staging --timeout=5m
+          kubectl rollout status deployment/api -n staging --timeout=5m
+          kubectl rollout status deployment/worker -n staging --timeout=5m
+
+      - name: Run staging smoke tests
+        run: |
+          sleep 30
+
+          # Health checks
+          curl -f https://staging.operate-coachos.com/api/health || exit 1
+          curl -f https://staging.operate-coachos.com/ || exit 1
+
+          echo "Staging deployment successful!"
+
+      - name: Notify staging deployment
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Staging deployment ${{ job.status }} - Version ${{ needs.build-images.outputs.version }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    environment:
+      name: production
+      url: https://operate-coachos.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate production readiness
+        run: |
+          # Verify staging is healthy before production deployment
+          curl -f https://staging.operate-coachos.com/api/health || {
+            echo "Staging health check failed - aborting production deployment"
+            exit 1
+          }
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure kubectl for production
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ secrets.AWS_REGION }} \
+            --name ${{ secrets.EKS_CLUSTER_NAME_PRODUCTION }}
+
+      - name: Create database backup
+        run: |
+          # Trigger pre-deployment backup
+          kubectl create job db-backup-pre-deploy-$(date +%s) \
+            --from=cronjob/db-backup -n production
+
+      - name: Deploy to Production Kubernetes
+        run: |
+          VERSION="${{ needs.build-images.outputs.version }}"
+          VERSION_NO_V="${VERSION#v}"
+
+          cd infrastructure/k8s/production
+
+          # Apply configurations
+          kubectl apply -f namespace.yaml
+          kubectl apply -f configmap.yaml
+          kubectl apply -f secrets.yaml
+
+          # Run database migrations
+          kubectl apply -f migrations-job.yaml
+          kubectl wait --for=condition=complete --timeout=600s job/db-migrate -n production
+
+          # Deploy services
+          kubectl apply -f deployments/
+          kubectl apply -f services/
+          kubectl apply -f ingress.yaml
+
+          # Update container images
+          kubectl set image deployment/web web=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:${VERSION_NO_V} -n production
+          kubectl set image deployment/api api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api:${VERSION_NO_V} -n production
+          kubectl set image deployment/worker worker=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/worker:${VERSION_NO_V} -n production
+
+          # Wait for rollout to complete
+          kubectl rollout status deployment/web -n production --timeout=10m
+          kubectl rollout status deployment/api -n production --timeout=10m
+          kubectl rollout status deployment/worker -n production --timeout=10m
+
+      - name: Run production smoke tests
+        run: |
+          sleep 60
+
+          # Comprehensive health checks
+          curl -f https://operate-coachos.com/api/health || exit 1
+          curl -f https://operate-coachos.com/api/health/db || exit 1
+          curl -f https://operate-coachos.com/api/health/redis || exit 1
+          curl -f https://operate-coachos.com/ || exit 1
+
+          echo "Production deployment successful!"
+
+      - name: Tag deployment
+        run: |
+          VERSION="${{ needs.build-images.outputs.version }}"
+          kubectl annotate deployment/web kubernetes.io/change-cause="Release ${VERSION}" -n production --overwrite
+          kubectl annotate deployment/api kubernetes.io/change-cause="Release ${VERSION}" -n production --overwrite
+          kubectl annotate deployment/worker kubernetes.io/change-cause="Release ${VERSION}" -n production --overwrite
+
+      - name: Notify production deployment
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: "Production Deployment Successful",
+              attachments: [{
+                color: 'good',
+                text: 'Version ${{ needs.build-images.outputs.version }} deployed to production',
+                fields: [{
+                  title: 'Release',
+                  value: '${{ needs.build-images.outputs.version }}',
+                  short: true
+                }, {
+                  title: 'Environment',
+                  value: 'Production',
+                  short: true
+                }, {
+                  title: 'URL',
+                  value: 'https://operate-coachos.com',
+                  short: false
+                }]
+              }]
+            }
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+  rollback-production:
+    name: Rollback Production on Failure
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: failure()
+    environment:
+      name: production-rollback
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ secrets.AWS_REGION }} \
+            --name ${{ secrets.EKS_CLUSTER_NAME_PRODUCTION }}
+
+      - name: Rollback deployments
+        run: |
+          # Rollback to previous version
+          kubectl rollout undo deployment/web -n production
+          kubectl rollout undo deployment/api -n production
+          kubectl rollout undo deployment/worker -n production
+
+          # Wait for rollback to complete
+          kubectl rollout status deployment/web -n production --timeout=5m
+          kubectl rollout status deployment/api -n production --timeout=5m
+          kubectl rollout status deployment/worker -n production --timeout=5m
+
+      - name: Verify rollback
+        run: |
+          curl -f https://operate-coachos.com/api/health || exit 1
+          echo "Rollback completed successfully"
+
+      - name: Notify rollback
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: "Production Deployment FAILED - Rollback Executed",
+              attachments: [{
+                color: 'danger',
+                text: 'Production deployment failed and was rolled back to previous version',
+                fields: [{
+                  title: 'Failed Version',
+                  value: '${{ needs.build-images.outputs.version }}',
+                  short: true
+                }, {
+                  title: 'Environment',
+                  value: 'Production',
+                  short: true
+                }, {
+                  title: 'Action Required',
+                  value: 'Investigate deployment failure',
+                  short: false
+                }]
+              }]
+            }
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}

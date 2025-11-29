@@ -1,0 +1,80 @@
+# docker-compose.override.yml
+# Development overrides for hot reload and debugging
+# This file is automatically merged with docker-compose.yml in development
+
+version: '3.8'
+
+services:
+  # API Service - Development overrides
+  api:
+    build:
+      target: development
+    container_name: operate-api-dev
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    volumes:
+      # Mount source code for hot reload
+      - ./apps/api:/app/apps/api:delegated
+      - ./packages:/app/packages:delegated
+      - ./turbo.json:/app/turbo.json:ro
+      # Preserve node_modules
+      - /app/node_modules
+      - /app/apps/api/node_modules
+    command: pnpm --filter @operate/api dev
+    ports:
+      - '3000:3000'
+      - '9229:9229' # Node.js debugger port
+
+  # Web Service - Development overrides
+  web:
+    build:
+      target: development
+    container_name: operate-web-dev
+    environment:
+      NODE_ENV: development
+    volumes:
+      # Mount source code for hot reload
+      - ./apps/web:/app/apps/web:delegated
+      - ./packages/shared:/app/packages/shared:delegated
+      - ./turbo.json:/app/turbo.json:ro
+      # Preserve node_modules
+      - /app/node_modules
+      - /app/apps/web/node_modules
+      # Preserve Next.js build cache
+      - /app/apps/web/.next
+    command: pnpm --filter @operate/web dev
+    ports:
+      - '3001:3000'
+
+  # Workers Service - Development overrides
+  workers:
+    build:
+      target: development
+    container_name: operate-workers-dev
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    volumes:
+      # Mount source code for hot reload
+      - ./apps/workers:/app/apps/workers:delegated
+      - ./packages:/app/packages:delegated
+      - ./turbo.json:/app/turbo.json:ro
+      # Preserve node_modules
+      - /app/node_modules
+      - /app/apps/workers/node_modules
+    command: pnpm --filter @operate/workers dev
+
+  # PostgreSQL - Development overrides
+  postgres:
+    environment:
+      POSTGRES_USER: operate
+      POSTGRES_PASSWORD: operate_dev
+      POSTGRES_DB: operate
+    ports:
+      - '5432:5432'
+
+  # Redis - Development overrides
+  redis:
+    ports:
+      - '6379:6379'
