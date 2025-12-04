@@ -17,7 +17,7 @@
     "@operate/database": "workspace:*",
     "@operate/shared": "workspace:*",
     "@operate/ai": "workspace:*",
-    "bullmq": "^5.1.0",
+    "bullmq": "^5.65.1",
     "ioredis": "^5.3.2",
     "dotenv": "^16.3.1",
     "node-cron": "^3.0.3"
