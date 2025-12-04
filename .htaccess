@@ -1,0 +1,12 @@
+RewriteEngine On
+RewriteBase /
+
+# Skip existing files and directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Skip .well-known for SSL verification
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+
+# Route all requests to index.php proxy
+RewriteRule ^(.*)$ index.php [QSA,L]

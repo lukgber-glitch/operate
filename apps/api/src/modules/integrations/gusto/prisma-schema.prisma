@@ -1,0 +1,225 @@
+// ============================================================================
+// GUSTO EMBEDDED PAYROLL INTEGRATION
+// ============================================================================
+// Add these models to packages/database/prisma/schema.prisma
+
+/**
+ * Gusto Connection Status Enum
+ */
+enum GustoConnectionStatus {
+  PENDING  // OAuth flow initiated
+  ACTIVE   // Connected and operational
+  EXPIRED  // Token expired (needs refresh)
+  REVOKED  // User revoked access
+  ERROR    // Connection error
+}
+
+/**
+ * Gusto Connection
+ * Stores Gusto OAuth connections for US payroll
+ *
+ * Features:
+ * - OAuth2 with PKCE authentication
+ * - Encrypted token storage (AES-256-GCM)
+ * - Automatic token refresh
+ * - Multi-company support per organization
+ *
+ * Security:
+ * - accessToken and refreshToken are encrypted before storage
+ * - Never log or expose raw tokens
+ * - Webhook signature verification required
+ */
+model GustoConnection {
+  id             String                 @id @default(uuid())
+  organisationId String
+  userId         String
+  companyUuid    String                 @unique // Gusto company UUID
+  companyName    String?
+
+  // OAuth tokens (ENCRYPTED)
+  accessToken    String                 @db.Text // Encrypted with AES-256-GCM
+  refreshToken   String                 @db.Text // Encrypted with AES-256-GCM
+  expiresAt      DateTime
+  scope          String                 @db.Text // Space-separated scopes
+
+  // Connection status
+  status         GustoConnectionStatus  @default(PENDING)
+
+  // Sync tracking
+  lastSyncAt     DateTime?
+  lastErrorAt    DateTime?
+  lastError      String?                @db.Text
+
+  // Metadata
+  metadata       Json                   @default("{}")
+
+  // Audit trail
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  deletedAt      DateTime?
+
+  // Relations
+  organisation   Organisation           @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  user           User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  webhookEvents  GustoWebhookEvent[]
+  auditLogs      GustoAuditLog[]
+
+  @@index([organisationId])
+  @@index([userId])
+  @@index([companyUuid])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("gusto_connections")
+}
+
+/**
+ * Gusto Webhook Event
+ * Stores incoming webhook events from Gusto for audit and replay
+ *
+ * Features:
+ * - Signature verification
+ * - Event replay capability
+ * - Error tracking
+ * - Deduplication via eventId
+ */
+model GustoWebhookEvent {
+  id            String            @id @default(uuid())
+  connectionId  String
+
+  // Event details
+  eventId       String            @unique // Gusto event ID (for deduplication)
+  eventType     String            @db.VarChar(100) // e.g., employee.created
+  entityType    String            @db.VarChar(50)  // e.g., employee
+  entityUuid    String
+  companyUuid   String
+
+  // Payload and signature
+  payload       Json              // Full webhook payload
+  signature     String            @db.Text // X-Gusto-Signature header
+
+  // Processing status
+  status        String            @db.VarChar(20) // SUCCESS, FAILED, PENDING
+  processedAt   DateTime?
+  errorMessage  String?           @db.Text
+  retryCount    Int               @default(0)
+
+  // Timestamps
+  receivedAt    DateTime          @default(now())
+  gustoTimestamp DateTime         // Timestamp from Gusto payload
+
+  // Relations
+  connection    GustoConnection   @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([connectionId])
+  @@index([eventType])
+  @@index([companyUuid])
+  @@index([status])
+  @@index([receivedAt])
+  @@map("gusto_webhook_events")
+}
+
+/**
+ * Gusto Audit Log
+ * Tracks all Gusto API operations for compliance
+ *
+ * Features:
+ * - Full audit trail
+ * - Request/response logging (sanitized)
+ * - Error tracking
+ * - Performance monitoring
+ */
+model GustoAuditLog {
+  id            String          @id @default(uuid())
+  connectionId  String
+  userId        String?
+
+  // Operation details
+  action        String          @db.VarChar(100) // e.g., create_employee, sync_employees
+  method        String          @db.VarChar(10)  // GET, POST, PUT, DELETE
+  endpoint      String          @db.VarChar(255) // Gusto API endpoint
+
+  // Request/Response (sanitized - no tokens)
+  requestBody   Json?
+  responseBody  Json?
+  statusCode    Int?
+
+  // Error tracking
+  success       Boolean         @default(true)
+  errorMessage  String?         @db.Text
+
+  // Performance
+  durationMs    Int?            // Request duration in milliseconds
+
+  // Metadata
+  metadata      Json            @default("{}")
+
+  // Timestamps
+  createdAt     DateTime        @default(now())
+
+  // Relations
+  connection    GustoConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  user          User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([connectionId])
+  @@index([userId])
+  @@index([action])
+  @@index([success])
+  @@index([createdAt])
+  @@map("gusto_audit_logs")
+}
+
+/**
+ * Gusto Employee Mapping
+ * Maps Gusto employees to Operate employees
+ *
+ * Features:
+ * - Bidirectional sync support
+ * - Sync conflict detection
+ * - Last sync tracking
+ */
+model GustoEmployeeMapping {
+  id                String    @id @default(uuid())
+  organisationId    String
+  employeeId        String    // Operate employee ID
+  gustoEmployeeUuid String    @unique // Gusto employee UUID
+  gustoCompanyUuid  String
+
+  // Sync status
+  lastSyncAt        DateTime?
+  lastSyncDirection String?   @db.VarChar(20) // GUSTO_TO_OPERATE, OPERATE_TO_GUSTO
+  syncConflict      Boolean   @default(false)
+  conflictDetails   Json?
+
+  // Metadata
+  metadata          Json      @default("{}")
+
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  organisation      Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  employee          Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, gustoCompanyUuid])
+  @@index([organisationId])
+  @@index([gustoCompanyUuid])
+  @@index([gustoEmployeeUuid])
+  @@map("gusto_employee_mappings")
+}
+
+// ============================================================================
+// REQUIRED RELATION UPDATES
+// ============================================================================
+// Add these to existing models in schema.prisma:
+
+// In Organisation model:
+//   gustoConnections      GustoConnection[]
+//   gustoEmployeeMappings GustoEmployeeMapping[]
+
+// In User model:
+//   gustoConnections      GustoConnection[]
+//   gustoAuditLogs        GustoAuditLog[]
+
+// In Employee model:
+//   gustoMapping          GustoEmployeeMapping?

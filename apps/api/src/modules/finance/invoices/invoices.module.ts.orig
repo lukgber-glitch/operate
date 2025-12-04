@@ -1,0 +1,21 @@
+import { Module } from '@nestjs/common';
+import { InvoicesController } from './invoices.controller';
+import { InvoicesService } from './invoices.service';
+import { InvoicesRepository } from './invoices.repository';
+import { RbacModule } from '../../auth/rbac/rbac.module';
+import { PaymentReminderModule } from './reminders/payment-reminder.module';
+
+/**
+ * Invoices Module
+ * Manages invoice operations including payment reminders
+ */
+@Module({
+  imports: [
+    RbacModule,
+    PaymentReminderModule,
+  ],
+  controllers: [InvoicesController],
+  providers: [InvoicesService, InvoicesRepository],
+  exports: [InvoicesService, InvoicesRepository],
+})
+export class InvoicesModule {}

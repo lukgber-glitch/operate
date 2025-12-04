@@ -1,0 +1,455 @@
+/**
+ * Chat Service
+ * Handles conversation management and AI interactions
+ */
+
+import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { PrismaService } from '../database/prisma.service';
+import { ClaudeService, ChatMessage } from './claude.service';
+import { buildSystemPrompt } from './prompts/system-prompt';
+import { CreateConversationDto } from './dto/create-conversation.dto';
+import { SendMessageDto } from './dto/send-message.dto';
+import { Conversation, Message, Prisma } from '@prisma/client';
+import { ActionExecutorService } from './actions/action-executor.service';
+import { ActionContext } from './actions/action.types';
+import { ContextService } from './context/context.service';
+import { ContextParams } from './context/context.types';
+
+export interface PaginationOptions {
+  limit?: number;
+  offset?: number;
+}
+
+@Injectable()
+export class ChatService {
+  private readonly logger = new Logger(ChatService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private claudeService: ClaudeService,
+    private actionExecutor: ActionExecutorService,
+    private contextService: ContextService,
+  ) {}
+
+  /**
+   * Create a new conversation
+   */
+  async createConversation(
+    userId: string,
+    orgId: string,
+    dto: CreateConversationDto,
+  ): Promise<Conversation> {
+    this.logger.log(`Creating conversation for user ${userId} in org ${orgId}`);
+
+    const conversation = await this.prisma.conversation.create({
+      data: {
+        userId,
+        orgId,
+        title: dto.title,
+        contextType: dto.contextType,
+        contextId: dto.contextId,
+        pageContext: dto.pageContext,
+        metadata: dto.metadata as Prisma.InputJsonValue,
+        status: 'ACTIVE',
+        messageCount: 0,
+      },
+    });
+
+    this.logger.debug(`Created conversation: ${conversation.id}`);
+    return conversation;
+  }
+
+  /**
+   * Send a message and get AI response
+   */
+  async sendMessage(
+    conversationId: string,
+    userId: string,
+    orgId: string,
+    dto: SendMessageDto,
+  ): Promise<{ userMessage: Message; assistantMessage: Message }> {
+    // Verify conversation ownership
+    const conversation = await this.getConversation(conversationId, userId, orgId);
+
+    // Sanitize input
+    const sanitizedContent = this.claudeService.sanitizeInput(dto.content);
+
+    // Create user message
+    const userMessage = await this.prisma.message.create({
+      data: {
+        conversationId,
+        role: 'USER',
+        type: 'TEXT',
+        content: sanitizedContent,
+      },
+    });
+
+    this.logger.debug(`Created user message: ${userMessage.id}`);
+
+    // Create attachments if provided
+    if (dto.attachments && dto.attachments.length > 0) {
+      await this.prisma.messageAttachment.createMany({
+        data: dto.attachments.map(att => ({
+          messageId: userMessage.id,
+          fileName: att.fileName,
+          fileType: att.fileType,
+          fileSize: att.fileSize,
+          storagePath: att.storagePath,
+        })),
+      });
+    }
+
+    // Get conversation history (last 20 messages for context)
+    const history = await this.prisma.message.findMany({
+      where: { conversationId },
+      orderBy: { createdAt: 'asc' },
+      take: 20,
+    });
+
+    // Build message history for Claude
+    const messages: ChatMessage[] = history.map(msg => ({
+      role: msg.role === 'USER' ? 'user' : 'assistant',
+      content: msg.content,
+    }));
+
+    // Build context-aware system prompt
+    const contextParams: ContextParams = {
+      userId,
+      organizationId: orgId,
+      currentPage: conversation.pageContext || undefined,
+      selectedEntityType: conversation.contextType || undefined,
+      selectedEntityId: conversation.contextId || undefined,
+    };
+
+    let systemPrompt = buildSystemPrompt(conversation.contextType || 'general');
+
+    // Enhance with live context
+    try {
+      const chatContext = await this.contextService.buildContext(contextParams);
+      const contextInfo = this.contextService.formatContextForPrompt(chatContext);
+      systemPrompt = `${systemPrompt}\n\n## Current Context\n${contextInfo}\n\n## Suggested Actions\n${chatContext.suggestions.join('\n- ')}`;
+    } catch (error) {
+      this.logger.warn('Failed to build context, using basic prompt:', error.message);
+    }
+
+    try {
+      // Get AI response
+      const aiResponse = await this.claudeService.chat(messages, systemPrompt);
+
+      // Check for action intents in response
+      const actionIntent = this.actionExecutor.parseActionIntent(aiResponse.content);
+
+      let finalContent = aiResponse.content;
+      let actionResult = null;
+
+      if (actionIntent) {
+        this.logger.log(`Detected action intent: ${actionIntent.type}`);
+
+        // Create assistant message first (needed for action log)
+        const assistantMessage = await this.prisma.message.create({
+          data: {
+            conversationId,
+            role: 'ASSISTANT',
+            type: 'TEXT',
+            content: aiResponse.content,
+            model: aiResponse.model,
+            tokenCount: aiResponse.usage.inputTokens + aiResponse.usage.outputTokens,
+          },
+        });
+
+        // Build action context
+        const actionContext: ActionContext = {
+          userId,
+          organizationId: orgId,
+          conversationId,
+          permissions: await this.getUserPermissions(userId),
+        };
+
+        // Execute action
+        actionResult = await this.actionExecutor.executeAction(
+          actionIntent,
+          actionContext,
+          assistantMessage.id,
+        );
+
+        // If action requires confirmation, update message
+        if (actionResult.data?.requiresConfirmation) {
+          finalContent = `${aiResponse.content}\n\n**Confirmation Required**\nPlease confirm to proceed with this action. Reply with "confirm" or "cancel".`;
+        } else if (actionResult.success) {
+          finalContent = `${aiResponse.content}\n\n**Action Completed:** ${actionResult.message}`;
+        } else {
+          finalContent = `${aiResponse.content}\n\n**Action Failed:** ${actionResult.error || actionResult.message}`;
+        }
+
+        // Update assistant message with final content
+        await this.prisma.message.update({
+          where: { id: assistantMessage.id },
+          data: { content: finalContent },
+        });
+
+        // Update conversation
+        await this.prisma.conversation.update({
+          where: { id: conversationId },
+          data: {
+            messageCount: { increment: 2 },
+            lastMessageAt: new Date(),
+            title: conversation.title || this.generateTitle(sanitizedContent),
+          },
+        });
+
+        this.logger.log(`AI response with action generated for conversation ${conversationId}`);
+
+        return { userMessage, assistantMessage: { ...assistantMessage, content: finalContent } };
+      }
+
+      // No action detected, create normal assistant message
+      const assistantMessage = await this.prisma.message.create({
+        data: {
+          conversationId,
+          role: 'ASSISTANT',
+          type: 'TEXT',
+          content: aiResponse.content,
+          model: aiResponse.model,
+          tokenCount: aiResponse.usage.inputTokens + aiResponse.usage.outputTokens,
+        },
+      });
+
+      // Update conversation
+      await this.prisma.conversation.update({
+        where: { id: conversationId },
+        data: {
+          messageCount: { increment: 2 },
+          lastMessageAt: new Date(),
+          title: conversation.title || this.generateTitle(sanitizedContent),
+        },
+      });
+
+      this.logger.log(`AI response generated for conversation ${conversationId}`);
+
+      return { userMessage, assistantMessage };
+    } catch (error) {
+      this.logger.error('Error getting AI response:', error);
+
+      // Create error message
+      const errorMessage = await this.prisma.message.create({
+        data: {
+          conversationId,
+          role: 'ASSISTANT',
+          type: 'TEXT',
+          content: 'I apologize, but I encountered an error processing your request. Please try again.',
+        },
+      });
+
+      return { userMessage, assistantMessage: errorMessage };
+    }
+  }
+
+  /**
+   * Get conversation by ID with ownership verification
+   */
+  async getConversation(
+    conversationId: string,
+    userId: string,
+    orgId: string,
+  ): Promise<Conversation & { messages: Message[] }> {
+    const conversation = await this.prisma.conversation.findUnique({
+      where: { id: conversationId },
+      include: {
+        messages: {
+          orderBy: { createdAt: 'asc' },
+          include: {
+            attachments: true,
+            actionLogs: true,
+          },
+        },
+      },
+    });
+
+    if (!conversation) {
+      throw new NotFoundException('Conversation not found');
+    }
+
+    // Verify ownership
+    if (conversation.userId !== userId || conversation.orgId !== orgId) {
+      throw new ForbiddenException('You do not have access to this conversation');
+    }
+
+    return conversation;
+  }
+
+  /**
+   * List user's conversations
+   */
+  async listConversations(
+    userId: string,
+    orgId: string,
+    options: PaginationOptions = {},
+  ): Promise<{ conversations: Conversation[]; total: number }> {
+    const limit = options.limit || 20;
+    const offset = options.offset || 0;
+
+    const [conversations, total] = await Promise.all([
+      this.prisma.conversation.findMany({
+        where: {
+          userId,
+          orgId,
+          status: { not: 'ARCHIVED' },
+        },
+        orderBy: { lastMessageAt: 'desc' },
+        take: limit,
+        skip: offset,
+      }),
+      this.prisma.conversation.count({
+        where: {
+          userId,
+          orgId,
+          status: { not: 'ARCHIVED' },
+        },
+      }),
+    ]);
+
+    return { conversations, total };
+  }
+
+  /**
+   * Delete conversation
+   */
+  async deleteConversation(
+    conversationId: string,
+    userId: string,
+    orgId: string,
+  ): Promise<void> {
+    // Verify ownership
+    await this.getConversation(conversationId, userId, orgId);
+
+    await this.prisma.conversation.delete({
+      where: { id: conversationId },
+    });
+
+    this.logger.log(`Deleted conversation: ${conversationId}`);
+  }
+
+  /**
+   * Archive conversation
+   */
+  async archiveConversation(
+    conversationId: string,
+    userId: string,
+    orgId: string,
+  ): Promise<Conversation> {
+    // Verify ownership
+    await this.getConversation(conversationId, userId, orgId);
+
+    const conversation = await this.prisma.conversation.update({
+      where: { id: conversationId },
+      data: {
+        status: 'ARCHIVED',
+        resolvedAt: new Date(),
+      },
+    });
+
+    this.logger.log(`Archived conversation: ${conversationId}`);
+    return conversation;
+  }
+
+  /**
+   * Quick ask - one-off question without saving to conversation
+   */
+  async quickAsk(
+    userId: string,
+    orgId: string,
+    question: string,
+    context?: string,
+    pageContext?: string,
+  ): Promise<{ answer: string; model: string; usage: { input: number; output: number } }> {
+    this.logger.log(`Quick ask from user ${userId}: ${question.substring(0, 50)}...`);
+
+    // Sanitize input
+    const sanitizedQuestion = this.claudeService.sanitizeInput(question);
+
+    // Build system prompt with context
+    let systemPrompt = buildSystemPrompt(context || 'general');
+
+    // Enhance with live context
+    try {
+      const contextParams: ContextParams = {
+        userId,
+        organizationId: orgId,
+        currentPage: pageContext,
+      };
+
+      const chatContext = await this.contextService.buildContext(contextParams);
+      const contextInfo = this.contextService.formatContextForPrompt(chatContext);
+      systemPrompt = `${systemPrompt}\n\n## Current Context\n${contextInfo}`;
+    } catch (error) {
+      this.logger.warn('Failed to build context for quick ask:', error.message);
+    }
+
+    // Get AI response
+    const messages: ChatMessage[] = [
+      {
+        role: 'user',
+        content: sanitizedQuestion,
+      },
+    ];
+
+    const response = await this.claudeService.chat(messages, systemPrompt);
+
+    return {
+      answer: response.content,
+      model: response.model,
+      usage: {
+        input: response.usage.inputTokens,
+        output: response.usage.outputTokens,
+      },
+    };
+  }
+
+  /**
+   * Generate a conversation title from the first message
+   */
+  private generateTitle(content: string): string {
+    // Take first 60 chars and add ellipsis if longer
+    const title = content.substring(0, 60);
+    return content.length > 60 ? title + '...' : title;
+  }
+
+  /**
+   * Get user permissions for action execution
+   */
+  private async getUserPermissions(userId: string): Promise<string[]> {
+    // Fetch user with role
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    if (!user) {
+      return [];
+    }
+
+    // Map roles to permissions (simplified - should use RBAC service)
+    const rolePermissions: Record<string, string[]> = {
+      ADMIN: [
+        'invoices:create',
+        'invoices:update',
+        'invoices:send',
+        'expenses:create',
+        'expenses:update',
+        'reports:generate',
+      ],
+      ACCOUNTANT: [
+        'invoices:create',
+        'invoices:update',
+        'invoices:send',
+        'expenses:create',
+        'expenses:update',
+        'reports:generate',
+      ],
+      EMPLOYEE: ['expenses:create', 'reports:generate'],
+      VIEWER: ['reports:generate'],
+    };
+
+    return rolePermissions[user.role] || [];
+  }
+}

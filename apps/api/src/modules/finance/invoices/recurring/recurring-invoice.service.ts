@@ -1,0 +1,484 @@
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
+import { PrismaService } from '../../../database/prisma.service';
+import {
+  CreateRecurringInvoiceDto,
+  UpdateRecurringInvoiceDto,
+  RecurringInvoiceFiltersDto,
+  RecurringFrequency,
+} from './dto/recurring-invoice.dto';
+import { Prisma, RecurringInvoice, Invoice } from '@prisma/client';
+import { InvoicesService } from '../invoices.service';
+
+/**
+ * Recurring Invoice Service
+ * Manages recurring invoice templates and generation logic
+ */
+@Injectable()
+export class RecurringInvoiceService {
+  private readonly logger = new Logger(RecurringInvoiceService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly invoicesService: InvoicesService,
+  ) {}
+
+  /**
+   * Create a new recurring invoice
+   */
+  async create(
+    orgId: string,
+    userId: string,
+    dto: CreateRecurringInvoiceDto,
+  ): Promise<RecurringInvoice> {
+    // Verify customer exists
+    const customer = await this.prisma.customer.findFirst({
+      where: {
+        id: dto.customerId,
+        orgId,
+      },
+    });
+
+    if (!customer) {
+      throw new NotFoundException('Customer not found');
+    }
+
+    // Calculate next run date
+    const startDate = new Date(dto.startDate);
+    const nextRunDate = this.getNextRunDate(
+      dto.frequency,
+      dto.interval || 1,
+      startDate,
+      dto.dayOfMonth,
+      dto.dayOfWeek,
+    );
+
+    // Create recurring invoice
+    const recurringInvoice = await this.prisma.recurringInvoice.create({
+      data: {
+        organisationId: orgId,
+        customerId: dto.customerId,
+        frequency: dto.frequency,
+        interval: dto.interval || 1,
+        dayOfMonth: dto.dayOfMonth,
+        dayOfWeek: dto.dayOfWeek,
+        startDate,
+        endDate: dto.endDate ? new Date(dto.endDate) : null,
+        nextRunDate,
+        lineItems: dto.lineItems,
+        currency: dto.currency || 'EUR',
+        taxRate: dto.taxRate,
+        notes: dto.notes,
+        paymentTermsDays: dto.paymentTermsDays || 14,
+        isActive: true,
+        totalGenerated: 0,
+        createdById: userId,
+      },
+      include: {
+        customer: true,
+        organisation: true,
+      },
+    });
+
+    this.logger.log(
+      `Created recurring invoice ${recurringInvoice.id} for organisation ${orgId}`,
+    );
+
+    return recurringInvoice;
+  }
+
+  /**
+   * Find all recurring invoices with filters
+   */
+  async findAll(
+    orgId: string,
+    filters?: RecurringInvoiceFiltersDto,
+  ): Promise<{
+    data: RecurringInvoice[];
+    meta: { total: number; page: number; pageSize: number; totalPages: number };
+  }> {
+    const {
+      isActive,
+      customerId,
+      frequency,
+      search,
+      page = 1,
+      pageSize = 20,
+      sortBy = 'nextRunDate',
+      sortOrder = 'asc',
+    } = filters || {};
+
+    // Build where clause
+    const where: Prisma.RecurringInvoiceWhereInput = {
+      organisationId: orgId,
+      ...(typeof isActive === 'boolean' && { isActive }),
+      ...(customerId && { customerId }),
+      ...(frequency && { frequency }),
+      ...(search && {
+        customer: {
+          name: { contains: search, mode: 'insensitive' },
+        },
+      }),
+    };
+
+    const skip = (page - 1) * pageSize;
+
+    const [data, total] = await Promise.all([
+      this.prisma.recurringInvoice.findMany({
+        where,
+        skip,
+        take: pageSize,
+        orderBy: { [sortBy]: sortOrder },
+        include: {
+          customer: true,
+          _count: {
+            select: { generatedInvoices: true },
+          },
+        },
+      }),
+      this.prisma.recurringInvoice.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      },
+    };
+  }
+
+  /**
+   * Find one recurring invoice by ID
+   */
+  async findOne(id: string, orgId?: string): Promise<RecurringInvoice> {
+    const where: Prisma.RecurringInvoiceWhereInput = { id };
+    if (orgId) {
+      where.organisationId = orgId;
+    }
+
+    const recurringInvoice = await this.prisma.recurringInvoice.findFirst({
+      where,
+      include: {
+        customer: true,
+        generatedInvoices: {
+          orderBy: { issueDate: 'desc' },
+          take: 10,
+        },
+      },
+    });
+
+    if (!recurringInvoice) {
+      throw new NotFoundException('Recurring invoice not found');
+    }
+
+    return recurringInvoice;
+  }
+
+  /**
+   * Update a recurring invoice
+   */
+  async update(
+    id: string,
+    orgId: string,
+    dto: UpdateRecurringInvoiceDto,
+  ): Promise<RecurringInvoice> {
+    // Check if exists
+    await this.findOne(id, orgId);
+
+    const updateData: Prisma.RecurringInvoiceUpdateInput = {};
+
+    if (dto.customerId) {
+      // Verify customer exists
+      const customer = await this.prisma.customer.findFirst({
+        where: { id: dto.customerId, orgId },
+      });
+      if (!customer) {
+        throw new NotFoundException('Customer not found');
+      }
+      updateData.customerId = dto.customerId;
+    }
+
+    if (dto.frequency) updateData.frequency = dto.frequency;
+    if (dto.interval) updateData.interval = dto.interval;
+    if (dto.dayOfMonth) updateData.dayOfMonth = dto.dayOfMonth;
+    if (dto.dayOfWeek) updateData.dayOfWeek = dto.dayOfWeek;
+    if (dto.startDate) updateData.startDate = new Date(dto.startDate);
+    if (dto.endDate !== undefined) {
+      updateData.endDate = dto.endDate ? new Date(dto.endDate) : null;
+    }
+    if (dto.lineItems) updateData.lineItems = dto.lineItems as any;
+    if (dto.currency) updateData.currency = dto.currency;
+    if (dto.taxRate !== undefined) updateData.taxRate = dto.taxRate;
+    if (dto.notes !== undefined) updateData.notes = dto.notes;
+    if (dto.paymentTermsDays) updateData.paymentTermsDays = dto.paymentTermsDays;
+
+    // Recalculate next run date if frequency/interval changed
+    if (dto.frequency || dto.interval || dto.dayOfMonth || dto.dayOfWeek) {
+      const current = await this.findOne(id);
+      updateData.nextRunDate = this.getNextRunDate(
+        dto.frequency || current.frequency,
+        dto.interval || current.interval,
+        current.nextRunDate,
+        dto.dayOfMonth ?? current.dayOfMonth,
+        dto.dayOfWeek ?? current.dayOfWeek,
+      );
+    }
+
+    const updated = await this.prisma.recurringInvoice.update({
+      where: { id },
+      data: updateData,
+      include: {
+        customer: true,
+      },
+    });
+
+    this.logger.log(`Updated recurring invoice ${id}`);
+
+    return updated;
+  }
+
+  /**
+   * Delete a recurring invoice
+   */
+  async delete(id: string, orgId: string): Promise<void> {
+    // Check if exists
+    await this.findOne(id, orgId);
+
+    await this.prisma.recurringInvoice.delete({
+      where: { id },
+    });
+
+    this.logger.log(`Deleted recurring invoice ${id}`);
+  }
+
+  /**
+   * Activate a recurring invoice
+   */
+  async activate(id: string, orgId: string): Promise<RecurringInvoice> {
+    await this.findOne(id, orgId);
+
+    const updated = await this.prisma.recurringInvoice.update({
+      where: { id },
+      data: { isActive: true },
+      include: { customer: true },
+    });
+
+    this.logger.log(`Activated recurring invoice ${id}`);
+
+    return updated;
+  }
+
+  /**
+   * Deactivate a recurring invoice
+   */
+  async deactivate(id: string, orgId: string): Promise<RecurringInvoice> {
+    await this.findOne(id, orgId);
+
+    const updated = await this.prisma.recurringInvoice.update({
+      where: { id },
+      data: { isActive: false },
+      include: { customer: true },
+    });
+
+    this.logger.log(`Deactivated recurring invoice ${id}`);
+
+    return updated;
+  }
+
+  /**
+   * Generate an invoice from a recurring invoice template
+   */
+  async generateInvoice(recurringInvoice: RecurringInvoice): Promise<Invoice> {
+    // Load full data if not included
+    if (!recurringInvoice.customer) {
+      recurringInvoice = await this.findOne(recurringInvoice.id);
+    }
+
+    const issueDate = new Date();
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + recurringInvoice.paymentTermsDays);
+
+    // Parse line items
+    const lineItems = Array.isArray(recurringInvoice.lineItems)
+      ? recurringInvoice.lineItems
+      : [];
+
+    // Create invoice items from template
+    const items = lineItems.map((item: any, index: number) => ({
+      description: item.description,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      productCode: item.productCode,
+      unit: item.unit,
+      sortOrder: item.sortOrder || index,
+    }));
+
+    // Calculate totals
+    let subtotal = 0;
+    items.forEach((item) => {
+      subtotal += item.quantity * item.unitPrice;
+    });
+
+    const taxAmount = (subtotal * Number(recurringInvoice.taxRate)) / 100;
+    const totalAmount = subtotal + taxAmount;
+
+    // Generate invoice number (simplified - should use a proper sequence)
+    const count = await this.prisma.invoice.count({
+      where: { orgId: recurringInvoice.organisationId },
+    });
+    const invoiceNumber = `INV-${new Date().getFullYear()}-${String(count + 1).padStart(6, '0')}`;
+
+    // Create the invoice
+    const invoice = await this.prisma.invoice.create({
+      data: {
+        orgId: recurringInvoice.organisationId,
+        number: invoiceNumber,
+        type: 'RECURRING',
+        status: 'DRAFT',
+        customerId: recurringInvoice.customerId,
+        customerName: recurringInvoice.customer.name,
+        customerEmail: recurringInvoice.customer.email,
+        customerAddress: recurringInvoice.customer.address,
+        customerVatId: recurringInvoice.customer.vatId,
+        issueDate,
+        dueDate,
+        subtotal,
+        taxAmount,
+        totalAmount,
+        currency: recurringInvoice.currency,
+        vatRate: recurringInvoice.taxRate,
+        notes: recurringInvoice.notes,
+        recurringInvoiceId: recurringInvoice.id,
+        items: {
+          create: items,
+        },
+      },
+      include: {
+        items: true,
+      },
+    });
+
+    // Update recurring invoice
+    const nextRunDate = this.getNextRunDate(
+      recurringInvoice.frequency,
+      recurringInvoice.interval,
+      recurringInvoice.nextRunDate,
+      recurringInvoice.dayOfMonth,
+      recurringInvoice.dayOfWeek,
+    );
+
+    await this.prisma.recurringInvoice.update({
+      where: { id: recurringInvoice.id },
+      data: {
+        lastRunDate: new Date(),
+        nextRunDate,
+        totalGenerated: { increment: 1 },
+      },
+    });
+
+    this.logger.log(
+      `Generated invoice ${invoice.number} from recurring invoice ${recurringInvoice.id}`,
+    );
+
+    return invoice;
+  }
+
+  /**
+   * Calculate the next run date based on frequency and interval
+   */
+  getNextRunDate(
+    frequency: RecurringFrequency | string,
+    interval: number,
+    fromDate: Date,
+    dayOfMonth?: number | null,
+    dayOfWeek?: number | null,
+  ): Date {
+    const date = new Date(fromDate);
+
+    switch (frequency) {
+      case RecurringFrequency.DAILY:
+        date.setDate(date.getDate() + interval);
+        break;
+
+      case RecurringFrequency.WEEKLY:
+        date.setDate(date.getDate() + 7 * interval);
+        // Adjust to specific day of week if specified
+        if (dayOfWeek !== null && dayOfWeek !== undefined) {
+          const currentDay = date.getDay();
+          const daysToAdd = (dayOfWeek - currentDay + 7) % 7;
+          if (daysToAdd > 0) {
+            date.setDate(date.getDate() + daysToAdd);
+          }
+        }
+        break;
+
+  case RecurringFrequency.BIWEEKLY:
+    date.setDate(date.getDate() + 14 * interval);
+    // Adjust to specific day of week if specified
+    if (dayOfWeek !== null && dayOfWeek !== undefined) {
+      const currentDay = date.getDay();
+      const daysToAdd = (dayOfWeek - currentDay + 7) % 7;
+      if (daysToAdd > 0) {
+        date.setDate(date.getDate() + daysToAdd);
+      }
+    }
+    break;
+
+      case RecurringFrequency.MONTHLY:
+        date.setMonth(date.getMonth() + interval);
+        // Adjust to specific day of month if specified
+        if (dayOfMonth) {
+          date.setDate(Math.min(dayOfMonth, this.getDaysInMonth(date)));
+        }
+        break;
+
+      case RecurringFrequency.QUARTERLY:
+        date.setMonth(date.getMonth() + 3 * interval);
+        if (dayOfMonth) {
+          date.setDate(Math.min(dayOfMonth, this.getDaysInMonth(date)));
+        }
+        break;
+
+
+      default:
+        throw new BadRequestException(`Invalid frequency: ${frequency}`);
+    }
+
+    return date;
+  }
+
+  /**
+   * Get number of days in a month
+   */
+  private getDaysInMonth(date: Date): number {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  }
+
+  /**
+   * Get recurring invoices that are due for processing
+   */
+  async getDueForProcessing(): Promise<RecurringInvoice[]> {
+    const now = new Date();
+
+    const dueInvoices = await this.prisma.recurringInvoice.findMany({
+      where: {
+        isActive: true,
+        nextRunDate: { lte: now },
+        OR: [{ endDate: null }, { endDate: { gte: now } }],
+      },
+      include: {
+        customer: true,
+        organisation: true,
+      },
+    });
+
+    return dueInvoices;
+  }
+}

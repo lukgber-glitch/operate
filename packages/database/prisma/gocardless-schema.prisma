@@ -1,0 +1,337 @@
+// ============================================================================
+// GoCardless Direct Debit Integration Models
+// ============================================================================
+// This file contains all database models for the GoCardless integration
+// Supporting UK (BACS) and EU (SEPA) Direct Debit payment collection
+//
+// Add these models to the main schema.prisma file
+// ============================================================================
+
+// GoCardless Connection (one per organization)
+model GoCardlessConnection {
+  id    String @id @default(uuid())
+  orgId String @unique
+
+  // Creditor information
+  creditorId String // GoCardless creditor ID
+
+  // Encrypted credentials
+  accessTokenEncrypted String // AES-256-GCM encrypted access token
+
+  // Connection status
+  status         ConnectionStatus
+  connectedAt    DateTime?
+  disconnectedAt DateTime?
+
+  // Audit
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  // Relations
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([status])
+  @@map("gocardless_connections")
+}
+
+// GoCardless Customer (maps Operate customers to GoCardless customers)
+model GoCardlessCustomer {
+  id         String @id @default(uuid())
+  customerId String @unique // Operate customer ID
+  orgId      String
+
+  // GoCardless customer ID
+  gcCustomerId String @unique
+
+  // Audit
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+
+  // Relations
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@index([orgId])
+  @@index([gcCustomerId])
+  @@map("gocardless_customers")
+}
+
+// GoCardless Redirect Flow (temporary records for mandate creation)
+model GoCardlessRedirectFlow {
+  id             String @id @default(uuid())
+  redirectFlowId String @unique // GoCardless redirect flow ID
+
+  orgId      String
+  customerId String
+
+  // Flow details
+  sessionToken String
+  scheme       GoCardlessMandateScheme
+  status       GoCardlessRedirectFlowStatus
+  expiresAt    DateTime
+
+  // Result
+  mandateId String? // Set when flow is completed
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([redirectFlowId])
+  @@index([orgId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("gocardless_redirect_flows")
+}
+
+// GoCardless Mandate (Direct Debit authorization)
+model GoCardlessMandate {
+  id         String @id @default(uuid())
+  mandateId  String @unique // GoCardless mandate ID
+  orgId      String
+  customerId String
+
+  // Mandate details
+  scheme                 GoCardlessMandateScheme
+  status                 GoCardlessMandateStatus
+  reference              String
+  nextPossibleChargeDate DateTime
+
+  // Related IDs
+  customerBankAccountId String // GoCardless customer bank account ID
+  creditorId            String // GoCardless creditor ID
+
+  // Failure tracking
+  failureReason String?
+
+  // Cancellation
+  cancelledAt DateTime?
+  cancelledBy String?
+
+  // Audit
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  organisation Organisation           @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  customer     Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  payments     GoCardlessPayment[]
+  subscriptions GoCardlessSubscription[]
+
+  @@index([mandateId])
+  @@index([orgId])
+  @@index([customerId])
+  @@index([status])
+  @@map("gocardless_mandates")
+}
+
+// GoCardless Payment (one-off or subscription payment)
+model GoCardlessPayment {
+  id        String @id @default(uuid())
+  paymentId String @unique // GoCardless payment ID
+  orgId     String
+  mandateId String
+
+  // Payment details
+  amount      Decimal                   @db.Decimal(12, 2)
+  currency    String
+  status      GoCardlessPaymentStatus
+  chargeDate  DateTime                  @db.Date
+  reference   String
+  description String
+
+  // Refund tracking
+  amountRefunded Decimal @default(0) @db.Decimal(12, 2)
+
+  // Failure tracking
+  failureReason String?
+
+  // Cancellation
+  cancelledAt DateTime?
+  cancelledBy String?
+
+  // Audit
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+
+  // Relations
+  organisation Organisation      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  mandate      GoCardlessMandate @relation(fields: [mandateId], references: [mandateId], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([orgId])
+  @@index([mandateId])
+  @@index([status])
+  @@index([chargeDate])
+  @@map("gocardless_payments")
+}
+
+// GoCardless Subscription (recurring payments)
+model GoCardlessSubscription {
+  id             String @id @default(uuid())
+  subscriptionId String @unique // GoCardless subscription ID
+  orgId          String
+  mandateId      String
+
+  // Subscription details
+  amount       Decimal                        @db.Decimal(12, 2)
+  currency     String
+  name         String
+  intervalUnit GoCardlessSubscriptionInterval
+  interval     Int                            @default(1)
+  status       GoCardlessSubscriptionStatus
+
+  // Schedule
+  startDate DateTime @db.Date
+  endDate   DateTime? @db.Date
+
+  // Cancellation
+  cancelledAt DateTime?
+  cancelledBy String?
+
+  // Audit
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+
+  // Relations
+  organisation Organisation      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  mandate      GoCardlessMandate @relation(fields: [mandateId], references: [mandateId], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@index([orgId])
+  @@index([mandateId])
+  @@index([status])
+  @@index([startDate])
+  @@map("gocardless_subscriptions")
+}
+
+// GoCardless Webhook Event (for audit and idempotency)
+model GoCardlessWebhookEvent {
+  id           String @id @default(uuid())
+  eventId      String @unique // GoCardless event ID
+  resourceType String
+  action       String
+
+  // Event payload
+  payload Json
+
+  // Processing
+  processedAt DateTime @default(now())
+
+  @@index([eventId])
+  @@index([resourceType, action])
+  @@index([processedAt])
+  @@map("gocardless_webhook_events")
+}
+
+// GoCardless Payout (funds transferred to merchant)
+model GoCardlessPayout {
+  id       String @id @default(uuid())
+  payoutId String @unique // GoCardless payout ID
+
+  status GoCardlessPayoutStatus
+  paidAt DateTime?
+
+  // Audit
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([payoutId])
+  @@index([status])
+  @@map("gocardless_payouts")
+}
+
+// GoCardless Refund
+model GoCardlessRefund {
+  id       String @id @default(uuid())
+  refundId String @unique // GoCardless refund ID
+  paymentId String
+
+  status GoCardlessRefundStatus
+
+  // Audit
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([refundId])
+  @@index([paymentId])
+  @@index([status])
+  @@map("gocardless_refunds")
+}
+
+// ============================================================================
+// Enums
+// ============================================================================
+
+enum GoCardlessMandateScheme {
+  BACS // UK - 3 day cycle
+  SEPA_CORE // EU - 2 day cycle
+  SEPA_COR1 // EU - 1 day cycle (faster)
+  AUTOGIRO // Sweden
+  BETALINGSSERVICE // Denmark
+  PAD // Canada
+}
+
+enum GoCardlessMandateStatus {
+  PENDING_CUSTOMER_APPROVAL
+  PENDING_SUBMISSION
+  SUBMITTED
+  ACTIVE
+  FAILED
+  CANCELLED
+  EXPIRED
+}
+
+enum GoCardlessPaymentStatus {
+  PENDING_CUSTOMER_APPROVAL
+  PENDING_SUBMISSION
+  SUBMITTED
+  CONFIRMED
+  PAID_OUT
+  CANCELLED
+  CUSTOMER_APPROVAL_DENIED
+  FAILED
+  CHARGED_BACK
+}
+
+enum GoCardlessSubscriptionStatus {
+  PENDING_CUSTOMER_APPROVAL
+  CUSTOMER_APPROVAL_DENIED
+  ACTIVE
+  FINISHED
+  CANCELLED
+  PAUSED
+}
+
+enum GoCardlessSubscriptionInterval {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum GoCardlessRedirectFlowStatus {
+  PENDING
+  COMPLETED
+  EXPIRED
+}
+
+enum GoCardlessPayoutStatus {
+  PENDING
+  PAID
+}
+
+enum GoCardlessRefundStatus {
+  CREATED
+  PENDING_SUBMISSION
+  SUBMITTED
+  PAID
+  CANCELLED
+  FAILED
+}

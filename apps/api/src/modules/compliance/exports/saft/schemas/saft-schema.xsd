@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SAF-T XML Schema Reference (OECD Standard Audit File for Tax 2.0)
+
+  This is a reference file indicating the expected schema structure.
+  For full validation, download the official OECD SAF-T XSD schema from:
+  https://www.oecd.org/tax/forum-on-tax-administration/
+
+  Key Schema Elements:
+  - AuditFile (root element)
+    - Header
+      - AuditFileVersion
+      - AuditFileCountry
+      - AuditFileDateCreated
+      - Company
+      - DefaultCurrencyCode
+      - SelectionCriteria
+      - Software
+    - MasterFiles
+      - GeneralLedgerAccounts
+      - Customers
+      - Suppliers
+      - TaxTable
+      - Products
+    - GeneralLedgerEntries
+      - Journal
+        - Transaction
+          - Lines
+    - SourceDocuments
+      - SalesInvoices
+      - PurchaseInvoices
+      - Payments
+
+  Standard Audit File for Tax - Version 2.00
+
+  Notes:
+  - All dates must be in YYYY-MM-DD format
+  - All amounts must have 2 decimal places
+  - Currency codes must be ISO 4217 (3 characters)
+  - Country codes must be ISO 3166-1 alpha-2 (2 characters)
+  - VAT numbers must follow country-specific formats
+  - Debit and Credit amounts must balance
+
+  Country-Specific Variants:
+  - SAF-T PT (Portugal) - Requires invoice hash and certification
+  - SAF-T NO (Norway) - Requires organization number
+  - SAF-T AT (Austria) - Austrian-specific extensions
+  - SAF-T PL (Poland/JPK) - Polish Standard Audit File
+  - SAF-T LU (Luxembourg) - Luxembourg variant
+
+  Validation Rules:
+  1. Header is mandatory
+  2. MasterFiles is mandatory with at least GeneralLedgerAccounts
+  3. At least one of GeneralLedgerEntries or SourceDocuments must be present
+  4. All referenced IDs must exist in MasterFiles
+  5. Total debit must equal total credit
+  6. All required fields per element must be present
+  7. Data types must match schema definitions
+  8. Date ranges must be valid (end >= start)
+
+  For implementation details, refer to:
+  - OECD SAF-T Implementation Guide
+  - Country-specific SAF-T documentation
+  - Local tax authority requirements
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="urn:OECD:StandardAuditFile-Tax:2.00"
+           xmlns="urn:OECD:StandardAuditFile-Tax:2.00"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="2.00">
+
+  <!-- Root Element -->
+  <xs:element name="AuditFile">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Header" type="HeaderStructure"/>
+        <xs:element name="MasterFiles" type="MasterFilesStructure"/>
+        <xs:element name="GeneralLedgerEntries" type="GeneralLedgerEntriesStructure" minOccurs="0"/>
+        <xs:element name="SourceDocuments" type="SourceDocumentsStructure" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Type Definitions -->
+  <xs:complexType name="HeaderStructure">
+    <!-- Header structure definition -->
+  </xs:complexType>
+
+  <xs:complexType name="MasterFilesStructure">
+    <!-- Master files structure definition -->
+  </xs:complexType>
+
+  <xs:complexType name="GeneralLedgerEntriesStructure">
+    <!-- General ledger entries structure definition -->
+  </xs:complexType>
+
+  <xs:complexType name="SourceDocumentsStructure">
+    <!-- Source documents structure definition -->
+  </xs:complexType>
+
+</xs:schema>
