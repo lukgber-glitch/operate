@@ -31,5 +31,12 @@
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=8.0.0"
+  },
+  "dependencies": {
+    "@nestjs/platform-socket.io": "^10.4.20",
+    "@nestjs/websockets": "^10.4.20",
+    "pdf-lib": "^1.17.1",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
   }
 }

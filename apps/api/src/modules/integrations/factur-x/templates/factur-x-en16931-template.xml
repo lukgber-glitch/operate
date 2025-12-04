@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Factur-X EN16931 Template
+
+  This is a reference template for Factur-X invoices following the EN 16931 profile.
+  The actual implementation uses programmatic XML generation.
+
+  Standards:
+  - EN 16931-1:2017
+  - UN/CEFACT Cross Industry Invoice (CII) D16B
+  - Factur-X 1.0
+-->
+<rsm:CrossIndustryInvoice
+    xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"
+    xmlns:qdt="urn:un:unece:uncefact:data:standard:QualifiedDataType:100"
+    xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100">
+
+    <!-- Document Context (Profile) -->
+    <rsm:ExchangedDocumentContext>
+        <ram:GuidelineSpecifiedDocumentContextParameter>
+            <ram:ID>urn:cen.eu:en16931:2017#compliant#urn:factur-x.eu:1p0:en16931</ram:ID>
+        </ram:GuidelineSpecifiedDocumentContextParameter>
+    </rsm:ExchangedDocumentContext>
+
+    <!-- Document Header -->
+    <rsm:ExchangedDocument>
+        <ram:ID>INVOICE_NUMBER</ram:ID>
+        <ram:TypeCode>380</ram:TypeCode><!-- 380 = Commercial Invoice -->
+        <ram:IssueDateTime>
+            <udt:DateTimeString format="102">20250115</udt:DateTimeString>
+        </ram:IssueDateTime>
+        <ram:IncludedNote>
+            <ram:Content>Invoice notes</ram:Content>
+        </ram:IncludedNote>
+    </rsm:ExchangedDocument>
+
+    <!-- Supply Chain Trade Transaction -->
+    <rsm:SupplyChainTradeTransaction>
+
+        <!-- Line Items -->
+        <ram:IncludedSupplyChainTradeLineItem>
+            <ram:AssociatedDocumentLineDocument>
+                <ram:LineID>1</ram:LineID>
+            </ram:AssociatedDocumentLineDocument>
+            <ram:SpecifiedTradeProduct>
+                <ram:Name>Product/Service Description</ram:Name>
+                <ram:SellerAssignedID>PROD-001</ram:SellerAssignedID>
+            </ram:SpecifiedTradeProduct>
+            <ram:SpecifiedLineTradeAgreement>
+                <ram:NetPriceProductTradePrice>
+                    <ram:ChargeAmount currencyID="EUR">100.00</ram:ChargeAmount>
+                </ram:NetPriceProductTradePrice>
+            </ram:SpecifiedLineTradeAgreement>
+            <ram:SpecifiedLineTradeDelivery>
+                <ram:BilledQuantity unitCode="C62">10</ram:BilledQuantity>
+            </ram:SpecifiedLineTradeDelivery>
+            <ram:SpecifiedLineTradeSettlement>
+                <ram:ApplicableTradeTax>
+                    <ram:TypeCode>VAT</ram:TypeCode>
+                    <ram:CategoryCode>S</ram:CategoryCode>
+                    <ram:RateApplicablePercent>20</ram:RateApplicablePercent>
+                </ram:ApplicableTradeTax>
+                <ram:SpecifiedTradeSettlementLineMonetarySummation>
+                    <ram:LineTotalAmount currencyID="EUR">1000.00</ram:LineTotalAmount>
+                </ram:SpecifiedTradeSettlementLineMonetarySummation>
+            </ram:SpecifiedLineTradeSettlement>
+        </ram:IncludedSupplyChainTradeLineItem>
+
+        <!-- Trade Agreement (Parties) -->
+        <ram:ApplicableHeaderTradeAgreement>
+            <ram:BuyerReference>CUSTOMER_REF</ram:BuyerReference>
+
+            <!-- Seller -->
+            <ram:SellerTradeParty>
+                <ram:Name>ACME France SARL</ram:Name>
+                <ram:PostalTradeAddress>
+                    <ram:PostcodeCode>75001</ram:PostcodeCode>
+                    <ram:LineOne>123 Rue de la République</ram:LineOne>
+                    <ram:CityName>Paris</ram:CityName>
+                    <ram:CountryID>FR</ram:CountryID>
+                </ram:PostalTradeAddress>
+                <ram:URIUniversalCommunication>
+                    <ram:URIID schemeID="EM">contact@acme.fr</ram:URIID>
+                </ram:URIUniversalCommunication>
+                <ram:SpecifiedTaxRegistration>
+                    <ram:ID schemeID="VA">FR12345678901</ram:ID>
+                </ram:SpecifiedTaxRegistration>
+                <ram:SpecifiedTaxRegistration>
+                    <ram:ID schemeID="FC">12345678901234</ram:ID><!-- SIRET -->
+                </ram:SpecifiedTaxRegistration>
+                <ram:SpecifiedLegalOrganization>
+                    <ram:ID schemeID="0002">12345678901234</ram:ID><!-- SIRET in Peppol format -->
+                    <ram:TradingBusinessName>ACME France SARL</ram:TradingBusinessName>
+                </ram:SpecifiedLegalOrganization>
+            </ram:SellerTradeParty>
+
+            <!-- Buyer -->
+            <ram:BuyerTradeParty>
+                <ram:Name>Client Company SAS</ram:Name>
+                <ram:PostalTradeAddress>
+                    <ram:PostcodeCode>69001</ram:PostcodeCode>
+                    <ram:LineOne>456 Avenue des Champs</ram:LineOne>
+                    <ram:CityName>Lyon</ram:CityName>
+                    <ram:CountryID>FR</ram:CountryID>
+                </ram:PostalTradeAddress>
+                <ram:SpecifiedTaxRegistration>
+                    <ram:ID schemeID="VA">FR98765432109</ram:ID>
+                </ram:SpecifiedTaxRegistration>
+            </ram:BuyerTradeParty>
+
+            <!-- References -->
+            <ram:BuyerOrderReferencedDocument>
+                <ram:IssuerAssignedID>PO-2025-001</ram:IssuerAssignedID>
+            </ram:BuyerOrderReferencedDocument>
+        </ram:ApplicableHeaderTradeAgreement>
+
+        <!-- Trade Delivery -->
+        <ram:ApplicableHeaderTradeDelivery>
+            <ram:ActualDeliverySupplyChainEvent>
+                <ram:OccurrenceDateTime>
+                    <udt:DateTimeString format="102">20250110</udt:DateTimeString>
+                </ram:OccurrenceDateTime>
+            </ram:ActualDeliverySupplyChainEvent>
+        </ram:ApplicableHeaderTradeDelivery>
+
+        <!-- Trade Settlement (Payment & Totals) -->
+        <ram:ApplicableHeaderTradeSettlement>
+            <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>
+
+            <!-- Payment Means -->
+            <ram:SpecifiedTradeSettlementPaymentMeans>
+                <ram:TypeCode>30</ram:TypeCode><!-- 30 = Bank Transfer -->
+                <ram:PayeePartyCreditorFinancialAccount>
+                    <ram:IBANID>FR7612345678901234567890123</ram:IBANID>
+                    <ram:AccountName>BNP Paribas</ram:AccountName>
+                </ram:PayeePartyCreditorFinancialAccount>
+                <ram:PayeeSpecifiedCreditorFinancialInstitution>
+                    <ram:BICID>BNPAFRPPXXX</ram:BICID>
+                </ram:PayeeSpecifiedCreditorFinancialInstitution>
+            </ram:SpecifiedTradeSettlementPaymentMeans>
+
+            <!-- VAT Breakdown -->
+            <ram:ApplicableTradeTax>
+                <ram:CalculatedAmount currencyID="EUR">200.00</ram:CalculatedAmount>
+                <ram:TypeCode>VAT</ram:TypeCode>
+                <ram:BasisAmount currencyID="EUR">1000.00</ram:BasisAmount>
+                <ram:CategoryCode>S</ram:CategoryCode><!-- S = Standard rate -->
+                <ram:RateApplicablePercent>20</ram:RateApplicablePercent>
+            </ram:ApplicableTradeTax>
+
+            <!-- Payment Terms -->
+            <ram:SpecifiedTradePaymentTerms>
+                <ram:Description>Paiement à 30 jours</ram:Description>
+                <ram:DueDateDateTime>
+                    <udt:DateTimeString format="102">20250215</udt:DateTimeString>
+                </ram:DueDateDateTime>
+            </ram:SpecifiedTradePaymentTerms>
+
+            <!-- Monetary Summation (Totals) -->
+            <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+                <ram:LineTotalAmount currencyID="EUR">1000.00</ram:LineTotalAmount>
+                <ram:TaxBasisTotalAmount currencyID="EUR">1000.00</ram:TaxBasisTotalAmount>
+                <ram:TaxTotalAmount currencyID="EUR">200.00</ram:TaxTotalAmount>
+                <ram:GrandTotalAmount currencyID="EUR">1200.00</ram:GrandTotalAmount>
+                <ram:DuePayableAmount currencyID="EUR">1200.00</ram:DuePayableAmount>
+            </ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+        </ram:ApplicableHeaderTradeSettlement>
+
+    </rsm:SupplyChainTradeTransaction>
+</rsm:CrossIndustryInvoice>

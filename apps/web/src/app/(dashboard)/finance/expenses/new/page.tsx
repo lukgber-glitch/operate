@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { ArrowLeft, Upload } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -15,38 +16,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { MoneyField } from '@/components/forms/MoneyField';
+import { CurrencyDisplay } from '@/components/currency/CurrencyDisplay';
+import { useDefaultCurrency } from '@/contexts/CurrencyContext';
+import type { CurrencyCode } from '@/types/currency';
 
 export default function NewExpensePage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const defaultCurrency = useDefaultCurrency();
 
   // Form state
   const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(0);
+  const [currency, setCurrency] = useState<CurrencyCode>(defaultCurrency);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [category, setCategory] = useState('');
   const [vendor, setVendor] = useState('');
-  const [vatAmount, setVatAmount] = useState('');
+  const [vatAmount, setVatAmount] = useState(0);
   const [vatRate, setVatRate] = useState('19');
   const [notes, setNotes] = useState('');
   const [receipt, setReceipt] = useState<File | null>(null);
 
-  const handleAmountChange = (value: string) => {
+  const handleAmountChange = (value: number) => {
     setAmount(value);
     if (value && vatRate) {
-      const baseAmount = parseFloat(value);
-      const vat = (baseAmount * parseFloat(vatRate)) / 100;
-      setVatAmount(vat.toFixed(2));
+      const vat = (value * parseFloat(vatRate)) / 100;
+      setVatAmount(vat);
     }
   };
 
   const handleVatRateChange = (value: string) => {
     setVatRate(value);
     if (amount && value) {
-      const baseAmount = parseFloat(amount);
-      const vat = (baseAmount * parseFloat(value)) / 100;
-      setVatAmount(vat.toFixed(2));
+      const vat = (amount * parseFloat(value)) / 100;
+      setVatAmount(vat);
     }
   };
 
@@ -69,9 +74,7 @@ export default function NewExpensePage() {
   };
 
   const calculateTotal = () => {
-    const baseAmount = parseFloat(amount) || 0;
-    const vat = parseFloat(vatAmount) || 0;
-    return (baseAmount + vat).toFixed(2);
+    return amount + vatAmount;
   };
 
   return (
@@ -108,25 +111,15 @@ export default function NewExpensePage() {
                 />
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="amount">Amount (excl. VAT)</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      €
-                    </span>
-                    <Input
-                      id="amount"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="0.00"
-                      value={amount}
-                      onChange={(e) => handleAmountChange(e.target.value)}
-                      className="pl-7"
-                    />
-                  </div>
-                </div>
+              <div className="space-y-4">
+                <MoneyField
+                  label="Amount (excl. VAT)"
+                  value={amount}
+                  currency={currency}
+                  onValueChange={handleAmountChange}
+                  onCurrencyChange={setCurrency}
+                  required
+                />
 
                 <div className="space-y-2">
                   <Label htmlFor="date">Date</Label>
@@ -187,20 +180,11 @@ export default function NewExpensePage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="vatAmount">VAT Amount</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      €
-                    </span>
-                    <Input
-                      id="vatAmount"
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      value={vatAmount}
-                      onChange={(e) => setVatAmount(e.target.value)}
-                      className="pl-7"
-                    />
-                  </div>
+                  <CurrencyDisplay
+                    amount={vatAmount}
+                    currency={currency}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  />
                 </div>
               </div>
             </CardContent>
@@ -278,20 +262,28 @@ export default function NewExpensePage() {
             <CardContent className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Amount</span>
-                <span className="font-medium">
-                  €{parseFloat(amount || '0').toFixed(2)}
-                </span>
+                <CurrencyDisplay
+                  amount={amount}
+                  currency={currency}
+                  className="font-medium"
+                />
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">VAT ({vatRate}%)</span>
-                <span className="font-medium">
-                  €{parseFloat(vatAmount || '0').toFixed(2)}
-                </span>
+                <CurrencyDisplay
+                  amount={vatAmount}
+                  currency={currency}
+                  className="font-medium"
+                />
               </div>
               <div className="border-t pt-4">
                 <div className="flex justify-between">
                   <span className="text-lg font-bold">Total</span>
-                  <span className="text-lg font-bold">€{calculateTotal()}</span>
+                  <CurrencyDisplay
+                    amount={calculateTotal()}
+                    currency={currency}
+                    className="text-lg font-bold"
+                  />
                 </div>
               </div>
             </CardContent>

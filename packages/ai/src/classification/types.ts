@@ -58,6 +58,8 @@ export interface ClassificationResult {
   reasoning: string;
   taxRelevant: boolean;
   suggestedDeductionCategory?: string;
+  taxDeductionPercentage?: number;
+  suggestedAccount?: string;
   flags?: ClassificationFlag[];
   metadata?: {
     processingTime?: number;

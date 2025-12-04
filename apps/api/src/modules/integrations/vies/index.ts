@@ -5,3 +5,6 @@ export * from './vies.client';
 export * from './dto/validate-vat.dto';
 export * from './dto/vat-validation-result.dto';
 export * from './interfaces/vies-response.interface';
+export * from './utils/vat-parser.util';
+export * from './utils/vat-validator.util';
+export * from './types/vies.types';

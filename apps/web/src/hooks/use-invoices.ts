@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+
 import { useToast } from '@/components/ui/use-toast';
+import { handleApiError } from '@/lib/api/error-handler';
 import {
   financeApi,
   type Invoice,
@@ -49,7 +51,7 @@ export function useInvoices(initialFilters?: InvoiceFilters) {
         error: null,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch invoices';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -79,7 +81,7 @@ export function useInvoices(initialFilters?: InvoiceFilters) {
       });
       return invoice;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to create invoice';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -109,7 +111,7 @@ export function useInvoices(initialFilters?: InvoiceFilters) {
       });
       return invoice;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update invoice';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -139,7 +141,7 @@ export function useInvoices(initialFilters?: InvoiceFilters) {
         description: 'Invoice deleted successfully',
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to delete invoice';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -169,7 +171,7 @@ export function useInvoices(initialFilters?: InvoiceFilters) {
       });
       return invoice;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to send invoice';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -199,7 +201,7 @@ export function useInvoices(initialFilters?: InvoiceFilters) {
       });
       return invoice;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to mark invoice as paid';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -229,7 +231,7 @@ export function useInvoices(initialFilters?: InvoiceFilters) {
       });
       return invoice;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to cancel invoice';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -271,7 +273,7 @@ export function useInvoice(id: string) {
       const data = await financeApi.getInvoice(id);
       setInvoice(data);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch invoice';
+      const errorMessage = handleApiError(error);
       setError(errorMessage);
       toast({
         title: 'Error',
@@ -295,7 +297,7 @@ export function useInvoice(id: string) {
       });
       return updated;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update invoice';
+      const errorMessage = handleApiError(error);
       setError(errorMessage);
       toast({
         title: 'Error',

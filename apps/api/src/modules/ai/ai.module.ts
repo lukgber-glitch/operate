@@ -1,21 +1,35 @@
 /**
  * AI Module
- * Handles AI/ML features including transaction classification
+ * Handles AI/ML features including transaction classification, receipt scanning, and invoice extraction
  */
 
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '../database/database.module';
 import { AutomationModule } from '../automation/automation.module';
-import { ClassificationService } from './classification/classification.service';
-import { ClassificationController } from './classification/classification.controller';
-import { ReviewQueueService } from './classification/review-queue/review-queue.service';
-import { ReviewQueueController } from './classification/review-queue/review-queue.controller';
+import { ClassificationModule } from './classification/classification.module';
+import { ReceiptScannerModule } from './receipt-scanner/receipt-scanner.module';
+import { LearningModule } from './learning/learning.module';
+import { TransactionCategorizationModule } from './transaction-categorization/transaction-categorization.module';
+import { InvoiceExtractorModule } from './extractors/invoice-extractor.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, AutomationModule],
-  controllers: [ClassificationController, ReviewQueueController],
-  providers: [ClassificationService, ReviewQueueService],
-  exports: [ClassificationService, ReviewQueueService],
+  imports: [
+    ConfigModule,
+    DatabaseModule,
+    AutomationModule,
+    ClassificationModule,
+    ReceiptScannerModule,
+    LearningModule,
+    TransactionCategorizationModule,
+    InvoiceExtractorModule,
+  ],
+  exports: [
+    ClassificationModule,
+    ReceiptScannerModule,
+    LearningModule,
+    TransactionCategorizationModule,
+    InvoiceExtractorModule,
+  ],
 })
 export class AiModule {}

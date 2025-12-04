@@ -1,14 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import { ArrowLeft, Download, Edit, Check, X, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import Link from 'next/link';
+import { useState } from 'react';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,6 +15,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 
 // Placeholder data
 const expenseData = {

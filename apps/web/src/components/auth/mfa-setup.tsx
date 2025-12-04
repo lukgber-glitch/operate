@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
+import { MfaInput } from '@/components/auth/mfa-input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { MfaInput } from '@/components/auth/mfa-input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMfa } from '@/hooks/use-mfa';
 
@@ -133,7 +134,7 @@ export function MfaSetup() {
         <div>
           <Label className="text-base font-semibold">Step 2: Enter Secret Key (Optional)</Label>
           <p className="text-sm text-muted-foreground mb-2">
-            If you can't scan the QR code, enter this secret key manually:
+            If you can&apos;t scan the QR code, enter this secret key manually:
           </p>
           <div className="p-3 bg-muted rounded-md font-mono text-sm break-all">
             {secret || 'Loading...'}

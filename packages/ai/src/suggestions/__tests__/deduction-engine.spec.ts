@@ -32,10 +32,10 @@ describe('DeductionEngine', () => {
       });
 
       expect(suggestions).toHaveLength(1);
-      expect(suggestions[0].categoryCode).toBe('WORK_EQUIPMENT');
-      expect(suggestions[0].legalReference).toContain('§9');
-      expect(suggestions[0].deductibleAmount).toBe(50);
-      expect(suggestions[0].deductiblePercentage).toBe(100);
+      expect(suggestions[0]!.categoryCode).toBe('WORK_EQUIPMENT');
+      expect(suggestions[0]!.legalReference).toContain('§9');
+      expect(suggestions[0]!.deductibleAmount).toBe(50);
+      expect(suggestions[0]!.deductiblePercentage).toBe(100);
     });
 
     it('should apply 70% deduction for German business meals', async () => {
@@ -60,10 +60,10 @@ describe('DeductionEngine', () => {
       });
 
       expect(suggestions).toHaveLength(1);
-      expect(suggestions[0].categoryCode).toBe('BUSINESS_MEALS');
-      expect(suggestions[0].deductiblePercentage).toBe(70);
-      expect(suggestions[0].deductibleAmount).toBe(70); // 70% of 100
-      expect(suggestions[0].legalReference).toContain('§4 Abs. 5 Nr. 2');
+      expect(suggestions[0]!.categoryCode).toBe('BUSINESS_MEALS');
+      expect(suggestions[0]!.deductiblePercentage).toBe(70);
+      expect(suggestions[0]!.deductibleAmount).toBe(70); // 70% of 100
+      expect(suggestions[0]!.legalReference).toContain('§4 Abs. 5 Nr. 2');
     });
 
     it('should generate suggestions for Austrian commute expenses', async () => {
@@ -85,8 +85,8 @@ describe('DeductionEngine', () => {
       });
 
       expect(suggestions).toHaveLength(1);
-      expect(suggestions[0].categoryCode).toBe('COMMUTE');
-      expect(suggestions[0].legalReference).toContain('§16');
+      expect(suggestions[0]!.categoryCode).toBe('COMMUTE');
+      expect(suggestions[0]!.legalReference).toContain('§16');
     });
 
     it('should generate suggestions for Swiss work equipment', async () => {
@@ -108,9 +108,9 @@ describe('DeductionEngine', () => {
       });
 
       expect(suggestions).toHaveLength(1);
-      expect(suggestions[0].categoryCode).toBe('WORK_EQUIPMENT');
-      expect(suggestions[0].legalReference).toContain('Art. 26');
-      expect(suggestions[0].currency).toBe('CHF');
+      expect(suggestions[0]!.categoryCode).toBe('WORK_EQUIPMENT');
+      expect(suggestions[0]!.legalReference).toContain('Art. 26');
+      expect(suggestions[0]!.currency).toBe('CHF');
     });
 
     it('should filter transactions by minimum confidence', async () => {
@@ -142,7 +142,7 @@ describe('DeductionEngine', () => {
       });
 
       expect(suggestions).toHaveLength(1);
-      expect(suggestions[0].transactionId).toBe('tx-6');
+      expect(suggestions[0]!.transactionId).toBe('tx-6');
     });
 
     it('should filter transactions by tax year', async () => {
@@ -173,7 +173,7 @@ describe('DeductionEngine', () => {
       });
 
       expect(suggestions).toHaveLength(1);
-      expect(suggestions[0].transactionId).toBe('tx-8');
+      expect(suggestions[0]!.transactionId).toBe('tx-8');
     });
 
     it('should include requirement status in suggestions', async () => {
@@ -199,9 +199,9 @@ describe('DeductionEngine', () => {
       });
 
       expect(suggestions).toHaveLength(1);
-      expect(suggestions[0].requirements.receiptAttached).toBe(true);
-      expect(suggestions[0].requirements.receiptRequired).toBe(true);
-      expect(suggestions[0].requirements.businessPurposeProvided).toBe(true);
+      expect(suggestions[0]!.requirements.receiptAttached).toBe(true);
+      expect(suggestions[0]!.requirements.receiptRequired).toBe(true);
+      expect(suggestions[0]!.requirements.businessPurposeProvided).toBe(true);
     });
   });
 
@@ -256,7 +256,7 @@ describe('DeductionEngine', () => {
   describe('removeRule', () => {
     it('should allow removing rules', () => {
       const rules = engine.getRulesForCountry('DE');
-      const firstRuleId = rules[0].id;
+      const firstRuleId = rules[0]!.id;
 
       const removed = engine.removeRule(firstRuleId);
       expect(removed).toBe(true);

@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import { Download, FileText, Calendar, TrendingUp, TrendingDown, Calculator } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -12,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -20,8 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useTaxReport } from '@/hooks/use-tax-reports';
 
 const statusColors = {

@@ -7,6 +7,21 @@
 
 import { PrismaClient } from '@prisma/client';
 
+/**
+ * Set test environment variables IMMEDIATELY when this module loads
+ * This ensures ConfigModule.forRoot() can access them during test setup
+ */
+process.env.NODE_ENV = 'test';
+process.env.DATABASE_URL = process.env.DATABASE_URL_TEST || process.env.DATABASE_URL || 'postgresql://test:test@localhost:5432/test';
+process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-only';
+process.env.JWT_ACCESS_SECRET = 'test-jwt-secret-key-for-testing-only';
+process.env.JWT_REFRESH_SECRET = 'test-jwt-refresh-secret-key-for-testing-only';
+process.env.JWT_ACCESS_EXPIRES_IN = '15m';
+process.env.JWT_REFRESH_EXPIRES_IN = '7d';
+process.env.ENCRYPTION_KEY = 'test-encryption-key-32-characters';
+process.env.REDIS_HOST = 'localhost';
+process.env.REDIS_PORT = '6379';
+
 // Initialize Prisma client for test database
 const prisma = new PrismaClient({
   datasources: {
@@ -22,11 +37,6 @@ const prisma = new PrismaClient({
 beforeAll(async (): Promise<void> => {
   // Ensure database connection is established
   await prisma.$connect();
-
-  // Set test environment variables
-  process.env.NODE_ENV = 'test';
-  process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-only';
-  process.env.ENCRYPTION_KEY = 'test-encryption-key-32-characters';
 });
 
 /**
@@ -80,18 +90,6 @@ jest.mock('@anthropic-ai/sdk', () => ({
         content: [{ text: 'Mocked AI response' }],
       }),
     },
-  })),
-}));
-
-/**
- * Mock email service to prevent sending real emails in tests
- */
-jest.mock('@/modules/email/email.service', () => ({
-  EmailService: jest.fn().mockImplementation(() => ({
-    sendEmail: jest.fn().mockResolvedValue({ messageId: 'test-message-id' }),
-    sendWelcomeEmail: jest.fn().mockResolvedValue(true),
-    sendPasswordResetEmail: jest.fn().mockResolvedValue(true),
-    sendInvoiceEmail: jest.fn().mockResolvedValue(true),
   })),
 }));
 

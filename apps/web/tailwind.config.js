@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+const plugin = require('tailwindcss/plugin');
+
 module.exports = {
   darkMode: ['class'],
   content: [
@@ -69,7 +71,84 @@ module.exports = {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
       },
+      spacing: {
+        'start': 'var(--spacing-start)',
+        'end': 'var(--spacing-end)',
+      },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+    require('tailwindcss-animate'),
+    plugin(function({ addVariant, addUtilities }) {
+      addVariant('rtl', '[dir="rtl"] &');
+      addVariant('ltr', '[dir="ltr"] &');
+
+      addUtilities({
+        '.animation-delay-150': { 'animation-delay': '150ms' },
+        '.animation-delay-300': { 'animation-delay': '300ms' },
+        '.ms-0': { 'margin-inline-start': '0' },
+        '.ms-1': { 'margin-inline-start': '0.25rem' },
+        '.ms-2': { 'margin-inline-start': '0.5rem' },
+        '.ms-3': { 'margin-inline-start': '0.75rem' },
+        '.ms-4': { 'margin-inline-start': '1rem' },
+        '.ms-5': { 'margin-inline-start': '1.25rem' },
+        '.ms-6': { 'margin-inline-start': '1.5rem' },
+        '.ms-8': { 'margin-inline-start': '2rem' },
+        '.ms-auto': { 'margin-inline-start': 'auto' },
+        '.me-0': { 'margin-inline-end': '0' },
+        '.me-1': { 'margin-inline-end': '0.25rem' },
+        '.me-2': { 'margin-inline-end': '0.5rem' },
+        '.me-3': { 'margin-inline-end': '0.75rem' },
+        '.me-4': { 'margin-inline-end': '1rem' },
+        '.me-5': { 'margin-inline-end': '1.25rem' },
+        '.me-6': { 'margin-inline-end': '1.5rem' },
+        '.me-8': { 'margin-inline-end': '2rem' },
+        '.me-auto': { 'margin-inline-end': 'auto' },
+        '.ps-0': { 'padding-inline-start': '0' },
+        '.ps-1': { 'padding-inline-start': '0.25rem' },
+        '.ps-2': { 'padding-inline-start': '0.5rem' },
+        '.ps-3': { 'padding-inline-start': '0.75rem' },
+        '.ps-4': { 'padding-inline-start': '1rem' },
+        '.ps-5': { 'padding-inline-start': '1.25rem' },
+        '.ps-6': { 'padding-inline-start': '1.5rem' },
+        '.ps-8': { 'padding-inline-start': '2rem' },
+        '.pe-0': { 'padding-inline-end': '0' },
+        '.pe-1': { 'padding-inline-end': '0.25rem' },
+        '.pe-2': { 'padding-inline-end': '0.5rem' },
+        '.pe-3': { 'padding-inline-end': '0.75rem' },
+        '.pe-4': { 'padding-inline-end': '1rem' },
+        '.pe-5': { 'padding-inline-end': '1.25rem' },
+        '.pe-6': { 'padding-inline-end': '1.5rem' },
+        '.pe-8': { 'padding-inline-end': '2rem' },
+        '.border-s': { 'border-inline-start-width': '1px' },
+        '.border-e': { 'border-inline-end-width': '1px' },
+        '.border-s-0': { 'border-inline-start-width': '0' },
+        '.border-e-0': { 'border-inline-end-width': '0' },
+        '.rounded-s': {
+          'border-start-start-radius': 'var(--radius)',
+          'border-end-start-radius': 'var(--radius)',
+        },
+        '.rounded-e': {
+          'border-start-end-radius': 'var(--radius)',
+          'border-end-end-radius': 'var(--radius)',
+        },
+        '.rounded-ss': { 'border-start-start-radius': 'var(--radius)' },
+        '.rounded-se': { 'border-start-end-radius': 'var(--radius)' },
+        '.rounded-es': { 'border-end-start-radius': 'var(--radius)' },
+        '.rounded-ee': { 'border-end-end-radius': 'var(--radius)' },
+        '.start-0': { 'inset-inline-start': '0' },
+        '.start-4': { 'inset-inline-start': '1rem' },
+        '.start-auto': { 'inset-inline-start': 'auto' },
+        '.end-0': { 'inset-inline-end': '0' },
+        '.end-4': { 'inset-inline-end': '1rem' },
+        '.end-auto': { 'inset-inline-end': 'auto' },
+        '.text-start': { 'text-align': 'start' },
+        '.text-end': { 'text-align': 'end' },
+        '.float-start': { 'float': 'inline-start' },
+        '.float-end': { 'float': 'inline-end' },
+        '.clear-start': { 'clear': 'inline-start' },
+        '.clear-end': { 'clear': 'inline-end' },
+      });
+    }),
+  ],
 }

@@ -1,9 +1,10 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Mail, Phone, MapPin, Calendar, Building } from 'lucide-react';
+
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Employee } from '@/lib/api/employees';
 import { cn } from '@/lib/utils';
 

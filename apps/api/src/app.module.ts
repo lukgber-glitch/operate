@@ -12,6 +12,9 @@ import { ViesModule } from './modules/integrations/vies/vies.module';
 import { ElsterModule } from './modules/integrations/elster/elster.module';
 import { FinanzOnlineModule } from './modules/integrations/finanzonline/finanzonline.module';
 import { SvMeldungModule } from './modules/integrations/sv-meldung/sv-meldung.module';
+import { OutlookModule } from './modules/integrations/outlook/outlook.module';
+import { GmailModule } from './modules/integrations/gmail/gmail.module';
+import { AvalaraModule } from './modules/avalara/avalara.module';
 import { HrModule } from './modules/hr/hr.module';
 import { FinanceModule } from './modules/finance/finance.module';
 import { AiModule } from './modules/ai/ai.module';
@@ -23,6 +26,12 @@ import { SettingsModule } from './modules/settings/settings.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { AutomationModule } from './modules/automation/automation.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ConnectionHubModule } from './modules/connection-hub/connection-hub.module';
+import { ChatbotModule } from './modules/chatbot/chatbot.module';
+import { OnboardingModule } from './modules/onboarding/onboarding.module';
+import { UserOnboardingModule } from './modules/user-onboarding/user-onboarding.module';
+import { CostsModule } from './modules/costs/costs.module';
+import { EventsModule } from './websocket/events.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -74,6 +83,9 @@ import configuration from './config/configuration';
     ElsterModule,
     FinanzOnlineModule,
     SvMeldungModule,
+    OutlookModule,
+    GmailModule,
+    AvalaraModule,
 
     // HR module
     HrModule,
@@ -105,6 +117,21 @@ import configuration from './config/configuration';
 
     // Notifications module
     NotificationsModule,
+
+    // Connection Hub module (integrations, OAuth, onboarding)
+    ConnectionHubModule,
+
+    // Onboarding modules
+    OnboardingModule, // Organization onboarding
+    UserOnboardingModule, // User onboarding
+
+    // Chatbot module (AI assistant)
+    ChatbotModule,
+
+    // Costs module (cost tracking)
+    // WebSocket module (real-time updates)
+    EventsModule,
+    CostsModule,
   ],
   controllers: [],
   providers: [],

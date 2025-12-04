@@ -27,9 +27,20 @@ export class UsersService {
       return null;
     }
 
-    return plainToInstance(UserDto, user, {
+    // Get primary membership to include orgId and role
+    const primaryMembership = await this.usersRepository.getPrimaryMembership(id);
+
+    const userDto = plainToInstance(UserDto, user, {
       excludeExtraneousValues: false,
     });
+
+    // Add orgId and role from primary membership
+    if (primaryMembership) {
+      userDto.orgId = primaryMembership.orgId;
+      userDto.role = primaryMembership.role;
+    }
+
+    return userDto;
   }
 
   /**

@@ -1,18 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
-import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import {
   Euro,
   TrendingUp,
@@ -21,9 +8,23 @@ import {
   Plus,
   ArrowRight,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useExpenses } from '@/hooks/use-expenses';
 import { useFinanceStats } from '@/hooks/use-finance-stats';
 import { useInvoices } from '@/hooks/use-invoices';
-import { useExpenses } from '@/hooks/use-expenses';
 
 const statusColors = {
   PAID: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',

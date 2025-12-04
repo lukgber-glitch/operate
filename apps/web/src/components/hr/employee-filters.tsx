@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { Search, X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -11,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import type { EmployeeFilters as Filters } from '@/lib/api/employees';
 
 interface EmployeeFiltersProps {

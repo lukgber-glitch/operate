@@ -1,0 +1,120 @@
+TASK W32-T4: Extracted Invoices Review UI - Files Created
+============================================================
+
+Total Files: 11
+Total Lines: 2,338
+
+TYPE DEFINITIONS:
+-----------------
+apps/web/src/types/extracted-invoice.ts (133 lines)
+  - TypeScript types and interfaces for extracted invoice data
+  - Enums, DTOs, filter parameters, statistics types
+
+API CLIENT:
+-----------
+apps/web/src/lib/api/extracted-invoices.ts (153 lines)
+  - API client functions for all extraction operations
+  - List, get, update, approve, reject, bulk operations
+  - Create invoice, download attachment, statistics
+
+REACT HOOKS:
+------------
+apps/web/src/hooks/useExtractedInvoices.ts (249 lines)
+  - React Query hooks for data fetching and mutations
+  - Automatic cache management and invalidation
+  - Toast notifications for all operations
+
+UI COMPONENTS:
+--------------
+apps/web/src/components/invoices/ConfidenceIndicator.tsx (135 lines)
+  - Visual confidence score indicators
+  - Color-coded badges (green/yellow/red)
+  - Progress bars, dots, field-level indicators
+
+apps/web/src/components/invoices/InvoiceDocumentViewer.tsx (208 lines)
+  - PDF and image viewer with zoom controls
+  - Download and open in new tab functionality
+  - Error handling and loading states
+
+apps/web/src/components/invoices/ExtractedInvoiceCard.tsx (157 lines)
+  - Summary card for each extracted invoice
+  - Status badges, confidence indicators
+  - Selection checkbox, click to review
+
+apps/web/src/components/invoices/BulkApproveToolbar.tsx (199 lines)
+  - Fixed bottom toolbar for bulk actions
+  - Approve, reject, create invoices
+  - Confirmation dialogs
+
+apps/web/src/components/invoices/InvoiceDataEditor.tsx (368 lines)
+  - Comprehensive form for editing extracted data
+  - Vendor info, invoice details, line items, totals
+  - Field-level confidence scores
+  - Edit/read-only modes
+
+apps/web/src/components/invoices/InvoiceReviewDialog.tsx (302 lines)
+  - Full-screen review dialog
+  - Side-by-side document viewer and data editor
+  - Three tabs: Review, Document, Confidence
+  - Approve/reject actions
+
+apps/web/src/components/invoices/ExtractedInvoiceList.tsx (405 lines)
+  - Main list component with all functionality
+  - Statistics cards, filters, search
+  - Grid layout, pagination, bulk selection
+  - Integrates all components and hooks
+
+PAGE:
+-----
+apps/web/src/app/(dashboard)/finance/invoices/extracted/page.tsx (29 lines)
+  - Main page component
+  - Route: /finance/invoices/extracted
+  - Page metadata and header
+
+FEATURES IMPLEMENTED:
+---------------------
+✓ List view with statistics dashboard
+✓ Advanced filtering (status, confidence, search)
+✓ Side-by-side document and data review
+✓ Inline editing with confidence scores
+✓ Single and bulk approve/reject
+✓ Create invoices from approved extractions
+✓ PDF/image viewer with zoom
+✓ Pagination and loading states
+✓ Toast notifications
+✓ Responsive design
+✓ Full TypeScript coverage
+✓ React Query integration
+
+DEPENDENCIES USED:
+------------------
+- shadcn/ui components (Card, Dialog, Button, Badge, Input, Select, Tabs, Progress, etc.)
+- @tanstack/react-query
+- date-fns
+- lucide-react
+- sonner
+
+BACKEND INTEGRATION REQUIRED:
+------------------------------
+The following API endpoints need to be implemented:
+
+GET    /api/v1/integrations/email-sync/extractions
+GET    /api/v1/integrations/email-sync/extractions/:id
+PATCH  /api/v1/integrations/email-sync/extractions/:id
+POST   /api/v1/integrations/email-sync/extractions/:id/approve
+POST   /api/v1/integrations/email-sync/extractions/:id/reject
+POST   /api/v1/integrations/email-sync/extractions/bulk-approve
+POST   /api/v1/integrations/email-sync/extractions/bulk-reject
+POST   /api/v1/integrations/email-sync/extractions/create-invoice
+GET    /api/v1/integrations/email-sync/extractions/:id/attachment
+GET    /api/v1/integrations/email-sync/extractions/statistics
+DELETE /api/v1/integrations/email-sync/extractions/:id
+POST   /api/v1/integrations/email-sync/extractions/:id/retry
+
+NAVIGATION:
+-----------
+Add to main navigation menu:
+  Route: /finance/invoices/extracted
+  Label: "Extracted Invoices"
+  Icon: FileCheck (from lucide-react)
+  Badge: Show pending count from statistics

@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -15,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -24,12 +24,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
+import { MoneyField } from '@/components/forms/MoneyField';
+import { CurrencyDisplay } from '@/components/currency/CurrencyDisplay';
+import { useDefaultCurrency } from '@/contexts/CurrencyContext';
+import type { CurrencyCode } from '@/types/currency';
 
 interface LineItem {
   id: string;
   description: string;
   quantity: number;
   unitPrice: number;
+  currency: CurrencyCode;
   taxRate: number;
   amount: number;
 }
@@ -37,6 +43,7 @@ interface LineItem {
 export default function NewInvoicePage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const defaultCurrency = useDefaultCurrency();
 
   // Form state
   const [customerName, setCustomerName] = useState('');
@@ -48,6 +55,7 @@ export default function NewInvoicePage() {
   const [dueDate, setDueDate] = useState('');
   const [paymentTerms, setPaymentTerms] = useState('30');
   const [notes, setNotes] = useState('');
+  const [invoiceCurrency, setInvoiceCurrency] = useState<CurrencyCode>(defaultCurrency);
 
   const [lineItems, setLineItems] = useState<LineItem[]>([
     {
@@ -55,6 +63,7 @@ export default function NewInvoicePage() {
       description: '',
       quantity: 1,
       unitPrice: 0,
+      currency: defaultCurrency,
       taxRate: 19,
       amount: 0,
     },
@@ -66,6 +75,7 @@ export default function NewInvoicePage() {
       description: '',
       quantity: 1,
       unitPrice: 0,
+      currency: invoiceCurrency,
       taxRate: 19,
       amount: 0,
     };
@@ -233,9 +243,9 @@ export default function NewInvoicePage() {
                     <TableRow>
                       <TableHead className="min-w-[200px]">Description</TableHead>
                       <TableHead className="w-[100px]">Qty</TableHead>
-                      <TableHead className="w-[120px]">Unit Price</TableHead>
+                      <TableHead className="w-[250px]">Unit Price</TableHead>
                       <TableHead className="w-[100px]">Tax %</TableHead>
-                      <TableHead className="w-[120px]">Amount</TableHead>
+                      <TableHead className="w-[150px]">Amount</TableHead>
                       <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -266,18 +276,16 @@ export default function NewInvoicePage() {
                           />
                         </TableCell>
                         <TableCell>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
+                          <MoneyField
                             value={item.unitPrice}
-                            onChange={(e) =>
-                              updateLineItem(
-                                item.id,
-                                'unitPrice',
-                                parseFloat(e.target.value) || 0
-                              )
+                            currency={item.currency}
+                            onValueChange={(value) =>
+                              updateLineItem(item.id, 'unitPrice', value)
                             }
+                            onCurrencyChange={(currency) =>
+                              updateLineItem(item.id, 'currency', currency)
+                            }
+                            layout="compact"
                           />
                         </TableCell>
                         <TableCell>
@@ -298,7 +306,10 @@ export default function NewInvoicePage() {
                           </Select>
                         </TableCell>
                         <TableCell className="font-medium">
-                          €{item.amount.toFixed(2)}
+                          <CurrencyDisplay
+                            amount={item.amount}
+                            currency={item.currency}
+                          />
                         </TableCell>
                         <TableCell>
                           <Button
@@ -343,18 +354,28 @@ export default function NewInvoicePage() {
             <CardContent className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-medium">€{calculateSubtotal().toFixed(2)}</span>
+                <CurrencyDisplay
+                  amount={calculateSubtotal()}
+                  currency={invoiceCurrency}
+                  className="font-medium"
+                />
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Tax</span>
-                <span className="font-medium">€{calculateTax().toFixed(2)}</span>
+                <CurrencyDisplay
+                  amount={calculateTax()}
+                  currency={invoiceCurrency}
+                  className="font-medium"
+                />
               </div>
               <div className="border-t pt-4">
                 <div className="flex justify-between">
                   <span className="text-lg font-bold">Total</span>
-                  <span className="text-lg font-bold">
-                    €{calculateTotal().toFixed(2)}
-                  </span>
+                  <CurrencyDisplay
+                    amount={calculateTotal()}
+                    currency={invoiceCurrency}
+                    className="text-lg font-bold"
+                  />
                 </div>
               </div>
             </CardContent>

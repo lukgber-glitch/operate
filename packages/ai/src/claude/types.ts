@@ -3,9 +3,26 @@
  * Type definitions for Claude API integration
  */
 
+// Content block types for multimodal messages
+export interface TextContentBlock {
+  type: 'text';
+  text: string;
+}
+
+export interface ImageContentBlock {
+  type: 'image';
+  source: {
+    type: 'base64';
+    media_type: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
+    data: string;
+  };
+}
+
+export type ContentBlock = TextContentBlock | ImageContentBlock;
+
 export interface ClaudeMessage {
   role: 'user' | 'assistant';
-  content: string;
+  content: string | ContentBlock[];
 }
 
 export interface ClaudeRequestParams {

@@ -540,9 +540,9 @@ describe('RLS Tenant Isolation', () => {
         expect(membership).not.toBeNull();
 
         // Cleanup
-        const user = membership!.user;
+        const userId = membership!.userId;
         await prisma.membership.delete({ where: { id: tempMembershipId! } });
-        await prisma.user.delete({ where: { id: membership!.userId } });
+        await prisma.user.delete({ where: { id: userId } });
       });
     });
   });

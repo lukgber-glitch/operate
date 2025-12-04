@@ -15,14 +15,82 @@ enum Role {
   VIEWER
 }
 
+enum CompanyType {
+  // Germany
+  EINZELUNTERNEHMEN
+  GBR
+  OHG
+  KG
+  GMBH
+  GMBH_CO_KG
+  UG
+  AG
+  // Austria
+  AT_EINZELUNTERNEHMEN
+  AT_OG
+  AT_KG
+  AT_GMBH
+  AT_AG
+  // Switzerland
+  CH_EINZELFIRMA
+  CH_KOLLEKTIVGESELLSCHAFT
+  CH_KOMMANDITGESELLSCHAFT
+  CH_GMBH
+  CH_AG
+  // UK
+  SOLE_TRADER
+  PARTNERSHIP
+  LLP
+  PRIVATE_LIMITED
+  PUBLIC_LIMITED
+}
+
+enum VatScheme {
+  // General
+  STANDARD
+  // Germany
+  DE_UMSATZSTEUER
+  DE_KLEINUNTERNEHMER
+  // Austria
+  AT_NORMALVERSTEUERUNG
+  AT_KLEINUNTERNEHMER
+  // Switzerland
+  CH_EFFECTIVE_METHOD
+  CH_NET_TAX_METHOD
+  CH_FLAT_RATE_METHOD
+  // UK
+  FLAT_RATE
+  ANNUAL_ACCOUNTING
+  CASH_ACCOUNTING
+  // Saudi Arabia
+  SA_VAT_STANDARD // Standard VAT scheme
+  SA_VAT_MARGIN // Margin scheme
+  // UAE
+  AE_VAT_STANDARD // Standard VAT scheme
+  AE_VAT_DESIGNATED_ZONE // Designated zone scheme
+  AE_VAT_FREE_ZONE // Free zone scheme
+}
+
 model Organisation {
-  id        String    @id @default(uuid())
-  name      String
-  slug      String    @unique
-  country   String    @default("DE")
-  currency  String    @default("EUR")
-  timezone  String    @default("Europe/Berlin")
-  settings  Json      @default("{}")
+  id       String @id @default(uuid())
+  name     String
+  slug     String @unique
+  country  String @default("DE")
+  currency String @default("EUR")
+  timezone String @default("Europe/Berlin")
+  settings Json   @default("{}")
+
+  // Company/Tenant specific fields
+  companyType               CompanyType?
+  vatScheme                 VatScheme?
+  companyRegistrationNumber String? // Companies House number for UK, Handelsregister for DE, etc.
+  vatNumber                 String? // GB123456789, DE123456789, etc.
+  utrNumber                 String? // UK UTR (Unique Taxpayer Reference - 10 digits)
+  payeReference             String? // UK PAYE reference for employers
+  taxRegistrationNumber     String? // TRN for UAE/Saudi Arabia (15 digits)
+  commercialRegistration    String? // CR for Saudi Arabia
+  tradeLicenseNumber        String? // UAE Trade License
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -37,6 +105,55 @@ model Organisation {
   deductionSuggestions  DeductionSuggestion[]
   taxDeductionSummaries TaxDeductionSummary[]
   fraudAlerts           FraudAlert[]
+  costEntries           CostEntry[]
+  budgets               Budget[]
+  automationSettings    AutomationSettings?
+  automationAuditLogs   AutomationAuditLog[]
+  recurringInvoices     RecurringInvoice[]
+  paymentReminders      PaymentReminder[]
+  correctionRecords     CorrectionRecord[]
+  learningPatterns      LearningPattern[]
+  reminderSettings      ReminderSettings?
+  bankConnections       BankConnection[]
+  elsterCertificates    ElsterCertificate[]
+  spainCertificates     SpainCertificate[]
+  zatcaCertificates     ZatcaCertificate[]
+  elsterFilings         ElsterFiling[]
+  processDocumentations ProcessDocumentation[]
+  quickbooksConnections QuickBooksConnection[]
+  xeroConnections       XeroConnection[]
+  emailConnections      EmailConnection[]
+  plaidBankAccounts     PlaidBankAccount[]
+  plaidTransactions     PlaidTransaction[]
+  storageQuota          StorageQuota?
+  extractedInvoices     ExtractedInvoice[]
+
+  // Usage-based billing relations
+  usageEvents         UsageEvent[]
+  usageQuotas         UsageQuota[]
+  usageSummaries      UsageSummary[]
+  stripeUsageRecords  StripeUsageRecord[]
+
+  // Revenue recognition relations
+  revenueRecognitions       RevenueRecognition[]
+  deferredRevenueSchedules  DeferredRevenueSchedule[]
+
+  // GDPR Relations
+  dataSubjectRequests    DataSubjectRequest[]
+  dataRetentionPolicies  DataRetentionPolicy[]
+  dataProcessingRecords  DataProcessingRecord[]
+
+  // Persona KYC Relations
+  personaInquiries PersonaInquiry[]
+
+  // KYC Verification Relations
+  kycVerifications KycVerification[]
+
+  // Chat Relations
+  conversations Conversation[]
+
+  // CRM Relations
+  clients Client[]
 }
 
 model User {
@@ -57,7 +174,6 @@ model User {
 
   memberships   Membership[]
   sessions      Session[]
-  auditLogs     AuditLog[]
   oauthAccounts OAuthAccount[]
   employees     Employee[]
 
@@ -77,6 +193,33 @@ model User {
   // Fraud Prevention Relations
   fraudAlertsResolved  FraudAlert[]    @relation("FraudAlertResolver")
   fraudAuditsPerformed FraudAuditLog[] @relation("FraudAuditPerformer")
+
+  // Automation Relations
+  automationAuditLogs AutomationAuditLog[]
+
+  // Recurring Invoice Relations
+  createdRecurringInvoices RecurringInvoice[]
+  correctionRecords        CorrectionRecord[] @relation("CorrectionRecords")
+
+  // Usage tracking
+  usageEvents UsageEvent[] @relation("UsageEvents")
+
+  // GDPR Relations
+  consents            UserConsent[]
+  dataSubjectRequests DataSubjectRequest[]
+
+  // Persona KYC Relations
+  personaInquiries PersonaInquiry[]
+
+  // KYC Verification Relations
+  kycVerification KycVerification?
+
+  // Chat Relations
+  conversations Conversation[]
+
+  // User Onboarding Relations
+  onboardingProgress UserOnboardingProgress?
+  onboardingAnalyses OnboardingAnalysis[]
 }
 
 model Membership {
@@ -111,24 +254,111 @@ model Session {
   @@index([expiresAt])
 }
 
+// ============================================================================
+// GoBD-COMPLIANT IMMUTABLE AUDIT LOG
+// ============================================================================
+// This audit log system implements GoBD (Grundsätze zur ordnungsmäßigen Führung
+// und Aufbewahrung von Büchern, Aufzeichnungen und Unterlagen in elektronischer
+// Form sowie zum Datenzugriff) compliance requirements:
+//
+// 1. IMMUTABILITY: Records cannot be updated or deleted (INSERT-only)
+// 2. CHAIN INTEGRITY: Each record contains a hash linking to previous record
+// 3. COMPLETE AUDIT TRAIL: All changes to tax-relevant data are logged
+// 4. TAMPER DETECTION: Hash chain allows detection of any modifications
+// ============================================================================
+
+enum AuditEntityType {
+  INVOICE
+  EXPENSE
+  RECEIPT
+  BANK_TRANSACTION
+  TAX_FILING
+  DOCUMENT
+  USER
+  SETTINGS
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  VIEW
+  EXPORT
+  SUBMIT
+  APPROVE
+  REJECT
+}
+
+enum AuditActorType {
+  USER
+  SYSTEM
+  AUTOMATION
+  API
+}
+
 model AuditLog {
-  id         String   @id @default(uuid())
-  orgId      String
-  userId     String?
-  action     String
-  entityType String
-  entityId   String?
-  oldValue   Json?
-  newValue   Json?
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
+  id String @id @default(cuid())
 
-  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  user         User?        @relation(fields: [userId], references: [id])
+  // Multi-tenant isolation
+  tenantId String // Organisation ID
 
-  @@index([orgId, createdAt])
-  @@index([entityType, entityId])
+  // Entity being audited
+  entityType AuditEntityType
+  entityId   String
+
+  // Action performed
+  action AuditAction
+
+  // State tracking (for GoBD compliance)
+  previousState Json? // Full state before the action
+  newState      Json? // Full state after the action
+  changes       Json? // Diff of what changed (for performance)
+
+  // Actor information
+  actorType AuditActorType
+  actorId   String? // User ID or system identifier
+
+  // Request context
+  ipAddress String?
+  userAgent String?
+
+  // Timestamp (immutable, set on creation)
+  timestamp DateTime @default(now())
+
+  // Hash chain for integrity (GoBD requirement)
+  hash         String  @unique // SHA-256 hash of this entry
+  previousHash String? // Hash of previous entry for this tenant
+
+  // Additional context
+  metadata Json? // Any additional information (e.g., request ID, session)
+
+  // Relations
+  organisation Organisation @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Indexes for query performance
+  @@index([tenantId, entityType, entityId]) // Find all changes to a specific entity
+  @@index([tenantId, timestamp]) // Time-based queries
+  @@index([tenantId, actorId]) // Find all actions by a user
+  @@index([hash]) // Hash lookup for integrity verification
+  @@map("audit_logs")
+}
+
+// Track the hash chain sequence per tenant
+// This enables fast verification of chain integrity
+model AuditLogSequence {
+  tenantId String @id // Organisation ID
+
+  // Latest entry in the chain
+  lastEntryId String
+  lastHash    String
+
+  // Statistics
+  entryCount BigInt // Total number of entries for this tenant
+
+  // Timestamps
+  updatedAt DateTime @updatedAt
+
+  @@map("audit_log_sequences")
 }
 
 model OAuthAccount {
@@ -154,15 +384,18 @@ model OAuthAccount {
 
 model Country {
   id              String   @id @default(uuid())
-  code            String   @unique // ISO 3166-1 alpha-2 (DE, AT, CH)
-  code3           String   @unique // ISO 3166-1 alpha-3 (DEU, AUT, CHE)
+  code            String   @unique // ISO 3166-1 alpha-2 (DE, AT, CH, CA, AU)
+  code3           String   @unique // ISO 3166-1 alpha-3 (DEU, AUT, CHE, CAN, AUS)
   name            String
-  nameNative      String
-  currency        String // EUR, CHF
-  currencySymbol  String // €, CHF
-  locale          String // de-DE, de-AT, de-CH
-  timezone        String // Europe/Berlin, etc.
-  fiscalYearStart String // MM-DD format
+  nameNative      String?
+  officialName    String?
+  currency        String // EUR, CHF, CAD, AUD
+  currencySymbol  String // €, CHF, $, $
+  locale          String? // de-DE, de-AT, de-CH, en-CA, en-AU
+  timezone        String // Europe/Berlin, America/Toronto, Australia/Sydney
+  fiscalYearStart String? // MM-DD format
+  languages       Json?   // JSON array of language codes
+  isEU            Boolean  @default(false)
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -170,11 +403,15 @@ model Country {
   regions               Region[]
   taxAuthorities        TaxAuthority[]
   vatRates              VatRate[]
+  taxRates              TaxRate[]
   deductionCategories   DeductionCategory[]
   governmentApis        GovernmentApi[]
   features              CountryFeature[]
   employmentTypes       EmploymentType[]
   organisationCountries OrganisationCountry[]
+  taxConfig             CountryTaxConfig?
+  taxFilingDeadlines    TaxFilingDeadline[]
+  middleEastTaxConfig   MiddleEastTaxConfig?
 
   @@index([code])
   @@index([isActive])
@@ -183,13 +420,16 @@ model Country {
 model Region {
   id         String   @id @default(uuid())
   countryId  String
-  code       String // BY, NW, etc.
+  code       String // BY, NW, ON, BC, NSW, VIC, etc.
   name       String
   nameNative String?
+  type       String?  // STATE, PROVINCE, TERRITORY, LAND, etc.
+  isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  country Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  country  Country   @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  taxRates TaxRate[]
 
   @@unique([countryId, code])
   @@index([countryId])
@@ -347,6 +587,269 @@ model TaxCredential {
 }
 
 // ============================================================================
+// TAX CONFIGURATION MODELS (W24-T5 - EU Country Tax Configurations)
+// ============================================================================
+
+enum TaxPeriodType {
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+  SEMI_ANNUAL
+  BI_MONTHLY
+}
+
+enum TaxCategory {
+  STANDARD              // Standard rate goods/services
+  REDUCED               // Reduced rate (food, books, etc.)
+  SUPER_REDUCED         // Super-reduced rate (basic necessities)
+  ZERO                  // Zero-rated (exports, intra-EU)
+  EXEMPT                // Exempt (healthcare, education)
+  PARKING               // Parking rate (specific to some countries)
+  INTERMEDIATE          // Intermediate rate (specific countries)
+}
+
+enum InvoiceNumberingType {
+  SEQUENTIAL            // Simple 1, 2, 3...
+  YEAR_PREFIX           // 2024-001, 2024-002...
+  CUSTOM_PREFIX         // INV-001, INV-002...
+  FREE_FORMAT           // No specific requirement
+}
+
+model CountryTaxConfig {
+  id          String   @id @default(uuid())
+  countryId   String   @unique
+
+  // Tax periods
+  vatPeriodType           TaxPeriodType
+  corporateTaxPeriodType  TaxPeriodType
+
+  // Filing deadlines (days after period end)
+  vatFilingDeadlineDays      Int
+  vatPaymentDeadlineDays     Int
+  corporateTaxFilingDays     Int
+  corporateTaxPaymentDays    Int
+
+  // Invoice requirements
+  invoiceNumberingType    InvoiceNumberingType @default(SEQUENTIAL)
+  invoiceNumberingFormat  String?              // Format template
+  requiresDigitalSignature Boolean             @default(false)
+  requiresQrCode          Boolean              @default(false)
+
+  // E-invoicing
+  requiresEInvoicing      Boolean              @default(false)
+  eInvoicingMandateDate   DateTime?
+  eInvoicingFormat        String?              // Peppol BIS, FacturX, etc.
+  eInvoicingNetwork       String?              // Peppol, SDI, etc.
+
+  // Intra-community
+  viesValidationRequired  Boolean              @default(true)
+  intraCommunityThreshold Decimal?             @db.Decimal(12, 2)
+
+  // Additional requirements
+  fiscalRepresentativeRequired Boolean         @default(false)
+  fiscalRepThreshold           Decimal?        @db.Decimal(12, 2)
+
+  // SAF-T reporting
+  requiresSaftT           Boolean              @default(false)
+  saftTFrequency          TaxPeriodType?
+
+  // Metadata
+  notes       String?
+  legalBasis  String?              // EU Directive reference
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  // Relations
+  country     Country              @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  vatRates    VatRateConfig[]
+}
+
+model VatRateConfig {
+  id              String      @id @default(uuid())
+  taxConfigId     String
+
+  // Rate details
+  category        TaxCategory
+  rate            Decimal     @db.Decimal(5, 2)
+  description     String
+
+  // Applicability
+  validFrom       DateTime
+  validTo         DateTime?
+
+  // Exemptions and conditions
+  conditions      String?              // JSON string with conditions
+  exemptions      String?              // JSON string with exemption rules
+
+  // Examples of goods/services
+  examples        String?              // JSON array of example items
+
+  // Legal reference
+  legalBasis      String?
+  euDirectiveRef  String?
+
+  // Timestamps
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  taxConfig       CountryTaxConfig @relation(fields: [taxConfigId], references: [id], onDelete: Cascade)
+
+  @@index([taxConfigId])
+  @@index([category])
+  @@index([validFrom, validTo])
+}
+
+model TaxFilingDeadline {
+  id          String         @id @default(uuid())
+  countryId   String
+
+  // Deadline details
+  taxType     String         // VAT, Corporate, Withholding, etc.
+  periodType  TaxPeriodType
+  year        Int
+  period      Int            // Quarter number, month number, etc.
+
+  // Dates
+  filingDate  DateTime
+  paymentDate DateTime
+
+  // Additional info
+  description String?
+  isExtended  Boolean        @default(false)
+  notes       String?
+
+  // Timestamps
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  // Relations
+  country     Country        @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@unique([countryId, taxType, year, period])
+  @@index([countryId])
+  @@index([filingDate])
+  @@index([taxType])
+}
+
+// Regional tax rates (for multi-jurisdiction countries like Canada, Australia)
+model TaxRate {
+  id          String      @id @default(uuid())
+  countryId   String
+  regionId    String?     // Optional - for country-level rates
+  category    String      // STANDARD, GST, HST, PST, QST, etc.
+  rate        Decimal     @db.Decimal(5, 3)
+  description String
+  validFrom   DateTime
+  validTo     DateTime?
+  exemptions  Json?       // JSON array of exemptions
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  country Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  region  Region? @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@unique([countryId, regionId, category])
+  @@index([countryId])
+  @@index([regionId])
+  @@index([validFrom, validTo])
+}
+
+// Tax deadline reminders and tracking
+model TaxDeadlineReminder {
+  id             String                    @id @default(uuid())
+  organizationId String
+  countryId      String
+
+  // Deadline details
+  taxType        String                    // VAT, USt, Corporate, Withholding, ELSTER, HMRC_MTD, IRS, etc.
+  periodType     TaxPeriodType
+  periodStart    DateTime
+  periodEnd      DateTime
+  dueDate        DateTime
+
+  // Filing information
+  status         TaxDeadlineStatus         @default(PENDING)
+  filedAt        DateTime?
+  filedBy        String?                   // User ID who marked as filed
+  confirmationId String?                   // External filing confirmation number
+
+  // Reminder tracking
+  reminders      TaxDeadlineReminderLog[]
+
+  // Additional metadata
+  description    String?
+  notes          String?
+  isAutoCreated  Boolean                   @default(true)
+  isRecurring    Boolean                   @default(true)
+
+  // Timestamps
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+
+  // Relations
+  organization   Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  country        Country                   @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  filedByUser    User?                     @relation(fields: [filedBy], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, taxType, periodStart, periodEnd])
+  @@index([organizationId])
+  @@index([countryId])
+  @@index([dueDate])
+  @@index([status])
+  @@index([taxType])
+}
+
+// Log of reminders sent for tax deadlines
+model TaxDeadlineReminderLog {
+  id              String               @id @default(uuid())
+  deadlineId      String
+
+  // Reminder details
+  reminderType    ReminderType         // SEVEN_DAYS, THREE_DAYS, ONE_DAY, OVERDUE
+  sentAt          DateTime             @default(now())
+  sentVia         String[]             // ['email', 'notification', 'sms']
+
+  // Recipients
+  recipientEmails String[]
+  recipientUserIds String[]
+
+  // Status
+  deliveryStatus  DeliveryStatus       @default(SENT)
+  errorMessage    String?
+
+  // Relations
+  deadline        TaxDeadlineReminder  @relation(fields: [deadlineId], references: [id], onDelete: Cascade)
+
+  @@index([deadlineId])
+  @@index([sentAt])
+  @@index([reminderType])
+}
+
+enum TaxDeadlineStatus {
+  PENDING
+  FILED
+  OVERDUE
+  EXTENDED
+  CANCELLED
+}
+
+enum ReminderType {
+  SEVEN_DAYS
+  THREE_DAYS
+  ONE_DAY
+  SAME_DAY
+  OVERDUE
+}
+
+enum DeliveryStatus {
+  SENT
+  DELIVERED
+  FAILED
+  BOUNCED
+}
+
+// ============================================================================
 // HR MODELS
 // ============================================================================
 
@@ -427,6 +930,37 @@ enum SSRegistrationStatus {
   TERMINATED
 }
 
+enum EmployeeDocumentType {
+  W4_FORM
+  I9_FORM
+  PASSPORT
+  DRIVERS_LICENSE
+  SOCIAL_SECURITY_CARD
+  BIRTH_CERTIFICATE
+  WORK_PERMIT
+  OTHER
+}
+
+enum DocumentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+enum I9DocumentListType {
+  LIST_A // Identity and Employment Authorization
+  LIST_B // Identity
+  LIST_C // Employment Authorization
+}
+
+enum FilingStatus {
+  SINGLE
+  MARRIED_FILING_JOINTLY
+  MARRIED_FILING_SEPARATELY
+  HEAD_OF_HOUSEHOLD
+}
+
 model Employee {
   id             String  @id @default(uuid())
   orgId          String
@@ -459,7 +993,7 @@ model Employee {
   bic      String?
 
   // Employment
-  status          EmploymentStatus @default(ACTIVE)
+  status          EmploymentStatus @default("ACTIVE")
   hireDate        DateTime
   terminationDate DateTime?
 
@@ -477,6 +1011,9 @@ model Employee {
   timeEntries        TimeEntry[]
   payslips           Payslip[]
   socialSecurityRegs SocialSecurityRegistration[]
+  documents          EmployeeDocument[]
+  w4Forms            W4Form[]
+  i9Forms            I9Form[]
 
   @@unique([orgId, employeeNumber])
   @@unique([email, orgId])
@@ -668,6 +1205,251 @@ model SocialSecurityRegistration {
   @@index([employeeId])
   @@index([countryCode])
   @@index([status])
+}
+
+// ============================================================================
+// US EMPLOYMENT COMPLIANCE DOCUMENTS
+// ============================================================================
+
+model EmployeeDocument {
+  id         String @id @default(uuid())
+  employeeId String
+  orgId      String
+
+  documentType EmployeeDocumentType
+  status       DocumentStatus       @default(PENDING)
+
+  // Document metadata
+  fileName        String
+  fileSize        Int // bytes
+  mimeType        String
+  storageKey      String // S3 key or encrypted file path
+  encryptionKeyId String? // Reference to encryption key
+
+  // Document details
+  issueDate      DateTime?
+  expirationDate DateTime?
+  documentNumber String? // Document ID, passport number, etc.
+  issuingAuthority String?
+  countryCode String? // ISO country code
+
+  // Verification
+  verifiedAt DateTime?
+  verifiedBy String? // User ID who verified
+  rejectedAt DateTime?
+  rejectedBy String? // User ID who rejected
+  rejectionReason String?
+
+  // Audit trail
+  uploadedBy String // User ID who uploaded
+  ipAddress  String?
+  userAgent  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  // Relations
+  employee Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  versions DocumentVersion[]
+
+  @@index([employeeId])
+  @@index([orgId])
+  @@index([documentType])
+  @@index([status])
+  @@index([expirationDate])
+}
+
+model DocumentVersion {
+  id         String @id @default(uuid())
+  documentId String
+
+  version      Int
+  storageKey   String
+  fileSize     Int
+  mimeType     String
+  uploadedBy   String
+  uploadReason String? // Why was this version uploaded
+
+  createdAt DateTime @default(now())
+
+  document EmployeeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([createdAt])
+}
+
+model W4Form {
+  id         String @id @default(uuid())
+  employeeId String
+  orgId      String
+
+  // Tax year
+  taxYear Int
+
+  // Employee information
+  firstName      String
+  middleInitial  String?
+  lastName       String
+  ssn            String // Encrypted
+  address        String
+  city           String
+  state          String
+  zipCode        String
+
+  // Filing status
+  filingStatus FilingStatus
+
+  // Multiple jobs or spouse works
+  multipleJobsOrSpouseWorks Boolean @default(false)
+
+  // Step 3: Claim dependents
+  numberOfDependentsUnder17      Int     @default(0)
+  dependentsUnder17Amount        Decimal @default(0) @db.Decimal(10, 2)
+  numberOfOtherDependents        Int     @default(0)
+  otherDependentsAmount          Decimal @default(0) @db.Decimal(10, 2)
+  totalClaimDependentsAmount     Decimal @default(0) @db.Decimal(10, 2)
+
+  // Step 4(a): Other income
+  otherIncome Decimal @default(0) @db.Decimal(10, 2)
+
+  // Step 4(b): Deductions
+  deductions Decimal @default(0) @db.Decimal(10, 2)
+
+  // Step 4(c): Extra withholding
+  extraWithholding Decimal @default(0) @db.Decimal(10, 2)
+
+  // Calculated withholding
+  calculatedWithholding Decimal? @db.Decimal(10, 2)
+
+  // Signature
+  signedAt DateTime?
+  signedBy String? // User ID
+
+  // Status
+  isActive Boolean @default(true)
+  effectiveDate DateTime @default(now())
+  endDate DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([orgId])
+  @@index([taxYear])
+  @@index([isActive])
+}
+
+model I9Form {
+  id         String @id @default(uuid())
+  employeeId String
+  orgId      String
+
+  // Section 1: Employee Information and Attestation (completed by employee)
+  section1CompletedAt DateTime?
+
+  // Personal information
+  lastName            String
+  firstName           String
+  middleInitial       String?
+  otherLastNames      String? // Other names used
+  address             String
+  city                String
+  state               String
+  zipCode             String
+  dateOfBirth         DateTime
+  ssn                 String? // Encrypted, optional at time of hire
+  email               String?
+  phone               String?
+
+  // Citizenship status (select one)
+  citizenOfUS              Boolean @default(false)
+  nonCitizenNational       Boolean @default(false)
+  lawfulPermanentResident  Boolean @default(false)
+  alienAuthorizedToWork    Boolean @default(false)
+
+  // Additional info for non-citizens
+  uscisNumber             String? // A-Number or USCIS Number
+  i94AdmissionNumber      String?
+  foreignPassportNumber   String?
+  countryOfIssuance       String?
+  workAuthorizationExpiry DateTime?
+
+  // Employee signature
+  employeeSignature String? // Digital signature or confirmation
+  employeeSignedAt  DateTime?
+
+  // Section 2: Employer Review and Verification (completed by employer)
+  section2CompletedAt DateTime?
+
+  // Document verification (List A, or List B + List C)
+  documentListA            I9DocumentListType?
+  documentListATitle       String?
+  documentListAIssuer      String?
+  documentListANumber      String?
+  documentListAExpiry      DateTime?
+
+  documentListB            I9DocumentListType?
+  documentListBTitle       String?
+  documentListBIssuer      String?
+  documentListBNumber      String?
+  documentListBExpiry      DateTime?
+
+  documentListC            I9DocumentListType?
+  documentListCTitle       String?
+  documentListCIssuer      String?
+  documentListCNumber      String?
+  documentListCExpiry      DateTime?
+
+  // Employer information
+  firstDayOfEmployment DateTime?
+  employerName         String?
+  employerAddress      String?
+  employerCity         String?
+  employerState        String?
+  employerZipCode      String?
+
+  // Employer representative signature
+  employerRepName      String?
+  employerRepTitle     String?
+  employerRepSignature String? // Digital signature or confirmation
+  employerSignedAt     DateTime?
+
+  // Section 3: Reverification and Rehires
+  section3CompletedAt DateTime?
+  reverificationReason String?
+  reverificationDate DateTime?
+  reverificationDocument String?
+  reverificationDocumentNumber String?
+  reverificationDocumentExpiry DateTime?
+
+  // E-Verify integration
+  eVerifyStatus       String? // NOT_SUBMITTED, SUBMITTED, AUTHORIZED, TENTATIVE_NON_CONFIRMATION, FINAL_NON_CONFIRMATION
+  eVerifyCaseNumber   String?
+  eVerifySubmittedAt  DateTime?
+  eVerifyCompletedAt  DateTime?
+
+  // Audit and compliance
+  expirationAlertSent Boolean @default(false)
+  requiresReverification Boolean @default(false)
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([orgId])
+  @@index([section1CompletedAt])
+  @@index([section2CompletedAt])
+  @@index([workAuthorizationExpiry])
+  @@index([isActive])
 }
 
 model HrAuditLog {
@@ -895,8 +1677,8 @@ model FraudAlert {
 
   // Alert details
   type     String
-  severity FraudAlertSeverity @default(MEDIUM)
-  status   FraudAlertStatus   @default(ACTIVE)
+  severity FraudAlertSeverity @default("MEDIUM")
+  status   FraudAlertStatus   @default("ACTIVE")
 
   // Information
   description String
@@ -946,6 +1728,35 @@ model FraudAuditLog {
 // FINANCE MODELS
 // ============================================================================
 
+model Customer {
+  id    String @id @default(uuid())
+  orgId String
+
+  // Basic info
+  name    String
+  email   String?
+  phone   String?
+  address String?
+  vatId   String?
+
+  // Flags
+  isActive Boolean @default(true)
+
+  // Metadata
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  recurringInvoices RecurringInvoice[]
+
+  @@unique([orgId, email])
+  @@index([orgId])
+  @@index([name])
+  @@index([isActive])
+}
+
 enum InvoiceStatus {
   DRAFT
   SENT
@@ -990,8 +1801,9 @@ model Invoice {
   type   InvoiceType   @default(STANDARD)
   status InvoiceStatus @default(DRAFT)
 
-  // Customer
-  customerId      String?
+  // Customer (legacy and new client relation)
+  customerId      String? // Can be clientId from Client table or external ID
+  clientId        String? // Direct relation to Client model
   customerName    String
   customerEmail   String?
   customerAddress String?
@@ -1007,6 +1819,12 @@ model Invoice {
   taxAmount   Decimal @db.Decimal(12, 2)
   totalAmount Decimal @db.Decimal(12, 2)
   currency    String  @default("EUR")
+
+  // Multi-currency support (W20-T5)
+  exchangeRate         Decimal? @db.Decimal(12, 6) // Exchange rate at time of creation
+  originalCurrency     String? // If converted, original currency
+  originalAmount       Decimal? @db.Decimal(12, 2) // If converted, original total amount
+  baseCurrencyAmount   Decimal? @db.Decimal(12, 2) // Amount in org's base currency for reporting
 
   // VAT
   vatRate       Decimal? @db.Decimal(5, 2)
@@ -1024,10 +1842,17 @@ model Invoice {
   // Metadata
   metadata Json?
 
+  // Recurring invoice link
+  recurringInvoiceId String?
+  recurringInvoice   RecurringInvoice? @relation(fields: [recurringInvoiceId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  items InvoiceItem[]
+  // Relations
+  client           Client?           @relation(fields: [clientId], references: [id])
+  items            InvoiceItem[]
+  paymentReminders PaymentReminder[]
 
   @@unique([orgId, number])
   @@index([orgId])
@@ -1035,6 +1860,8 @@ model Invoice {
   @@index([issueDate])
   @@index([dueDate])
   @@index([customerId])
+  @@index([clientId])
+  @@index([recurringInvoiceId])
 }
 
 model InvoiceItem {
@@ -1197,6 +2024,205 @@ model BankTransaction {
 }
 
 // ============================================================================
+// BANK CONNECTION MODELS (Open Banking Integration)
+// ============================================================================
+
+enum BankProvider {
+  TINK // EU - Tink Open Banking
+  PLAID // US - Plaid Link
+  TRUELAYER // UK - TrueLayer
+  MANUAL // Manual import
+}
+
+enum ConnectionStatus {
+  PENDING // Waiting for user authorization
+  ACTIVE // Connected and syncing
+  REQUIRES_REAUTH // Needs re-authorization
+  DISCONNECTED // User disconnected
+  ERROR // Connection error
+}
+
+enum BankAccountType {
+  CHECKING
+  SAVINGS
+  CREDIT_CARD
+  LOAN
+  INVESTMENT
+  OTHER
+}
+
+enum BankTransactionType {
+  DEBIT
+  CREDIT
+}
+
+enum BankTransactionStatus {
+  PENDING
+  BOOKED
+  CANCELLED
+}
+
+enum ReconciliationStatus {
+  UNMATCHED
+  MATCHED
+  IGNORED
+}
+
+enum ReconciliationMatchType {
+  MERCHANT
+  DESCRIPTION
+  AMOUNT_RANGE
+}
+
+enum ReconciliationAction {
+  AUTO_MATCH_EXPENSE
+  CATEGORIZE
+  IGNORE
+}
+
+model BankConnection {
+  id    String @id @default(uuid())
+  orgId String
+
+  // Provider info
+  provider             BankProvider
+  providerConnectionId String // External connection ID from provider
+  institutionId        String
+  institutionName      String
+  institutionLogo      String?
+
+  // Connection status
+  status           ConnectionStatus
+  lastSyncAt       DateTime?
+  nextSyncAt       DateTime?
+  consentExpiresAt DateTime? // PSD2 90-day consent requirement
+
+  // Encrypted credentials
+  accessTokenEncrypted  String? // Encrypted access token
+  refreshTokenEncrypted String? // Encrypted refresh token
+
+  // Metadata
+  metadata Json? // Provider-specific data
+
+  // Audit
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  // Relations
+  organisation Organisation     @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  accounts     BankAccountNew[]
+
+  @@index([orgId, status])
+  @@index([providerConnectionId])
+}
+
+model BankAccountNew {
+  id               String @id @default(uuid())
+  bankConnectionId String
+
+  // Account identification
+  accountId     String // External account ID from provider
+  accountType   BankAccountType
+  name          String
+  iban          String?
+  accountNumber String?
+  sortCode      String?
+
+  // Financial info
+  currency          String
+  currentBalance    Decimal?  @db.Decimal(12, 2)
+  availableBalance  Decimal?  @db.Decimal(12, 2)
+  lastBalanceUpdate DateTime?
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  bankConnection BankConnection       @relation(fields: [bankConnectionId], references: [id], onDelete: Cascade)
+  transactions   BankTransactionNew[]
+
+  @@index([bankConnectionId])
+  @@index([accountId])
+  @@index([isActive])
+}
+
+model BankTransactionNew {
+  id            String @id @default(uuid())
+  bankAccountId String
+
+  // Transaction identification
+  transactionId String // External transaction ID from bank
+
+  // Transaction details
+  amount           Decimal @db.Decimal(12, 2)
+  currency         String
+  description      String
+  merchantName     String?
+  merchantCategory String?
+
+  // Dates
+  bookingDate DateTime @db.Date
+  valueDate   DateTime @db.Date
+
+  // Transaction metadata
+  transactionType BankTransactionType
+  status          BankTransactionStatus @default(BOOKED)
+
+  // Reconciliation
+  reconciliationStatus    ReconciliationStatus @default(UNMATCHED)
+  matchedExpenseId        String? // Optional relation to Expense
+  matchedInvoicePaymentId String? // Optional relation to Invoice payment
+
+  // Raw data
+  rawData Json? // Original provider response
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  bankAccount BankAccountNew @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+
+  @@index([bankAccountId, bookingDate])
+  @@index([reconciliationStatus])
+  @@index([transactionId])
+  @@index([merchantName])
+}
+
+model ReconciliationRule {
+  id    String @id @default(uuid())
+  orgId String
+
+  // Rule details
+  name         String
+  description  String?
+  matchType    ReconciliationMatchType
+  matchPattern String // Regex or exact match pattern
+  action       ReconciliationAction
+
+  // Optional categorization
+  categoryId String?
+  vendorId   String?
+
+  // Priority and status
+  priority Int     @default(0) // Higher = executed first
+  isActive Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId, isActive])
+  @@index([priority])
+}
+
+// ============================================================================
 // DOCUMENT MANAGEMENT MODELS
 // ============================================================================
 
@@ -1226,7 +2252,7 @@ model Document {
   name        String
   description String?
   type        DocumentType   @default(OTHER)
-  status      DocumentStatus @default(ACTIVE)
+  status      DocumentStatus @default("ACTIVE")
 
   // File info
   fileName String
@@ -1360,42 +2386,64 @@ model ElsterAuditLog {
 // ============================================================================
 
 enum AutomationMode {
-  FULL_AUTO // Process without human review
-  SEMI_AUTO // AI suggests, human approves
-  MANUAL // Human does everything
+  FULL_AUTO // System handles everything automatically
+  SEMI_AUTO // System suggests, user confirms
+  MANUAL // User does everything manually
 }
 
 model AutomationSettings {
-  id                  String         @id @default(uuid())
-  orgId               String
-  feature             String // classification, expense, deduction, invoice
-  mode                AutomationMode @default(SEMI_AUTO)
-  confidenceThreshold Decimal?       @db.Decimal(3, 2) // Auto-approve above this (e.g., 0.95)
-  amountThreshold     Decimal?       @db.Decimal(12, 2) // Auto-approve below this amount
-  enabled             Boolean        @default(true)
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
 
-  @@unique([orgId, feature])
-  @@index([orgId])
+  // Feature-specific automation modes
+  invoiceCreation    AutomationMode @default(SEMI_AUTO)
+  expenseApproval    AutomationMode @default(SEMI_AUTO)
+  bankReconciliation AutomationMode @default(SEMI_AUTO)
+  taxClassification  AutomationMode @default(SEMI_AUTO)
+  paymentReminders   AutomationMode @default(SEMI_AUTO)
+
+  // Confidence thresholds (0-100) for auto-approve
+  invoiceConfidenceThreshold Int @default(85)
+  expenseConfidenceThreshold Int @default(80)
+  taxConfidenceThreshold     Int @default(90)
+
+  // Limits
+  maxAutoApproveAmount Decimal? @db.Decimal(15, 2) // null = no limit
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organisationId])
+  @@index([organisationId])
 }
 
 model AutomationAuditLog {
-  id            String   @id @default(uuid())
-  orgId         String
-  feature       String
-  entityType    String // transaction, expense, deduction
-  entityId      String
-  action        String // AUTO_APPROVED, AUTO_CLASSIFIED, AUTO_REJECTED
-  previousValue String?
-  newValue      String?
-  confidence    Decimal? @db.Decimal(3, 2)
-  ruleApplied   String?
-  executedAt    DateTime @default(now())
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
 
-  @@index([orgId, feature])
+  action  String // e.g., "invoice_auto_created", "expense_auto_approved"
+  feature String // e.g., "invoices", "expenses", "tax"
+  mode    AutomationMode
+
+  entityType String // e.g., "Invoice", "Expense"
+  entityId   String
+
+  confidenceScore Float? // AI confidence if applicable
+  wasAutoApproved Boolean @default(false)
+
+  inputData  Json? // What triggered the automation
+  outputData Json? // What was created/modified
+
+  userId String? // null if fully automated
+  user   User?   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([organisationId, createdAt])
   @@index([entityType, entityId])
-  @@index([executedAt])
+  @@index([feature, action])
 }
 
 model Notification {
@@ -1415,3 +2463,4359 @@ model Notification {
   @@index([orgId, type])
   @@index([createdAt])
 }
+
+// ============================================================================
+// CONNECTION HUB MODELS (Phase 1)
+// ============================================================================
+
+enum IntegrationType {
+  BANKING
+  EMAIL
+  ACCOUNTING
+  TAX
+  CRM
+  STORAGE
+  CALENDAR
+  OTHER
+}
+
+enum IntegrationProvider {
+  // Banking
+  GOCARDLESS
+  TINK
+  PLAID
+  FINAPI
+  // Email
+  GMAIL
+  OUTLOOK
+  IMAP
+  // Accounting
+  LEXOFFICE
+  SEVDESK
+  DATEV
+  // Tax
+  ELSTER
+  FINANZONLINE
+  // Storage
+  GOOGLE_DRIVE
+  DROPBOX
+  ONEDRIVE
+  // Other
+  CUSTOM
+}
+
+enum IntegrationStatus {
+  PENDING // OAuth started but not completed
+  CONNECTED // Successfully connected
+  DISCONNECTED // User disconnected
+  ERROR // Connection error
+  EXPIRED // Token expired, needs refresh
+  REVOKED // Access revoked by provider
+}
+
+enum SyncStatus {
+  IDLE
+  SYNCING
+  COMPLETED
+  FAILED
+}
+
+model Integration {
+  id    String @id @default(uuid())
+  orgId String
+
+  // Integration details
+  type     IntegrationType
+  provider IntegrationProvider
+  name     String // User-friendly name (e.g., "Company Bank Account")
+
+  // Status
+  status       IntegrationStatus @default(PENDING)
+  errorMessage String?
+  lastError    DateTime?
+
+  // Configuration (provider-specific settings)
+  config Json?
+
+  // Sync tracking
+  syncStatus      SyncStatus @default(IDLE)
+  lastSyncAt      DateTime?
+  lastSyncSuccess DateTime?
+  syncError       String?
+
+  // Metadata
+  metadata Json?
+
+  // Timestamps
+  connectedAt    DateTime?
+  disconnectedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  accounts IntegrationAccount[]
+
+  @@unique([orgId, provider, name])
+  @@index([orgId])
+  @@index([type])
+  @@index([provider])
+  @@index([status])
+}
+
+model IntegrationAccount {
+  id            String @id @default(uuid())
+  integrationId String
+
+  // Account identification
+  externalId  String // ID from the provider
+  accountType String // checking, savings, inbox, folder, etc.
+  name        String
+  displayName String?
+  description String?
+
+  // Status
+  isActive   Boolean @default(true)
+  isPrimary  Boolean @default(false)
+  isSelected Boolean @default(true) // User can select which accounts to sync
+
+  // Credentials (encrypted)
+  accessToken  String?
+  refreshToken String?
+  tokenType    String?
+  scope        String?
+  expiresAt    DateTime?
+
+  // Account-specific data
+  accountNumber String? // Masked account number
+  iban          String? // For bank accounts
+  currency      String?
+  balance       Decimal? @db.Decimal(12, 2)
+
+  // Email-specific
+  emailAddress String?
+  syncFolders  String[] @default([]) // ["INBOX", "SENT"]
+
+  // Sync tracking
+  lastSyncAt  DateTime?
+  syncCursor  String? // Provider's pagination cursor
+  itemsSynced Int       @default(0)
+
+  // Metadata
+  metadata Json?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@unique([integrationId, externalId])
+  @@index([integrationId])
+  @@index([isActive])
+  @@index([accountType])
+}
+
+enum OnboardingStepStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+model OnboardingProgress {
+  id     String @id @default(uuid())
+  orgId  String @unique
+  userId String // User who started onboarding
+
+  // Company setup
+  companyInfoStatus OnboardingStepStatus @default(NOT_STARTED)
+  companyInfoData   Json?
+
+  // Banking connection
+  bankingStatus   OnboardingStepStatus @default(NOT_STARTED)
+  bankingProvider String?
+  bankingData     Json?
+
+  // Email connection
+  emailStatus   OnboardingStepStatus @default(NOT_STARTED)
+  emailProvider String?
+  emailData     Json?
+
+  // Tax setup
+  taxStatus OnboardingStepStatus @default(NOT_STARTED)
+  taxData   Json?
+
+  // Accounting software
+  accountingStatus   OnboardingStepStatus @default(NOT_STARTED)
+  accountingProvider String?
+  accountingData     Json?
+
+  // Preferences
+  preferencesStatus OnboardingStepStatus @default(NOT_STARTED)
+  preferencesData   Json?
+
+  // Overall progress
+  currentStep  Int       @default(1)
+  totalSteps   Int       @default(6)
+  isCompleted  Boolean   @default(false)
+  completedAt  DateTime?
+  skippedSteps String[]  @default([])
+
+  // Timestamps
+  startedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([userId])
+  @@index([isCompleted])
+}
+
+// User Onboarding Progress - Tracks individual user onboarding journey
+model UserOnboardingProgress {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentStep     String   @default("welcome")
+  completedSteps  String[] @default([])
+  skippedSteps    String[] @default([])
+  stepData        Json?    // Store step-specific data (company info, preferences, etc.)
+  startedAt       DateTime @default(now())
+  completedAt     DateTime?
+  lastActivityAt  DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// First Analysis - Tracks initial AI analysis after onboarding completion
+model OnboardingAnalysis {
+  id              String         @id @default(cuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status          AnalysisStatus @default(PENDING)
+  bankAnalysis    Json?          // { transactionsProcessed, categorized, deductionsFound }
+  emailAnalysis   Json?          // { emailsScanned, invoicesFound, matched }
+  insights        Json?          // { spending, categories, suggestions }
+  startedAt       DateTime?
+  completedAt     DateTime?
+  error           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum AnalysisStatus {
+  PENDING
+  ANALYZING_BANK
+  ANALYZING_EMAIL
+  GENERATING_INSIGHTS
+  COMPLETED
+  FAILED
+}
+
+// ============================================================================
+// COST TRACKING MODELS (OP-060)
+// ============================================================================
+
+enum CostCategory {
+  AI_CLASSIFICATION
+  AI_SUGGESTION
+  API_CALL
+  STORAGE
+  EXPORT
+  OTHER
+}
+
+model CostEntry {
+  id           String       @id @default(uuid())
+  orgId        String       @map("org_id")
+  category     CostCategory
+  amount       Decimal      @db.Decimal(10, 4)
+  currency     String       @default("EUR")
+  description  String?
+  automationId String?      @map("automation_id")
+  metadata     Json?
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, createdAt])
+  @@index([category])
+  @@index([automationId])
+  @@map("cost_entries")
+}
+
+// ============================================================================
+// CHATBOT & AI ASSISTANT MODELS (Phase 2)
+// ============================================================================
+
+enum ConversationStatus {
+  ACTIVE
+  RESOLVED
+  ARCHIVED
+}
+
+model Conversation {
+  id     String @id @default(uuid())
+  orgId  String
+  userId String
+
+  // Conversation details
+  title  String?
+  status ConversationStatus @default(ACTIVE)
+
+  // Context
+  contextType String? // invoice, expense, tax, general
+  contextId   String? // Reference to related entity
+  pageContext String? // Current page when conversation started
+
+  // Metadata
+  metadata     Json?
+  messageCount Int   @default(0)
+
+  // Timestamps
+  lastMessageAt DateTime?
+  resolvedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages     Message[]
+
+  @@index([orgId])
+  @@index([userId])
+  @@index([status])
+  @@index([lastMessageAt])
+  @@map("conversations")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum MessageType {
+  TEXT
+  ACTION_REQUEST
+  ACTION_RESULT
+  UI_COMPONENT
+  SUGGESTION
+  ERROR
+}
+
+enum MessageStatus {
+  SENDING
+  DELIVERED
+  FAILED
+}
+
+model Message {
+  id             String @id @default(uuid())
+  conversationId String
+
+  // Message content
+  role    MessageRole
+  type    MessageType @default(TEXT)
+  content String      @db.Text
+
+  // For action messages
+  actionType   String? // create_invoice, generate_report, etc.
+  actionParams Json?
+  actionResult Json?
+  actionStatus String? // pending, completed, failed
+
+  // For UI component messages
+  componentType String? // table, form, chart
+  componentData Json?
+
+  // AI metadata
+  model      String? // claude-3-opus, etc.
+  tokens     Int?
+  latencyMs  Int?
+  confidence Decimal? @db.Decimal(3, 2)
+
+  // Feedback
+  feedback     String? // thumbs_up, thumbs_down
+  feedbackNote String?
+
+  // Message status
+  status MessageStatus @default(DELIVERED)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relations
+  conversation Conversation       @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  attachments  MessageAttachment[]
+  actionLogs   MessageActionLog[]
+
+  @@index([conversationId])
+  @@index([role])
+  @@index([type])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+/// File attachments for chat messages
+model MessageAttachment {
+  id        String  @id @default(uuid())
+  messageId String
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  // File metadata
+  fileName    String
+  fileType    String // MIME type (image/png, application/pdf, etc.)
+  fileSize    Int    // Size in bytes
+  storagePath String // S3/local path reference
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([messageId])
+  @@map("message_attachments")
+}
+
+enum ActionStatus {
+  PENDING
+  EXECUTING
+  COMPLETED
+  FAILED
+}
+
+/// Logs for AI-performed actions (e.g., invoice creation, report generation)
+model MessageActionLog {
+  id        String  @id @default(uuid())
+  messageId String
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  // Action details
+  actionType String       // CREATE_INVOICE, SEND_REMINDER, GENERATE_REPORT, etc.
+  entityType String?      // Invoice, Contact, Employee, etc.
+  entityId   String?      // Reference to created/modified entity
+  status     ActionStatus @default(PENDING)
+
+  // Results
+  result Json?   @default("{}") // Store action result data
+  error  String? @db.Text // Error message if failed
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@index([messageId])
+  @@index([actionType])
+  @@index([status])
+  @@index([entityType, entityId])
+  @@map("message_action_logs")
+}
+
+enum SuggestionType {
+  TAX_DEADLINE
+  INVOICE_REMINDER
+  EXPENSE_ANOMALY
+  CASH_FLOW
+  CLIENT_FOLLOWUP
+  COMPLIANCE
+  OPTIMIZATION
+  INSIGHT
+}
+
+enum SuggestionPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum SuggestionStatus {
+  PENDING
+  VIEWED
+  ACTED
+  DISMISSED
+  EXPIRED
+}
+
+model Suggestion {
+  id     String  @id @default(uuid())
+  orgId  String
+  userId String? // Null for org-wide suggestions
+
+  // Suggestion details
+  type        SuggestionType
+  priority    SuggestionPriority @default("MEDIUM")
+  title       String
+  description String
+  actionLabel String? // "Pay Now", "Review", "File Tax"
+
+  // Context
+  entityType String? // invoice, expense, client, tax
+  entityId   String?
+  data       Json? // Additional structured data
+
+  // Action
+  actionType   String? // navigate, api_call, open_chat
+  actionParams Json?
+
+  // Status
+  status        SuggestionStatus @default(PENDING)
+  viewedAt      DateTime?
+  actedAt       DateTime?
+  dismissedAt   DateTime?
+  dismissReason String?
+
+  // Scheduling
+  showAfter DateTime  @default(now())
+  expiresAt DateTime?
+
+  // AI metadata
+  confidence Decimal? @db.Decimal(3, 2)
+  model      String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([priority])
+  @@index([showAfter])
+  @@index([expiresAt])
+}
+
+// ============================================================================
+// CRM MODELS (Phase 4)
+// ============================================================================
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+  PROSPECT
+  CHURNED
+}
+
+enum ClientType {
+  INDIVIDUAL
+  COMPANY
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AddressType {
+  BILLING
+  SHIPPING
+  REGISTERED
+  OTHER
+}
+
+model Client {
+  id           String  @id @default(uuid())
+  orgId        String
+  clientNumber String // Auto-generated: CLT-001, CLT-002, etc.
+
+  // Basic info
+  type        ClientType   @default(COMPANY)
+  status      ClientStatus @default(ACTIVE)
+  name        String // Main display name
+  displayName String? // Custom display name if different
+  legalName   String? // Legal entity name for contracts
+
+  // Company info
+  companyName        String?
+  vatId              String? // VAT/Tax ID (e.g., VAT, GSTIN, EIN)
+  taxId              String?
+  registrationNumber String?
+
+  // Contact info
+  email   String?
+  phone   String?
+  website String?
+
+  // Legacy embedded address fields (kept for backward compatibility)
+  // Consider migrating to ClientAddress model
+  street      String?
+  city        String?
+  postalCode  String?
+  state       String?
+  countryCode String?
+
+  // Billing address (if different) - legacy
+  billingStreet      String?
+  billingCity        String?
+  billingPostalCode  String?
+  billingState       String?
+  billingCountryCode String?
+
+  // Financial
+  currency            String   @default("EUR")
+  paymentTerms        Int      @default(30) // days (defaultPaymentTerms)
+  creditLimit         Decimal? @db.Decimal(12, 2)
+  defaultPaymentTerms Int      @default(30) // Explicit alias
+
+  // Risk assessment
+  riskLevel          RiskLevel @default(LOW)
+  riskScore          Decimal?  @db.Decimal(5, 2)
+  lastRiskAssessment DateTime?
+
+  // Metrics (calculated)
+  totalRevenue       Decimal   @default(0) @db.Decimal(12, 2)
+  totalInvoices      Int       @default(0)
+  totalPaidInvoices  Int       @default(0)
+  averagePaymentDays Decimal?  @db.Decimal(5, 1)
+  lastInvoiceDate    DateTime?
+  lastPaymentDate    DateTime?
+
+  // Notes
+  notes         String?
+  internalNotes String?
+
+  // Tags
+  tags String[] @default([])
+
+  // Preferences
+  language String? @default("en") // ISO 639-1 code
+  timezone String? @default("Europe/Berlin") // IANA timezone
+
+  // Flags
+  isActive Boolean @default(true)
+  isVip    Boolean @default(false)
+
+  // Metadata
+  metadata Json?
+  source   String? // manual, import, integration
+
+  // Timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete support
+
+  // Relations
+  organisation   Organisation          @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  contacts       ClientContact[]
+  addresses      ClientAddress[]
+  communications ClientCommunication[]
+  payments       ClientPayment[]
+  invoices       Invoice[]
+
+  @@unique([orgId, clientNumber])
+  @@unique([orgId, email])
+  @@index([orgId])
+  @@index([clientNumber])
+  @@index([status])
+  @@index([type])
+  @@index([name])
+  @@index([email])
+  @@index([vatId])
+  @@index([taxId])
+  @@index([riskLevel])
+  @@index([isActive])
+  @@index([isVip])
+  @@index([deletedAt])
+}
+
+model ClientAddress {
+  id        String      @id @default(uuid())
+  clientId  String
+  type      AddressType @default(OTHER)
+
+  // Address fields
+  street     String?
+  street2    String? // Additional address line
+  city       String?
+  state      String? // State/Region/Province
+  postalCode String?
+  country    String // ISO 3166-1 alpha-2 code
+
+  // Flags
+  isPrimary Boolean @default(false)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([type])
+  @@index([isPrimary])
+}
+
+model ClientContact {
+  id       String @id @default(uuid())
+  clientId String
+
+  // Contact info
+  firstName String
+  lastName  String
+  fullName  String? // Computed or manually set
+  email     String?
+  phone     String?
+  mobile    String?
+
+  // Position
+  position   String? // Job title/position
+  jobTitle   String? // Alias for position
+  department String?
+
+  // Flags
+  isPrimary Boolean @default(false)
+  isActive  Boolean @default(true)
+  isBilling Boolean @default(false)
+
+  // Notes
+  notes String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([email])
+  @@index([isPrimary])
+  @@index([isActive])
+}
+
+enum CommunicationType {
+  CALL   // Phone call
+  EMAIL
+  PHONE  // Alias for CALL (backward compatibility)
+  MEETING
+  NOTE
+  CHAT
+  OTHER
+}
+
+enum CommunicationDirection {
+  INBOUND
+  OUTBOUND
+  INTERNAL
+}
+
+model ClientCommunication {
+  id       String @id @default(uuid())
+  clientId String
+  userId   String // User who logged this
+
+  // Communication details
+  type      CommunicationType
+  direction CommunicationDirection
+  subject   String?
+  content   String
+  summary   String?
+
+  // References
+  relatedEntityType String? // invoice, payment, etc.
+  relatedEntityId   String?
+
+  // Email specific
+  emailMessageId String?
+  emailThreadId  String?
+
+  // Metadata
+  metadata Json?
+
+  // Timestamps
+  occurredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([type])
+  @@index([occurredAt])
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+model ClientPayment {
+  id       String @id @default(uuid())
+  clientId String
+
+  // Payment details
+  amount   Decimal       @db.Decimal(12, 2)
+  currency String        @default("EUR")
+  status   PaymentStatus @default(PENDING)
+
+  // Reference
+  invoiceId     String?
+  invoiceNumber String?
+  reference     String?
+
+  // Method
+  paymentMethod String? // bank_transfer, credit_card, etc.
+  transactionId String? // External transaction ID
+
+  // Dates
+  dueDate     DateTime?
+  paidAt      DateTime?
+  processedAt DateTime?
+
+  // Notes
+  notes String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([status])
+  @@index([invoiceId])
+  @@index([paidAt])
+}
+
+// ============================================================================
+// REPORT SCHEDULING MODELS (Phase 5)
+// ============================================================================
+
+enum ReportFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  ON_DEMAND
+}
+
+model ReportSchedule {
+  id    String @id @default(uuid())
+  orgId String
+
+  // Report details
+  name        String
+  type        String // cash_flow, revenue, expenses, tax_summary, etc.
+  description String?
+
+  // Schedule
+  frequency  ReportFrequency @default(MONTHLY)
+  dayOfWeek  Int? // 0-6 for weekly
+  dayOfMonth Int? // 1-31 for monthly
+  timeOfDay  String? // HH:MM format
+  timezone   String          @default("Europe/Berlin")
+
+  // Recipients
+  recipients String[] @default([]) // email addresses
+
+  // Format
+  formats  String[] @default(["pdf"]) // pdf, xlsx, csv
+  template String?
+
+  // Filters
+  filters Json?
+
+  // Status
+  isActive  Boolean   @default(true)
+  lastRunAt DateTime?
+  nextRunAt DateTime?
+  lastError String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([isActive])
+  @@index([nextRunAt])
+}
+
+// ============================================================================
+// BUDGET MANAGEMENT MODELS
+// ============================================================================
+
+enum BudgetPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum AlertType {
+  WARNING
+  CRITICAL
+  PAUSED
+}
+
+model Budget {
+  id                String        @id @default(uuid())
+  orgId             String        @map("org_id")
+  name              String
+  category          CostCategory?
+  limitAmount       Decimal       @map("limit_amount") @db.Decimal(10, 2)
+  currency          String        @default("EUR")
+  period            BudgetPeriod
+  warningThreshold  Decimal       @default(0.80) @map("warning_threshold") @db.Decimal(3, 2)
+  criticalThreshold Decimal       @default(0.95) @map("critical_threshold") @db.Decimal(3, 2)
+  autoPause         Boolean       @default(false) @map("auto_pause")
+  isPaused          Boolean       @default(false) @map("is_paused")
+  currentSpend      Decimal       @default(0) @map("current_spend") @db.Decimal(10, 2)
+  periodStart       DateTime      @map("period_start")
+  periodEnd         DateTime      @map("period_end")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  organisation Organisation  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  alerts       BudgetAlert[]
+
+  @@index([orgId])
+  @@index([category])
+  @@index([periodStart, periodEnd])
+  @@map("budgets")
+}
+
+model BudgetAlert {
+  id           String    @id @default(uuid())
+  budgetId     String    @map("budget_id")
+  type         AlertType
+  threshold    Decimal   @db.Decimal(3, 2)
+  currentSpend Decimal   @map("current_spend") @db.Decimal(10, 2)
+  message      String
+  acknowledged Boolean   @default(false)
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  budget Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  @@index([budgetId])
+  @@index([type])
+  @@index([acknowledged])
+  @@index([createdAt])
+  @@map("budget_alerts")
+}
+
+// ============================================================================
+// RECURRING INVOICE & PAYMENT REMINDER MODELS
+// ============================================================================
+
+enum RecurringFrequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+model RecurringInvoice {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Template info
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  // Recurrence settings
+  frequency  RecurringFrequency
+  interval   Int                @default(1) // e.g., every 2 weeks
+  dayOfMonth Int? // For monthly: 1-28
+  dayOfWeek  Int? // For weekly: 0-6 (Sunday-Saturday)
+
+  // Schedule
+  startDate   DateTime
+  endDate     DateTime? // null = no end
+  nextRunDate DateTime
+  lastRunDate DateTime?
+
+  // Invoice template
+  lineItems        Json // Array of line items
+  currency         String  @default("EUR")
+  taxRate          Decimal @db.Decimal(5, 2)
+  notes            String?
+  paymentTermsDays Int     @default(14)
+
+  // Status
+  isActive       Boolean @default(true)
+  totalGenerated Int     @default(0)
+
+  // Generated invoices
+  generatedInvoices Invoice[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+
+  @@index([organisationId, isActive])
+  @@index([nextRunDate])
+}
+
+enum ReminderType {
+  BEFORE_DUE // Reminder before due date
+  ON_DUE // On due date
+  AFTER_DUE // After due date (overdue)
+  ESCALATION // Escalated reminder
+}
+
+enum ReminderStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+model PaymentReminder {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  // Reminder config
+  reminderType ReminderType
+  scheduledFor DateTime
+  sentAt       DateTime?
+
+  // Content
+  subject String
+  body    String
+
+  // Status
+  status        ReminderStatus @default(PENDING)
+  failureReason String?
+
+  // Escalation
+  escalationLevel Int @default(1) // 1 = friendly, 2 = firm, 3 = final
+
+  createdAt DateTime @default(now())
+
+  @@index([organisationId, status])
+  @@index([invoiceId])
+  @@index([scheduledFor, status])
+}
+
+model ReminderSettings {
+  id             String       @id @default(cuid())
+  organisationId String       @unique
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Auto-reminder settings
+  enableAutoReminders   Boolean @default(true)
+  reminderDaysBeforeDue Int[]   @default([7, 3, 1]) // Days before due to remind
+  reminderDaysAfterDue  Int[]   @default([1, 7, 14, 30]) // Days after due
+
+  // Escalation settings
+  autoEscalate            Boolean @default(true)
+  escalationThresholdDays Int     @default(14) // Days overdue before escalation
+  maxEscalationLevel      Int     @default(3)
+
+  // Email templates
+  beforeDueTemplate  String?
+  onDueTemplate      String?
+  afterDueTemplate   String?
+  escalationTemplate String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============================================================================
+// AI Learning from Corrections
+// ============================================================================
+
+model CorrectionRecord {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Entity being corrected
+  entityType String // 'receipt', 'expense', 'invoice', 'transaction'
+  entityId   String
+
+  // Correction details
+  field          String // Field that was corrected (e.g., 'category', 'merchant')
+  originalValue  Json // AI-predicted value
+  correctedValue Json // User-corrected value
+
+  // Context for pattern matching
+  context Json? // Additional context (merchant name, amount range, etc.)
+
+  // User who made the correction
+  userId String
+  user   User   @relation("CorrectionRecords", fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([organisationId, entityType, field])
+  @@index([organisationId, createdAt])
+  @@index([userId])
+}
+
+model LearningPattern {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Pattern definition
+  patternType String // 'merchant_category', 'amount_category', etc.
+  condition   Json // What to match (e.g., { merchant: "starbucks" })
+  adjustment  Json // What to change (e.g., { category: "Meals & Entertainment" })
+
+  // Confidence metrics
+  occurrences Int     @default(1) // Number of times this pattern has been observed
+  accuracy    Decimal @default(1.0) @db.Decimal(3, 2) // 0.00-1.00
+
+  // Status
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organisationId, patternType, condition])
+  @@index([organisationId, isActive])
+  @@index([organisationId, accuracy])
+}
+
+// ============================================================================
+// ELSTER CERTIFICATE MANAGEMENT MODELS
+// ============================================================================
+
+model ElsterCertificate {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // User-friendly identification
+  name String
+
+  // Encrypted certificate data (AES-256-GCM)
+  encryptedData     Bytes
+  encryptedPassword Bytes
+  iv                Bytes
+  authTag           Bytes
+
+  // Certificate metadata (extracted from cert)
+  serialNumber String?
+  issuer       String?
+  subject      String?
+  validFrom    DateTime
+  validTo      DateTime
+
+  // Status tracking
+  isActive   Boolean   @default(true)
+  lastUsedAt DateTime?
+
+  // Audit trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+
+  // Relations
+  auditLogs ElsterCertificateAuditLog[]
+
+  @@index([organisationId])
+  @@index([validTo])
+  @@index([isActive])
+  @@index([organisationId, isActive])
+}
+
+model ElsterCertificateAuditLog {
+  id             String            @id @default(cuid())
+  certificateId  String
+  certificate    ElsterCertificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  organisationId String
+
+  // Action details
+  action      String
+  performedBy String
+
+  // Request context
+  ipAddress String?
+  userAgent String?
+
+  // Result
+  success      Boolean @default(true)
+  errorMessage String?
+  details      Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([certificateId])
+  @@index([organisationId])
+  @@index([createdAt])
+  @@index([action])
+  @@index([organisationId, createdAt])
+}
+
+// ============================================================================
+// ELSTER VAT FILING MODELS
+// ============================================================================
+
+model ElsterFiling {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Filing type and period
+  type       String // USTVA (VAT), ZM (advance payment), UST (annual)
+  year       Int
+  period     Int // Month (1-12) or Quarter (1-4)
+  periodType String // MONTHLY, QUARTERLY, ANNUAL
+
+  // Submission status
+  status         String // DRAFT, SUBMITTED, ACCEPTED, REJECTED, ERROR
+  submissionId   String? // External reference from ELSTER/tigerVAT
+  transferTicket String? // ELSTER transfer ticket
+  submittedAt    DateTime?
+  responseAt     DateTime?
+
+  // Data
+  data     Json // UStVA data structure
+  response Json? // ELSTER/tigerVAT response
+  errors   Json? // Any errors or warnings
+
+  // Certificate used for submission
+  certificateId String?
+
+  // Audit trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+
+  // Relations
+  statusEvents ElsterFilingStatusEvent[]
+
+  @@unique([organisationId, type, year, period])
+  @@index([organisationId])
+  @@index([status])
+  @@index([year, period])
+  @@index([organisationId, status])
+  @@index([submittedAt])
+}
+
+model ElsterFilingStatusEvent {
+  id       String       @id @default(cuid())
+  filingId String
+  filing   ElsterFiling @relation(fields: [filingId], references: [id], onDelete: Cascade)
+
+  fromStatus String?
+  toStatus   String
+  details    Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([filingId])
+  @@index([createdAt])
+  @@index([filingId, createdAt])
+}
+
+// ============================================================================
+// PROCESS DOCUMENTATION MODELS (GoBD Verfahrensdokumentation)
+// ============================================================================
+
+enum ProcessDocumentationStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  ARCHIVED
+}
+
+model ProcessDocumentation {
+  id           String                     @id @default(cuid())
+  tenantId     String
+  organisation Organisation               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  version      Int                        @default(1)
+  status       ProcessDocumentationStatus @default(DRAFT)
+  sections     Json // All documentation sections as JSON
+  approvedBy   String? // User ID who approved
+  approvedAt   DateTime?
+  createdAt    DateTime                   @default(now())
+  updatedAt    DateTime                   @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([version])
+  @@index([tenantId, status])
+  @@map("process_documentation")
+}
+
+// ============================================================================
+// SCHEDULED EXPORT MODELS
+// ============================================================================
+
+model ScheduledExport {
+  id          String    @id @default(uuid())
+  orgId       String
+  name        String
+  exportType  String // DATEV, SAFT, BMD
+  config      Json // Format-specific configuration
+  schedule    String // Cron expression
+  timezone    String    @default("Europe/Berlin")
+  isActive    Boolean   @default(true)
+  lastRunAt   DateTime?
+  nextRunAt   DateTime?
+  lastStatus  String?
+  notifyEmail String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  runs ScheduledExportRun[]
+
+  @@index([orgId])
+  @@index([nextRunAt])
+  @@index([isActive])
+  @@map("scheduled_exports")
+}
+
+model ScheduledExportRun {
+  id                String    @id @default(uuid())
+  scheduledExportId String
+  status            String // pending, processing, completed, failed
+  exportId          String? // Reference to actual export (GobdExport, SaftExport, etc.)
+  error             String?
+  startedAt         DateTime  @default(now())
+  completedAt       DateTime?
+
+  scheduledExport ScheduledExport @relation(fields: [scheduledExportId], references: [id], onDelete: Cascade)
+
+  @@index([scheduledExportId])
+  @@index([status])
+  @@index([startedAt])
+  @@map("scheduled_export_runs")
+}
+
+// ============================================================================
+// GOBD-COMPLIANT DOCUMENT ARCHIVING MODELS
+// ============================================================================
+
+enum RetentionCategory {
+  TAX_RELEVANT // 10 years retention (invoices, receipts, tax documents)
+  BUSINESS // 6 years retention (contracts, correspondence)
+  CORRESPONDENCE // 6 years retention (general correspondence)
+  HR // Varies by document type (employment contracts, payslips)
+  LEGAL // Permanent or long-term retention
+  TEMPORARY // Short-term retention (1 year)
+}
+
+enum ArchiveStatus {
+  ACTIVE // Currently stored and retrievable
+  PENDING // Upload/encryption in progress
+  DELETED // Soft-deleted (retention period expired)
+  CORRUPTED // Failed integrity check
+}
+
+model ArchivedDocument {
+  id             String @id @default(cuid())
+  organisationId String
+
+  // File information
+  originalFilename String
+  mimeType         String
+  fileSizeBytes    Int
+  contentHash      String @unique // SHA-256 hash of original content
+
+  // Storage
+  storagePath   String // Encrypted file location on disk
+  encryptionIv  Bytes // AES-256-GCM initialization vector
+  encryptionTag Bytes // AES-256-GCM authentication tag
+
+  // Archival metadata
+  status             ArchiveStatus     @default("ACTIVE")
+  retentionCategory  RetentionCategory
+  archivedAt         DateTime          @default(now())
+  retentionEndDate   DateTime // Calculated from category and archive date
+  lastAccessedAt     DateTime?
+  lastVerifiedAt     DateTime?
+  verificationResult String? // "VALID", "CORRUPTED", "TAMPERED"
+
+  // Entity linking (optional - link to invoice, expense, etc.)
+  entityType String? // "Invoice", "Expense", "Receipt", "Contract"
+  entityId   String?
+
+  // Metadata
+  metadata Json? // Additional context (uploader, tags, etc.)
+  tags     String[] @default([])
+
+  // Audit trail
+  uploadedBy String // User ID who uploaded
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  versions       DocumentVersion[] // Version history if re-archived
+  retentionHolds RetentionHold[] // Legal holds
+
+  @@index([organisationId])
+  @@index([contentHash])
+  @@index([status])
+  @@index([retentionCategory])
+  @@index([retentionEndDate])
+  @@index([entityType, entityId])
+  @@index([uploadedBy])
+  @@index([archivedAt])
+  @@map("archived_documents")
+}
+
+model DocumentVersion {
+  id         String @id @default(cuid())
+  documentId String
+
+  // Version metadata
+  version       Int
+  changeReason  String? // Why this document was re-archived
+  previousHash  String? // Hash of previous version
+  archivedAt    DateTime @default(now())
+  archivedBy    String // User ID
+  retentionDate DateTime // When this version can be purged
+
+  // Storage reference (if kept)
+  storagePath String?
+  contentHash String
+
+  // Audit trail
+  createdAt DateTime @default(now())
+
+  // Relations
+  document ArchivedDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([version])
+  @@index([archivedAt])
+  @@map("document_versions")
+}
+
+// ============================================================================
+// RETENTION POLICY ENFORCEMENT
+// ============================================================================
+
+model RetentionHold {
+  id         String @id @default(cuid())
+  documentId String
+
+  // Hold details
+  reason     String
+  placedBy   String // User ID who placed the hold
+  placedAt   DateTime  @default(now())
+  releasedAt DateTime? // null = still active
+
+  // Audit trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  document ArchivedDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@index([placedAt])
+  @@index([releasedAt])
+  @@map("retention_holds")
+}
+
+// ============================================================================
+// QUICKBOOKS INTEGRATION MODELS
+// ============================================================================
+
+enum QuickBooksConnectionStatus {
+  CONNECTED
+  DISCONNECTED
+  EXPIRED
+  ERROR
+}
+
+model QuickBooksConnection {
+  id    String @id @default(uuid())
+  orgId String
+
+  // QuickBooks Company
+  companyId   String // QuickBooks realm ID
+  companyName String?
+
+  // OAuth2 Tokens (encrypted)
+  accessToken  String // AES-256-GCM encrypted
+  refreshToken String // AES-256-GCM encrypted
+
+  // Encryption metadata
+  encryptionIv  Bytes // AES-256-GCM initialization vector
+  encryptionTag Bytes // AES-256-GCM authentication tag
+
+  // Token expiry
+  tokenExpiresAt        DateTime
+  refreshTokenExpiresAt DateTime
+
+  // Connection status
+  status      QuickBooksConnectionStatus @default(CONNECTED)
+  isConnected Boolean                    @default(true)
+  lastSyncAt  DateTime?
+  lastError   String?
+  lastErrorAt DateTime?
+
+  // Environment
+  environment String @default("sandbox") // sandbox or production
+
+  // Audit trail
+  connectedAt    DateTime  @default(now())
+  disconnectedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  organisation Organisation         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  auditLogs    QuickBooksAuditLog[]
+
+  @@unique([orgId, companyId])
+  @@index([orgId])
+  @@index([companyId])
+  @@index([status])
+  @@index([isConnected])
+  @@index([tokenExpiresAt])
+  @@map("quickbooks_connections")
+}
+
+enum QuickBooksAuditAction {
+  CONNECT
+  DISCONNECT
+  TOKEN_REFRESH
+  SYNC
+  API_CALL
+  ERROR
+}
+
+model QuickBooksAuditLog {
+  id           String @id @default(cuid())
+  connectionId String
+
+  // Action details
+  action       QuickBooksAuditAction
+  endpoint     String? // API endpoint called
+  statusCode   Int?
+  success      Boolean               @default(true)
+  errorMessage String?
+
+  // Request context
+  requestId String?
+  ipAddress String?
+  userAgent String?
+
+  // Metadata
+  metadata Json?
+
+  // Timestamp
+  createdAt DateTime @default(now())
+
+  // Relations
+  connection QuickBooksConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([connectionId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([success])
+  @@map("quickbooks_audit_logs")
+}
+
+// ============================================================================
+// XERO INTEGRATION MODELS (UK/AU/NZ Market)
+// ============================================================================
+
+enum XeroConnectionStatus {
+  CONNECTED
+  DISCONNECTED
+  EXPIRED
+  ERROR
+}
+
+model XeroConnection {
+  id    String @id @default(uuid())
+  orgId String
+
+  // Xero Organization (Tenant)
+  xeroTenantId String // Xero tenant ID
+  xeroOrgName  String?
+
+  // OAuth2 Tokens (encrypted)
+  accessToken  String // AES-256-GCM encrypted
+  refreshToken String // AES-256-GCM encrypted
+
+  // Encryption metadata
+  encryptionIv  Bytes // AES-256-GCM initialization vector
+  encryptionTag Bytes // AES-256-GCM authentication tag
+
+  // Token expiry
+  tokenExpiresAt        DateTime
+  refreshTokenExpiresAt DateTime
+
+  // Connection status
+  status      XeroConnectionStatus @default(CONNECTED)
+  isConnected Boolean              @default(true)
+  lastSyncAt  DateTime?
+  lastError   String?
+  lastErrorAt DateTime?
+
+  // Audit trail
+  connectedAt    DateTime  @default(now())
+  disconnectedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  organisation Organisation   @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  auditLogs    XeroAuditLog[]
+
+  @@unique([orgId, xeroTenantId])
+  @@index([orgId])
+  @@index([xeroTenantId])
+  @@index([status])
+  @@index([isConnected])
+  @@index([tokenExpiresAt])
+  @@map("xero_connections")
+}
+
+enum XeroAuditAction {
+  CONNECT
+  DISCONNECT
+  TOKEN_REFRESH
+  SYNC
+  API_CALL
+  ERROR
+}
+
+model XeroAuditLog {
+  id           String @id @default(cuid())
+  connectionId String
+
+  // Action details
+  action       XeroAuditAction
+  endpoint     String? // API endpoint called
+  statusCode   Int?
+  success      Boolean         @default(true)
+  errorMessage String?
+
+  // Request context
+  requestId String?
+  ipAddress String?
+  userAgent String?
+
+  // Metadata
+  metadata Json?
+
+  // Timestamp
+  createdAt DateTime @default(now())
+
+  // Relations
+  connection XeroConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([connectionId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([success])
+  @@map("xero_audit_logs")
+}
+
+// ============================================================================
+// EMAIL INTEGRATION MODELS (Gmail, Outlook, IMAP)
+// ============================================================================
+
+enum EmailProvider {
+  GMAIL
+  OUTLOOK
+  IMAP
+}
+
+enum EmailSyncStatus {
+  PENDING
+  SYNCING
+  SYNCED
+  ERROR
+}
+
+model EmailConnection {
+  id     String @id @default(cuid())
+  userId String
+  orgId  String
+
+  // Email provider details
+  provider EmailProvider
+  email    String
+
+  // OAuth2 Tokens (encrypted)
+  accessToken  String   @db.Text // AES-256-GCM encrypted
+  refreshToken String?  @db.Text // AES-256-GCM encrypted (optional for IMAP)
+
+  // Encryption metadata
+  encryptionIv  Bytes // AES-256-GCM initialization vector
+  encryptionTag Bytes // AES-256-GCM authentication tag
+
+  // Token expiry
+  tokenExpiresAt DateTime?
+
+  // Scopes granted
+  scopes String[] // Gmail: gmail.readonly, gmail.labels
+
+  // Sync configuration
+  syncEnabled Boolean          @default(true)
+  lastSyncAt  DateTime?
+  syncStatus  EmailSyncStatus  @default(PENDING)
+  syncError   String?          @db.Text
+
+  // Audit trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  auditLogs    EmailAuditLog[]
+
+  @@unique([userId, provider, email])
+  @@index([userId])
+  @@index([orgId])
+  @@index([provider])
+  @@index([syncStatus])
+  @@index([lastSyncAt])
+  @@map("email_connections")
+}
+
+enum EmailAuditAction {
+  CONNECT
+  DISCONNECT
+  TOKEN_REFRESH
+  SYNC
+  EMAIL_READ
+  ATTACHMENT_DOWNLOAD
+  ERROR
+}
+
+model EmailAuditLog {
+  id           String @id @default(cuid())
+  connectionId String
+
+  // Action details
+  action       EmailAuditAction
+  endpoint     String? // API endpoint called
+  statusCode   Int?
+  success      Boolean @default(true)
+  errorMessage String? @db.Text
+
+  // Request context
+  requestId String?
+  ipAddress String?
+  userAgent String?
+
+  // Metadata
+  metadata Json?
+
+  // Timestamp
+  createdAt DateTime @default(now())
+
+  // Relations
+  connection EmailConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([connectionId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([success])
+  @@map("email_audit_logs")
+}
+
+// ============================================================================
+// PLAID BANK INTEGRATION MODELS (US Market)
+// ============================================================================
+
+enum PlaidAccountType {
+  DEPOSITORY // Checking, savings
+  CREDIT // Credit cards
+  LOAN // Mortgages, student loans
+  INVESTMENT // Brokerage, retirement
+  OTHER
+}
+
+enum PlaidAccountSubtype {
+  CHECKING
+  SAVINGS
+  MONEY_MARKET
+  CD // Certificate of deposit
+  CREDIT_CARD
+  PAYPAL
+  OTHER
+}
+
+enum PlaidTransactionStatus {
+  PENDING
+  POSTED
+  REMOVED
+}
+
+model PlaidBankAccount {
+  id    String @id @default(uuid())
+  orgId String
+
+  // Plaid identifiers
+  plaidAccountId  String // External account ID from Plaid
+  plaidItemId     String // Plaid item this account belongs to
+  institutionId   String?
+  institutionName String?
+
+  // Account details
+  name           String
+  officialName   String?
+  mask           String? // Last 4 digits
+  accountType    PlaidAccountType
+  accountSubtype PlaidAccountSubtype?
+
+  // Balances
+  currentBalance   Decimal? @db.Decimal(12, 2)
+  availableBalance Decimal? @db.Decimal(12, 2)
+  currency         String   @default("USD")
+
+  // Balance tracking
+  lastBalanceUpdate DateTime?
+  balanceAsOf       DateTime?
+
+  // Sync tracking
+  lastSyncAt          DateTime?
+  syncCursor          String? // Plaid transactions sync cursor
+  initialSyncComplete Boolean   @default(false)
+
+  // Status
+  isActive  Boolean @default(true)
+  isPrimary Boolean @default(false) // Primary account for org
+
+  // Metadata
+  metadata Json?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  organisation Organisation       @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  transactions PlaidTransaction[]
+
+  @@unique([orgId, plaidAccountId])
+  @@index([orgId])
+  @@index([plaidItemId])
+  @@index([institutionId])
+  @@index([isActive])
+  @@map("plaid_bank_accounts")
+}
+
+model PlaidTransaction {
+  id        String @id @default(uuid())
+  accountId String
+  orgId     String
+
+  // Plaid identifiers
+  plaidTransactionId String  @unique
+  plaidAccountId     String
+  plaidItemId        String?
+
+  // Transaction details
+  amount                 Decimal @db.Decimal(12, 2)
+  isoCurrencyCode        String  @default("USD")
+  unofficialCurrencyCode String?
+
+  // Dates
+  date           DateTime  @db.Date
+  authorizedDate DateTime? @db.Date
+  postedDate     DateTime? @db.Date
+
+  // Description
+  name                String
+  merchantName        String?
+  originalDescription String?
+
+  // Status
+  status  PlaidTransactionStatus @default(POSTED)
+  pending Boolean                @default(false)
+
+  // Categorization (Plaid's categories)
+  category                        String[] @default([])
+  categoryId                      String?
+  personalFinanceCategoryPrimary  String?
+  personalFinanceCategoryDetailed String?
+  personalFinanceCategory         Json?
+
+  // Payment metadata
+  paymentChannel String? // online, in store, etc.
+  paymentMeta    Json?
+
+  // Location
+  locationAddress    String?
+  locationCity       String?
+  locationRegion     String?
+  locationPostalCode String?
+  locationCountry    String?
+  locationLat        Decimal? @db.Decimal(10, 8)
+  locationLon        Decimal? @db.Decimal(11, 8)
+
+  // Check details
+  checkNumber String?
+
+  // Counterparty
+  counterpartyName    String?
+  counterpartyType    String?
+  counterpartyLogoUrl String?
+  counterpartyWebsite String?
+
+  // Reconciliation
+  isReconciled     Boolean   @default(false)
+  matchedExpenseId String? // Link to Expense model
+  matchedInvoiceId String? // Link to Invoice model
+  matchConfidence  Decimal?  @db.Decimal(3, 2)
+  matchedAt        DateTime?
+  matchedBy        String? // User ID who confirmed match
+
+  // Internal categorization (after AI processing)
+  internalCategory   String?
+  categoryConfidence Decimal? @db.Decimal(3, 2)
+
+  // Flags
+  isDuplicate   Boolean @default(false)
+  isTransfer    Boolean @default(false)
+  isIncome      Boolean @default(false)
+  isTaxRelevant Boolean @default(false)
+
+  // Raw data from Plaid
+  rawData Json?
+
+  // Sync metadata
+  syncedAt         DateTime @default(now())
+  updatedFromPlaid DateTime @default(now())
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  organisation Organisation     @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  account      PlaidBankAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@index([orgId])
+  @@index([date])
+  @@index([status])
+  @@index([isReconciled])
+  @@index([merchantName])
+  @@index([plaidAccountId])
+  @@index([pending])
+  @@index([orgId, date])
+  @@index([orgId, isReconciled])
+  @@map("plaid_transactions")
+}
+
+// ============================================================================
+// TRUELAYER INTEGRATION MODELS (UK Open Banking)
+// ============================================================================
+
+enum TrueLayerAccountType {
+  TRANSACTION
+  SAVINGS
+  CURRENT
+}
+
+enum TrueLayerTransactionType {
+  DEBIT
+  CREDIT
+}
+
+enum TrueLayerConnectionStatus {
+  ACTIVE
+  INACTIVE
+  ERROR
+  EXPIRED
+  REVOKED
+}
+
+enum TrueLayerTransactionStatus {
+  PENDING
+  POSTED
+  REMOVED
+}
+
+model TrueLayerBankAccount {
+  id    String @id @default(uuid())
+  orgId String
+
+  // TrueLayer identifiers
+  trueLayerAccountId String // External account ID from TrueLayer
+  trueLayerConnectionId String // TrueLayer connection this account belongs to
+  providerId         String?
+  providerName       String?
+
+  // Account details
+  displayName String
+  accountType TrueLayerAccountType
+  currency    String @default("GBP")
+
+  // Account numbers (encrypted)
+  iban      String?
+  sortCode  String?
+  accountNumber String?
+  swiftBic  String?
+
+  // Balances
+  currentBalance   Decimal? @db.Decimal(12, 2)
+  availableBalance Decimal? @db.Decimal(12, 2)
+  overdraft        Decimal? @db.Decimal(12, 2)
+
+  // Balance tracking
+  lastBalanceUpdate DateTime?
+  balanceAsOf       DateTime?
+
+  // Sync tracking
+  lastSyncAt          DateTime?
+  syncCursor          String? // Cursor for incremental sync
+  initialSyncComplete Boolean   @default(false)
+
+  // Status
+  isActive  Boolean @default(true)
+  isPrimary Boolean @default(false)
+
+  // Metadata
+  metadata Json?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  organisation Organisation           @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  transactions TrueLayerTransaction[]
+
+  @@unique([orgId, trueLayerAccountId])
+  @@index([orgId])
+  @@index([trueLayerConnectionId])
+  @@index([providerId])
+  @@index([isActive])
+  @@map("truelayer_bank_accounts")
+}
+
+model TrueLayerTransaction {
+  id        String @id @default(uuid())
+  accountId String
+  orgId     String
+
+  // TrueLayer identifiers
+  trueLayerTransactionId String  @unique
+  trueLayerAccountId     String
+  trueLayerConnectionId  String?
+
+  // Transaction details
+  amount             Decimal @db.Decimal(12, 2)
+  currency           String  @default("GBP")
+  transactionType    TrueLayerTransactionType
+  transactionCategory String?
+
+  // Dates
+  timestamp DateTime
+  postDate  DateTime?
+
+  // Description
+  description  String
+  merchantName String?
+
+  // Classification
+  transactionClassification String[] @default([])
+
+  // Running balance
+  runningBalanceAmount   Decimal? @db.Decimal(12, 2)
+  runningBalanceCurrency String?
+
+  // Status
+  status  TrueLayerTransactionStatus @default(POSTED)
+  pending Boolean                     @default(false)
+
+  // Reconciliation
+  isReconciled     Boolean   @default(false)
+  matchedExpenseId String?
+  matchedInvoiceId String?
+  matchConfidence  Decimal?  @db.Decimal(3, 2)
+  matchedAt        DateTime?
+  matchedBy        String?
+
+  // Internal categorization
+  internalCategory   String?
+  categoryConfidence Decimal? @db.Decimal(3, 2)
+
+  // Flags
+  isDuplicate   Boolean @default(false)
+  isTransfer    Boolean @default(false)
+  isIncome      Boolean @default(false)
+  isTaxRelevant Boolean @default(false)
+
+  // Raw data
+  rawData Json?
+
+  // Sync metadata
+  syncedAt           DateTime @default(now())
+  updatedFromTrueLayer DateTime @default(now())
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  organisation Organisation          @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  account      TrueLayerBankAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@index([orgId])
+  @@index([timestamp])
+  @@index([status])
+  @@index([isReconciled])
+  @@index([merchantName])
+  @@index([trueLayerAccountId])
+  @@index([pending])
+  @@index([orgId, timestamp])
+  @@index([orgId, isReconciled])
+  @@map("truelayer_transactions")
+}
+
+// ============================================================================
+// US SALES TAX MODELS (Avalara Integration)
+// ============================================================================
+
+enum NexusStatus {
+  ACTIVE // Currently obligated to collect tax
+  PENDING // Threshold approaching
+  INACTIVE // No obligation
+  SUSPENDED // Temporarily suspended
+}
+
+model TaxNexus {
+  id    String @id @default(uuid())
+  orgId String
+
+  // Jurisdiction
+  state         String // Two-letter state code (e.g., "CA", "NY")
+  effectiveDate DateTime
+  endDate       DateTime?
+
+  // Nexus details
+  nexusTypeId      String? // Physical, economic, marketplace, etc.
+  hasLocalNexus    Boolean @default(false)
+  localNexusTypeId String?
+
+  // Status
+  status NexusStatus @default("ACTIVE")
+
+  // Thresholds (for economic nexus)
+  salesThreshold       Decimal? @db.Decimal(12, 2) // e.g., $100,000
+  transactionThreshold Int? // e.g., 200 transactions
+
+  // Tracking
+  currentSales        Decimal @default(0) @db.Decimal(12, 2)
+  currentTransactions Int     @default(0)
+
+  // Registration details
+  taxRegistrationId String? // State tax ID
+  registeredDate    DateTime?
+
+  // Settings
+  isSSTMember   Boolean @default(false) // Streamlined Sales Tax member
+  roundingLevel String? // Line, Document
+
+  // Metadata
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([orgId, state])
+  @@index([orgId])
+  @@index([state])
+  @@index([status])
+  @@index([effectiveDate])
+  @@map("tax_nexus")
+}
+
+enum ExemptionType {
+  RESALE // Resale certificate
+  NONPROFIT // Tax-exempt nonprofit
+  GOVERNMENT // Government entity
+  MANUFACTURING // Manufacturing exemption
+  AGRICULTURE // Agricultural exemption
+  DIRECT_PAY // Direct pay permit
+  OTHER
+}
+
+enum ExemptionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  PENDING_VERIFICATION
+}
+
+model TaxExemptionCertificate {
+  id         String  @id @default(uuid())
+  orgId      String
+  customerId String? // Reference to Customer model
+
+  // Certificate details
+  certificateNumber String
+  exemptionType     ExemptionType
+  exemptionReason   String?
+
+  // Validity
+  status         ExemptionStatus @default("ACTIVE")
+  effectiveDate  DateTime
+  expirationDate DateTime?
+
+  // Jurisdictions
+  states String[] // States where exemption applies
+
+  // Document
+  documentUrl  String? // Scanned certificate
+  documentHash String? // SHA-256 for integrity
+
+  // Issuing authority
+  issuingAuthority String?
+  issuingState     String?
+
+  // Validation
+  verifiedBy     String? // User ID who verified
+  verifiedAt     DateTime?
+  lastVerifiedAt DateTime?
+
+  // Avalara reference
+  avalaraId String? // Avalara certificate ID
+
+  // Metadata
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([orgId, certificateNumber])
+  @@index([orgId])
+  @@index([customerId])
+  @@index([status])
+  @@index([expirationDate])
+  @@index([exemptionType])
+  @@map("tax_exemption_certificates")
+}
+
+enum TransactionStatus {
+  TEMPORARY // Not committed (estimate/quote)
+  SAVED // Saved but not committed
+  COMMITTED // Finalized, tax liability recorded
+  VOIDED // Cancelled
+  ADJUSTED // Modified after commit
+}
+
+model TaxTransaction {
+  id    String @id @default(uuid())
+  orgId String
+
+  // Transaction identification
+  transactionCode String // Unique code for this transaction
+  documentType    String @default("SalesInvoice") // SalesInvoice, ReturnInvoice, etc.
+
+  // Status
+  status TransactionStatus @default(TEMPORARY)
+
+  // References
+  invoiceId    String? // Link to Invoice model
+  customerId   String? // Link to Customer
+  customerCode String
+
+  // Amounts
+  totalAmount  Decimal @db.Decimal(12, 2)
+  totalTaxable Decimal @db.Decimal(12, 2)
+  totalExempt  Decimal @db.Decimal(12, 2)
+  totalTax     Decimal @db.Decimal(12, 2)
+
+  // Addresses
+  originAddress      Json // Shipping origin
+  destinationAddress Json // Shipping destination
+
+  // Dates
+  transactionDate DateTime @db.Date
+  taxDate         DateTime @db.Date
+
+  // Avalara details
+  avalaraCode String? // Avalara transaction code
+  avalaraId   String? // Avalara internal ID
+
+  // Line items (stored as JSON for flexibility)
+  lines Json // Array of line items with tax details
+
+  // Summary by jurisdiction
+  jurisdictionSummary Json? // Tax breakdown by jurisdiction
+
+  // Exemption
+  exemptionNo String?
+
+  // Audit
+  committedAt DateTime?
+  committedBy String? // User ID
+  voidedAt    DateTime?
+  voidedBy    String? // User ID
+  voidReason  String?
+
+  // Metadata
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([orgId, transactionCode])
+  @@index([orgId])
+  @@index([invoiceId])
+  @@index([customerId])
+  @@index([status])
+  @@index([transactionDate])
+  @@index([taxDate])
+  @@index([avalaraCode])
+  @@map("tax_transactions")
+}
+
+// ============================================================================
+// HMRC MTD (Making Tax Digital) Integration - UK
+// ============================================================================
+
+enum HmrcConnectionStatus {
+  CONNECTED
+  DISCONNECTED
+  EXPIRED
+  ERROR
+}
+
+model HmrcConnection {
+  id    String @id @default(uuid())
+  orgId String
+
+  // VAT Registration Number
+  vrn String
+
+  // OAuth2 Tokens (encrypted with AES-256-GCM)
+  accessToken  String // Encrypted access token
+  refreshToken String // Encrypted refresh token
+
+  // Encryption metadata
+  encryptionIv  Bytes // AES-256-GCM initialization vector
+  encryptionTag Bytes // AES-256-GCM authentication tag
+
+  // Token expiry
+  tokenExpiresAt        DateTime
+  refreshTokenExpiresAt DateTime
+
+  // Connection status
+  status       HmrcConnectionStatus @default(CONNECTED)
+  isConnected  Boolean              @default(true)
+  lastSyncAt   DateTime?
+  lastError    String?
+  lastErrorAt  DateTime?
+
+  // Environment
+  environment String @default("sandbox") // sandbox or production
+
+  // Audit trail
+  connectedAt    DateTime  @default(now())
+  disconnectedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  createdBy      String?
+  updatedBy      String?
+
+  // Relations
+  auditLogs  HmrcAuditLog[]
+  vatReturns HmrcVatReturn[]
+
+  @@unique([orgId, vrn])
+  @@index([orgId])
+  @@index([vrn])
+  @@index([status])
+  @@index([isConnected])
+  @@map("hmrc_connections")
+}
+
+model HmrcAuditLog {
+  id           String   @id @default(uuid())
+  connectionId String
+
+  // Action details
+  action       String // CONNECT, DISCONNECT, TOKEN_REFRESH, API_CALL
+  endpoint     String? // API endpoint called
+  statusCode   Int? // HTTP status code
+  success      Boolean
+  errorMessage String?
+
+  // Request tracking
+  requestId String?
+  ipAddress String?
+  userAgent String?
+
+  // Metadata
+  metadata Json @default("{}")
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relations
+  connection HmrcConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([connectionId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("hmrc_audit_logs")
+}
+
+enum VatReturnStatus {
+  DRAFT
+  SUBMITTED
+  ACCEPTED
+  REJECTED
+}
+
+model HmrcVatReturn {
+  id           String          @id @default(uuid())
+  orgId        String
+  connectionId String
+
+  // VAT Registration Number
+  vrn String
+
+  // Period details
+  periodKey  String
+  periodFrom DateTime
+  periodTo   DateTime
+  dueDate    DateTime
+
+  // VAT Return - 9 Boxes (all in pence)
+  box1VatDueSales             Int // VAT due on sales and other outputs
+  box2VatDueAcquisitions      Int // VAT due on acquisitions from other EC Member States
+  box3TotalVatDue             Int // Total VAT due (calculated: box1 + box2)
+  box4VatReclaimed            Int // VAT reclaimed on purchases and other inputs
+  box5NetVatDue               Int // Net VAT to pay/reclaim (calculated: box3 - box4)
+  box6TotalValueSalesExVat    Int // Total value of sales and all other outputs excluding VAT
+  box7TotalValuePurchasesExVat Int // Total value of purchases and all other inputs excluding VAT
+  box8TotalValueGoodsSupplied Int // Total value of all supplies of goods and related costs, excluding VAT, to other EC Member States
+  box9TotalAcquisitionsExVat  Int // Total value of acquisitions of goods and related costs, excluding VAT, from other EC Member States
+
+  // Submission details
+  status              VatReturnStatus @default(DRAFT)
+  finalised           Boolean         @default(false)
+  submittedAt         DateTime?
+  hmrcProcessingDate  String? // HMRC processing date from response
+  hmrcReceiptId       String? // Form bundle number from HMRC
+  hmrcChargeRefNumber String? // Charge reference number (if applicable)
+
+  // Metadata
+  calculatedFrom Json? // Store source data used for calculation
+  metadata       Json  @default("{}")
+
+  // Audit trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  // Relations
+  connection HmrcConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, periodKey])
+  @@index([orgId])
+  @@index([vrn])
+  @@index([status])
+  @@index([periodFrom, periodTo])
+  @@index([dueDate])
+  @@map("hmrc_vat_returns")
+}
+
+// ============================================================================
+// EXCHANGE RATES
+// ============================================================================
+
+// Exchange Rate
+// Stores historical and current exchange rates for currency conversions
+//
+// Features:
+// - Live rates from external API (Open Exchange Rates)
+// - Historical rates for specific dates
+// - Multiple sources support (API, manual, calculated)
+// - High precision (18,8 decimals)
+//
+// Usage:
+// - Multi-currency invoicing
+// - Expense tracking in multiple currencies
+// - Financial reporting and consolidation
+// - Payroll calculations for international employees
+model ExchangeRate {
+  id             String   @id @default(cuid())
+  baseCurrency   String   @db.VarChar(3)
+  targetCurrency String   @db.VarChar(3)
+  rate           Decimal  @db.Decimal(18, 8)
+  source         String   @db.VarChar(50) // openexchangerates, wise, manual, etc.
+  date           DateTime @db.Date
+  fetchedAt      DateTime @default(now())
+
+  @@unique([baseCurrency, targetCurrency, date])
+  @@index([baseCurrency, targetCurrency])
+  @@index([date])
+  @@map("exchange_rates")
+}
+
+// ============================================================================
+// USAGE-BASED BILLING
+// ============================================================================
+
+//
+ // Usage Feature Enum
+ // Defines all metered features available for usage-based billing
+//
+enum UsageFeature {
+  OCR_SCAN           // Receipt/invoice OCR scanning
+  API_CALL           // API requests
+  STORAGE_GB         // Storage in gigabytes
+  AI_CLASSIFICATION  // AI-powered transaction classification
+  EMAIL_SENT         // Emails sent
+  BANK_SYNC          // Bank account syncs
+  SMS_SENT           // SMS notifications
+  EXPORT_PDF         // PDF exports
+  WEBHOOK_CALL       // Webhook calls
+  CUSTOM_REPORT      // Custom report generation
+}
+
+//
+ // Usage Event
+ // Tracks individual usage events for metered billing
+//
+ // Features:
+ // - Real-time usage tracking
+ // - Automatic aggregation by billing period
+ // - Integration with Stripe metered billing
+ // - Support for multiple features
+//
+model UsageEvent {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Feature being used
+  feature UsageFeature
+
+  // Usage quantity
+  quantity Int @default(1)
+
+  // Context metadata
+  metadata Json? // Feature-specific data (e.g., file size, API endpoint)
+
+  // Timestamp
+  timestamp DateTime @default(now())
+
+  // Stripe reporting
+  reportedToStripe     Boolean @default(false)
+  stripeUsageRecordId  String?
+  reportedAt           DateTime?
+
+  // User context (optional)
+  userId String?
+  user   User?   @relation("UsageEvents", fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([organisationId, feature])
+  @@index([organisationId, timestamp])
+  @@index([reportedToStripe])
+  @@index([timestamp])
+  @@index([userId])
+  @@map("usage_events")
+}
+
+//
+ // Usage Quota
+ // Defines usage limits and pricing for each feature per organization
+//
+ // Features:
+ // - Per-organization quota configuration
+ // - Free tier allowances
+ // - Overage pricing
+ // - Multiple currency support
+//
+model UsageQuota {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Feature quota
+  feature UsageFeature
+
+  // Free tier allowance (included in subscription)
+  includedQuantity Int @default(0)
+
+  // Pricing for overage
+  pricePerUnit Decimal @db.Decimal(8, 4)
+  currency     String  @default("EUR") @db.VarChar(3)
+
+  // Reset period
+  resetPeriod String @default("MONTHLY") // MONTHLY, QUARTERLY, ANNUALLY
+
+  // Status
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organisationId, feature])
+  @@index([organisationId, isActive])
+  @@map("usage_quotas")
+}
+
+//
+ // Usage Summary
+ // Aggregated usage statistics by billing period
+//
+ // Features:
+ // - Pre-aggregated usage data
+ // - Faster billing calculations
+ // - Historical usage tracking
+ // - Overage detection
+//
+model UsageSummary {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Feature
+  feature UsageFeature
+
+  // Billing period
+  periodStart DateTime
+  periodEnd   DateTime
+
+  // Usage totals
+  totalQuantity    Int
+  includedQuantity Int
+  overageQuantity  Int     @default(0)
+
+  // Cost calculation
+  overageAmount Decimal @default(0) @db.Decimal(10, 2)
+  currency      String  @default("EUR") @db.VarChar(3)
+
+  // Stripe reporting
+  reportedToStripe     Boolean   @default(false)
+  stripeInvoiceItemId  String?
+  reportedAt           DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organisationId, feature, periodStart, periodEnd])
+  @@index([organisationId, periodStart, periodEnd])
+  @@index([reportedToStripe])
+  @@map("usage_summaries")
+}
+
+//
+ // Stripe Usage Record
+ // Tracks usage records sent to Stripe for metered billing
+//
+ // Features:
+ // - Idempotent usage reporting
+ // - Audit trail for Stripe API calls
+ // - Error tracking and retry logic
+//
+model StripeUsageRecord {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Stripe identifiers
+  stripeSubscriptionItemId String
+  stripeUsageRecordId      String?
+
+  // Usage details
+  feature   UsageFeature
+  quantity  Int
+  timestamp DateTime
+
+  // Reporting status
+  status       String    @default("PENDING") // PENDING, SENT, FAILED
+  errorMessage String?
+  retryCount   Int       @default(0)
+  sentAt       DateTime?
+
+  // Idempotency
+  idempotencyKey String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId, status])
+  @@index([status])
+  @@index([stripeSubscriptionItemId])
+  @@map("stripe_usage_records")
+}
+
+// ============================================================================
+// Revenue Recognition Models
+// ASC 606 / IFRS 15 Compliant Revenue Recognition
+// ============================================================================
+
+//
+ // Revenue Recognition
+ // Tracks revenue recognition for subscription billing periods
+ // Implements ASC 606 / IFRS 15 standards for SaaS revenue
+//
+model RevenueRecognition {
+  id             String   @id @default(uuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Subscription reference (optional - could be for trial/custom billing)
+  subscriptionId String?
+
+  // Recognition period
+  periodStart      DateTime
+  periodEnd        DateTime
+  recognitionMonth DateTime @db.Date // First day of recognition month
+
+  // Amounts in cents
+  totalAmount      Decimal @db.Decimal(12, 2) // Total billing amount
+  recognizedAmount Decimal @db.Decimal(12, 2) // Amount recognized this period
+  deferredAmount   Decimal @db.Decimal(12, 2) // Amount still deferred
+
+  // Metadata
+  currency     String  @default("EUR")
+  description  String?
+  invoiceId    String? // Link to invoice if applicable
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId, recognitionMonth])
+  @@index([periodStart, periodEnd])
+  @@index([subscriptionId])
+  @@map("revenue_recognitions")
+}
+
+//
+ // MRR Movement
+ // Tracks Monthly Recurring Revenue changes over time
+ // Used for SaaS metrics and revenue forecasting
+//
+model MrrMovement {
+  id    String   @id @default(uuid())
+  month DateTime @db.Date // First day of the month
+
+  // MRR Components (all in cents)
+  newMrr         Decimal @db.Decimal(12, 2) @default(0) // New customers
+  expansionMrr   Decimal @db.Decimal(12, 2) @default(0) // Upgrades, add-ons
+  contractionMrr Decimal @db.Decimal(12, 2) @default(0) // Downgrades
+  churnMrr       Decimal @db.Decimal(12, 2) @default(0) // Cancellations
+  reactivationMrr Decimal @db.Decimal(12, 2) @default(0) // Returning customers
+
+  // Calculated totals
+  netNewMrr Decimal @db.Decimal(12, 2) @default(0) // Sum of all movements
+  totalMrr  Decimal @db.Decimal(12, 2) @default(0) // Total MRR at end of period
+
+  // Metadata
+  currency           String @default("EUR")
+  customerCount      Int    @default(0)
+  newCustomers       Int    @default(0)
+  churnedCustomers   Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([month, currency])
+  @@index([month])
+  @@map("mrr_movements")
+}
+
+//
+ // Revenue Cohort
+ // Tracks revenue by customer signup cohort for cohort analysis
+//
+model RevenueCohort {
+  id             String   @id @default(uuid())
+  cohortMonth    DateTime @db.Date // Month customer signed up
+  revenueMonth   DateTime @db.Date // Month revenue was recognized
+
+  // Metrics
+  customerCount Int     @default(0)
+  revenue       Decimal @db.Decimal(12, 2) @default(0) // Revenue from this cohort in this month
+  mrr           Decimal @db.Decimal(12, 2) @default(0) // MRR from this cohort
+
+  // Retention metrics
+  activeCustomers   Int     @default(0) // Customers still active from cohort
+  churnedCustomers  Int     @default(0) // Customers churned to date
+  retentionRate     Decimal @db.Decimal(5, 2) @default(0) // Percentage retained
+
+  currency String @default("EUR")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cohortMonth, revenueMonth, currency])
+  @@index([cohortMonth])
+  @@index([revenueMonth])
+  @@map("revenue_cohorts")
+}
+
+//
+ // Deferred Revenue Schedule
+ // Tracks the schedule of deferred revenue to be recognized
+//
+model DeferredRevenueSchedule {
+  id             String   @id @default(uuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Invoice/billing reference
+  invoiceId      String
+  invoiceNumber  String?
+
+  // Schedule details
+  billingDate       DateTime // When payment received
+  recognitionStart  DateTime // When recognition begins
+  recognitionEnd    DateTime // When recognition ends
+
+  // Amounts in cents
+  totalAmount       Decimal @db.Decimal(12, 2) // Total deferred
+  recognizedToDate  Decimal @db.Decimal(12, 2) @default(0) // Already recognized
+  remainingDeferred Decimal @db.Decimal(12, 2) // Still to recognize
+
+  // Metadata
+  currency    String  @default("EUR")
+  description String?
+  status      String  @default("ACTIVE") // ACTIVE, COMPLETED, CANCELLED
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId, status])
+  @@index([recognitionStart, recognitionEnd])
+  @@index([invoiceId])
+  @@map("deferred_revenue_schedules")
+}
+
+//
+ // Revenue Forecast
+ // Stores revenue forecasts based on historical trends
+//
+model RevenueForecast {
+  id           String   @id @default(uuid())
+  forecastMonth DateTime @db.Date // Month being forecasted
+
+  // Forecast amounts (in cents)
+  forecastedMrr Decimal @db.Decimal(12, 2)
+  forecastedArr Decimal @db.Decimal(12, 2)
+
+  // Confidence metrics
+  confidenceLevel   String  @default("MEDIUM") // LOW, MEDIUM, HIGH
+  forecastMethod    String  @default("LINEAR") // LINEAR, MOVING_AVERAGE, EXPONENTIAL
+
+  // Supporting data
+  historicalMonths  Int     // Number of months used in forecast
+  averageGrowthRate Decimal @db.Decimal(5, 2) // Monthly growth rate %
+
+  currency String @default("EUR")
+
+  // When forecast was generated
+  generatedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([forecastMonth, currency, forecastMethod])
+  @@index([forecastMonth])
+  @@map("revenue_forecasts")
+}
+
+//
+ // Dunning Status Enum
+ // Tracks the progression of automated payment failure handling
+//
+enum DunningStatus {
+  RETRYING          // Initial state - automatic retry in progress
+  WARNING_SENT      // First warning email sent (Day 3)
+  ACTION_REQUIRED   // Second warning sent (Day 7)
+  FINAL_WARNING     // Final warning before suspension (Day 14)
+  SUSPENDED         // Account suspended (Day 21)
+  RESOLVED          // Payment recovered or manually resolved
+}
+
+//
+ // Dunning State Model
+ // Manages automated payment failure recovery process
+//
+ // Dunning Schedule:
+ // - Day 0: Immediate retry
+ // - Day 3: Retry + warning email
+ // - Day 7: Retry + "action required" email
+ // - Day 14: Retry + "final warning" email
+ // - Day 21: Suspend account
+//
+ // Features:
+ // - Automated retry scheduling
+ // - Email escalation workflow
+ // - Manual intervention support
+ // - Payment recovery tracking
+//
+model DunningState {
+  id             String        @id @default(cuid())
+  subscriptionId String        @unique
+  
+  // Dunning timeline
+  failedAt    DateTime
+  retryCount  Int           @default(0)
+  nextRetryAt DateTime?
+  
+  // Dunning state
+  state      DunningStatus @default(RETRYING)
+  lastError  String?
+  resolvedAt DateTime?
+  
+  // Metadata
+  metadata   Json          @default("{}")
+  
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([state])
+  @@index([nextRetryAt])
+  @@index([subscriptionId])
+  @@map("dunning_states")
+}
+
+// ============================================================================
+// Revenue Recognition Models
+// ASC 606 / IFRS 15 Compliant Revenue Recognition
+// ============================================================================
+
+//
+ // Revenue Recognition
+ // Tracks revenue recognition for subscription billing periods
+ // Implements ASC 606 / IFRS 15 standards for SaaS revenue
+//
+model RevenueRecognition {
+  id             String   @id @default(uuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Subscription reference (optional - could be for trial/custom billing)
+  subscriptionId String?
+
+  // Recognition period
+  periodStart      DateTime
+  periodEnd        DateTime
+  recognitionMonth DateTime @db.Date // First day of recognition month
+
+  // Amounts in cents
+  totalAmount      Decimal @db.Decimal(12, 2) // Total billing amount
+  recognizedAmount Decimal @db.Decimal(12, 2) // Amount recognized this period
+  deferredAmount   Decimal @db.Decimal(12, 2) // Amount still deferred
+
+  // Metadata
+  currency     String  @default("EUR")
+  description  String?
+  invoiceId    String? // Link to invoice if applicable
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId, recognitionMonth])
+  @@index([periodStart, periodEnd])
+  @@index([subscriptionId])
+  @@map(revenue_recognitions)
+}
+
+//
+ // MRR Movement
+ // Tracks Monthly Recurring Revenue changes over time
+ // Used for SaaS metrics and revenue forecasting
+//
+model MrrMovement {
+  id    String   @id @default(uuid())
+  month DateTime @db.Date // First day of the month
+
+  // MRR Components (all in cents)
+  newMrr         Decimal @db.Decimal(12, 2) @default(0) // New customers
+  expansionMrr   Decimal @db.Decimal(12, 2) @default(0) // Upgrades, add-ons
+  contractionMrr Decimal @db.Decimal(12, 2) @default(0) // Downgrades
+  churnMrr       Decimal @db.Decimal(12, 2) @default(0) // Cancellations
+  reactivationMrr Decimal @db.Decimal(12, 2) @default(0) // Returning customers
+
+  // Calculated totals
+  netNewMrr Decimal @db.Decimal(12, 2) @default(0) // Sum of all movements
+  totalMrr  Decimal @db.Decimal(12, 2) @default(0) // Total MRR at end of period
+
+  // Metadata
+  currency           String @default("EUR")
+  customerCount      Int    @default(0)
+  newCustomers       Int    @default(0)
+  churnedCustomers   Int    @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([month, currency])
+  @@index([month])
+  @@map("mrr_movements")
+}
+
+//
+ // Revenue Cohort
+ // Tracks revenue by customer signup cohort for cohort analysis
+//
+model RevenueCohort {
+  id             String   @id @default(uuid())
+  cohortMonth    DateTime @db.Date // Month customer signed up
+  revenueMonth   DateTime @db.Date // Month revenue was recognized
+  
+  // Metrics
+  customerCount Int     @default(0)
+  revenue       Decimal @db.Decimal(12, 2) @default(0) // Revenue from this cohort in this month
+  mrr           Decimal @db.Decimal(12, 2) @default(0) // MRR from this cohort
+  
+  // Retention metrics
+  activeCustomers   Int     @default(0) // Customers still active from cohort
+  churnedCustomers  Int     @default(0) // Customers churned to date
+  retentionRate     Decimal @db.Decimal(5, 2) @default(0) // Percentage retained
+  
+  currency String @default("EUR")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cohortMonth, revenueMonth, currency])
+  @@index([cohortMonth])
+  @@index([revenueMonth])
+  @@map("revenue_cohorts")
+}
+
+//
+ // Deferred Revenue Schedule
+ // Tracks the schedule of deferred revenue to be recognized
+//
+model DeferredRevenueSchedule {
+  id             String   @id @default(uuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Invoice/billing reference
+  invoiceId      String
+  invoiceNumber  String?
+  
+  // Schedule details
+  billingDate       DateTime // When payment received
+  recognitionStart  DateTime // When recognition begins
+  recognitionEnd    DateTime // When recognition ends
+  
+  // Amounts in cents
+  totalAmount       Decimal @db.Decimal(12, 2) // Total deferred
+  recognizedToDate  Decimal @db.Decimal(12, 2) @default(0) // Already recognized
+  remainingDeferred Decimal @db.Decimal(12, 2) // Still to recognize
+  
+  // Metadata
+  currency    String  @default("EUR")
+  description String?
+  status      String  @default("ACTIVE") // ACTIVE, COMPLETED, CANCELLED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId, status])
+  @@index([recognitionStart, recognitionEnd])
+  @@index([invoiceId])
+  @@map("deferred_revenue_schedules")
+}
+
+//
+ // Revenue Forecast
+ // Stores revenue forecasts based on historical trends
+//
+model RevenueForecast {
+  id           String   @id @default(uuid())
+  forecastMonth DateTime @db.Date // Month being forecasted
+
+  // Forecast amounts (in cents)
+  forecastedMrr Decimal @db.Decimal(12, 2)
+  forecastedArr Decimal @db.Decimal(12, 2)
+  
+  // Confidence metrics
+  confidenceLevel   String  @default("MEDIUM") // LOW, MEDIUM, HIGH
+  forecastMethod    String  @default("LINEAR") // LINEAR, MOVING_AVERAGE, EXPONENTIAL
+  
+  // Supporting data
+  historicalMonths  Int     // Number of months used in forecast
+  averageGrowthRate Decimal @db.Decimal(5, 2) // Monthly growth rate %
+  
+  currency String @default("EUR")
+  
+  // When forecast was generated
+  generatedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([forecastMonth, currency, forecastMethod])
+  @@index([forecastMonth])
+  @@map("revenue_forecasts")
+}
+
+// =============================================================================
+// GDPR COMPLIANCE MODELS
+// =============================================================================
+
+//
+ // User Consent Records
+ // Tracks all consent grants and revocations per user for different purposes
+ // Complies with GDPR Article 7 (Consent)
+//
+model UserConsent {
+  id        String   @id @default(uuid())
+  userId    String
+  purpose   String   // marketing, analytics, essential, third_party
+  granted   Boolean
+  grantedAt DateTime?
+  revokedAt DateTime?
+  source    String   // web_form, api, migration, admin
+  ipAddress String?
+  userAgent String?
+  version   String   // Consent policy version
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, purpose])
+  @@index([userId])
+  @@index([purpose])
+  @@index([granted])
+  @@map("user_consents")
+}
+
+//
+ // Data Subject Requests (DSR)
+ // Handles all GDPR data subject rights requests
+ // Complies with GDPR Articles 15-21
+//
+model DataSubjectRequest {
+  id              String    @id @default(uuid())
+  requestId       String    @unique @default(uuid())
+  userId          String
+  organisationId  String?
+  requestType     String    // access, rectification, erasure, portability, restriction, objection
+  status          String    // pending, processing, completed, rejected, extended
+  reason          String?   @db.Text // For rejections
+  requestedAt     DateTime  @default(now())
+  acknowledgedAt  DateTime?
+  completedAt     DateTime?
+  dueDate         DateTime  // 30 days from request
+  extendedDueDate DateTime?
+  extensionReason String?   @db.Text
+  completedBy     String?
+  resultFileUrl   String?   // For access/portability requests
+  metadata        Json      @default("{}")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organisation Organisation? @relation(fields: [organisationId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([organisationId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([requestType])
+  @@map("data_subject_requests")
+}
+
+//
+ // Data Retention Policies
+ // Defines how long different categories of data should be retained
+ // Complies with GDPR Article 5 (Storage limitation)
+//
+model DataRetentionPolicy {
+  id              String   @id @default(uuid())
+  organisationId  String?
+  dataCategory    String   // financial_records, employee_data, customer_data, logs, marketing_data
+  retentionPeriod Int      // Days
+  legalBasis      String   // legal_requirement, contract, consent, legitimate_interest
+  description     String?  @db.Text
+  autoDelete      Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organisation Organisation? @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  @@unique([organisationId, dataCategory])
+  @@index([organisationId])
+  @@index([dataCategory])
+  @@index([isActive])
+  @@map("data_retention_policies")
+}
+
+//
+ // GDPR Audit Log
+ // Comprehensive audit trail for all GDPR-related activities
+ // Complies with GDPR Article 5 (Accountability)
+//
+model GdprAuditLog {
+  id             String   @id @default(uuid())
+  eventType      String   // consent_granted, consent_revoked, dsr_created, data_exported, data_deleted
+  userId         String?
+  organisationId String?
+  actorId        String?  // Who performed the action
+  actorType      String   // user, admin, system, automated
+  resourceType   String
+  resourceId     String?
+  details        Json     @default("{}")
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
+  @@index([organisationId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@index([actorId])
+  @@map("gdpr_audit_logs")
+}
+
+//
+ // Data Processing Records (ROPA)
+ // Record of Processing Activities required under GDPR Article 30
+//
+model DataProcessingRecord {
+  id               String   @id @default(uuid())
+  organisationId   String
+  processName      String
+  purpose          String   @db.Text
+  legalBasis       String   // consent, contract, legal_obligation, vital_interests, public_task, legitimate_interests
+  dataCategories   String[] // personal_data, sensitive_data, financial_data
+  dataSubjects     String[] // customers, employees, prospects, partners
+  recipients       String[] // Internal departments, third parties
+  thirdCountries   String[] // Countries outside EU/EEA
+  retentionPeriod  String
+  securityMeasures String   @db.Text
+  dpoContact       String?  // Data Protection Officer contact
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  @@index([organisationId])
+  @@index([isActive])
+  @@index([legalBasis])
+  @@map("data_processing_records")
+}
+
+// ============================================================================
+// PERSONA KYC INTEGRATION MODELS
+// ============================================================================
+
+//
+ // Persona Inquiry
+ // Stores KYC verification inquiry records from Persona
+ // 
+ // Tracks the lifecycle of identity verification inquiries including:
+ // - Basic identity verification
+ // - Enhanced verification with government ID
+ // - Full KYC with liveness checks
+ // - Business verification (KYB)
+//
+model PersonaInquiry {
+  id                String    @id @default(uuid())
+  inquiryId         String    @unique // Persona's inquiry ID (inq_XXXXX)
+  templateId        String // Persona template used
+  referenceId       String? // Internal reference for tracking
+  userId            String
+  organizationId    String?
+  status            String // pending, completed, approved, declined, expired, needs_review, failed
+  verificationLevel String? // basic, enhanced, full, business
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  completedAt       DateTime?
+  expiresAt         DateTime?
+  metadata          Json      @default("{}") // Additional context data
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organisation? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  verifications PersonaVerification[]
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([templateId])
+  @@map("persona_inquiries")
+}
+
+//
+ // Persona Verification
+ // Stores individual verification check results for an inquiry
+ // 
+ // Each inquiry can have multiple verification types:
+ // - Government ID verification
+ // - Selfie/liveness check
+ // - Document verification
+ // - Database checks (watchlists, sanctions)
+ // - Phone/email verification
+//
+model PersonaVerification {
+  id               String   @id @default(uuid())
+  inquiryId        String // Reference to PersonaInquiry.inquiryId
+  verificationType String // government_id, selfie, document, database, watchlist, phone_number, email_address, business_registration
+  status           String // passed, failed, pending, requires_retry, not_applicable
+  checks           Json     @default("{}") // Detailed check results with pass/fail reasons
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  inquiry PersonaInquiry @relation(fields: [inquiryId], references: [inquiryId], onDelete: Cascade)
+
+  @@unique([inquiryId, verificationType])
+  @@index([inquiryId])
+  @@index([verificationType])
+  @@index([status])
+  @@map("persona_verifications")
+}
+
+//
+ // Persona Webhook Log
+ // Audit trail for all incoming Persona webhook events
+ // 
+ // Security and compliance features:
+ // - Signature verification tracking
+ // - Complete event payload storage
+ // - Processing status and error tracking
+ // - Supports replay and debugging
+//
+model PersonaWebhookLog {
+  id           String   @id @default(uuid())
+  eventId      String // Persona event ID
+  eventType    String // inquiry.completed, inquiry.approved, verification.passed, etc.
+  status       String // SUCCESS, FAILED
+  payload      Json // Full webhook payload
+  errorMessage String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  @@index([eventId])
+  @@index([eventType])
+  @@index([status])
+  @@index([createdAt])
+  @@map("persona_webhook_logs")
+}
+
+// ============================================================================
+// AML (Anti-Money Laundering) - ComplyAdvantage Integration
+// ============================================================================
+
+//
+ // AML Screening Records
+ // Stores results from ComplyAdvantage PEP/sanctions/watchlist screening
+//
+model AmlScreening {
+  id               String   @id @default(uuid())
+  searchId         String   @unique  // ComplyAdvantage search ID
+  entityType       String   // person, company
+  entityName       String
+  dateOfBirth      DateTime?
+  countryCode      String?
+  userId           String?
+  organisationId   String
+  riskLevel        String   // low, medium, high, critical
+  matchCount       Int      @default(0)
+  status           String   // clear, potential_match, confirmed_match, pending_review
+  lastScreenedAt   DateTime
+  nextReviewAt     DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  metadata         Json?
+  
+  user         User?        @relation(fields: [userId], references: [id])
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  alerts       AmlAlert[]
+  monitoring   AmlMonitoring[]
+  
+  @@index([userId])
+  @@index([organisationId])
+  @@index([status])
+  @@index([riskLevel])
+  @@index([searchId])
+  @@map("aml_screenings")
+}
+
+//
+ // AML Alerts
+ // Individual matches found during screening
+//
+model AmlAlert {
+  id              String   @id @default(uuid())
+  screeningId     String
+  alertType       String   // pep, sanction, watchlist, adverse_media
+  matchName       String
+  matchScore      Float
+  sourceList      String   // UN, OFAC, EU, UK-HMT, etc.
+  sourceUrl       String?
+  status          String   // open, reviewed, escalated, dismissed, confirmed
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  reviewNotes     String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  screening AmlScreening @relation(fields: [screeningId], references: [id], onDelete: Cascade)
+  
+  @@index([screeningId])
+  @@index([status])
+  @@index([alertType])
+  @@map("aml_alerts")
+}
+
+//
+ // AML Ongoing Monitoring
+ // Tracks active monitoring for screened entities
+//
+model AmlMonitoring {
+  id              String   @id @default(uuid())
+  screeningId     String
+  monitoringId    String   @unique  // ComplyAdvantage monitoring ID
+  frequency       String   // daily, weekly, monthly
+  isActive        Boolean  @default(true)
+  lastCheckedAt   DateTime?
+  nextCheckAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  screening AmlScreening @relation(fields: [screeningId], references: [id], onDelete: Cascade)
+
+  @@index([screeningId])
+  @@index([isActive])
+  @@index([nextCheckAt])
+  @@map("aml_monitoring")
+}
+
+// =====================================================
+// KYC VERIFICATION MODELS
+// =====================================================
+
+model KycVerification {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  organisationId    String
+  status            String   // not_started, pending, in_review, approved, rejected, expired
+  level             String   // basic, enhanced, full
+  provider          String   // persona, internal
+  providerRefId     String?  // External provider reference
+  riskScore         Float?
+  riskLevel         String?  // low, medium, high, critical
+  submittedAt       DateTime?
+  reviewedAt        DateTime?
+  reviewedBy        String?
+  decisionReason    String?
+  expiresAt         DateTime?
+  documents         Json?    // List of documents submitted
+  checks            Json?    // Results of individual checks
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  decisions    KycDecision[]
+
+  @@index([userId])
+  @@index([organisationId])
+  @@index([status])
+  @@index([riskLevel])
+  @@index([expiresAt])
+  @@map("kyc_verifications")
+}
+
+model KycDecision {
+  id              String   @id @default(uuid())
+  verificationId  String
+  decision        String   // approve, reject, request_info, escalate
+  reason          String?
+  decidedBy       String   // userId or 'system'
+  decisionType    String   // automated, manual
+  previousStatus  String
+  newStatus       String
+  metadata        Json?    // Additional decision context
+  createdAt       DateTime @default(now())
+
+  verification KycVerification @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+
+  @@index([verificationId])
+  @@index([decidedBy])
+  @@index([decisionType])
+  @@index([createdAt])
+  @@map("kyc_decisions")
+}
+
+model KycRequirement {
+  id              String   @id @default(uuid())
+  countryCode     String
+  customerType    String   // individual, business
+  requirementType String   // government_id, proof_of_address, selfie, business_registration
+  isRequired      Boolean  @default(true)
+  description     String?
+  acceptedDocs    String[] // List of accepted document types
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([countryCode, customerType, requirementType])
+  @@index([countryCode])
+  @@index([customerType])
+  @@map("kyc_requirements")
+}
+
+// ============================================================
+// SPAIN SII CERTIFICATE MANAGEMENT
+// ============================================================
+
+/// Spanish SII Certificate
+/// Stores FNMT digital certificates for AEAT/SII integration
+/// Encrypted using AES-256-GCM with environment-based master key
+model SpainCertificate {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // User-friendly identification
+  name        String
+  description String?
+  cifNif      String? // Spanish tax ID (CIF/NIF)
+
+  // Encrypted certificate data (AES-256-GCM)
+  encryptedData     Bytes
+  encryptedPassword Bytes
+  iv                Bytes
+  authTag           Bytes
+
+  // Certificate metadata (extracted from cert)
+  thumbprint   String? // SHA-256 thumbprint for identification
+  serialNumber String?
+  issuer       String?
+  subject      String?
+  validFrom    DateTime
+  validTo      DateTime
+
+  // AEAT environment
+  environment String @default("production") // production | test
+
+  // Status
+  isActive   Boolean   @default(true)
+  lastUsedAt DateTime?
+
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+
+  // Relations
+  auditLogs SpainCertificateAuditLog[]
+
+  @@index([organisationId])
+  @@index([isActive])
+  @@index([validTo])
+  @@index([environment])
+  @@index([cifNif])
+  @@index([thumbprint])
+  @@map("spain_certificates")
+}
+
+/// Spanish SII Certificate Audit Log
+/// Tracks all operations on Spanish certificates for security and compliance
+model SpainCertificateAuditLog {
+  id             String            @id @default(cuid())
+  certificateId  String
+  certificate    SpainCertificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  organisationId String
+
+  // Action details
+  action      String
+  performedBy String
+
+  // Request context
+  ipAddress String?
+  userAgent String?
+
+  // Result
+  success      Boolean @default(true)
+  errorMessage String?
+  details      Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([certificateId])
+  @@index([organisationId])
+  @@index([action])
+  @@index([performedBy])
+  @@index([createdAt])
+  @@map("spain_certificate_audit_logs")
+}
+
+// ============================================================
+// SAUDI ARABIA ZATCA CERTIFICATE MANAGEMENT
+// ============================================================
+
+enum ZatcaCertificateType {
+  COMPLIANCE    // For testing/compliance check (sandbox environment)
+  PRODUCTION    // Production CSID (live e-invoicing)
+}
+
+enum ZatcaCsidStatus {
+  PENDING         // CSR submitted, waiting for ZATCA approval
+  ACTIVE          // Approved and active
+  EXPIRED         // Past validity date
+  REVOKED         // Manually revoked or revoked by ZATCA
+  RENEWAL_PENDING // Renewal in progress
+  FAILED          // CSID request failed
+}
+
+enum ZatcaInvoiceType {
+  TAX_INVOICE        // 0100 - Standard tax invoice
+  SIMPLIFIED_INVOICE // 0200 - Simplified invoice (B2C)
+}
+
+/// ZATCA Certificate
+/// Stores ZATCA digital certificates (CSID) for Saudi e-invoicing compliance
+/// Uses ECDSA secp256k1 curve as per ZATCA requirements
+/// Encrypted using AES-256-GCM with KMS/HSM-based key management
+model ZatcaCertificate {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Certificate identification
+  name        String // User-friendly name
+  description String?
+
+  // ZATCA certificate details
+  certificateType  ZatcaCertificateType
+  invoiceType      ZatcaInvoiceType
+  commonName       String                  // Company name
+  organizationUnit String                  // Tax Registration Number (TRN)
+  organizationName String                  // Organization name
+  serialNumber     String?                 // Certificate serial number (after issuance)
+
+  // Encrypted storage (AES-256-GCM)
+  encryptedPrivateKey  Bytes  // ECDSA secp256k1 private key
+  encryptedCertificate Bytes? // X.509 certificate (after ZATCA approval)
+  encryptionKeyId      String // Reference to key in HSM/KMS
+  iv                   Bytes  // Initialization vector for encryption
+  authTag              Bytes  // Authentication tag for GCM mode
+
+  // CSID (Cryptographic Stamp ID) details
+  csid          String?   @unique // CSID identifier from ZATCA
+  csidRequestId String?   @unique // Request tracking ID
+  csidStatus    ZatcaCsidStatus
+  csidSecret    String?   // Secret for ZATCA API authentication (encrypted)
+  otp           String?   // One-time password for initial onboarding (temporary)
+
+  // Certificate signing request (CSR)
+  csrData    String? // Base64 encoded CSR
+  csrSubject String? // CSR subject DN
+
+  // Validity
+  validFrom DateTime
+  validTo   DateTime
+  isActive  Boolean  @default(true)
+
+  // Renewal tracking
+  renewalNotificationSent Boolean   @default(false)
+  renewalStartDate        DateTime? // When renewal process started
+  previousCertificateId   String?   // Link to certificate being renewed
+
+  // ZATCA environment
+  environment String @default("sandbox") // sandbox | production
+
+  // Usage statistics
+  lastUsedAt     DateTime?
+  invoicesSigned Int       @default(0)
+
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+
+  // Relations
+  auditLogs        ZatcaCertificateAuditLog[]
+  rotationHistory  ZatcaCertificateRotation[]
+  signingOperations ZatcaSigningOperation[]
+
+  @@index([organisationId])
+  @@index([isActive])
+  @@index([csidStatus])
+  @@index([validTo])
+  @@index([environment])
+  @@index([certificateType])
+  @@map("zatca_certificates")
+}
+
+/// ZATCA Certificate Audit Log
+/// Immutable audit trail for all certificate operations
+/// Required for ZATCA compliance and security auditing
+model ZatcaCertificateAuditLog {
+  id             String           @id @default(cuid())
+  certificateId  String
+  certificate    ZatcaCertificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  organisationId String
+
+  // Action details
+  action      String // key_generated, csr_created, csid_requested, csid_approved, certificate_activated, certificate_revoked, etc.
+  performedBy String // User ID or 'system'
+
+  // Request context
+  ipAddress String?
+  userAgent String?
+
+  // Result
+  success      Boolean @default(true)
+  errorMessage String?
+  errorCode    String?
+  details      Json? // Additional context (e.g., ZATCA response)
+
+  // ZATCA specific
+  zatcaRequestId  String? // ZATCA request tracking ID
+  zatcaResponseId String? // ZATCA response ID
+
+  createdAt DateTime @default(now())
+
+  @@index([certificateId])
+  @@index([organisationId])
+  @@index([action])
+  @@index([performedBy])
+  @@index([createdAt])
+  @@index([success])
+  @@map("zatca_certificate_audit_logs")
+}
+
+/// ZATCA Certificate Rotation History
+/// Tracks certificate rotation events
+model ZatcaCertificateRotation {
+  id                  String           @id @default(cuid())
+  certificateId       String
+  certificate         ZatcaCertificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  organisationId      String
+  oldCertificateId    String? // Previous certificate
+  rotationType        String           // renewal, replacement, initial
+  rotationReason      String // expiry, revoked, security_incident, manual
+  rotationStatus      String           // initiated, in_progress, completed, failed
+  completedAt         DateTime?
+  performedBy         String
+
+  // Transition details
+  cutoverDate         DateTime? // When new cert became active
+  gracePeriodEnd      DateTime? // Until when old cert is still valid
+  invoicesSignedOld   Int       @default(0) // Count before rotation
+  invoicesSignedNew   Int       @default(0) // Count after rotation
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([certificateId])
+  @@index([organisationId])
+  @@index([rotationStatus])
+  @@index([createdAt])
+  @@map("zatca_certificate_rotations")
+}
+
+/// ZATCA Signing Operations
+/// Tracks each invoice signing operation for audit and compliance
+model ZatcaSigningOperation {
+  id             String           @id @default(cuid())
+  certificateId  String
+  certificate    ZatcaCertificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  organisationId String
+
+  // Invoice details
+  invoiceId     String  @unique // Internal invoice ID
+  invoiceType   ZatcaInvoiceType
+  invoiceHash   String  // SHA-256 hash of invoice
+  invoiceNumber String
+
+  // Signature details
+  signature         String  // Base64 encoded ECDSA signature
+  signatureAlg      String  @default("ECDSA-SHA256")
+  publicKeyHash     String  // Hash of public key used
+  certificateSerial String? // Serial number of cert used
+
+  // ZATCA submission
+  zatcaSubmitted   Boolean   @default(false)
+  zatcaResponse    Json? // ZATCA clearance/reporting response
+  zatcaUuid        String?   @unique // ZATCA invoice UUID
+  zatcaSubmittedAt DateTime?
+
+  // Status
+  success      Boolean @default(true)
+  errorMessage String?
+
+  // Performance metrics
+  signingTimeMs Int? // Time taken to sign
+
+  createdAt DateTime @default(now())
+
+  @@index([certificateId])
+  @@index([organisationId])
+  @@index([invoiceId])
+  @@index([zatcaSubmitted])
+  @@index([createdAt])
+  @@map("zatca_signing_operations")
+}
+
+/// ZATCA Key Management Audit
+/// Tracks all KMS/HSM key operations
+model ZatcaKeyManagementAudit {
+  id             String   @id @default(cuid())
+  organisationId String
+  keyId          String   // KMS/HSM key identifier
+  operation      String   // generate, encrypt, decrypt, rotate, delete
+  performedBy    String
+  success        Boolean  @default(true)
+  errorMessage   String?
+  ipAddress      String?
+  userAgent      String?
+  metadata       Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([organisationId])
+  @@index([keyId])
+  @@index([operation])
+  @@index([createdAt])
+  @@map("zatca_key_management_audit")
+}
+
+// ============================================================================
+// MIDDLE EAST TAX MODELS (UAE & Saudi Arabia)
+// ============================================================================
+
+/// UAE Emirate Enum
+enum UAEEmirate {
+  AUH // Abu Dhabi
+  DXB // Dubai
+  SHJ // Sharjah
+  AJM // Ajman
+  UAQ // Umm Al Quwain
+  RAK // Ras Al Khaimah
+  FUJ // Fujairah
+}
+
+/// Saudi Arabia Administrative Region Enum
+enum SaudiRegion {
+  RIYADH // Riyadh Region
+  MAKKAH // Makkah Region
+  MADINAH // Madinah Region
+  EASTERN // Eastern Province
+  ASIR // Asir Region
+  TABUK // Tabuk Region
+  HAIL // Hail Region
+  NORTHERN_BORDERS // Northern Borders Region
+  JAZAN // Jazan Region
+  NAJRAN // Najran Region
+  AL_BAHA // Al-Baha Region
+  AL_JAWF // Al-Jawf Region
+  QASSIM // Qassim Region
+}
+
+/// Middle East Tax Configuration
+/// Stores region-specific tax settings for UAE and Saudi Arabia
+model MiddleEastTaxConfig {
+  id        String   @id @default(uuid())
+  countryId String   @unique
+
+  // UAE specific
+  emirate        UAEEmirate? // For UAE companies
+  isFreeZone     Boolean     @default(false) // Free zone companies have special rules
+  freeZoneName   String? // Name of the free zone (DIFC, JAFZA, etc.)
+  isDesignatedZone Boolean   @default(false) // Designated zones for VAT purposes
+
+  // Saudi Arabia specific
+  region         SaudiRegion? // For Saudi companies
+  isSpecialZone  Boolean      @default(false) // Special economic zones
+  specialZoneName String? // Name of special zone
+
+  // Common settings
+  vatReturnPeriod     String   @default("MONTHLY") // MONTHLY or QUARTERLY
+  fiscalYearType      String   @default("GREGORIAN") // GREGORIAN or HIJRI (SA only)
+  fiscalYearStartMonth Int     @default(1) // 1-12
+  fiscalYearStartDay   Int     @default(1) // 1-31
+
+  // E-invoicing requirements
+  eInvoicingEnabled    Boolean  @default(false)
+  eInvoicingMandateDate DateTime?
+  eInvoicingFormat     String? // ZATCA for SA, UAE format
+
+  // Compliance requirements
+  requiresAudit        Boolean  @default(false)
+  auditThreshold       Decimal? @db.Decimal(12, 2) // Revenue threshold for audit
+  requiresExciseTax    Boolean  @default(false) // Excise tax on specific goods
+
+  // Configuration metadata
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  country Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@index([countryId])
+  @@index([emirate])
+  @@index([region])
+  @@map("middle_east_tax_configs")
+}
+
+/// UAE Free Zones with special tax rules
+/// Tracks designated and free zones for VAT purposes
+model UAEFreeZone {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  nameArabic String?
+  emirate   UAEEmirate
+
+  // Zone classification
+  zoneType  String   // FREE_ZONE, DESIGNATED_ZONE, SPECIAL_DEVELOPMENT_ZONE
+
+  // VAT treatment
+  isVATFree Boolean  @default(false)
+  vatRate   Decimal  @db.Decimal(5, 2) // Usually 0% for goods
+
+  // Requirements
+  requiresTRN Boolean @default(true)
+  requiresCustomsRegistration Boolean @default(false)
+
+  // Location
+  location  String?
+
+  // Status
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([emirate])
+  @@index([zoneType])
+  @@index([isActive])
+  @@map("uae_free_zones")
+}
+
+/// Saudi Arabia Special Economic Zones
+model SaudiSpecialZone {
+  id         String      @id @default(uuid())
+  code       String      @unique
+  name       String
+  nameArabic String?
+  region     SaudiRegion
+
+  // Zone classification
+  zoneType   String      // ECONOMIC_CITY, INDUSTRIAL_ZONE, SPECIAL_ZONE
+
+  // Tax benefits
+  vatTreatment String    // STANDARD, EXEMPT, SPECIAL
+  hasIncentives Boolean  @default(false)
+  incentiveDescription String?
+
+  // Status
+  isActive   Boolean     @default(true)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([region])
+  @@index([zoneType])
+  @@index([isActive])
+  @@map("saudi_special_zones")
+}
+
+// ============================================================================
+// Email Sync Models
+// ============================================================================
+
+/// Synced Email - Stores metadata about emails synced from Gmail/Outlook
+/// Used for tracking which emails have been processed and their status
+model SyncedEmail {
+  id              String   @id @default(cuid())
+  connectionId    String
+  orgId           String
+  userId          String
+
+  // Provider and external ID
+  provider        EmailProvider
+  externalId      String // Gmail message ID or Outlook message ID
+  threadId        String? // For Gmail threading
+
+  // Email metadata
+  subject         String?  @db.Text
+  from            String?
+  fromName        String?
+  to              String[] // Array of recipient emails
+  cc              String[] // CC recipients
+  bcc             String[] // BCC recipients (if available)
+  
+  // Timestamps
+  sentAt          DateTime?
+  receivedAt      DateTime
+  internalDate    DateTime? // Gmail internal date
+
+  // Content
+  snippet         String?  @db.Text // First 250 chars preview
+  bodyPreview     String?  @db.Text // Body preview (Outlook)
+  hasHtmlBody     Boolean  @default(false)
+  hasTextBody     Boolean  @default(false)
+  
+  // Attachments
+  hasAttachments  Boolean  @default(false)
+  attachmentCount Int      @default(0)
+  attachmentNames String[] // List of attachment filenames
+  attachmentSizes Int[]    // Sizes in bytes
+  attachmentMimeTypes String[] // MIME types
+
+  // Classification
+  isInvoice       Boolean  @default(false)
+  isReceipt       Boolean  @default(false)
+  isFinancial     Boolean  @default(false)
+  confidence      Float?   // AI classification confidence (0-1)
+
+  // Processing status
+  processed       Boolean  @default(false)
+  processedAt     DateTime?
+  processingError String?  @db.Text
+  retryCount      Int      @default(0)
+
+  // Flags
+  isRead          Boolean  @default(false)
+  isImportant     Boolean  @default(false)
+  isDraft         Boolean  @default(false)
+  
+  // Labels/Categories
+  labels          String[] // Gmail labels
+  categories      String[] // Outlook categories
+  folderPath      String?  // Outlook folder path
+
+  // Sync metadata
+  syncJobId       String?  // Reference to sync job
+  lastSyncedAt    DateTime @default(now())
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  connection      EmailConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  syncJob         EmailSyncJob?   @relation(fields: [syncJobId], references: [id], onDelete: SetNull)
+  attachments     EmailAttachment[] // Relation to attachments
+
+  @@unique([connectionId, externalId])
+  @@index([connectionId])
+  @@index([orgId])
+  @@index([userId])
+  @@index([provider])
+  @@index([syncJobId])
+  @@index([receivedAt])
+  @@index([processed])
+  @@index([isInvoice])
+  @@index([isReceipt])
+  @@index([hasAttachments])
+  @@index([lastSyncedAt])
+  @@map("synced_emails")
+}
+
+/// Email Sync Job - Tracks sync operations for monitoring and debugging
+/// Each sync operation creates a job record with status and statistics
+model EmailSyncJob {
+  id              String   @id @default(cuid())
+  connectionId    String
+  orgId           String
+  userId          String
+
+  // Job details
+  provider        EmailProvider
+  syncType        EmailSyncType @default(INCREMENTAL)
+  
+  // Status
+  status          EmailSyncStatus @default(PENDING)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  
+  // Progress
+  totalEmails     Int      @default(0)
+  processedEmails Int      @default(0)
+  newEmails       Int      @default(0)
+  updatedEmails   Int      @default(0)
+  failedEmails    Int      @default(0)
+  
+  // Sync window
+  syncFromDate    DateTime?
+  syncToDate      DateTime?
+  lastMessageId   String?  // Last message ID synced (for pagination)
+  nextPageToken   String?  // For API pagination
+  
+  // Filters applied
+  searchQuery     String?
+  labelIds        String[] // Gmail label filters
+  folderIds       String[] // Outlook folder filters
+  
+  // Error handling
+  error           String?  @db.Text
+  errorCount      Int      @default(0)
+  retryCount      Int      @default(0)
+  maxRetries      Int      @default(3)
+  
+  // Rate limiting
+  apiCallsMade    Int      @default(0)
+  rateLimitHit    Boolean  @default(false)
+  rateLimitResetAt DateTime?
+  
+  // Performance metrics
+  durationMs      Int?     // Total duration in milliseconds
+  avgEmailProcessingMs Float? // Average time per email
+  
+  // Metadata
+  metadata        Json?    // Additional job metadata
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  connection      EmailConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  syncedEmails    SyncedEmail[]
+
+  @@index([connectionId])
+  @@index([orgId])
+  @@index([userId])
+  @@index([status])
+  @@index([provider])
+  @@index([createdAt])
+  @@index([startedAt])
+  @@map("email_sync_jobs")
+}
+
+// Enums for Email Sync
+
+enum EmailSyncType {
+  FULL        // Full sync - fetch all emails
+  INCREMENTAL // Incremental - only new/updated since last sync
+  MANUAL      // User-triggered manual sync
+  SCHEDULED   // Automated scheduled sync
+}
+
+enum EmailSyncStatus {
+  PENDING     // Waiting to start
+  RUNNING     // Currently syncing
+  COMPLETED   // Successfully completed
+  FAILED      // Failed with errors
+  PARTIAL     // Partially completed (some errors)
+  CANCELLED   // Cancelled by user
+  RATE_LIMITED // Paused due to rate limiting
+}
+
+/// Email Attachment - Stores downloaded attachments from synced emails
+/// Includes storage metadata, classification, and processing status
+model EmailAttachment {
+  id              String   @id @default(cuid())
+  emailId         String   // Reference to SyncedEmail
+  orgId           String
+  userId          String
+
+  // Provider details
+  provider        EmailProvider
+  externalId      String   // Provider-specific attachment ID
+
+  // File metadata
+  filename        String
+  originalFilename String
+  mimeType        String
+  size            Int      // Size in bytes
+  extension       String?  // File extension (pdf, png, xlsx, etc.)
+
+  // Storage
+  storageBackend  AttachmentStorageBackend @default(LOCAL)
+  storagePath     String   // Local path or S3 key
+  storageUrl      String?  // Signed URL for access (if applicable)
+  s3Bucket        String?  // S3 bucket name (if using S3)
+  s3Key           String?  // S3 object key (if using S3)
+
+  // Processing status
+  status          AttachmentProcessingStatus @default(PENDING)
+  processedAt     DateTime?
+  processingError String?  @db.Text
+  retryCount      Int      @default(0)
+
+  // Classification
+  classifiedType  AttachmentClassificationType?
+  classificationConfidence Float? // 0-1
+  classifiedAt    DateTime?
+
+  // Content analysis
+  containsText    Boolean  @default(false)
+  isScanned       Boolean  @default(false) // Virus/malware scan
+  scanResult      String?  // CLEAN, INFECTED, SUSPICIOUS
+  scanProvider    String?  // e.g., ClamAV, VirusTotal
+  scannedAt       DateTime?
+
+  // Extraction status
+  extractedDataId String?  // Reference to Invoice/Receipt/etc.
+  extractionStatus String? // PENDING, EXTRACTED, FAILED
+  extractionError String?  @db.Text
+  extractedAt     DateTime?
+
+  // Content hash (for deduplication)
+  contentHash     String?  @db.Char(64) // SHA-256 hash
+
+  // Metadata
+  metadata        Json?    // Additional provider-specific metadata
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime? // Soft delete for compliance
+
+  // Relations
+  email           SyncedEmail @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  @@unique([emailId, externalId])
+  @@index([emailId])
+  @@index([orgId])
+  @@index([userId])
+  @@index([provider])
+  @@index([status])
+  @@index([classifiedType])
+  @@index([storageBackend])
+  @@index([contentHash])
+  @@index([createdAt])
+  @@map("email_attachments")
+}
+
+/// Storage Quota - Tracks storage usage per organization
+/// Enforces limits and manages cleanup policies
+model StorageQuota {
+  id              String   @id @default(cuid())
+  orgId           String   @unique
+
+  // Quota limits (in bytes)
+  totalQuota      BigInt   @default(5368709120) // Default 5GB
+  usedSpace       BigInt   @default(0)
+  attachmentCount Int      @default(0)
+
+  // Usage by type
+  invoiceSpace    BigInt   @default(0)
+  receiptSpace    BigInt   @default(0)
+  statementSpace  BigInt   @default(0)
+  otherSpace      BigInt   @default(0)
+
+  // Cleanup policy
+  autoCleanupEnabled Boolean @default(false)
+  retentionDays      Int     @default(365) // Keep attachments for 1 year
+  lastCleanupAt      DateTime?
+
+  // Alerts
+  alertThreshold     Int     @default(80) // Alert at 80% usage
+  alertSent          Boolean @default(false)
+  alertSentAt        DateTime?
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organisation    Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([usedSpace])
+  @@map("storage_quotas")
+}
+
+// Enums for Email Attachments
+
+enum AttachmentStorageBackend {
+  LOCAL  // Local filesystem
+  S3     // AWS S3
+  AZURE  // Azure Blob Storage (future)
+  GCS    // Google Cloud Storage (future)
+}
+
+enum AttachmentProcessingStatus {
+  PENDING        // Waiting to be processed
+  DOWNLOADING    // Currently downloading
+  DOWNLOADED     // Successfully downloaded
+  SCANNING       // Scanning for viruses
+  CLASSIFYING    // AI classification in progress
+  CLASSIFIED     // Classification complete
+  EXTRACTING     // Data extraction in progress
+  COMPLETED      // Fully processed
+  FAILED         // Processing failed
+  QUARANTINED    // Quarantined due to security scan
+}
+
+enum AttachmentClassificationType {
+  INVOICE        // Invoice document
+  RECEIPT        // Receipt/proof of payment
+  STATEMENT      // Bank/financial statement
+  CONTRACT       // Contract/agreement
+  QUOTE          // Quote/estimate
+  DELIVERY_NOTE  // Delivery note/packing slip
+  PAYMENT_PROOF  // Payment confirmation
+  TAX_DOCUMENT   // Tax-related document
+  OTHER          // Other financial document
+  NON_FINANCIAL  // Not a financial document
+}
+
+// ============================================================================
+// AI INVOICE EXTRACTION
+// ============================================================================
+
+enum InvoiceExtractionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+/// ExtractedInvoice - AI-powered invoice data extraction results
+/// Stores structured data extracted from invoice PDFs/images using GPT-4 Vision
+model ExtractedInvoice {
+  id               String                   @id @default(cuid())
+  organisationId   String
+  userId           String?
+
+  // File metadata
+  fileName         String?
+  mimeType         String
+  fileSize         Int?
+
+  // Extraction status
+  status           InvoiceExtractionStatus  @default(PENDING)
+  errorMessage     String?
+
+  // Extracted structured data
+  extractedData    Json                     @default("{}") // ExtractedInvoiceDataDto
+
+  // Confidence scores
+  overallConfidence Float                   @default(0)
+  fieldConfidences  Json                    @default("[]") // Array of FieldConfidenceDto
+
+  // Processing metadata
+  pageCount        Int?
+  processingTime   Int?                     // milliseconds
+  rawResponse      Json?                    // Raw GPT-4 response for debugging
+
+  // Relations
+  organisation     Organisation             @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Timestamps
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+
+  @@index([organisationId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([userId])
+  @@map("extracted_invoices")
+}
+

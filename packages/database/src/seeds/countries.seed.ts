@@ -393,6 +393,134 @@ const CH_EMPLOYMENT_TYPES: EmploymentTypeData[] = [
 ];
 
 // ============================================================================
+// UNITED KINGDOM (GB)
+// ============================================================================
+
+const UNITED_KINGDOM: CountryData = {
+  code: 'GB',
+  code3: 'GBR',
+  name: 'United Kingdom',
+  nameNative: 'United Kingdom',
+  currency: 'GBP',
+  currencySymbol: '£',
+  locale: 'en-GB',
+  timezone: 'Europe/London',
+  fiscalYearStart: '04-06', // UK tax year starts April 6th
+};
+
+const GB_REGIONS: RegionData[] = [
+  { code: 'ENG', name: 'England' },
+  { code: 'SCT', name: 'Scotland' },
+  { code: 'WLS', name: 'Wales' },
+  { code: 'NIR', name: 'Northern Ireland' },
+];
+
+const GB_VAT_RATES: VatRateData[] = [
+  { name: 'Standard', rate: 20.00, validFrom: new Date('2011-01-04') },
+  { name: 'Reduced', rate: 5.00, validFrom: new Date('2011-01-04') },
+  { name: 'Zero', rate: 0.00, validFrom: new Date('2011-01-04') },
+];
+
+const GB_DEDUCTION_CATEGORIES: DeductionCategoryData[] = [
+  {
+    code: 'TRAVEL',
+    name: 'Business Travel',
+    description: 'Travel expenses for business purposes',
+    requiresProof: true,
+  },
+  {
+    code: 'HOME_OFFICE',
+    name: 'Home Office',
+    description: 'Working from home allowance',
+    maxAmount: 312, // £6 per week
+    requiresProof: false,
+  },
+  {
+    code: 'PROFESSIONAL_DEVELOPMENT',
+    name: 'Professional Development',
+    description: 'Training and education expenses',
+    requiresProof: true,
+  },
+  {
+    code: 'OFFICE_SUPPLIES',
+    name: 'Office Supplies',
+    description: 'Work materials and office supplies',
+    requiresProof: true,
+  },
+  {
+    code: 'PROFESSIONAL_SUBSCRIPTIONS',
+    name: 'Professional Subscriptions',
+    description: 'Professional body subscriptions and memberships',
+    requiresProof: true,
+  },
+  {
+    code: 'VEHICLE',
+    name: 'Vehicle Expenses',
+    description: 'Business use of personal vehicle (45p per mile)',
+    requiresProof: true,
+  },
+];
+
+const GB_GOVERNMENT_APIS: GovernmentApiData[] = [
+  {
+    name: 'HMRC_MTD_VAT',
+    baseUrl: 'https://api.service.hmrc.gov.uk',
+    sandboxUrl: 'https://test-api.service.hmrc.gov.uk',
+    authType: 'oauth',
+  },
+  {
+    name: 'Companies_House',
+    baseUrl: 'https://api.company-information.service.gov.uk',
+    authType: 'api_key',
+  },
+  {
+    name: 'VIES',
+    baseUrl: 'https://ec.europa.eu/taxation_customs/vies',
+    authType: 'none',
+  },
+];
+
+const GB_FEATURES: CountryFeatureData[] = [
+  {
+    feature: 'tax_filing',
+    enabled: true,
+    config: {
+      mtdEnabled: true,
+      selfAssessmentDeadline: '01-31', // January 31st
+      corporationTaxDeadline: '09-30', // 9 months after year end
+    }
+  },
+  { feature: 'vat_validation', enabled: true },
+  {
+    feature: 'vat_filing',
+    enabled: true,
+    config: {
+      mtdMandatory: true,
+      threshold: 90000, // VAT registration threshold £90,000
+      deregistrationThreshold: 88000, // £88,000
+    }
+  },
+  { feature: 'payroll', enabled: true },
+  {
+    feature: 'paye',
+    enabled: true,
+    config: {
+      rtiEnabled: true, // Real Time Information
+    }
+  },
+];
+
+const GB_EMPLOYMENT_TYPES: EmploymentTypeData[] = [
+  { code: 'FULL_TIME', name: 'Full-time Employee', description: 'Permanent full-time employment' },
+  { code: 'PART_TIME', name: 'Part-time Employee', description: 'Permanent part-time employment' },
+  { code: 'CONTRACTOR', name: 'Contractor', description: 'Self-employed contractor (IR35 may apply)' },
+  { code: 'ZERO_HOURS', name: 'Zero Hours Contract', description: 'No guaranteed hours' },
+  { code: 'FIXED_TERM', name: 'Fixed Term Contract', description: 'Contract with defined end date' },
+  { code: 'APPRENTICE', name: 'Apprentice', description: 'Apprenticeship programme' },
+  { code: 'CASUAL', name: 'Casual Worker', description: 'Casual or temporary worker' },
+];
+
+// ============================================================================
 // SEED FUNCTIONS
 // ============================================================================
 
@@ -529,6 +657,17 @@ export async function seedCountries(): Promise<void> {
     CH_GOVERNMENT_APIS,
     CH_FEATURES,
     CH_EMPLOYMENT_TYPES
+  );
+
+  // Seed United Kingdom
+  await seedCountry(
+    UNITED_KINGDOM,
+    GB_REGIONS,
+    GB_VAT_RATES,
+    GB_DEDUCTION_CATEGORIES,
+    GB_GOVERNMENT_APIS,
+    GB_FEATURES,
+    GB_EMPLOYMENT_TYPES
   );
 
   console.log('\n' + '='.repeat(60));

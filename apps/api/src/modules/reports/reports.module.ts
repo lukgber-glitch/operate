@@ -2,16 +2,25 @@ import { Module } from '@nestjs/common';
 import { ReportsController } from './reports.controller';
 import { ReportsService } from './reports.service';
 import { RbacModule } from '../auth/rbac/rbac.module';
+import { ReportGeneratorModule } from './report-generator/report-generator.module';
+import { AIReportModule } from './ai-report/ai-report.module';
+import { CashFlowReportModule } from './cashflow-report/cashflow-report.module';
+import { PnlReportModule } from './pnl-report/pnl-report.module';
 
 /**
  * Reports Module
  * Provides reporting and analytics functionality across all business areas
- * Includes financial, tax, invoice, and HR reports with export capabilities
+ * Includes:
+ * - Basic reports (financial, tax, invoice, HR)
+ * - Advanced Report Generator (comprehensive analytics)
+ * - AI-Powered Reports (natural language generation, insights, predictions)
+ * - Cash Flow Statements (IFRS/GAAP compliant with projections and analysis)
+ * - P&L Statements (comprehensive profit & loss with trends and forecasting)
  */
 @Module({
-  imports: [RbacModule],
+  imports: [RbacModule, ReportGeneratorModule, AIReportModule, CashFlowReportModule, PnlReportModule],
   controllers: [ReportsController],
   providers: [ReportsService],
-  exports: [ReportsService],
+  exports: [ReportsService, ReportGeneratorModule, AIReportModule, CashFlowReportModule, PnlReportModule],
 })
 export class ReportsModule {}

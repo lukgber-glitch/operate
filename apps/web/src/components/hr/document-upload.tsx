@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useCallback } from 'react';
 import { Upload, X, File, FileText, Image as ImageIcon } from 'lucide-react';
+import { useState, useCallback } from 'react';
+
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -11,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 interface DocumentUploadProps {

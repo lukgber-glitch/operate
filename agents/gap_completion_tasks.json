@@ -1,0 +1,557 @@
+{
+  "version": "5.0.0",
+  "planName": "Gap Completion + Global Expansion + Competitor Parity (Secure)",
+  "createdAt": "2025-12-01T22:00:00Z",
+  "updatedAt": "2025-12-02T00:30:00Z",
+  "totalWaves": 29,
+  "totalTasks": 208,
+  "securityStandards": {
+    "required": ["OAuth2", "API key encryption", "Audit logging", "Rate limiting", "GDPR compliance"],
+    "excluded_markets": ["CN", "BR", "ID"],
+    "reason": "Regulatory complexity, data sovereignty issues, security audit infeasibility"
+  },
+
+  "waves": {
+    "wave7": {
+      "name": "Frontend Data Wiring",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "targetDays": 8,
+      "tasks": [
+        {"id": "W7-T1", "name": "Wire Finance dashboard to real APIs", "agent": "PRISM", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W7-T2", "name": "Wire Tax pages to real APIs", "agent": "PRISM", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W7-T3", "name": "Wire HR pages to real APIs", "agent": "PRISM", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W7-T4", "name": "Wire Reports pages to real APIs", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": []},
+        {"id": "W7-T5", "name": "Create API error handling + loading states", "agent": "PRISM", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W7-T1", "W7-T2", "W7-T3", "W7-T4"]},
+        {"id": "W7-T6", "name": "Add real-time WebSocket updates", "agent": "FORGE", "priority": "P1", "effort": "2d", "status": "pending", "deps": []}
+      ]
+    },
+    "wave8": {
+      "name": "Automation Foundation",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "targetDays": 6,
+      "tasks": [
+        {"id": "W8-T1", "name": "Create AutomationSettings Prisma schema", "agent": "VAULT", "priority": "P0", "effort": "0.5d", "status": "pending", "deps": []},
+        {"id": "W8-T2", "name": "Create AutomationMode enum (FULL/SEMI/MANUAL)", "agent": "VAULT", "priority": "P0", "effort": "0.5d", "status": "pending", "deps": []},
+        {"id": "W8-T3", "name": "Create automation-settings.service.ts", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W8-T1"]},
+        {"id": "W8-T4", "name": "Create auto-approve workflow engine", "agent": "FORGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W8-T3"]},
+        {"id": "W8-T5", "name": "Create confidence threshold config UI", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W8-T3"]},
+        {"id": "W8-T6", "name": "Integrate auto-approve with AI classification", "agent": "ORACLE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W8-T4"]},
+        {"id": "W8-T7", "name": "Create automation audit log", "agent": "SENTINEL", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W8-T4"]}
+      ]
+    },
+    "wave9": {
+      "name": "Recurring Invoices & Reminders",
+      "priority": "HIGH",
+      "status": "pending",
+      "targetDays": 5,
+      "tasks": [
+        {"id": "W9-T1", "name": "Add RecurringInvoice Prisma schema", "agent": "VAULT", "priority": "P0", "effort": "0.5d", "status": "pending", "deps": []},
+        {"id": "W9-T2", "name": "Create recurring-invoice.service.ts", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W9-T1"]},
+        {"id": "W9-T3", "name": "Create BullMQ recurring invoice job", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W9-T2"]},
+        {"id": "W9-T4", "name": "Create PaymentReminder schema", "agent": "VAULT", "priority": "P0", "effort": "0.5d", "status": "pending", "deps": []},
+        {"id": "W9-T5", "name": "Create payment-reminder.service.ts", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W9-T4"]},
+        {"id": "W9-T6", "name": "Create reminder escalation workflow", "agent": "FORGE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W9-T5"]},
+        {"id": "W9-T7", "name": "Create recurring invoice UI", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W9-T2"]}
+      ]
+    },
+    "wave10": {
+      "name": "OCR Receipt Scanning",
+      "priority": "HIGH",
+      "status": "pending",
+      "targetDays": 6,
+      "tasks": [
+        {"id": "W10-T1", "name": "Integrate Mindee Receipt OCR API", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W10-T2", "name": "Create receipt-scanner.service.ts", "agent": "ORACLE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W10-T1"]},
+        {"id": "W10-T3", "name": "Create receipt upload endpoint", "agent": "FORGE", "priority": "P0", "effort": "0.5d", "status": "pending", "deps": ["W10-T2"]},
+        {"id": "W10-T4", "name": "Create mobile-friendly upload UI", "agent": "PRISM", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W10-T3"]},
+        {"id": "W10-T5", "name": "Create OCR result review/confirm UI", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W10-T4"]},
+        {"id": "W10-T6", "name": "Add learning from corrections", "agent": "ORACLE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W10-T5"]}
+      ]
+    },
+    "wave11": {
+      "name": "Bank Sync Integration",
+      "priority": "HIGH",
+      "status": "pending",
+      "targetDays": 10,
+      "tasks": [
+        {"id": "W11-T1", "name": "Integrate Tink Open Banking API", "agent": "BRIDGE", "priority": "P0", "effort": "3d", "status": "pending", "deps": []},
+        {"id": "W11-T2", "name": "Create BankConnection Prisma schema", "agent": "VAULT", "priority": "P0", "effort": "0.5d", "status": "pending", "deps": []},
+        {"id": "W11-T3", "name": "Create bank-sync.service.ts", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W11-T1", "W11-T2"]},
+        {"id": "W11-T4", "name": "Create transaction import job", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W11-T3"]},
+        {"id": "W11-T5", "name": "Create bank account linking UI", "agent": "PRISM", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W11-T3"]},
+        {"id": "W11-T6", "name": "Create transaction reconciliation engine", "agent": "FORGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W11-T4"]},
+        {"id": "W11-T7", "name": "Create reconciliation review UI", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W11-T6"]},
+        {"id": "W11-T8", "name": "Add auto-categorization for bank txns", "agent": "ORACLE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W11-T4"]}
+      ]
+    },
+    "wave12": {
+      "name": "E-Rechnung (ZUGFeRD/XRechnung)",
+      "priority": "HIGH",
+      "status": "pending",
+      "targetDays": 7,
+      "tasks": [
+        {"id": "W12-T1", "name": "Install factur-x and zugferd-xml packages", "agent": "FORGE", "priority": "P0", "effort": "0.5d", "status": "pending", "deps": []},
+        {"id": "W12-T2", "name": "Create zugferd.service.ts (PDF/A-3 + XML)", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W12-T1"]},
+        {"id": "W12-T3", "name": "Create xrechnung.service.ts (pure XML)", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W12-T1"]},
+        {"id": "W12-T4", "name": "Update invoice PDF generation", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W12-T2"]},
+        {"id": "W12-T5", "name": "Add E-Rechnung toggle to invoice UI", "agent": "PRISM", "priority": "P1", "effort": "0.5d", "status": "pending", "deps": ["W12-T4"]},
+        {"id": "W12-T6", "name": "Create E-Rechnung validation service", "agent": "BRIDGE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W12-T2", "W12-T3"]}
+      ]
+    },
+    "wave13": {
+      "name": "ELSTER Tax Filing (Germany)",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "targetDays": 10,
+      "tasks": [
+        {"id": "W13-T1", "name": "Research: tigerVAT vs ERiC SDK decision", "agent": "BRIDGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": []},
+        {"id": "W13-T2", "name": "Create ELSTER certificate management", "agent": "SENTINEL", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W13-T3", "name": "Create elster-vat.service.ts (UStVA)", "agent": "BRIDGE", "priority": "P0", "effort": "3d", "status": "pending", "deps": ["W13-T1"]},
+        {"id": "W13-T4", "name": "Create elster-esl.service.ts (ZM)", "agent": "BRIDGE", "priority": "P1", "effort": "2d", "status": "pending", "deps": ["W13-T3"]},
+        {"id": "W13-T5", "name": "Create tax filing wizard UI", "agent": "PRISM", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W13-T3"]},
+        {"id": "W13-T6", "name": "Create filing status tracking", "agent": "FORGE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W13-T3"]},
+        {"id": "W13-T7", "name": "Create ELSTER response parser", "agent": "BRIDGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W13-T3"]}
+      ]
+    },
+    "wave14": {
+      "name": "FinanzOnline (Austria)",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "targetDays": 8,
+      "tasks": [
+        {"id": "W14-T1", "name": "Create FinanzOnline SOAP client", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W14-T2", "name": "Create finanzonline-session.service.ts", "agent": "BRIDGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W14-T1"]},
+        {"id": "W14-T3", "name": "Create finanzonline-uva.service.ts", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W14-T2"]},
+        {"id": "W14-T4", "name": "Create Austrian tax filing UI", "agent": "PRISM", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W14-T3"]},
+        {"id": "W14-T5", "name": "Create Registrierkasse integration", "agent": "BRIDGE", "priority": "P1", "effort": "2d", "status": "pending", "deps": ["W14-T2"]}
+      ]
+    },
+    "wave15": {
+      "name": "GoBD Compliance",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "targetDays": 8,
+      "tasks": [
+        {"id": "W15-T1", "name": "Create AuditLog schema (immutable)", "agent": "VAULT", "priority": "P0", "effort": "1d", "status": "pending", "deps": []},
+        {"id": "W15-T2", "name": "Create hash-chain.service.ts", "agent": "SENTINEL", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W15-T1"]},
+        {"id": "W15-T3", "name": "Create document-archive.service.ts", "agent": "FORGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W15-T2"]},
+        {"id": "W15-T4", "name": "Create 8-year retention policy engine", "agent": "FORGE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W15-T3"]},
+        {"id": "W15-T5", "name": "Create GoBD compliance report", "agent": "FORGE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W15-T3"]},
+        {"id": "W15-T6", "name": "Create process documentation generator", "agent": "FORGE", "priority": "P2", "effort": "2d", "status": "pending", "deps": ["W15-T5"]}
+      ]
+    },
+    "wave16": {
+      "name": "Export Formats (DATEV, SAF-T)",
+      "priority": "LOW",
+      "status": "pending",
+      "targetDays": 7,
+      "tasks": [
+        {"id": "W16-T1", "name": "Create datev-export.service.ts (ASCII CSV)", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W16-T2", "name": "Create SKR03/SKR04 account mapping", "agent": "BRIDGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W16-T1"]},
+        {"id": "W16-T3", "name": "Create saft-export.service.ts (XML)", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W16-T4", "name": "Create BMD export (Austria)", "agent": "BRIDGE", "priority": "P1", "effort": "1d", "status": "pending", "deps": []},
+        {"id": "W16-T5", "name": "Create export wizard UI", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W16-T1", "W16-T3", "W16-T4"]},
+        {"id": "W16-T6", "name": "Create scheduled export jobs", "agent": "FORGE", "priority": "P2", "effort": "1d", "status": "pending", "deps": ["W16-T5"]}
+      ]
+    },
+    "wave17": {
+      "name": "Mobile PWA",
+      "priority": "LOW",
+      "status": "pending",
+      "targetDays": 6,
+      "tasks": [
+        {"id": "W17-T1", "name": "Create PWA manifest.json", "agent": "PRISM", "priority": "P1", "effort": "0.5d", "status": "pending", "deps": []},
+        {"id": "W17-T2", "name": "Create service worker", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W17-T1"]},
+        {"id": "W17-T3", "name": "Create offline-first data layer", "agent": "PRISM", "priority": "P1", "effort": "2d", "status": "pending", "deps": ["W17-T2"]},
+        {"id": "W17-T4", "name": "Create mobile-optimized layouts", "agent": "PRISM", "priority": "P1", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W17-T5", "name": "Create push notification UI", "agent": "PRISM", "priority": "P2", "effort": "1d", "status": "pending", "deps": ["W17-T2"]}
+      ]
+    },
+    "wave18": {
+      "name": "US Market Foundation",
+      "priority": "HIGH",
+      "status": "pending",
+      "targetDays": 14,
+      "market": "US",
+      "tasks": [
+        {"id": "W18-T1", "name": "Integrate Plaid Link SDK", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W18-T2", "name": "Create plaid-bank.service.ts", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W18-T1"]},
+        {"id": "W18-T3", "name": "Integrate Avalara AvaTax API", "agent": "BRIDGE", "priority": "P0", "effort": "3d", "status": "pending", "deps": []},
+        {"id": "W18-T4", "name": "Create us-sales-tax.service.ts", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W18-T3"]},
+        {"id": "W18-T5", "name": "Integrate QuickBooks Online OAuth", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W18-T6", "name": "Create quickbooks-sync.service.ts", "agent": "BRIDGE", "priority": "P0", "effort": "3d", "status": "pending", "deps": ["W18-T5"]},
+        {"id": "W18-T7", "name": "Create US tax jurisdiction selector UI", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W18-T4"]},
+        {"id": "W18-T8", "name": "Add multi-state nexus configuration", "agent": "FORGE", "priority": "P1", "effort": "2d", "status": "pending", "deps": ["W18-T4"]}
+      ]
+    },
+    "wave19": {
+      "name": "UK Market Foundation",
+      "priority": "HIGH",
+      "status": "pending",
+      "targetDays": 14,
+      "market": "UK",
+      "tasks": [
+        {"id": "W19-T1", "name": "Integrate TrueLayer SDK", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W19-T2", "name": "Create truelayer-banking.service.ts", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W19-T1"]},
+        {"id": "W19-T3", "name": "Integrate HMRC MTD OAuth", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W19-T4", "name": "Create hmrc-vat.service.ts (MTD)", "agent": "BRIDGE", "priority": "P0", "effort": "3d", "status": "pending", "deps": ["W19-T3"]},
+        {"id": "W19-T5", "name": "Integrate Xero OAuth2", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W19-T6", "name": "Create xero-sync.service.ts", "agent": "BRIDGE", "priority": "P0", "effort": "3d", "status": "pending", "deps": ["W19-T5"]},
+        {"id": "W19-T7", "name": "Create UK VAT return wizard UI", "agent": "PRISM", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W19-T4"]},
+        {"id": "W19-T8", "name": "Add UK company types config", "agent": "VAULT", "priority": "P1", "effort": "1d", "status": "pending", "deps": []}
+      ]
+    },
+    "wave20": {
+      "name": "Global Payments & Multi-Currency",
+      "priority": "HIGH",
+      "status": "pending",
+      "targetDays": 12,
+      "market": "Global",
+      "tasks": [
+        {"id": "W20-T1", "name": "Integrate Stripe Connect (global)", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W20-T2", "name": "Integrate Wise Business API", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W20-T3", "name": "Create multi-currency.service.ts", "agent": "FORGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W20-T4", "name": "Create exchange-rate.service.ts", "agent": "FORGE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W20-T3"]},
+        {"id": "W20-T5", "name": "Add currency conversion to invoices", "agent": "FORGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W20-T3"]},
+        {"id": "W20-T6", "name": "Create GoCardless Direct Debit", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W20-T7", "name": "Create multi-currency UI components", "agent": "PRISM", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W20-T3"]},
+        {"id": "W20-T8", "name": "Add currency selector to all money fields", "agent": "PRISM", "priority": "P1", "effort": "2d", "status": "pending", "deps": ["W20-T7"]}
+      ]
+    },
+    "wave21": {
+      "name": "US Payroll Integration",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "targetDays": 12,
+      "market": "US",
+      "tasks": [
+        {"id": "W21-T1", "name": "Integrate Gusto Embedded API", "agent": "BRIDGE", "priority": "P0", "effort": "3d", "status": "pending", "deps": []},
+        {"id": "W21-T2", "name": "Create gusto-payroll.service.ts", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W21-T1"]},
+        {"id": "W21-T3", "name": "Create employee onboarding flow", "agent": "PRISM", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W21-T2"]},
+        {"id": "W21-T4", "name": "Create pay run wizard UI", "agent": "PRISM", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W21-T2"]},
+        {"id": "W21-T5", "name": "Create payroll reports", "agent": "FORGE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W21-T2"]},
+        {"id": "W21-T6", "name": "Add W-4, I-9 document handling", "agent": "FORGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W21-T2"]},
+        {"id": "W21-T7", "name": "Create benefits enrollment UI", "agent": "PRISM", "priority": "P2", "effort": "2d", "status": "pending", "deps": ["W21-T3"]}
+      ]
+    },
+    "wave22": {
+      "name": "Subscription & Billing Automation",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "targetDays": 10,
+      "market": "Global",
+      "tasks": [
+        {"id": "W22-T1", "name": "Upgrade Stripe Billing integration", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W22-T2", "name": "Create subscription-manager.service.ts", "agent": "FORGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W22-T1"]},
+        {"id": "W22-T3", "name": "Integrate Chargebee (optional)", "agent": "BRIDGE", "priority": "P2", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W22-T4", "name": "Create dunning automation", "agent": "FORGE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W22-T2"]},
+        {"id": "W22-T5", "name": "Create revenue recognition reports", "agent": "FORGE", "priority": "P1", "effort": "2d", "status": "pending", "deps": ["W22-T2"]},
+        {"id": "W22-T6", "name": "Create subscription analytics UI", "agent": "PRISM", "priority": "P1", "effort": "2d", "status": "pending", "deps": ["W22-T2"]},
+        {"id": "W22-T7", "name": "Add usage-based billing support", "agent": "FORGE", "priority": "P2", "effort": "2d", "status": "pending", "deps": ["W22-T2"]}
+      ]
+    },
+    "wave23": {
+      "name": "International Compliance & KYC",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "targetDays": 10,
+      "market": "Global",
+      "tasks": [
+        {"id": "W23-T1", "name": "Integrate Persona for KYC", "agent": "BRIDGE", "priority": "P1", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W23-T2", "name": "Create kyc-verification.service.ts", "agent": "SENTINEL", "priority": "P1", "effort": "2d", "status": "pending", "deps": ["W23-T1"]},
+        {"id": "W23-T3", "name": "Add AML screening (ComplyAdvantage)", "agent": "SENTINEL", "priority": "P2", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W23-T4", "name": "Create verification status UI", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W23-T2"]},
+        {"id": "W23-T5", "name": "Add GDPR data handling", "agent": "SENTINEL", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W23-T6", "name": "Create data export/deletion tools", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W23-T5"]}
+      ]
+    },
+    "wave24": {
+      "name": "EU Peppol Markets (FR, IT, NL, BE, SE, IE)",
+      "priority": "HIGH",
+      "status": "pending",
+      "targetDays": 14,
+      "market": "EU",
+      "securityNotes": "All Peppol communications must use TLS 1.3, certificate pinning required",
+      "tasks": [
+        {"id": "W24-T1", "name": "Integrate Peppol Access Point (secure)", "agent": "BRIDGE", "priority": "P0", "effort": "3d", "status": "pending", "deps": [], "security": "TLS 1.3, cert pinning"},
+        {"id": "W24-T2", "name": "Create France Factur-X service", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W24-T1"]},
+        {"id": "W24-T3", "name": "Create Italy SDI connector (secure)", "agent": "BRIDGE", "priority": "P0", "effort": "3d", "status": "pending", "deps": ["W24-T1"], "security": "Italian fiscal code validation"},
+        {"id": "W24-T4", "name": "Create Chorus Pro integration (France B2G)", "agent": "BRIDGE", "priority": "P1", "effort": "2d", "status": "pending", "deps": ["W24-T2"]},
+        {"id": "W24-T5", "name": "Add EU country tax configurations", "agent": "VAULT", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W24-T6", "name": "Create multi-language UI (fr, it, nl, sv)", "agent": "PRISM", "priority": "P0", "effort": "3d", "status": "pending", "deps": []},
+        {"id": "W24-T7", "name": "Add EU VAT validation (VIES integration)", "agent": "BRIDGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": [], "security": "SOAP over TLS"}
+      ]
+    },
+    "wave25": {
+      "name": "Spain & Spanish Markets",
+      "priority": "HIGH",
+      "status": "pending",
+      "targetDays": 10,
+      "market": "ES",
+      "securityNotes": "SII requires real-time reporting with digital certificates",
+      "tasks": [
+        {"id": "W25-T1", "name": "Create Spain SII connector (secure)", "agent": "BRIDGE", "priority": "P0", "effort": "3d", "status": "pending", "deps": [], "security": "Spanish digital certificate required"},
+        {"id": "W25-T2", "name": "Create Spanish tax configuration (IVA)", "agent": "VAULT", "priority": "P0", "effort": "1d", "status": "pending", "deps": []},
+        {"id": "W25-T3", "name": "Add Spanish language (es)", "agent": "PRISM", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W25-T4", "name": "Create Spain-specific reports (Modelo 303)", "agent": "FORGE", "priority": "P1", "effort": "2d", "status": "pending", "deps": ["W25-T1"]},
+        {"id": "W25-T5", "name": "Add SII certificate management", "agent": "SENTINEL", "priority": "P0", "effort": "1d", "status": "pending", "deps": [], "security": "HSM key storage recommended"}
+      ]
+    },
+    "wave26": {
+      "name": "Commonwealth (CA, AU, SG)",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "targetDays": 10,
+      "market": "Commonwealth",
+      "securityNotes": "English-speaking markets with Peppol, lower complexity",
+      "tasks": [
+        {"id": "W26-T1", "name": "Create CRA e-file integration (Canada)", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": [], "security": "CRA NetFile secure submission"},
+        {"id": "W26-T2", "name": "Create ATO integration (Australia)", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": [], "security": "myGovID authentication"},
+        {"id": "W26-T3", "name": "Create InvoiceNow integration (Singapore)", "agent": "BRIDGE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W24-T1"]},
+        {"id": "W26-T4", "name": "Add Canadian/Australian tax rules (GST/HST)", "agent": "VAULT", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W26-T5", "name": "Add CAD/AUD/SGD currencies", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W20-T3"]}
+      ]
+    },
+    "wave27": {
+      "name": "Japan Market",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "targetDays": 12,
+      "market": "JP",
+      "securityNotes": "Peppol Japan certified, freee API OAuth2",
+      "tasks": [
+        {"id": "W27-T1", "name": "Create Peppol Japan connector", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W24-T1"]},
+        {"id": "W27-T2", "name": "Create freee accounting integration (secure OAuth2)", "agent": "BRIDGE", "priority": "P0", "effort": "3d", "status": "pending", "deps": [], "security": "OAuth2 PKCE flow"},
+        {"id": "W27-T3", "name": "Add Japanese language (ja)", "agent": "PRISM", "priority": "P0", "effort": "3d", "status": "pending", "deps": []},
+        {"id": "W27-T4", "name": "Create Japanese tax configuration (consumption tax)", "agent": "VAULT", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W27-T5", "name": "Add JPY formatting and Japanese fiscal year", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": []},
+        {"id": "W27-T6", "name": "Add Japanese invoice number format (T+13 digits)", "agent": "FORGE", "priority": "P1", "effort": "0.5d", "status": "pending", "deps": []}
+      ]
+    },
+    "wave28": {
+      "name": "Middle East (UAE, Saudi Arabia)",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "targetDays": 12,
+      "market": "ME",
+      "securityNotes": "ZATCA requires cryptographic stamp, high security",
+      "tasks": [
+        {"id": "W28-T1", "name": "Create ZATCA FATOORAH connector (Saudi)", "agent": "BRIDGE", "priority": "P0", "effort": "3d", "status": "pending", "deps": [], "security": "Cryptographic stamp, QR code signing"},
+        {"id": "W28-T2", "name": "Create UAE e-invoice service", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W28-T3", "name": "Add Arabic language (ar) with RTL support", "agent": "PRISM", "priority": "P0", "effort": "3d", "status": "pending", "deps": []},
+        {"id": "W28-T4", "name": "Add Middle East tax rules (VAT 5%/15%)", "agent": "VAULT", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W28-T5", "name": "Add AED/SAR currencies", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W20-T3"]},
+        {"id": "W28-T6", "name": "Add ZATCA certificate management", "agent": "SENTINEL", "priority": "P0", "effort": "2d", "status": "pending", "deps": [], "security": "HSM required for production"}
+      ]
+    },
+    "wave29": {
+      "name": "India Market",
+      "priority": "MEDIUM",
+      "status": "pending",
+      "targetDays": 12,
+      "market": "IN",
+      "securityNotes": "GST IRP uses government PKI, data residency in India required for some data",
+      "tasks": [
+        {"id": "W29-T1", "name": "Create GST IRP Portal connector (secure)", "agent": "BRIDGE", "priority": "P0", "effort": "3d", "status": "pending", "deps": [], "security": "GSP certification, digital signature"},
+        {"id": "W29-T2", "name": "Create Tally integration (optional)", "agent": "BRIDGE", "priority": "P2", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W29-T3", "name": "Add Hindi language (hi)", "agent": "PRISM", "priority": "P1", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W29-T4", "name": "Create India GST configuration (CGST/SGST/IGST)", "agent": "VAULT", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W29-T5", "name": "Add INR currency and Indian number format", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": []},
+        {"id": "W29-T6", "name": "Add GSTIN validation", "agent": "FORGE", "priority": "P0", "effort": "0.5d", "status": "pending", "deps": []}
+      ]
+    },
+    "wave30": {
+      "name": "AI Chatbot (Competitor Parity)",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "targetDays": 14,
+      "market": "Global",
+      "competitorFeature": "sevDesk/FreeFinance chat assistant",
+      "tasks": [
+        {"id": "W30-T1", "name": "Create chat interface UI component", "agent": "PRISM", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W30-T2", "name": "Create chat message store (Prisma)", "agent": "VAULT", "priority": "P0", "effort": "0.5d", "status": "pending", "deps": []},
+        {"id": "W30-T3", "name": "Create chat.service.ts with Claude integration", "agent": "ORACLE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W30-T2"]},
+        {"id": "W30-T4", "name": "Create context-awareness engine (current page, user data)", "agent": "ORACLE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W30-T3"]},
+        {"id": "W30-T5", "name": "Create proactive-suggestions.service.ts", "agent": "ORACLE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W30-T4"]},
+        {"id": "W30-T6", "name": "Create chat action executor (create invoice, send reminder)", "agent": "FORGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W30-T3"]},
+        {"id": "W30-T7", "name": "Create multi-turn conversation memory", "agent": "ORACLE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W30-T3"]},
+        {"id": "W30-T8", "name": "Create chat suggestions UI (quick actions)", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W30-T5"]}
+      ]
+    },
+    "wave31": {
+      "name": "Onboarding Wizard (Competitor Parity)",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "targetDays": 10,
+      "market": "Global",
+      "competitorFeature": "sevDesk/FreeFinance first-time setup",
+      "tasks": [
+        {"id": "W31-T1", "name": "Create onboarding wizard UI (multi-step)", "agent": "PRISM", "priority": "P0", "effort": "2d", "status": "pending", "deps": []},
+        {"id": "W31-T2", "name": "Create company profile setup step", "agent": "PRISM", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W31-T1"]},
+        {"id": "W31-T3", "name": "Create banking connection step (OAuth flow)", "agent": "PRISM", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W31-T1", "W11-T5"]},
+        {"id": "W31-T4", "name": "Create email connection step (Gmail/Outlook)", "agent": "PRISM", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W31-T1", "W32-T1"]},
+        {"id": "W31-T5", "name": "Create tax software connection step", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W31-T1"]},
+        {"id": "W31-T6", "name": "Create preferences step (automation level)", "agent": "PRISM", "priority": "P1", "effort": "0.5d", "status": "pending", "deps": ["W31-T1"]},
+        {"id": "W31-T7", "name": "Create first AI analysis trigger", "agent": "ORACLE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W31-T3", "W31-T4"]},
+        {"id": "W31-T8", "name": "Create onboarding progress tracker", "agent": "FORGE", "priority": "P0", "effort": "0.5d", "status": "pending", "deps": []}
+      ]
+    },
+    "wave32": {
+      "name": "Email Integration (Competitor Parity)",
+      "priority": "CRITICAL",
+      "status": "pending",
+      "targetDays": 12,
+      "market": "Global",
+      "competitorFeature": "sevDesk email invoice extraction",
+      "securityNotes": "OAuth2 only, no password storage",
+      "tasks": [
+        {"id": "W32-T1", "name": "Create Gmail OAuth2 integration", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": [], "security": "OAuth2 PKCE, refresh token encrypted"},
+        {"id": "W32-T2", "name": "Create Microsoft Graph (Outlook) integration", "agent": "BRIDGE", "priority": "P0", "effort": "2d", "status": "pending", "deps": [], "security": "OAuth2 PKCE"},
+        {"id": "W32-T3", "name": "Create email-sync.service.ts", "agent": "BRIDGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W32-T1", "W32-T2"]},
+        {"id": "W32-T4", "name": "Create invoice-extractor.service.ts (AI)", "agent": "ORACLE", "priority": "P0", "effort": "2d", "status": "pending", "deps": ["W32-T3"]},
+        {"id": "W32-T5", "name": "Create receipt-extractor.service.ts (AI)", "agent": "ORACLE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W32-T3"]},
+        {"id": "W32-T6", "name": "Create email attachment processor", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W32-T3"]},
+        {"id": "W32-T7", "name": "Create email connection UI", "agent": "PRISM", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W32-T1", "W32-T2"]},
+        {"id": "W32-T8", "name": "Create extracted invoices review UI", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W32-T4"]}
+      ]
+    },
+    "wave33": {
+      "name": "CRM Module (Competitor Parity)",
+      "priority": "HIGH",
+      "status": "pending",
+      "targetDays": 10,
+      "market": "Global",
+      "competitorFeature": "sevDesk/FreeFinance client management",
+      "tasks": [
+        {"id": "W33-T1", "name": "Create Client Prisma schema (contacts, addresses)", "agent": "VAULT", "priority": "P0", "effort": "1d", "status": "pending", "deps": []},
+        {"id": "W33-T2", "name": "Create client.service.ts", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W33-T1"]},
+        {"id": "W33-T3", "name": "Create client list page with search/filter", "agent": "PRISM", "priority": "P0", "effort": "1.5d", "status": "pending", "deps": ["W33-T2"]},
+        {"id": "W33-T4", "name": "Create client profile page", "agent": "PRISM", "priority": "P0", "effort": "1.5d", "status": "pending", "deps": ["W33-T2"]},
+        {"id": "W33-T5", "name": "Create client invoice history component", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W33-T4"]},
+        {"id": "W33-T6", "name": "Create client payment history component", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W33-T4"]},
+        {"id": "W33-T7", "name": "Create client insights (revenue, avg payment time)", "agent": "FORGE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W33-T2"]},
+        {"id": "W33-T8", "name": "Create client quick actions (send invoice, reminder)", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W33-T4"]}
+      ]
+    },
+    "wave34": {
+      "name": "Reports & Analytics (Competitor Parity)",
+      "priority": "HIGH",
+      "status": "pending",
+      "targetDays": 10,
+      "market": "Global",
+      "competitorFeature": "sevDesk/FreeFinance financial reports",
+      "tasks": [
+        {"id": "W34-T1", "name": "Create report-generator.service.ts", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": []},
+        {"id": "W34-T2", "name": "Create P&L statement report", "agent": "FORGE", "priority": "P0", "effort": "1.5d", "status": "pending", "deps": ["W34-T1"]},
+        {"id": "W34-T3", "name": "Create cash flow statement report", "agent": "FORGE", "priority": "P1", "effort": "1.5d", "status": "pending", "deps": ["W34-T1"]},
+        {"id": "W34-T4", "name": "Create tax summary report (quarterly/annual)", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W34-T1"]},
+        {"id": "W34-T5", "name": "Create AI report generation from chat", "agent": "ORACLE", "priority": "P1", "effort": "1d", "status": "pending", "deps": ["W30-T3", "W34-T1"]},
+        {"id": "W34-T6", "name": "Create PDF/Excel export service", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": ["W34-T1"]},
+        {"id": "W34-T7", "name": "Create reports page UI", "agent": "PRISM", "priority": "P0", "effort": "1.5d", "status": "pending", "deps": ["W34-T2", "W34-T3", "W34-T4"]},
+        {"id": "W34-T8", "name": "Create scheduled reports (email delivery)", "agent": "FORGE", "priority": "P2", "effort": "1d", "status": "pending", "deps": ["W34-T6"]}
+      ]
+    },
+    "wave35": {
+      "name": "Dashboard Enhancement (Competitor Parity)",
+      "priority": "HIGH",
+      "status": "pending",
+      "targetDays": 8,
+      "market": "Global",
+      "competitorFeature": "sevDesk/FreeFinance smart dashboard",
+      "tasks": [
+        {"id": "W35-T1", "name": "Create AI Insights Card component", "agent": "PRISM", "priority": "P0", "effort": "1.5d", "status": "pending", "deps": ["W30-T5"]},
+        {"id": "W35-T2", "name": "Create global search (Cmd+K) component", "agent": "PRISM", "priority": "P0", "effort": "1.5d", "status": "pending", "deps": []},
+        {"id": "W35-T3", "name": "Create search indexer service", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": []},
+        {"id": "W35-T4", "name": "Create notification center dropdown", "agent": "PRISM", "priority": "P0", "effort": "1d", "status": "pending", "deps": []},
+        {"id": "W35-T5", "name": "Create tax deadline reminders service", "agent": "FORGE", "priority": "P0", "effort": "1d", "status": "pending", "deps": []},
+        {"id": "W35-T6", "name": "Create quick actions grid", "agent": "PRISM", "priority": "P1", "effort": "1d", "status": "pending", "deps": []},
+        {"id": "W35-T7", "name": "Create user profile dropdown", "agent": "PRISM", "priority": "P1", "effort": "0.5d", "status": "pending", "deps": []},
+        {"id": "W35-T8", "name": "Create cash flow chart widget", "agent": "PRISM", "priority": "P2", "effort": "1d", "status": "pending", "deps": []}
+      ]
+    }
+  },
+
+  "agentWorkload": {
+    "PRISM": {"totalTasks": 66, "waves": ["7", "8", "9", "10", "11", "12", "13", "14", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "27", "28", "29", "30", "31", "32", "33", "34", "35"]},
+    "FORGE": {"totalTasks": 56, "waves": ["7", "8", "9", "10", "11", "12", "13", "15", "16", "18", "20", "21", "22", "23", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35"]},
+    "BRIDGE": {"totalTasks": 72, "waves": ["10", "11", "12", "13", "14", "16", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "32"]},
+    "VAULT": {"totalTasks": 17, "waves": ["8", "9", "11", "15", "19", "24", "25", "26", "27", "28", "29", "30", "33"]},
+    "ORACLE": {"totalTasks": 17, "waves": ["8", "10", "11", "30", "31", "32", "34"]},
+    "SENTINEL": {"totalTasks": 15, "waves": ["8", "13", "15", "23", "25", "28"]}
+  },
+
+  "externalDependencies": {
+    "tink": {"type": "API", "purpose": "Open Banking EU", "signupUrl": "https://tink.com/", "market": "EU"},
+    "mindee": {"type": "API", "purpose": "OCR Receipt Scanning", "signupUrl": "https://mindee.com/", "market": "Global"},
+    "tigerVAT": {"type": "API", "purpose": "ELSTER VAT Filing", "signupUrl": "https://tigervat.com/", "market": "DE"},
+    "finanzOnline": {"type": "Government", "purpose": "Austrian Tax Portal", "signupUrl": "https://finanzonline.bmf.gv.at/", "market": "AT"},
+    "plaid": {"type": "API", "purpose": "US Banking", "signupUrl": "https://plaid.com/", "market": "US"},
+    "avalara": {"type": "API", "purpose": "US Sales Tax", "signupUrl": "https://avalara.com/", "market": "US/Global"},
+    "quickbooks": {"type": "API", "purpose": "US Accounting", "signupUrl": "https://developer.intuit.com/", "market": "US"},
+    "truelayer": {"type": "API", "purpose": "UK Open Banking", "signupUrl": "https://truelayer.com/", "market": "UK"},
+    "hmrcMTD": {"type": "Government", "purpose": "UK VAT Filing", "signupUrl": "https://developer.service.hmrc.gov.uk/", "market": "UK"},
+    "xero": {"type": "API", "purpose": "UK/AU Accounting", "signupUrl": "https://developer.xero.com/", "market": "UK/AU"},
+    "stripe": {"type": "API", "purpose": "Global Payments", "signupUrl": "https://stripe.com/", "market": "Global"},
+    "wise": {"type": "API", "purpose": "Multi-currency Transfers", "signupUrl": "https://wise.com/business/api", "market": "Global"},
+    "goCardless": {"type": "API", "purpose": "Direct Debit UK/EU", "signupUrl": "https://gocardless.com/", "market": "UK/EU"},
+    "gusto": {"type": "API", "purpose": "US Payroll", "signupUrl": "https://gusto.com/embedded", "market": "US"},
+    "persona": {"type": "API", "purpose": "KYC Verification", "signupUrl": "https://withpersona.com/", "market": "Global"}
+  },
+
+  "milestones": {
+    "frontendComplete": {"wave": 7, "description": "All pages use real data"},
+    "automationLive": {"wave": 8, "description": "Auto-approve modes working"},
+    "bankSyncEU": {"wave": 11, "description": "6000+ EU bank connections"},
+    "taxFilingDACH": {"wave": 14, "description": "ELSTER + FinanzOnline working"},
+    "complianceDACH": {"wave": 16, "description": "GoBD + DATEV + SAF-T ready"},
+    "usMarketReady": {"wave": 18, "description": "Plaid + Avalara + QuickBooks live"},
+    "ukMarketReady": {"wave": 19, "description": "TrueLayer + HMRC MTD + Xero live"},
+    "globalPayments": {"wave": 20, "description": "Multi-currency + Stripe + Wise"},
+    "usPayroll": {"wave": 21, "description": "Gusto Embedded live"},
+    "fullInternational": {"wave": 23, "description": "All markets supported"}
+  },
+
+  "marketSupport": {
+    "DACH": {"countries": ["AT", "DE", "CH"], "waves": ["7-17"], "status": "primary"},
+    "US": {"countries": ["US"], "waves": ["18", "21"], "status": "expansion"},
+    "UK": {"countries": ["GB"], "waves": ["19"], "status": "expansion"},
+    "Global": {"countries": ["*"], "waves": ["20", "22", "23", "30-35"], "status": "expansion"},
+    "EU": {"countries": ["FR", "IT", "NL", "BE", "SE", "IE"], "waves": ["24"], "status": "expansion"},
+    "Spain": {"countries": ["ES"], "waves": ["25"], "status": "expansion"},
+    "Commonwealth": {"countries": ["CA", "AU", "SG"], "waves": ["26"], "status": "expansion"},
+    "Japan": {"countries": ["JP"], "waves": ["27"], "status": "expansion"},
+    "MiddleEast": {"countries": ["AE", "SA"], "waves": ["28"], "status": "expansion"},
+    "India": {"countries": ["IN"], "waves": ["29"], "status": "expansion"},
+    "CompetitorParity": {"feature": "sevDesk/FreeFinance replacement", "waves": ["30-35"], "status": "critical"}
+  },
+
+  "excludedMarkets": {
+    "CN": {"reason": "Regulatory barriers, requires local entity, Golden Tax hardware, data localization"},
+    "BR": {"reason": "26 separate state tax systems, extreme compliance complexity"},
+    "ID": {"reason": "New Coretax system launching 2025, too volatile for secure implementation"}
+  },
+
+  "securityRequirements": {
+    "allIntegrations": [
+      "OAuth2 with PKCE for all third-party APIs",
+      "API keys stored in encrypted vault (never in env vars)",
+      "All external calls logged with full audit trail",
+      "Rate limiting on all endpoints",
+      "Input validation and sanitization"
+    ],
+    "taxFilingSystems": [
+      "Digital certificates stored in HSM",
+      "TLS 1.3 minimum for all government APIs",
+      "Certificate pinning for critical endpoints",
+      "Separate audit log for tax submissions"
+    ],
+    "dataPrivacy": [
+      "GDPR compliance for EU markets",
+      "Data residency per market requirements",
+      "Right to deletion implemented",
+      "Data export on request"
+    ]
+  }
+}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+
 import { authApi, type LoginRequest, type RegisterRequest, type MfaVerifyRequest } from '@/lib/auth';
 
 interface User {
@@ -9,6 +10,7 @@ interface User {
   firstName: string;
   lastName: string;
   role: string;
+  orgId?: string;
 }
 
 interface AuthState {
@@ -34,6 +36,12 @@ export function useAuth() {
       try {
         // Try to get current user - cookies are sent automatically
         const user = await authApi.getCurrentUser();
+
+        // Set orgId in window for API clients to use
+        if (typeof window !== 'undefined' && user.orgId) {
+          (window as any).__orgId = user.orgId;
+        }
+
         setState({
           user,
           isLoading: false,
@@ -74,6 +82,11 @@ export function useAuth() {
 
       // Tokens are now in HTTP-only cookies, no need to store in localStorage
 
+      // Set orgId in window for API clients to use
+      if (typeof window !== 'undefined' && response.user.orgId) {
+        (window as any).__orgId = response.user.orgId;
+      }
+
       setState({
         user: response.user,
         isLoading: false,
@@ -100,6 +113,11 @@ export function useAuth() {
       const response = await authApi.register(data);
 
       // Tokens are now in HTTP-only cookies, no need to store in localStorage
+
+      // Set orgId in window for API clients to use
+      if (typeof window !== 'undefined' && response.user.orgId) {
+        (window as any).__orgId = response.user.orgId;
+      }
 
       setState({
         user: response.user,
@@ -145,6 +163,11 @@ export function useAuth() {
       const response = await authApi.verifyMfa(data);
 
       // Tokens are now in HTTP-only cookies, no need to store in localStorage
+
+      // Set orgId in window for API clients to use
+      if (typeof window !== 'undefined' && response.user.orgId) {
+        (window as any).__orgId = response.user.orgId;
+      }
 
       setState({
         user: response.user,

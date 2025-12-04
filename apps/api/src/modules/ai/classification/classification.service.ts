@@ -13,8 +13,12 @@ import {
 } from '@operate/ai';
 import { ClassifyTransactionDto } from './dto/classify-transaction.dto';
 import { AutomationService } from '../../automation/automation.service';
+import { AutoApproveService } from '../../automation/auto-approve.service';
+import { AutomationSettingsService } from '../../automation/automation-settings.service';
 import { ReviewQueueService } from './review-queue/review-queue.service';
 import { AutomationFeature, AutomationAction } from '../../automation/dto/automation-log.dto';
+import { EventsGateway } from '../../../websocket/events.gateway';
+import { AutomationEvent, AutomationEventPayload } from '@operate/shared';
 
 export interface ClassificationResultWithAction extends ClassificationResult {
   autoApproved: boolean;
@@ -29,7 +33,10 @@ export class ClassificationService implements OnModuleInit {
   constructor(
     private readonly configService: ConfigService,
     private readonly automationService: AutomationService,
+    private readonly autoApproveService: AutoApproveService,
+    private readonly automationSettingsService: AutomationSettingsService,
     private readonly reviewQueueService: ReviewQueueService,
+    private readonly eventsGateway: EventsGateway,
   ) {}
 
   onModuleInit() {
@@ -56,6 +63,13 @@ export class ClassificationService implements OnModuleInit {
 
   /**
    * Classify a transaction with auto-approval logic
+   *
+   * Workflow:
+   * 1. Classify the transaction using AI
+   * 2. Check automation settings to determine if auto-approve is enabled
+   * 3. If FULL_AUTO and thresholds met, execute auto-approval
+   * 4. Emit real-time event via WebSocket for UI updates
+   * 5. If not auto-approved, add to review queue if needed
    */
   async classifyWithAutoApproval(
     orgId: string,
@@ -63,36 +77,50 @@ export class ClassificationService implements OnModuleInit {
   ): Promise<ClassificationResultWithAction> {
     const result = await this.classifyTransaction(transaction);
 
-    // Check automation settings
-    const shouldAuto = await this.automationService.shouldAutoApprove(
-      orgId,
-      'classification',
-      result.confidence,
-      Math.abs(transaction.amount),
+    this.logger.log(
+      `Classification complete for transaction ${transaction.id}: ${result.category} (confidence: ${result.confidence})`,
     );
 
-    if (shouldAuto) {
-      // Log auto-approval
-      await this.automationService.logAutomationAction({
+    // Check if should auto-approve using the new AutoApproveService
+    const decision = await this.autoApproveService.shouldAutoApprove({
+      organisationId: orgId,
+      feature: 'expenses', // Map classification to expenses feature
+      confidenceScore: result.confidence,
+      amount: transaction.amount ? Math.abs(transaction.amount) : undefined,
+    });
+
+    if (decision.autoApprove) {
+      this.logger.log(`Auto-approving transaction ${transaction.id}: ${decision.reason}`);
+
+      // Execute auto-approval and create audit log
+      await this.autoApproveService.executeAutoApproval({
         organisationId: orgId,
-        feature: AutomationFeature.CLASSIFICATION,
-        action: AutomationAction.AUTO_APPROVED,
-        resourceId: transaction.id || 'unknown',
-        confidence: result.confidence,
-        amount: Math.abs(transaction.amount),
-        metadata: {
+        feature: 'classification',
+        entityType: 'transaction',
+        entityId: transaction.id || 'unknown',
+        confidenceScore: result.confidence,
+        inputData: {
+          description: transaction.description,
+          amount: transaction.amount,
+          currency: transaction.currency,
           category: result.category,
-          reasoning: result.reasoning,
-          taxRelevant: result.taxRelevant,
         },
       });
+
+      // Emit WebSocket event for real-time UI update
+      this.emitClassificationEvent(orgId, transaction.id || 'unknown', result, true);
 
       return { ...result, autoApproved: true, addedToReviewQueue: false };
     }
 
-    // Add to review queue if confidence is below threshold or mode is SEMI_AUTO
+    // Not auto-approved - check if needs review
     const needsReview = this.needsReview(result);
+
     if (needsReview) {
+      this.logger.log(
+        `Adding transaction ${transaction.id} to review queue: ${decision.reason}`,
+      );
+
       const priority = this.getReviewPriority(result, transaction.amount);
 
       await this.reviewQueueService.addToQueue({
@@ -105,8 +133,14 @@ export class ClassificationService implements OnModuleInit {
         priority,
       });
 
+      // Emit WebSocket event for review queue addition
+      this.emitClassificationEvent(orgId, transaction.id || 'unknown', result, false);
+
       return { ...result, autoApproved: false, addedToReviewQueue: true };
     }
+
+    // Classification complete but no action needed
+    this.emitClassificationEvent(orgId, transaction.id || 'unknown', result, false);
 
     return { ...result, autoApproved: false, addedToReviewQueue: false };
   }
@@ -215,5 +249,52 @@ export class ClassificationService implements OnModuleInit {
    */
   isHealthy(): boolean {
     return !!this.classifier;
+  }
+
+  /**
+   * Emit WebSocket event for transaction classification
+   * Notifies connected clients in real-time about classification results
+   */
+  private emitClassificationEvent(
+    orgId: string,
+    transactionId: string,
+    result: ClassificationResult,
+    autoApproved: boolean,
+  ): void {
+    try {
+      const payload: AutomationEventPayload = {
+        organizationId: orgId,
+        entityType: 'transaction',
+        entityId: transactionId,
+        feature: 'classification',
+        action: autoApproved ? 'AUTO_APPROVED' : 'CLASSIFIED',
+        confidence: result.confidence,
+        category: result.category,
+        autoApproved,
+        reasoning: result.reasoning,
+        timestamp: new Date(),
+        metadata: {
+          taxRelevant: result.taxRelevant,
+          suggestedDeductionCategory: result.suggestedDeductionCategory,
+          flags: result.flags,
+        },
+      };
+
+      // Emit appropriate event based on approval status
+      const event = autoApproved
+        ? AutomationEvent.AUTO_APPROVED
+        : AutomationEvent.CLASSIFICATION_COMPLETE;
+
+      this.eventsGateway.emitToOrganization(orgId, event, payload);
+
+      this.logger.debug(
+        `Emitted ${event} for transaction ${transactionId} (confidence: ${result.confidence})`,
+      );
+    } catch (error) {
+      // Don't fail the classification if WebSocket emission fails
+      this.logger.warn(
+        `Failed to emit WebSocket event for transaction ${transactionId}: ${error.message}`,
+      );
+    }
   }
 }

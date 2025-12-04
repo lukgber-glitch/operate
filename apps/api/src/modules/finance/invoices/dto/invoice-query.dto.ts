@@ -104,4 +104,22 @@ export class InvoiceQueryDto {
   @IsOptional()
   @IsEnum(['asc', 'desc'])
   sortOrder?: 'asc' | 'desc';
+
+  @ApiPropertyOptional({
+    description: 'Display amounts in this currency (ISO 4217 code)',
+    example: 'USD',
+  })
+  @IsOptional()
+  @IsString()
+  displayCurrency?: string;
+
+  @ApiPropertyOptional({
+    description: 'Exchange rate for currency conversion (optional)',
+    example: 1.07,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  exchangeRate?: number;
 }

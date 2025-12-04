@@ -1,0 +1,123 @@
+{
+  "decision": "tigerVAT",
+  "confidence": "high",
+  "reasoning": "tigerVAT offers 6-10x faster implementation (3-5 days vs 15-30 days), 30-50x lower total cost of ownership when including developer time (€240-600/year vs €20,000-35,000/year), zero maintenance burden, and English documentation. For a SaaS platform targeting SMEs with an international development team, the REST API approach eliminates technical debt and enables focus on core product features rather than infrastructure complexity. The ERiC SDK's complexity (C library + FFI bindings + German-only docs + certificate management + ongoing updates) creates substantial risk and opportunity cost that far outweighs its 'free' licensing.",
+  "estimatedCost": "€240-600 annually (estimated subscription + per-transaction fees, exact pricing requires vendor quote)",
+  "implementationDays": 5,
+  "risks": [
+    "Vendor dependency - mitigated by contract SLA and market demand for ELSTER services",
+    "Price increases - mitigated by multi-year contract terms and competitive market",
+    "Service downtime - mitigated by SLA guarantees and monitoring",
+    "Lack of public pricing transparency - requires sales negotiation",
+    "API changes - mitigated by versioned API and backward compatibility"
+  ],
+  "alternativeConsidered": {
+    "option": "ERiC SDK",
+    "rejectionReason": "Requires 15-30 days initial implementation, C library FFI bindings, German language expertise, complex certificate management, and ongoing maintenance burden of 2-4 days per quarter. Total cost including developer time: €20,000-35,000 in year 1, €6,000-13,000 annually thereafter. Implementation complexity and technical debt outweigh zero licensing cost.",
+    "implementationDays": 30,
+    "hiddenCosts": "€20,000-35,000 year 1 (developer time), €6,000-13,000 annually ongoing"
+  },
+  "supportedTaxForms": [
+    "UStVA (Umsatzsteuervoranmeldung) - Monthly/quarterly VAT advance returns",
+    "ZM (Zusammenfassende Meldung) - EC Sales List",
+    "USt (Umsatzsteuererklärung) - Annual VAT declaration"
+  ],
+  "implementationPlan": {
+    "phase1": {
+      "name": "MVP - Sprint 5",
+      "duration": "5 days",
+      "deliverables": [
+        "Contact tigerVAT for trial account and pricing quote",
+        "Implement UStVA (VAT advance returns) REST endpoints in NestJS",
+        "Sandbox testing with test data",
+        "Launch with 5-10 pilot customers"
+      ]
+    },
+    "phase2": {
+      "name": "Full Integration - Sprint 6",
+      "duration": "3-5 days",
+      "deliverables": [
+        "Add ZM (EC Sales List) support",
+        "Implement annual USt declarations",
+        "Enhanced error handling and retry logic",
+        "Full production rollout"
+      ]
+    },
+    "phase3": {
+      "name": "Optimization - Sprint 7+",
+      "duration": "Ongoing",
+      "deliverables": [
+        "Monitor usage and costs",
+        "Implement caching strategies",
+        "Add pre-validation features",
+        "Evaluate ERiC migration if costs become prohibitive at scale"
+      ]
+    }
+  },
+  "nextSteps": [
+    "Contact tigerVAT sales team for exact pricing quote",
+    "Request API trial credentials and sandbox access",
+    "Confirm SLA, data residency, and compliance certifications",
+    "Review API documentation and integration requirements",
+    "Validate rate limits and bulk operation support",
+    "Schedule implementation in Sprint 5 backlog"
+  ],
+  "openQuestions": [
+    "Exact pricing: monthly base fee + per-transaction costs?",
+    "SLA guarantees: uptime %, support response times?",
+    "Data residency: German/EU data centers confirmed?",
+    "Compliance certifications: ISO 27001, GDPR documentation?",
+    "API rate limits: requests per minute/hour?",
+    "Contract terms: minimum commitment period?",
+    "Sandbox environment: available for testing?",
+    "Webhook support: async notifications for filing status?",
+    "Bulk operations: batch submission capabilities?",
+    "Monitoring: status page and incident notifications?"
+  ],
+  "technicalRequirements": {
+    "tigerVAT": [
+      "HTTPS REST client (built into NestJS/Axios)",
+      "JSON serialization/deserialization",
+      "Environment variable management for API credentials",
+      "Error handling and retry logic",
+      "Logging and monitoring"
+    ],
+    "avoided_with_tigerVAT": [
+      "C compiler toolchain",
+      "FFI bindings (node-ffi-napi)",
+      "Native module compilation",
+      "Complex certificate management infrastructure",
+      "German language translation services",
+      "XML schema validation",
+      "Platform-specific binary management"
+    ]
+  },
+  "costBreakdown": {
+    "tigerVAT": {
+      "year1": {
+        "setup": "€0",
+        "subscription": "€240-600 (estimated)",
+        "development": "€4,000 (5 days at €100/hour)",
+        "total": "€4,240-4,600"
+      },
+      "yearlyOngoing": "€240-600"
+    },
+    "ericSDK": {
+      "year1": {
+        "sdk": "€0",
+        "development": "€12,000-24,000 (15-30 days)",
+        "translation": "€1,000-2,000",
+        "securityAudit": "€2,000-5,000",
+        "total": "€15,000-31,000"
+      },
+      "yearlyOngoing": "€6,400-12,800 (maintenance)"
+    }
+  },
+  "strategicFit": {
+    "cloudNative": "tigerVAT REST API aligns with microservices architecture",
+    "internationalTeam": "English documentation enables any developer to maintain",
+    "timeTpMarket": "Faster integration = faster customer value delivery",
+    "scalability": "REST API scales horizontally with Kubernetes",
+    "multiCountry": "Similar API services exist for Austria (FinanzOnline), Switzerland"
+  }
+}

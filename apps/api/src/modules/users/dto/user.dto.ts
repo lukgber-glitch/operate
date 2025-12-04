@@ -50,6 +50,20 @@ export class UserDto {
   mfaEnabled: boolean;
 
   @ApiProperty({
+    description: 'Organisation ID (from primary membership)',
+    example: '123e4567-e89b-12d3-a456-426614174001',
+    nullable: true,
+  })
+  orgId?: string;
+
+  @ApiProperty({
+    description: 'User role in organisation (from primary membership)',
+    example: 'ADMIN',
+    nullable: true,
+  })
+  role?: string;
+
+  @ApiProperty({
     description: 'Last login timestamp',
     example: '2024-01-15T10:30:00Z',
     nullable: true,

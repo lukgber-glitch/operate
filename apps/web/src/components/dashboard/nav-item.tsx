@@ -1,11 +1,12 @@
 'use client'
 
+import { ChevronDown, LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ChevronDown, LucideIcon } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { useState } from 'react'
+
 import { useSidebar } from '@/hooks/use-sidebar'
+import { cn } from '@/lib/utils'
 
 export interface NavItemProps {
   icon: LucideIcon

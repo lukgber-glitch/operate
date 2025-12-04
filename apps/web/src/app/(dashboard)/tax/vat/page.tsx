@@ -1,10 +1,20 @@
 'use client';
 
-import { useState, useMemo } from 'react';
 import { FileText, Download, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState, useMemo } from 'react';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -13,15 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useVatPeriods, useCurrentVatPeriod, useVatTransactions } from '@/hooks/use-vat';
 
 const statusColors = {

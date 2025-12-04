@@ -1,0 +1,49 @@
+================================================================================
+TASK W28-T3: ARABIC LANGUAGE WITH RTL SUPPORT - FILE LISTING
+================================================================================
+
+FILES CREATED:
+--------------
+
+1. Translation:
+   /c/Users/grube/op/operate/apps/web/messages/ar.json
+
+2. Stylesheets:
+   /c/Users/grube/op/operate/apps/web/src/styles/rtl.css
+   /c/Users/grube/op/operate/apps/web/src/styles/arabic-fonts.css
+
+3. Components:
+   /c/Users/grube/op/operate/apps/web/src/components/providers/RTLProvider.tsx
+
+4. Libraries:
+   /c/Users/grube/op/operate/apps/web/src/lib/formatters/ar.ts
+   /c/Users/grube/op/operate/apps/web/src/lib/calendar/hijri.ts
+
+5. Tests:
+   /c/Users/grube/op/operate/apps/web/src/__tests__/rtl/RTLProvider.test.tsx
+   /c/Users/grube/op/operate/apps/web/src/__tests__/rtl/arabic-formatters.test.ts
+   /c/Users/grube/op/operate/apps/web/src/__tests__/rtl/hijri-calendar.test.ts
+
+6. Documentation:
+   /c/Users/grube/op/operate/apps/web/RTL_IMPLEMENTATION.md
+   /c/Users/grube/op/operate/TASK_W28-T3_SUMMARY.md
+
+FILES MODIFIED:
+---------------
+
+1. /c/Users/grube/op/operate/apps/web/tailwind.config.js
+   - Added RTL plugin with logical properties
+   - Added RTL/LTR variants
+
+2. /c/Users/grube/op/operate/apps/web/src/i18n.ts
+   - Added Arabic locale ('ar')
+   - Added RTL detection functions
+   - Updated locale configurations
+
+BACKUP FILES CREATED:
+---------------------
+
+1. /c/Users/grube/op/operate/apps/web/src/i18n.ts.bak2
+2. /tmp/tailwind_backup.js
+
+================================================================================

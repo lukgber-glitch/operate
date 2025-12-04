@@ -135,9 +135,9 @@ describe('TransactionClassifier', () => {
 
       expect(results).toHaveLength(3);
       expect(results[0]).toHaveProperty('transactionId');
-      expect(results[0].transactionId).toBe('tx-1');
-      expect(results[1].transactionId).toBe('tx-2');
-      expect(results[2].transactionId).toBe('tx-3');
+      expect(results[0]!.transactionId).toBe('tx-1');
+      expect(results[1]!.transactionId).toBe('tx-2');
+      expect(results[2]!.transactionId).toBe('tx-3');
     });
 
     it('should handle empty batch', async () => {

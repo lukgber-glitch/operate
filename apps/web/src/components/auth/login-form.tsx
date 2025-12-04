@@ -1,16 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+
+import { OAuthButtons } from '@/components/auth/oauth-buttons';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { OAuthButtons } from '@/components/auth/oauth-buttons';
 import { useAuth } from '@/hooks/use-auth';
 
 const loginSchema = z.object({
@@ -151,7 +152,7 @@ export function LoginForm() {
       </form>
 
       <div className="text-center text-sm">
-        <span className="text-muted-foreground">Don't have an account? </span>
+        <span className="text-muted-foreground">Don&apos;t have an account? </span>
         <Link href="/register" className="text-primary hover:underline font-medium">
           Create one now
         </Link>

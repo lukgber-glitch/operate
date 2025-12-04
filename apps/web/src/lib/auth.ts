@@ -24,6 +24,7 @@ export interface AuthResponse {
     firstName: string;
     lastName: string;
     role: string;
+    orgId?: string;
   };
   // Tokens are now in HTTP-only cookies, not in response body
   accessToken?: string;

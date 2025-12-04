@@ -1,17 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
 import { ArrowLeft, Plus } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+import { ContractForm } from '@/components/hr/contract-form';
+import { ContractList } from '@/components/hr/contract-list';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ContractList } from '@/components/hr/contract-list';
-import { ContractForm } from '@/components/hr/contract-form';
-import { useContracts } from '@/hooks/use-contracts';
-import { useToast } from '@/components/ui/use-toast';
-import type { Contract } from '@/lib/api/employees';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/components/ui/use-toast';
+import { useContracts } from '@/hooks/use-contracts';
+import type { Contract } from '@/lib/api/employees';
 
 export default function EmployeeContractsPage() {
   const params = useParams();

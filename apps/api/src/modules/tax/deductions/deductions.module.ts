@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { DeductionsController } from './deductions.controller';
 import { DeductionsService } from './deductions.service';
+import { DeductionAnalyzerService } from './deduction-analyzer.service';
 import { DatabaseModule } from '../../database/database.module';
 
 /**
@@ -8,9 +10,9 @@ import { DatabaseModule } from '../../database/database.module';
  * Handles deduction suggestion generation and user confirmation workflow
  */
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, ConfigModule],
   controllers: [DeductionsController],
-  providers: [DeductionsService],
-  exports: [DeductionsService],
+  providers: [DeductionsService, DeductionAnalyzerService],
+  exports: [DeductionsService, DeductionAnalyzerService],
 })
 export class DeductionsModule {}

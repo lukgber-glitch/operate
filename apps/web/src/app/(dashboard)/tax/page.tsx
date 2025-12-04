@@ -1,17 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import {
   Calculator,
   TrendingDown,
@@ -21,9 +9,22 @@ import {
   ArrowRight,
   AlertCircle,
 } from 'lucide-react';
+import Link from 'next/link';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useTaxReport } from '@/hooks/use-tax-reports';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { useDeductions } from '@/hooks/use-deductions';
+import { useTaxReport } from '@/hooks/use-tax-reports';
 
 const statusColors = {
   UPCOMING: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',

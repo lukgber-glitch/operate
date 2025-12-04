@@ -7,3 +7,5 @@ export * from './compliance.module';
 export * from './exports/saft/saft.module';
 export * from './exports/saft/saft.service';
 export * from './exports/saft/saft-builder.service';
+export * from './services';
+export * from './types';

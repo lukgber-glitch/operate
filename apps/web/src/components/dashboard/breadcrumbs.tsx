@@ -1,7 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
+import Link from 'next/link'
+
 import { useBreadcrumbs } from '@/hooks/use-breadcrumbs'
 
 export function Breadcrumbs() {

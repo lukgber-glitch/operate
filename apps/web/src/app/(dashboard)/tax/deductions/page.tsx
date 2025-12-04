@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import Link from 'next/link';
 import { Plus, Download, Search, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import Link from 'next/link';
+import { useState, useMemo } from 'react';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -13,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -21,8 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useDeductions } from '@/hooks/use-deductions';
 
 const statusColors = {

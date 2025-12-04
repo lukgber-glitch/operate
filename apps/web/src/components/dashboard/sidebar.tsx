@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import {
   Home,
   Users,
@@ -12,12 +11,16 @@ import {
   PanelLeftClose,
   PanelLeft,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useSidebar } from '@/hooks/use-sidebar'
-import { NavItem, NavItemProps } from './nav-item'
-import { OrgSwitcher } from './org-switcher'
+import Link from 'next/link'
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { useSidebar } from '@/hooks/use-sidebar'
+import { cn } from '@/lib/utils'
+
+import { NavItem, NavItemProps } from './nav-item'
+import { OrgSwitcher } from './org-switcher'
+
 
 const navItems: NavItemProps[] = [
   { icon: Home, label: 'Dashboard', href: '/' },

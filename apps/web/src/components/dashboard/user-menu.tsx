@@ -1,12 +1,15 @@
 'use client'
 
-import Link from 'next/link'
 import {
   User,
   Building2,
   LogOut,
   Settings,
 } from 'lucide-react'
+import Link from 'next/link'
+
+import { ThemeToggle } from '@/components/theme-toggle'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,8 +18,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ThemeToggle } from '@/components/theme-toggle'
 
 export function UserMenu() {
   const handleLogout = () => {

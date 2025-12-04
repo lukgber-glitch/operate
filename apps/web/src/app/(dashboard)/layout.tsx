@@ -1,8 +1,11 @@
 'use client'
 
-import { Sidebar } from '@/components/dashboard/sidebar'
+import { ChatButton } from '@/components/chat'
 import { Header } from '@/components/dashboard/header'
 import { MobileNav } from '@/components/dashboard/mobile-nav'
+import { Sidebar } from '@/components/dashboard/sidebar'
+import { MobileHeader } from '@/components/mobile'
+import { PushPermissionBanner } from '@/components/notifications'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
 
@@ -28,16 +31,28 @@ export default function DashboardLayout({
           isOpen && 'lg:pl-64' // expanded sidebar width
         )}
       >
-        <Header />
-        
+        {/* Desktop Header */}
+        <div className="hidden lg:block">
+          <Header />
+        </div>
+
+        {/* Mobile Header */}
+        <MobileHeader />
+
         {/* Page Content */}
-        <main className="p-6 pb-20 lg:pb-6">
+        <main className="p-4 pb-20 sm:p-6 lg:pb-6">
+          {/* Push Notification Permission Banner */}
+          <PushPermissionBanner />
+
           {children}
         </main>
       </div>
 
       {/* Mobile Bottom Navigation */}
       <MobileNav />
+
+      {/* AI Chat Assistant */}
+      <ChatButton />
     </div>
   )
 }

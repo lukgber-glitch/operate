@@ -3,22 +3,44 @@ import {
   NotFoundException,
   BadRequestException,
   Logger,
+  InternalServerErrorException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { DocumentsRepository } from './documents.repository';
+import { ClassificationService } from './classification.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 import { DocumentQueryDto } from './dto/document-query.dto';
-import { Prisma, DocumentStatus } from '@prisma/client';
+import { UploadDocumentDto } from './dto/upload-document.dto';
+import { ClassifyDocumentDto } from './dto/classify-document.dto';
+import { ClassificationResultDto } from './dto/classification-result.dto';
+import { Prisma, DocumentStatus, DocumentType } from '@prisma/client';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
+import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
 
 /**
  * Documents Service
- * Business logic for document management operations
+ * Business logic for document management operations including upload and AI classification
  */
 @Injectable()
 export class DocumentsService {
   private readonly logger = new Logger(DocumentsService.name);
+  private readonly storageBasePath: string;
+  private readonly storageType: string;
 
-  constructor(private repository: DocumentsRepository) {}
+  constructor(
+    private repository: DocumentsRepository,
+    private classificationService: ClassificationService,
+    private configService: ConfigService,
+  ) {
+    this.storageType = this.configService.get<string>('STORAGE_TYPE', 'local');
+    this.storageBasePath = this.configService.get<string>(
+      'STORAGE_PATH',
+      './uploads/documents',
+    );
+  }
 
   /**
    * Find all documents with pagination and filters
@@ -302,5 +324,219 @@ export class DocumentsService {
     const rootId = document.parentId || document.id;
 
     return this.repository.getVersionHistory(rootId);
+  }
+
+  /**
+   * Upload document with optional AI classification
+   */
+  async uploadDocument(
+    orgId: string,
+    userId: string,
+    file: Express.Multer.File,
+    dto: UploadDocumentDto,
+  ): Promise<any> {
+    this.logger.log(
+      `Uploading document: ${file.originalname} (${file.size} bytes)`,
+    );
+
+    try {
+      // Store file
+      const fileUrl = await this.storeFile(orgId, file);
+
+      // Classify document if requested
+      let classificationResult: ClassificationResultDto | null = null;
+      let documentType: DocumentType = DocumentType.OTHER;
+
+      if (dto.autoClassify !== false) {
+        try {
+          const result = await this.classificationService.classifyDocument(
+            file.buffer,
+            file.mimetype,
+            file.originalname,
+          );
+
+          classificationResult = {
+            type: result.type,
+            confidence: result.confidence,
+            extractedData: result.extractedData,
+            autoCategorizationRecommended: result.confidence >= 0.8,
+          };
+
+          // Auto-apply classification if confidence is high
+          if (result.confidence >= 0.8) {
+            documentType = result.type;
+            this.logger.log(
+              `Auto-classified document as ${documentType} (confidence: ${result.confidence})`,
+            );
+          }
+        } catch (classificationError) {
+          this.logger.warn(
+            `Classification failed for ${file.originalname}:`,
+            classificationError,
+          );
+          // Continue with upload even if classification fails
+        }
+      }
+
+      // Create document record
+      const document = await this.repository.create({
+        orgId,
+        name: dto.name || file.originalname,
+        description: dto.description,
+        type: documentType,
+        fileName: file.originalname,
+        fileSize: file.size,
+        mimeType: file.mimetype,
+        fileUrl,
+        ...(dto.folderId && { folder: { connect: { id: dto.folderId } } }),
+        tags: dto.tags || [],
+        uploadedBy: userId,
+        metadata: (classificationResult
+          ? { classification: classificationResult }
+          : {}) as Prisma.InputJsonValue,
+        status: DocumentStatus.ACTIVE,
+        version: 1,
+      });
+
+      this.logger.log(`Created document ${document.id} for organisation ${orgId}`);
+
+      return {
+        ...document,
+        classification: classificationResult,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to upload document:`, error);
+      throw new InternalServerErrorException('Failed to upload document');
+    }
+  }
+
+  /**
+   * Classify an existing document
+   */
+  async classifyExistingDocument(
+    orgId: string,
+    dto: ClassifyDocumentDto,
+  ): Promise<ClassificationResultDto> {
+    // Find document
+    const document = await this.repository.findById(dto.documentId);
+
+    if (!document) {
+      throw new NotFoundException(
+        `Document with ID ${dto.documentId} not found`,
+      );
+    }
+
+    if (document.orgId !== orgId) {
+      throw new NotFoundException(
+        `Document with ID ${dto.documentId} not found`,
+      );
+    }
+
+    try {
+      // Download file for classification
+      const fileBuffer = await this.downloadFile(document.fileUrl);
+
+      // Classify
+      const result = await this.classificationService.classifyDocument(
+        fileBuffer,
+        document.mimeType,
+        document.fileName,
+        {
+          useVision: dto.useVision,
+          model: dto.model,
+          temperature: dto.temperature,
+        },
+      );
+
+      const classificationResult: ClassificationResultDto = {
+        type: result.type,
+        confidence: result.confidence,
+        extractedData: result.extractedData,
+        autoCategorizationRecommended: result.confidence >= 0.8,
+      };
+
+      // Apply classification if requested and confidence is high
+      if (dto.applyClassification && result.confidence >= 0.8) {
+        await this.repository.update(dto.documentId, {
+          type: result.type,
+          metadata: {
+            ...(document.metadata as any),
+            classification: classificationResult,
+            classifiedAt: new Date().toISOString(),
+          },
+        });
+
+        this.logger.log(
+          `Applied classification to document ${dto.documentId}: ${result.type} (confidence: ${result.confidence})`,
+        );
+      }
+
+      return classificationResult;
+    } catch (error) {
+      this.logger.error(
+        `Classification failed for document ${dto.documentId}:`,
+        error,
+      );
+      throw new InternalServerErrorException('Document classification failed');
+    }
+  }
+
+  /**
+   * Store file to configured storage
+   */
+  private async storeFile(
+    orgId: string,
+    file: Express.Multer.File,
+  ): Promise<string> {
+    if (this.storageType === 'local') {
+      return this.storeFileLocally(orgId, file);
+    } else if (this.storageType === 's3') {
+      // TODO: Implement S3 storage
+      throw new Error('S3 storage not implemented yet');
+    } else {
+      throw new Error(`Unsupported storage type: ${this.storageType}`);
+    }
+  }
+
+  /**
+   * Store file to local filesystem
+   */
+  private async storeFileLocally(
+    orgId: string,
+    file: Express.Multer.File,
+  ): Promise<string> {
+    // Generate unique filename
+    const fileId = uuidv4();
+    const extension = file.originalname.split('.').pop();
+    const fileName = `${fileId}.${extension}`;
+
+    // Create directory structure
+    const orgPath = join(this.storageBasePath, orgId);
+    await mkdir(orgPath, { recursive: true });
+
+    // Write file
+    const filePath = join(orgPath, fileName);
+    await writeFile(filePath, file.buffer);
+
+    // Return relative URL
+    return `/uploads/documents/${orgId}/${fileName}`;
+  }
+
+  /**
+   * Download file from URL (for classification)
+   */
+  private async downloadFile(fileUrl: string): Promise<Buffer> {
+    if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+      // External URL
+      const response = await axios.get(fileUrl, {
+        responseType: 'arraybuffer',
+      });
+      return Buffer.from(response.data);
+    } else {
+      // Local file
+      const { readFile } = await import('fs/promises');
+      const filePath = join(process.cwd(), fileUrl);
+      return await readFile(filePath);
+    }
   }
 }

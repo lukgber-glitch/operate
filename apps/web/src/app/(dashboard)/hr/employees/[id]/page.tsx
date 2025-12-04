@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { ArrowLeft, Pencil, Trash2, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+import { EmployeeCard } from '@/components/hr/employee-card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,10 +16,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { EmployeeCard } from '@/components/hr/employee-card';
-import { useEmployee } from '@/hooks/use-employees';
-import { useToast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/components/ui/use-toast';
+import { useEmployee } from '@/hooks/use-employees';
 import { employeeApi } from '@/lib/api/employees';
 
 export default function EmployeeDetailPage() {

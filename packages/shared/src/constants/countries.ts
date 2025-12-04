@@ -36,6 +36,17 @@ export const SUPPORTED_COUNTRIES = {
     timezone: 'Europe/Zurich',
     fiscalYearStart: '01-01',
   },
+  JP: {
+    code: 'JP',
+    code3: 'JPN',
+    name: 'Japan',
+    nameNative: '日本',
+    currency: 'JPY',
+    currencySymbol: '¥',
+    locale: 'ja-JP',
+    timezone: 'Asia/Tokyo',
+    fiscalYearStart: '04-01', // Japan fiscal year starts April 1
+  },
 } as const;
 
 export type CountryCode = keyof typeof SUPPORTED_COUNTRIES;

@@ -1,7 +1,5 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import {
   Home,
   Users,
@@ -9,8 +7,12 @@ import {
   CreditCard,
   Settings,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+
+import { cn } from '@/lib/utils'
+
 
 interface MobileNavItem {
   icon: LucideIcon

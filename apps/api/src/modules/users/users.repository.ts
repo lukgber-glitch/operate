@@ -76,4 +76,20 @@ export class UsersRepository {
     });
     return count > 0;
   }
+
+  /**
+   * Get user's primary membership
+   * Returns the first accepted membership (can be enhanced to support multiple orgs)
+   */
+  async getPrimaryMembership(userId: string) {
+    return this.prisma.membership.findFirst({
+      where: {
+        userId,
+        acceptedAt: { not: null },
+      },
+      orderBy: {
+        acceptedAt: 'asc', // First accepted membership
+      },
+    });
+  }
 }

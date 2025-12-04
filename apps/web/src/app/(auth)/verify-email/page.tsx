@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useState, Suspense } from 'react';
+
 import { Button } from '@/components/ui/button';
-import { authApi } from '@/lib/auth';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { authApi } from '@/lib/auth';
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();

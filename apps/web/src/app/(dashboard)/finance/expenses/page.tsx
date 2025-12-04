@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Plus, Download, Search, Filter, Camera } from 'lucide-react';
 import Link from 'next/link';
-import { Plus, Download, Search, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from 'react';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -21,9 +24,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useExpenses } from '@/hooks/use-expenses';
+import { CurrencyDisplay } from '@/components/currency/CurrencyDisplay';
+import type { CurrencyCode } from '@/types/currency';
 
 const statusColors = {
   APPROVED: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -120,10 +123,16 @@ export default function ExpensesPage() {
           </p>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Export
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/finance/expenses/scan">
+              <Camera className="mr-2 h-4 w-4" />
+              Scan Receipt
+            </Link>
           </Button>
           <Button asChild>
             <Link href="/finance/expenses/new">
@@ -293,7 +302,10 @@ export default function ExpensesPage() {
                         </Link>
                       </TableCell>
                       <TableCell className="font-medium">
-                        {formatCurrency(expense.totalAmount, expense.currency)}
+                        <CurrencyDisplay
+                          amount={expense.totalAmount}
+                          currency={expense.currency as CurrencyCode || 'EUR'}
+                        />
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">

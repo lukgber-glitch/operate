@@ -1,0 +1,83 @@
+TASK W29-T6: GSTIN Validation - Files Created
+==============================================
+
+CORE VALIDATION (packages/shared/src/validation/gstin/)
+--------------------------------------------------------
+1. state-codes.ts                    104 lines
+   - All 38 Indian state/UT code mappings
+   - State validation functions
+   - Active/inactive state tracking
+
+2. pan.validator.ts                  215 lines
+   - PAN format validation (AAAPL1234C)
+   - Entity type validation (10 types)
+   - PAN extraction from GSTIN
+
+3. check-digit.ts                    233 lines
+   - Modified Luhn algorithm implementation
+   - Character-to-value mapping (0-35)
+   - Check digit calculation & verification
+
+4. gstin.validator.ts                311 lines
+   - Main GSTIN validation (15 chars)
+   - Format validation
+   - Generation from components
+   - Utility functions
+
+5. gstin.validator.spec.ts           503 lines
+   - 77 comprehensive test cases
+   - Valid/invalid format tests
+   - Edge case coverage
+   - State, PAN, check digit tests
+
+6. index.ts                           64 lines
+   - Barrel exports for clean API
+
+NESTJS INTEGRATION (apps/api/src/common/decorators/)
+----------------------------------------------------
+7. is-gstin.decorator.ts             271 lines
+   - @IsGSTIN() decorator
+   - @IsOptionalGSTIN() decorator
+   - @IsGSTINForState() decorator
+   - @IsGSTINArray() decorator
+   - class-validator integration
+
+CONFIGURATION
+-------------
+8. jest.config.js (packages/shared)   37 lines
+   - Jest configuration for shared package
+
+TOTAL: 1,701 lines across 7 main implementation files
+
+FEATURES IMPLEMENTED
+====================
+✓ GSTIN format validation (15 characters)
+✓ State code validation (01-38, 97, 99)
+✓ PAN embedded validation
+✓ Entity number validation (1-9, A-Z)
+✓ Check digit calculation (modified Luhn)
+✓ Case-insensitive, whitespace-trimmed input
+✓ NestJS DTO decorators
+✓ Comprehensive test suite (77 tests)
+✓ TypeScript type safety
+✓ Zero external dependencies for validation
+
+USAGE EXAMPLE
+=============
+import { validateGSTIN } from '@operate/shared/validation/gstin';
+
+const result = validateGSTIN('27AAPFU0939F1ZT');
+if (result.isValid) {
+  console.log('Valid GSTIN!');
+  console.log('State:', result.details.stateName);
+  console.log('PAN:', result.details.pan);
+}
+
+NESTJS DTO EXAMPLE
+==================
+import { IsGSTIN } from '@/common/decorators/is-gstin.decorator';
+
+class CreateCompanyDto {
+  @IsGSTIN()
+  gstin: string;
+}

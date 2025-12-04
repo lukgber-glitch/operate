@@ -1,7 +1,8 @@
 'use client'
 
 import { Check, ChevronsUpDown, Building2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useState } from 'react'
+
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -10,7 +11,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useSidebar } from '@/hooks/use-sidebar'
-import { useState } from 'react'
+import { cn } from '@/lib/utils'
+
 
 // Mock data - replace with actual data from API
 const organizations = [

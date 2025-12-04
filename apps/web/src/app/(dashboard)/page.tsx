@@ -1,6 +1,8 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { TrendingUp, Users, FileText, CreditCard, CheckCircle2, Camera } from 'lucide-react'
+
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { TrendingUp, Users, FileText, CreditCard, CheckCircle2 } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function DashboardPage() {
   return (
@@ -73,6 +75,12 @@ export default function DashboardPage() {
             <Button className="justify-start" variant="outline">
               <CreditCard className="mr-2 h-4 w-4" />
               Create Invoice
+            </Button>
+            <Button className="justify-start" variant="outline" asChild>
+              <Link href="/finance/expenses/scan">
+                <Camera className="mr-2 h-4 w-4" />
+                Scan Receipt
+              </Link>
             </Button>
           </CardContent>
         </Card>

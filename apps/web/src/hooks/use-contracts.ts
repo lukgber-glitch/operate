@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+
 import {
   employeeApi,
   type Contract,
@@ -59,7 +60,7 @@ export function useContracts(employeeId: string) {
     setIsLoading(true);
     setError(null);
     try {
-      await employeeApi.deleteContract(id);
+      await employeeApi.deleteContract(employeeId, id);
       setContracts(prev => prev.filter(c => c.id !== id));
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to delete contract');

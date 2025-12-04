@@ -1,23 +1,35 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
 import { FinanzOnlineController } from './finanzonline.controller';
 import { FinanzOnlineService } from './finanzonline.service';
+import { FinanzOnlineSessionService } from './finanzonline-session.service';
+import { FinanzOnlineUVAService } from './finanzonline-uva.service';
+import { UVASubmissionProcessor } from './processors/uva-submission.processor';
+import { RegistrierkasseService } from './registrierkasse/registrierkasse.service';
+import { DEPExportService } from './registrierkasse/dep-export.service';
 import { CacheModule } from '../../cache/cache.module';
+import { DatabaseModule } from '../../database/database.module';
 
 /**
  * FinanzOnline Integration Module
  * Provides integration with Austrian FinanzOnline WebService for tax submissions
  *
  * Features:
- * - Certificate-based authentication
- * - VAT return submission (Umsatzsteuervoranmeldung)
+ * - SOAP-based authentication and session management
+ * - VAT return submission (Umsatzsteuervoranmeldung - UVA)
  * - Income tax return submission (Einkommensteuererklärung)
+ * - Registrierkasse (Cash Register) integration with RKSV compliance
+ * - DEP (Datenerfassungsprotokoll) export
  * - Submission status tracking
  * - Session management with Redis caching
+ * - Auto-refresh sessions before expiry
+ * - Multi-tenant organization support
  * - Encrypted credential storage
  * - Audit logging
+ * - Async submission processing with BullMQ
  *
  * Environment Variables:
- * - FON_ENVIRONMENT: 'production' or 'sandbox' (default: sandbox)
+ * - FON_ENVIRONMENT: 'production' or 'test' (default: test)
  * - FON_TIMEOUT: Request timeout in ms (default: 30000)
  * - FON_DEBUG: Enable debug logging (default: false)
  * - FON_MAX_RETRIES: Maximum retry attempts (default: 3)
@@ -25,9 +37,28 @@ import { CacheModule } from '../../cache/cache.module';
  * - FON_ENCRYPTION_KEY: Key for encrypting credentials (required in production)
  */
 @Module({
-  imports: [CacheModule],
+  imports: [
+    CacheModule,
+    DatabaseModule,
+    BullModule.registerQueue({
+      name: 'finanzonline-uva',
+    }),
+  ],
   controllers: [FinanzOnlineController],
-  providers: [FinanzOnlineService],
-  exports: [FinanzOnlineService],
+  providers: [
+    FinanzOnlineService,
+    FinanzOnlineSessionService,
+    FinanzOnlineUVAService,
+    UVASubmissionProcessor,
+    RegistrierkasseService,
+    DEPExportService,
+  ],
+  exports: [
+    FinanzOnlineService,
+    FinanzOnlineSessionService,
+    FinanzOnlineUVAService,
+    RegistrierkasseService,
+    DEPExportService,
+  ],
 })
 export class FinanzOnlineModule {}

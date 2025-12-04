@@ -1,22 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { ArrowLeft, Download, Edit, Send, Check, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableFooter,
-} from '@/components/ui/table';
-import { Separator } from '@/components/ui/separator';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +16,33 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TableFooter,
+} from '@/components/ui/table';
+import {
+  EInvoiceFormatSelector,
+  type EInvoiceFormat,
+  type EInvoiceOptions,
+} from '@/components/e-invoice';
 
 // Placeholder data
 const invoiceData = {
@@ -83,6 +98,9 @@ export default function InvoiceDetailPage({
   const router = useRouter();
   const [status, setStatus] = useState(invoiceData.status);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDownloadDialog, setShowDownloadDialog] = useState(false);
+  const [invoiceFormat, setInvoiceFormat] = useState<EInvoiceFormat>('standard');
+  const [invoiceOptions, setInvoiceOptions] = useState<EInvoiceOptions>();
 
   const calculateSubtotal = () => {
     return invoiceData.lineItems.reduce((sum, item) => sum + item.amount, 0);
@@ -123,9 +141,49 @@ export default function InvoiceDetailPage({
     router.push('/finance/invoices');
   };
 
-  const handleDownload = () => {
-    // Simulate PDF download
-    console.log('Downloading invoice...');
+  const handleFormatChange = (
+    format: EInvoiceFormat,
+    options?: EInvoiceOptions
+  ) => {
+    setInvoiceFormat(format);
+    setInvoiceOptions(options);
+  };
+
+  const handleDownload = async () => {
+    setIsLoading(true);
+    try {
+      // Build query parameters based on format and options
+      const queryParams = new URLSearchParams();
+      queryParams.append('format', invoiceFormat);
+
+      if (invoiceFormat === 'zugferd' && invoiceOptions?.zugferdProfile) {
+        queryParams.append('zugferdProfile', invoiceOptions.zugferdProfile);
+      } else if (invoiceFormat === 'xrechnung' && invoiceOptions?.xrechnungSyntax) {
+        queryParams.append('xrechnungSyntax', invoiceOptions.xrechnungSyntax);
+      }
+
+      // TODO: Replace with actual API call when backend is integrated
+      // const response = await fetch(
+      //   `/api/organisations/{orgId}/invoices/${params.id}/generate?${queryParams.toString()}`
+      // );
+      // const data = await response.json();
+      // const blob = new Blob([Buffer.from(data.buffer, 'base64')], {
+      //   type: data.contentType,
+      // });
+      // const url = window.URL.createObjectURL(blob);
+      // const a = document.createElement('a');
+      // a.href = url;
+      // a.download = data.filename;
+      // a.click();
+      // window.URL.revokeObjectURL(url);
+
+      console.log('Downloading invoice with format:', invoiceFormat, invoiceOptions);
+      setShowDownloadDialog(false);
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -147,10 +205,42 @@ export default function InvoiceDetailPage({
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleDownload}>
-            <Download className="mr-2 h-4 w-4" />
-            Download
-          </Button>
+          <Dialog open={showDownloadDialog} onOpenChange={setShowDownloadDialog}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Download Invoice</DialogTitle>
+                <DialogDescription>
+                  Select the format for your invoice download. E-Invoice formats
+                  include embedded structured data for automated processing.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <EInvoiceFormatSelector
+                  value={invoiceFormat}
+                  onChange={handleFormatChange}
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDownloadDialog(false)}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleDownload} disabled={isLoading}>
+                  <Download className="mr-2 h-4 w-4" />
+                  {isLoading ? 'Downloading...' : 'Download'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           {status === 'draft' && (
             <>
               <Button variant="outline" asChild>

@@ -1,19 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { Building2, Receipt, Bell, Link2, Users, Save, Sparkles, Info } from 'lucide-react';
+import { useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Card,
   CardContent,
@@ -21,14 +12,26 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
+import { CurrencyPicker } from '@/components/currency/CurrencyPicker';
+import type { CurrencyCode } from '@/types/currency';
 
 // Mock data for organization settings
 const initialOrgData = {
@@ -222,7 +225,7 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle>Organization Profile</CardTitle>
               <CardDescription>
-                Update your organization's basic information
+                Update your organization&apos;s basic information
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -555,22 +558,15 @@ export default function SettingsPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="currency">Default Currency</Label>
-                  <Select
-                    value={invoiceData.currency}
-                    onValueChange={(value) =>
+                  <CurrencyPicker
+                    value={invoiceData.currency as CurrencyCode}
+                    onChange={(value) =>
                       setInvoiceData({ ...invoiceData, currency: value })
                     }
-                  >
-                    <SelectTrigger id="currency">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="EUR">EUR (Euro)</SelectItem>
-                      <SelectItem value="USD">USD (US Dollar)</SelectItem>
-                      <SelectItem value="GBP">GBP (British Pound)</SelectItem>
-                      <SelectItem value="CHF">CHF (Swiss Franc)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Default currency for invoices and transactions
+                  </p>
                 </div>
               </div>
 

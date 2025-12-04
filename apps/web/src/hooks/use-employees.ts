@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useToast } from '@/components/ui/use-toast';
+import { handleApiError } from '@/lib/api/error-handler';
+
 import {
   employeeApi,
   type Employee,
@@ -20,6 +23,7 @@ interface UseEmployeesState {
 }
 
 export function useEmployees(initialFilters?: EmployeeFilters) {
+  const { toast } = useToast();
   const [state, setState] = useState<UseEmployeesState>({
     employees: [],
     total: 0,
@@ -47,13 +51,19 @@ export function useEmployees(initialFilters?: EmployeeFilters) {
         error: null,
       });
     } catch (error) {
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch employees',
+        error: errorMessage,
       }));
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
     }
-  }, [filters]);
+  }, [filters, toast]);
 
   const createEmployee = useCallback(async (data: CreateEmployeeRequest) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -65,16 +75,26 @@ export function useEmployees(initialFilters?: EmployeeFilters) {
         total: prev.total + 1,
         isLoading: false,
       }));
+      toast({
+        title: 'Success',
+        description: 'Employee created successfully',
+      });
       return employee;
     } catch (error) {
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to create employee',
+        error: errorMessage,
       }));
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
       throw error;
     }
-  }, []);
+  }, [toast]);
 
   const updateEmployee = useCallback(async (id: string, data: UpdateEmployeeRequest) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -85,16 +105,26 @@ export function useEmployees(initialFilters?: EmployeeFilters) {
         employees: prev.employees.map(e => e.id === id ? employee : e),
         isLoading: false,
       }));
+      toast({
+        title: 'Success',
+        description: 'Employee updated successfully',
+      });
       return employee;
     } catch (error) {
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to update employee',
+        error: errorMessage,
       }));
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
       throw error;
     }
-  }, []);
+  }, [toast]);
 
   const deleteEmployee = useCallback(async (id: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -106,15 +136,25 @@ export function useEmployees(initialFilters?: EmployeeFilters) {
         total: prev.total - 1,
         isLoading: false,
       }));
+      toast({
+        title: 'Success',
+        description: 'Employee deleted successfully',
+      });
     } catch (error) {
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to delete employee',
+        error: errorMessage,
       }));
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
       throw error;
     }
-  }, []);
+  }, [toast]);
 
   return {
     ...state,
@@ -128,6 +168,7 @@ export function useEmployees(initialFilters?: EmployeeFilters) {
 }
 
 export function useEmployee(id: string) {
+  const { toast } = useToast();
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -139,11 +180,17 @@ export function useEmployee(id: string) {
       const data = await employeeApi.getEmployee(id);
       setEmployee(data);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to fetch employee');
+      const errorMessage = handleApiError(error);
+      setError(errorMessage);
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
-  }, [id]);
+  }, [id, toast]);
 
   const updateEmployee = useCallback(async (data: UpdateEmployeeRequest) => {
     setIsLoading(true);
@@ -151,14 +198,24 @@ export function useEmployee(id: string) {
     try {
       const updated = await employeeApi.updateEmployee(id, data);
       setEmployee(updated);
+      toast({
+        title: 'Success',
+        description: 'Employee updated successfully',
+      });
       return updated;
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to update employee');
+      const errorMessage = handleApiError(error);
+      setError(errorMessage);
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
       throw error;
     } finally {
       setIsLoading(false);
     }
-  }, [id]);
+  }, [id, toast]);
 
   return {
     employee,

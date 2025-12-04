@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { Plus, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { EmployeeTable } from '@/components/hr/employee-table';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
 import { EmployeeFilters } from '@/components/hr/employee-filters';
-import { useEmployees } from '@/hooks/use-employees';
-import { useToast } from '@/components/ui/use-toast';
+import { EmployeeTable } from '@/components/hr/employee-table';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -15,6 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useToast } from '@/components/ui/use-toast';
+import { useEmployees } from '@/hooks/use-employees';
 
 export default function EmployeesPage() {
   const { toast } = useToast();

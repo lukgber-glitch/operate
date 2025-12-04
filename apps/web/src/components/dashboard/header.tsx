@@ -1,13 +1,15 @@
 'use client'
 
 import { Search, Menu } from 'lucide-react'
-import { Input } from '@/components/ui/input'
+
+import { NotificationBell } from '@/components/notifications'
 import { Button } from '@/components/ui/button'
-import { Breadcrumbs } from './breadcrumbs'
-import { UserMenu } from './user-menu'
-import { Notifications } from './notifications'
+import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+
+import { Breadcrumbs } from './breadcrumbs'
 import { Sidebar } from './sidebar'
+import { UserMenu } from './user-menu'
 
 export function Header() {
   return (
@@ -44,7 +46,7 @@ export function Header() {
 
       {/* Right side actions */}
       <div className="flex items-center gap-2">
-        <Notifications />
+        <NotificationBell />
         <UserMenu />
       </div>
     </header>

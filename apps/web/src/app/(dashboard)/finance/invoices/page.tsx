@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Plus, Download, Search, Filter, Repeat } from 'lucide-react';
 import Link from 'next/link';
-import { Plus, Download, Search, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from 'react';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -21,8 +23,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Card, CardContent } from '@/components/ui/card';
 import { useInvoices } from '@/hooks/use-invoices';
+import { CurrencyDisplay } from '@/components/currency/CurrencyDisplay';
+import type { CurrencyCode } from '@/types/currency';
 
 const statusColors = {
   PAID: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -77,6 +80,12 @@ export default function InvoicesPage() {
         </div>
 
         <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/finance/invoices/recurring">
+              <Repeat className="mr-2 h-4 w-4" />
+              Recurring
+            </Link>
+          </Button>
           <Button variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Export
@@ -212,7 +221,10 @@ export default function InvoicesPage() {
                       <TableCell>{formatDate(invoice.issueDate)}</TableCell>
                       <TableCell>{formatDate(invoice.dueDate)}</TableCell>
                       <TableCell className="font-medium">
-                        {formatCurrency(invoice.totalAmount, invoice.currency)}
+                        <CurrencyDisplay
+                          amount={invoice.totalAmount}
+                          currency={invoice.currency as CurrencyCode || 'EUR'}
+                        />
                       </TableCell>
                       <TableCell>
                         <Badge

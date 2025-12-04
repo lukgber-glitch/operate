@@ -56,6 +56,12 @@ export enum Permission {
   BANKING_DELETE = 'banking:delete',
 
   // ============================
+  // Cost Tracking Permissions
+  // ============================
+  COSTS_READ = 'costs:read',
+  COSTS_CREATE = 'costs:create',
+
+  // ============================
   // HR Permissions
   // ============================
   EMPLOYEES_READ = 'employees:read',
@@ -304,6 +310,18 @@ export const PermissionMetadata: Record<
   [Permission.BANKING_DELETE]: {
     name: 'Delete Banking',
     description: 'Delete bank accounts',
+    category: 'Finance',
+  },
+
+  // Costs
+  [Permission.COSTS_READ]: {
+    name: 'Read Costs',
+    description: 'View cost tracking data and reports',
+    category: 'Finance',
+  },
+  [Permission.COSTS_CREATE]: {
+    name: 'Create Costs',
+    description: 'Record cost entries',
     category: 'Finance',
   },
 

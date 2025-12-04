@@ -1,0 +1,25 @@
+/**
+ * AI Module
+ * Handles AI/ML features including transaction classification and receipt scanning
+ */
+
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from '../database/database.module';
+import { AutomationModule } from '../automation/automation.module';
+import { ClassificationModule } from './classification/classification.module';
+import { ReceiptScannerModule } from './receipt-scanner/receipt-scanner.module';
+import { LearningModule } from './learning/learning.module';
+
+@Module({
+  imports: [
+    ConfigModule,
+    DatabaseModule,
+    AutomationModule,
+    ClassificationModule,
+    ReceiptScannerModule,
+    LearningModule,
+  ],
+  exports: [ClassificationModule, ReceiptScannerModule, LearningModule],
+})
+export class AiModule {}

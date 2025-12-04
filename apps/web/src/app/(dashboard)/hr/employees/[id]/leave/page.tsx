@@ -1,12 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
 import { ArrowLeft, Plus, XCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+import { LeaveBalanceCard } from '@/components/hr/leave-balance-card';
+import { LeaveCalendar } from '@/components/hr/leave-calendar';
+import { LeaveRequestForm } from '@/components/hr/leave-request-form';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -15,12 +20,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { LeaveBalanceCard } from '@/components/hr/leave-balance-card';
-import { LeaveRequestForm } from '@/components/hr/leave-request-form';
-import { LeaveCalendar } from '@/components/hr/leave-calendar';
-import { useLeave } from '@/hooks/use-leave';
 import { useToast } from '@/components/ui/use-toast';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useLeave } from '@/hooks/use-leave';
 import { cn } from '@/lib/utils';
 
 const statusColors = {

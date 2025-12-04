@@ -1,9 +1,10 @@
 'use client';
 
-import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Suspense } from 'react';
+
 import { PasswordResetForm } from '@/components/auth/password-reset-form';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function ResetPasswordContent() {

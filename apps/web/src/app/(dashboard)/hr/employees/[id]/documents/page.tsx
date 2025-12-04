@@ -1,18 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
 import { ArrowLeft, Download, Trash2, FileText, Image as ImageIcon, File } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+import { DocumentUpload } from '@/components/hr/document-upload';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,10 +16,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { DocumentUpload } from '@/components/hr/document-upload';
-import { employeeApi, type Document } from '@/lib/api/employees';
-import { useToast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useToast } from '@/components/ui/use-toast';
+import { employeeApi, type Document } from '@/lib/api/employees';
 
 export default function EmployeeDocumentsPage() {
   const params = useParams();

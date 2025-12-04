@@ -1,0 +1,162 @@
+// ============================================================================
+// QUICKBOOKS SYNC MODELS
+// This file contains the sync-specific models for QuickBooks integration
+// Append this content to the main schema.prisma file
+// ============================================================================
+
+enum QuickBooksSyncDirection {
+  TO_QUICKBOOKS // Operate -> QuickBooks
+  FROM_QUICKBOOKS // QuickBooks -> Operate
+  BIDIRECTIONAL // Both directions
+}
+
+enum QuickBooksSyncStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CONFLICT
+}
+
+enum QuickBooksSyncEntityType {
+  CUSTOMER
+  INVOICE
+  PAYMENT
+  ACCOUNT
+  ITEM
+  PRODUCT
+  VENDOR
+  BILL
+  EXPENSE
+}
+
+// Maps QuickBooks IDs to Operate IDs for entity tracking
+model QuickBooksSyncMapping {
+  id             String   @id @default(cuid())
+  orgId          String
+  connectionId   String
+
+  // Entity mapping
+  entityType     QuickBooksSyncEntityType
+  operateId      String   // Operate entity ID
+  quickbooksId   String   // QuickBooks entity ID
+
+  // Sync metadata
+  lastSyncAt     DateTime @default(now())
+  lastModifiedAt DateTime @default(now()) // When the entity was last modified
+  syncVersion    Int      @default(1)
+
+  // Conflict tracking
+  hasConflict    Boolean  @default(false)
+  conflictData   Json?    // Stores conflict details
+
+  // Metadata
+  metadata       Json?    // Additional mapping data
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  connection QuickBooksConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  conflicts  QuickBooksSyncConflict[]
+
+  @@unique([connectionId, entityType, operateId])
+  @@unique([connectionId, entityType, quickbooksId])
+  @@index([orgId])
+  @@index([entityType])
+  @@index([hasConflict])
+  @@map("quickbooks_sync_mappings")
+}
+
+// Comprehensive audit trail for all sync operations
+model QuickBooksSyncLog {
+  id             String                   @id @default(cuid())
+  orgId          String
+  connectionId   String
+
+  // Sync details
+  syncType       QuickBooksSyncEntityType
+  direction      QuickBooksSyncDirection
+  status         QuickBooksSyncStatus     @default(PENDING)
+
+  // Entity tracking
+  operateId      String?
+  quickbooksId   String?
+
+  // Sync metadata
+  startedAt      DateTime                 @default(now())
+  completedAt    DateTime?
+  duration       Int?                     // milliseconds
+
+  // Results
+  itemsProcessed Int                      @default(0)
+  itemsSuccess   Int                      @default(0)
+  itemsFailed    Int                      @default(0)
+  itemsSkipped   Int                      @default(0)
+
+  // Error tracking
+  error          String?
+  errorDetails   Json?
+
+  // Change tracking
+  changesSummary Json?                    // Summary of what changed
+
+  // Request metadata
+  triggeredBy    String?                  // User ID or "system"
+  syncMode       String                   // full, incremental, realtime
+
+  createdAt      DateTime                 @default(now())
+
+  connection QuickBooksConnection @relation("SyncLogs", fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([connectionId])
+  @@index([syncType])
+  @@index([status])
+  @@index([startedAt])
+  @@index([orgId, syncType, startedAt])
+  @@map("quickbooks_sync_logs")
+}
+
+// Queue for conflict resolution
+model QuickBooksSyncConflict {
+  id               String                   @id @default(cuid())
+  orgId            String
+  connectionId     String
+  mappingId        String
+
+  // Conflict details
+  entityType       QuickBooksSyncEntityType
+  operateId        String
+  quickbooksId     String
+
+  // Conflicting data
+  operateData      Json                     // Current Operate data
+  quickbooksData   Json                     // Current QuickBooks data
+
+  // Conflict metadata
+  conflictField    String?                  // Specific field in conflict
+  operateUpdatedAt DateTime
+  qbUpdatedAt      DateTime
+
+  // Resolution
+  resolution       String?                  // last_write_wins, manual, auto
+  resolvedBy       String?                  // User ID
+  resolvedAt       DateTime?
+  resolutionData   Json?                    // Chosen resolution
+
+  // Status
+  isResolved       Boolean                  @default(false)
+
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+
+  connection QuickBooksConnection @relation("SyncConflicts", fields: [connectionId], references: [id], onDelete: Cascade)
+  mapping    QuickBooksSyncMapping @relation(fields: [mappingId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([connectionId])
+  @@index([isResolved])
+  @@index([entityType])
+  @@index([createdAt])
+  @@map("quickbooks_sync_conflicts")
+}

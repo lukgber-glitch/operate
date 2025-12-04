@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -54,7 +55,7 @@ export function PasswordResetRequestForm() {
       <div className="space-y-4">
         <div className="bg-green-50 dark:bg-green-950 text-green-800 dark:text-green-200 text-sm p-4 rounded-md border border-green-200 dark:border-green-800">
           <p className="font-medium mb-1">Check your email</p>
-          <p>We've sent a password reset link to your email address. Please check your inbox and follow the instructions.</p>
+          <p>We&apos;ve sent a password reset link to your email address. Please check your inbox and follow the instructions.</p>
         </div>
 
         <div className="text-center text-sm">

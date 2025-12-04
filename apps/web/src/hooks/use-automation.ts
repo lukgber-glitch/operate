@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+
 import { useToast } from '@/components/ui/use-toast';
 
 interface AutomationFeature {

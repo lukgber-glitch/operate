@@ -12,7 +12,12 @@
 import { PrismaClient, Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { seedCountries } from './seeds/countries';
+import { seedEUCountries } from './seeds/eu-countries';
+import { seedSpainTaxConfig } from './seeds/spain-tax-config.seed';
 import { seedHr } from './seeds/hr';
+import { seedCanadaTaxConfig } from './seed/canada-tax-seed';
+import { seedAustraliaTaxConfig } from './seed/australia-tax-seed';
+import { seedClients } from './seeds/clients.seed';
 
 const prisma = new PrismaClient();
 
@@ -30,9 +35,29 @@ async function main() {
 
   // Seed country context data first
   console.log('='.repeat(60));
-  console.log('STEP 1: Seeding Country Context');
+  console.log('STEP 1: Seeding Country Context (DACH)');
   console.log('='.repeat(60));
   await seedCountries();
+
+  console.log('\n' + '='.repeat(60));
+  console.log('STEP 1b: Seeding EU Countries (FR, IT, NL, BE, SE, IE)');
+  console.log('='.repeat(60));
+  await seedEUCountries();
+
+  console.log('\n' + '='.repeat(60));
+  console.log('STEP 1c: Seeding Spain Tax Configuration');
+  console.log('='.repeat(60));
+  await seedSpainTaxConfig();
+
+  console.log('\n' + '='.repeat(60));
+  console.log('STEP 1d: Seeding Canada Tax Configuration');
+  console.log('='.repeat(60));
+  await seedCanadaTaxConfig();
+
+  console.log('\n' + '='.repeat(60));
+  console.log('STEP 1e: Seeding Australia Tax Configuration');
+  console.log('='.repeat(60));
+  await seedAustraliaTaxConfig();
 
   // Clean existing data (development only)
   if (process.env.NODE_ENV !== 'production') {
@@ -95,6 +120,12 @@ async function main() {
   console.log('='.repeat(60));
   await seedHr();
 
+  // Seed CRM clients
+  console.log('\n' + '='.repeat(60));
+  console.log('STEP 4: Seeding CRM Clients');
+  console.log('='.repeat(60));
+  await seedClients(prisma, organisation.id);
+
   // Summary
   console.log('\n' + '='.repeat(60));
   console.log('DATABASE SEEDED SUCCESSFULLY!');
@@ -105,8 +136,13 @@ async function main() {
   console.log(`  Admin Email:  ${adminUser.email}`);
   console.log(`  Admin Pass:   Admin123!`);
   console.log(`  Role:         ${membership.role}`);
-  console.log('\nCountry Context: Germany (DE), Austria (AT), Switzerland (CH)');
-  console.log('HR Data:          3 Employees, 3 Contracts, Payroll, Leave, Time');
+  console.log('\nCountry Context:');
+  console.log('  DACH:  Germany (DE), Austria (AT), Switzerland (CH)');
+  console.log('  EU:    France (FR), Italy (IT), Netherlands (NL),');
+  console.log('         Belgium (BE), Sweden (SE), Ireland (IE)');
+  console.log('  Spain: ES (with IVA, IGIC, and RE configurations)');
+  console.log('HR Data:       3 Employees, 3 Contracts, Payroll, Leave, Time');
+  console.log('CRM Data:      5 Clients, 6 Contacts, 6 Addresses');
   console.log('='.repeat(60));
 }
 

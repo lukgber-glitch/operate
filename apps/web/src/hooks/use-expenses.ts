@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+
 import { useToast } from '@/components/ui/use-toast';
+import { handleApiError } from '@/lib/api/error-handler';
 import {
   financeApi,
   type Expense,
@@ -49,7 +51,7 @@ export function useExpenses(initialFilters?: ExpenseFilters) {
         error: null,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch expenses';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -79,7 +81,7 @@ export function useExpenses(initialFilters?: ExpenseFilters) {
       });
       return expense;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to create expense';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -109,7 +111,7 @@ export function useExpenses(initialFilters?: ExpenseFilters) {
       });
       return expense;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update expense';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -139,7 +141,7 @@ export function useExpenses(initialFilters?: ExpenseFilters) {
         description: 'Expense deleted successfully',
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to delete expense';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -169,7 +171,7 @@ export function useExpenses(initialFilters?: ExpenseFilters) {
       });
       return expense;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to approve expense';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -199,7 +201,7 @@ export function useExpenses(initialFilters?: ExpenseFilters) {
       });
       return expense;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to reject expense';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -229,7 +231,7 @@ export function useExpenses(initialFilters?: ExpenseFilters) {
       });
       return expense;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to mark expense as paid';
+      const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -271,7 +273,7 @@ export function useExpense(id: string) {
       const data = await financeApi.getExpense(id);
       setExpense(data);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch expense';
+      const errorMessage = handleApiError(error);
       setError(errorMessage);
       toast({
         title: 'Error',
@@ -295,7 +297,7 @@ export function useExpense(id: string) {
       });
       return updated;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update expense';
+      const errorMessage = handleApiError(error);
       setError(errorMessage);
       toast({
         title: 'Error',
