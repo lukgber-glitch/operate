@@ -69,7 +69,7 @@ jobs:
             type=sha,prefix={{branch}}-
 
       - name: Build and push ${{ matrix.service }} image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./apps/${{ matrix.service }}/Dockerfile
