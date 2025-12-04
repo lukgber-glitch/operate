@@ -19,7 +19,7 @@
     "@operate/ai": "workspace:*",
     "bullmq": "^5.1.0",
     "ioredis": "^5.3.2",
-    "dotenv": "^16.3.1",
+    "dotenv": "^17.2.3",
     "node-cron": "^3.0.3"
   },
   "devDependencies": {
