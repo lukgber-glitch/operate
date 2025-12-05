@@ -33,42 +33,42 @@ const NEXT_STEPS = [
     title: 'Create Your First Invoice',
     description: 'Start invoicing clients and tracking payments',
     action: 'Create Invoice',
-    href: '/dashboard/finance/invoices/new',
+    href: '/finance/invoices/new',
   },
   {
     icon: Users,
     title: 'Add Team Members',
     description: 'Invite employees and manage their access permissions',
     action: 'Add Employees',
-    href: '/dashboard/hr/employees',
+    href: '/hr/employees',
   },
   {
     icon: TrendingUp,
     title: 'Review Financial Reports',
     description: 'Analyze your income, expenses, and profit margins',
     action: 'View Reports',
-    href: '/dashboard/reports',
+    href: '/reports',
   },
 ]
 
 const RESOURCES = [
   {
     icon: BookOpen,
-    title: 'Getting Started Guide',
-    description: 'Learn the basics and best practices',
-    href: '/docs/getting-started',
+    title: 'Settings & Configuration',
+    description: 'Customize your account preferences',
+    href: '/settings',
   },
   {
     icon: FileText,
-    title: 'Video Tutorials',
-    description: 'Watch step-by-step walkthroughs',
-    href: '/docs/tutorials',
+    title: 'Manage Documents',
+    description: 'Upload and organize your files',
+    href: '/documents',
   },
   {
     icon: Users,
-    title: 'Community Forum',
-    description: 'Connect with other users and get help',
-    href: '/community',
+    title: 'Client Management',
+    description: 'Add and manage your clients',
+    href: '/clients',
   },
 ]
 
@@ -85,7 +85,9 @@ interface CompletionStepProps {
 export function CompletionStep({ companyName, setupCompleted }: CompletionStepProps) {
   const router = useRouter()
 
-  const handleNavigate = (href: string) => {
+  const handleNavigate = (e: React.MouseEvent, href: string) => {
+    e.preventDefault()
+    e.stopPropagation()
     router.push(href)
   }
 
@@ -133,7 +135,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
             <Card
               key={step.title}
               className="border-muted hover:border-primary/50 transition-all cursor-pointer group"
-              onClick={() => handleNavigate(step.href)}
+              onClick={(e) => handleNavigate(e, step.href)}
             >
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
@@ -167,9 +169,10 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
             {RESOURCES.map((resource) => (
               <Button
                 key={resource.title}
+                type="button"
                 variant="outline"
                 className="h-auto flex-col items-start p-4 text-left"
-                onClick={() => handleNavigate(resource.href)}
+                onClick={(e) => handleNavigate(e, resource.href)}
               >
                 <div className="flex items-center gap-2 mb-2">
                   <resource.icon className="w-4 h-4" />
@@ -217,7 +220,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
 
       {/* Primary CTA */}
       <div className="flex justify-center pt-4">
-        <Button size="lg" onClick={() => handleNavigate('/dashboard')} className="w-full md:w-auto">
+        <Button type="button" size="lg" onClick={(e) => handleNavigate(e, '/dashboard')} className="w-full md:w-auto">
           <LayoutDashboard className="w-4 h-4 mr-2" />
           Go to Dashboard
         </Button>
