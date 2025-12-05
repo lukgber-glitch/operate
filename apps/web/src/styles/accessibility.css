@@ -1,0 +1,183 @@
+/**
+ * Accessibility Styles
+ * WCAG 2.1 Level AA Compliance
+ */
+
+/* Screen Reader Only - Visually hide but keep accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Show on focus - for skip links */
+.sr-only.focus\:not-sr-only:focus {
+  position: fixed;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Focus Visible Styles - Keyboard Navigation */
+/* Only show outline when navigating with keyboard */
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Hide outline for mouse/touch users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* High contrast focus for critical elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px hsl(var(--ring) / 0.1);
+}
+
+/* Focus within - for containers */
+.focus-within-ring:focus-within {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  * {
+    border-width: 2px;
+  }
+
+  button,
+  a,
+  [role="button"],
+  [role="link"] {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Color Blindness Support - Don't rely on color alone */
+.status-indicator::before {
+  content: '';
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.status-success::before {
+  background-color: hsl(var(--success));
+}
+
+.status-warning::before {
+  background-color: hsl(var(--warning));
+}
+
+.status-error::before {
+  background-color: hsl(var(--destructive));
+}
+
+/* Touch Target Size - Minimum 44x44px for WCAG AAA */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Link Underlines - Always visible for accessibility */
+a:not(.no-underline) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:hover:not(.no-underline) {
+  text-decoration-thickness: 2px;
+}
+
+/* Skip Link Animation */
+@keyframes skip-link-enter {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.skip-link:focus {
+  animation: skip-link-enter 0.2s ease-out;
+}
+
+/* Interactive Element States */
+[disabled],
+[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+[aria-busy="true"] {
+  cursor: wait;
+}
+
+[aria-invalid="true"] {
+  border-color: hsl(var(--destructive));
+}
+
+/* Live Region Visibility */
+[role="status"],
+[role="alert"],
+[aria-live] {
+  /* Position off-screen but keep in DOM for screen readers */
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Visually show alerts/errors */
+[role="alert"]:not(.sr-only) {
+  position: relative;
+  left: auto;
+  width: auto;
+  height: auto;
+  overflow: visible;
+}

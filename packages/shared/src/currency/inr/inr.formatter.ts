@@ -50,8 +50,8 @@ export interface INRFormattingOptions {
 export function formatIndianNumber(num: number, decimals: number = 2): string {
   const [integerPart, decimalPart] = num.toFixed(decimals).split('.');
 
-  // Reverse the integer part for easier grouping
-  const reversed = integerPart.split('').reverse().join('');
+  // Reverse the integer part for easier grouping (integerPart always exists after toFixed)
+  const reversed = (integerPart ?? '0').split('').reverse().join('');
 
   // First group of 3, then groups of 2
   const groups: string[] = [];
@@ -332,7 +332,7 @@ function numberToEnglishWords(num: number): string {
   // Hundreds
   if (num >= 100) {
     const hundreds = Math.floor(num / 100);
-    parts.push(ones[hundreds] + ' ' + units.hundred);
+    parts.push((ones[hundreds] ?? '') + ' ' + units.hundred);
     num %= 100;
   }
 
@@ -378,7 +378,7 @@ function numberToHindiWords(num: number): string {
   // Hundreds
   if (num >= 100) {
     const hundreds = Math.floor(num / 100);
-    parts.push(ones[hundreds] + ' ' + units.hundred);
+    parts.push((ones[hundreds] ?? '') + ' ' + units.hundred);
     num %= 100;
   }
 
@@ -400,16 +400,16 @@ function convertBelowHundred(
   tens: readonly string[]
 ): string {
   if (num === 0) return '';
-  if (num < 10) return ones[num];
-  if (num < 20) return teens[num - 10];
+  if (num < 10) return ones[num] ?? '';
+  if (num < 20) return teens[num - 10] ?? '';
 
   const tensDigit = Math.floor(num / 10);
   const onesDigit = num % 10;
 
   if (onesDigit === 0) {
-    return tens[tensDigit];
+    return tens[tensDigit] ?? '';
   }
-  return tens[tensDigit] + '-' + ones[onesDigit];
+  return (tens[tensDigit] ?? '') + '-' + (ones[onesDigit] ?? '');
 }
 
 /**
@@ -422,16 +422,16 @@ function convertBelowHundredHindi(
   tens: readonly string[]
 ): string {
   if (num === 0) return '';
-  if (num < 10) return ones[num];
-  if (num < 20) return teens[num - 10];
+  if (num < 10) return ones[num] ?? '';
+  if (num < 20) return teens[num - 10] ?? '';
 
   const tensDigit = Math.floor(num / 10);
   const onesDigit = num % 10;
 
   if (onesDigit === 0) {
-    return tens[tensDigit];
+    return tens[tensDigit] ?? '';
   }
-  return tens[tensDigit] + ' ' + ones[onesDigit];
+  return (tens[tensDigit] ?? '') + ' ' + (ones[onesDigit] ?? '');
 }
 
 /**

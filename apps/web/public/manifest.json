@@ -1,0 +1,91 @@
+{
+  "name": "Operate | CoachOS - Enterprise Business Operations",
+  "short_name": "Operate",
+  "description": "Enterprise SaaS platform for SME business operations, tax automation, and HR management. Streamline your business with AI-powered tools.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "categories": [
+    "business",
+    "finance",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard overview with key metrics and insights"
+    },
+    {
+      "src": "/screenshots/invoices-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Invoice management and tracking"
+    },
+    {
+      "src": "/screenshots/tax-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Tax compliance and reporting"
+    },
+    {
+      "src": "/screenshots/dashboard-mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile dashboard view"
+    },
+    {
+      "src": "/screenshots/invoices-mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile invoice management"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your business dashboard and key metrics",
+      "url": "/dashboard"
+    },
+    {
+      "name": "Invoices",
+      "short_name": "Invoices",
+      "description": "Manage and create invoices",
+      "url": "/invoices"
+    },
+    {
+      "name": "Tax",
+      "short_name": "Tax",
+      "description": "Access tax compliance and reporting tools",
+      "url": "/tax"
+    },
+    {
+      "name": "Receipts",
+      "short_name": "Receipts",
+      "description": "Scan and manage receipts",
+      "url": "/receipts"
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "lang": "en-US",
+  "dir": "ltr"
+}

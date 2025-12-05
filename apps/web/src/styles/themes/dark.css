@@ -1,0 +1,262 @@
+/**
+ * Dark Mode Refinements
+ *
+ * Enhanced dark mode styles with improved contrast ratios,
+ * reduced shadow intensity, and better visual hierarchy.
+ */
+
+/* Dark mode base variables - these are also in globals.css but serve as reference */
+.dark {
+  /* Improved background colors with better contrast */
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+
+  /* Card with slightly lighter background for depth */
+  --card: 217.2 32.6% 7.5%;
+  --card-foreground: 210 40% 98%;
+
+  /* Popover with elevated appearance */
+  --popover: 217.2 32.6% 8.5%;
+  --popover-foreground: 210 40% 98%;
+
+  /* Primary colors with better visibility */
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+
+  /* Secondary with improved contrast */
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+
+  /* Muted with better readability (4.5:1 contrast ratio) */
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 70%;
+
+  /* Accent with clear differentiation */
+  --accent: 217.2 32.6% 20%;
+  --accent-foreground: 210 40% 98%;
+
+  /* Destructive with appropriate intensity */
+  --destructive: 0 62.8% 50.6%;
+  --destructive-foreground: 210 40% 98%;
+
+  /* Success variant */
+  --success: 142 76% 45%;
+  --success-foreground: 210 40% 98%;
+
+  /* Warning variant */
+  --warning: 38 92% 50%;
+  --warning-foreground: 222.2 47.4% 11.2%;
+
+  /* Info variant */
+  --info: 199 89% 48%;
+  --info-foreground: 210 40% 98%;
+
+  /* Border with subtle contrast */
+  --border: 217.2 32.6% 20%;
+  --input: 217.2 32.6% 20%;
+
+  /* Ring/focus with clear visibility */
+  --ring: 217.2 91.2% 59.8%;
+}
+
+/* Reduced shadow intensity for dark mode */
+.dark .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.15);
+}
+
+.dark .shadow {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.2);
+}
+
+.dark .shadow-md {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.2), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+}
+
+.dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+}
+
+.dark .shadow-xl {
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.2), 0 8px 10px -6px rgb(0 0 0 / 0.2);
+}
+
+.dark .shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+}
+
+/* Improved skeleton shimmer for dark mode */
+.dark .animate-pulse {
+  animation: pulse-dark 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-dark {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Enhanced shimmer effect for skeletons */
+.dark .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(217.2 32.6% 17.5%) 0%,
+    hsl(217.2 32.6% 22%) 50%,
+    hsl(217.2 32.6% 17.5%) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Focus ring improvements for dark mode */
+.dark *:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Better focus visibility for interactive elements */
+.dark button:focus-visible,
+.dark a:focus-visible,
+.dark input:focus-visible,
+.dark textarea:focus-visible,
+.dark select:focus-visible {
+  box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring));
+}
+
+/* Image and icon filters for better visibility */
+.dark img:not(.no-dark-filter) {
+  filter: brightness(0.9);
+}
+
+.dark svg {
+  color: inherit;
+}
+
+/* Scrollbar styling for dark mode */
+.dark *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark *::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+.dark *::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+.dark *::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* Selection highlight for dark mode */
+.dark ::selection {
+  background-color: hsl(var(--primary) / 0.3);
+  color: hsl(var(--foreground));
+}
+
+.dark ::-moz-selection {
+  background-color: hsl(var(--primary) / 0.3);
+  color: hsl(var(--foreground));
+}
+
+/* Toast and notification improvements */
+.dark .toast-success {
+  background-color: hsl(var(--success));
+  color: hsl(var(--success-foreground));
+  border-color: hsl(var(--success));
+}
+
+.dark .toast-error {
+  background-color: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  border-color: hsl(var(--destructive));
+}
+
+.dark .toast-warning {
+  background-color: hsl(var(--warning));
+  color: hsl(var(--warning-foreground));
+  border-color: hsl(var(--warning));
+}
+
+.dark .toast-info {
+  background-color: hsl(var(--info));
+  color: hsl(var(--info-foreground));
+  border-color: hsl(var(--info));
+}
+
+/* Code block styling for dark mode */
+.dark pre,
+.dark code {
+  background-color: hsl(217.2 32.6% 12%);
+  border: 1px solid hsl(var(--border));
+}
+
+.dark pre {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.dark code {
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+/* Table improvements for dark mode */
+.dark table {
+  border-color: hsl(var(--border));
+}
+
+.dark thead {
+  background-color: hsl(var(--muted));
+}
+
+.dark tbody tr {
+  border-color: hsl(var(--border));
+}
+
+.dark tbody tr:hover {
+  background-color: hsl(var(--accent));
+}
+
+/* Form element enhancements */
+.dark ::placeholder {
+  color: hsl(215 20.2% 55%);
+  opacity: 1;
+}
+
+.dark :disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Input autofill styling */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus {
+  -webkit-text-fill-color: hsl(var(--foreground));
+  -webkit-box-shadow: 0 0 0 1000px hsl(var(--input)) inset;
+  box-shadow: 0 0 0 1000px hsl(var(--input)) inset;
+  border-color: hsl(var(--border));
+}
+
+/* Modal and dialog backdrop */
+.dark [data-radix-portal] .overlay,
+.dark [data-radix-portal] [data-state="open"] ~ .overlay {
+  background-color: rgb(0 0 0 / 0.7);
+}

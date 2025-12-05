@@ -130,7 +130,7 @@ export const INPUT_TAXED_SUPPLIES = [
 /**
  * Exempt supplies
  */
-export const EXEMPT_SUPPLIES = [
+export const AUSTRALIA_EXEMPT_SUPPLIES = [
   'Second-hand goods bought from unregistered entities',
   'Government grants and donations',
 ] as const;

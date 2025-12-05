@@ -230,11 +230,11 @@ export function getAllEras(): readonly JapaneseEra[] {
 export function parseJapaneseDate(dateStr: string): Date | null {
   // Try to match full format: 令和5年12月3日
   const fullMatch = dateStr.match(/([令平昭大明][和成治正])(\d+)年(\d+)月(\d+)日/);
-  if (fullMatch) {
-    const [, eraKanji, eraYearStr, monthStr, dayStr] = fullMatch;
-    const eraYear = parseInt(eraYearStr);
-    const month = parseInt(monthStr);
-    const day = parseInt(dayStr);
+  if (fullMatch?.[1] && fullMatch[2] && fullMatch[3] && fullMatch[4]) {
+    const eraKanji = fullMatch[1];
+    const eraYear = parseInt(fullMatch[2], 10);
+    const month = parseInt(fullMatch[3], 10);
+    const day = parseInt(fullMatch[4], 10);
 
     const westernYear = toWesternYear(eraKanji, eraYear);
     if (westernYear) {
@@ -244,11 +244,11 @@ export function parseJapaneseDate(dateStr: string): Date | null {
 
   // Try to match short format: R5.12.3
   const shortMatch = dateStr.match(/([RHSTM])(\d+)\.(\d+)\.(\d+)/);
-  if (shortMatch) {
-    const [, eraLetter, eraYearStr, monthStr, dayStr] = shortMatch;
-    const eraYear = parseInt(eraYearStr);
-    const month = parseInt(monthStr);
-    const day = parseInt(dayStr);
+  if (shortMatch?.[1] && shortMatch[2] && shortMatch[3] && shortMatch[4]) {
+    const eraLetter = shortMatch[1];
+    const eraYear = parseInt(shortMatch[2], 10);
+    const month = parseInt(shortMatch[3], 10);
+    const day = parseInt(shortMatch[4], 10);
 
     const eraMap: { [key: string]: string } = {
       R: 'Reiwa',

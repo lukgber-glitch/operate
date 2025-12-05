@@ -156,7 +156,7 @@ export const ZERO_RATED_SUPPLIES = [
 /**
  * Exempt supplies (no GST/HST and cannot claim input tax credits)
  */
-export const EXEMPT_SUPPLIES = [
+export const CANADA_EXEMPT_SUPPLIES = [
   'Long-term residential rent',
   'Most healthcare services',
   'Educational services',

@@ -212,7 +212,7 @@ export function formatHindiNumber(num: number, options: HindiNumberOptions = {})
   // Ensure minimum digits
   if (minDigits > 1) {
     const [integerPart, decimalPart] = formatted.split('.');
-    const paddedInteger = integerPart.replace(/,/g, '').padStart(minDigits, '0');
+    const paddedInteger = (integerPart ?? '0').replace(/,/g, '').padStart(minDigits, '0');
     formatted = decimalPart
       ? `${paddedInteger}.${decimalPart}`
       : paddedInteger;
@@ -467,7 +467,7 @@ export function getFiscalYearDates(fiscalYear: string): {
 } {
   // Parse "FY 2024-25" or "वित्तीय वर्ष 2024-25"
   const match = fiscalYear.match(/(\d{4})-(\d{2})/);
-  if (!match) {
+  if (!match?.[1] || !match[2]) {
     throw new Error('Invalid fiscal year format');
   }
 

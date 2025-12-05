@@ -1,0 +1,249 @@
+'use client';
+
+import React from 'react';
+import { useSuggestionStreamContext } from '@/components/chat/SuggestionStreamProvider';
+import { LiveSuggestionPanel, LiveSuggestionCounter } from '@/components/chat/LiveSuggestionPanel';
+import { useChatStore } from '@/stores/chatStore';
+import { Suggestion } from '@/hooks/useSuggestionStream';
+
+/**
+ * Example Chat Page with Live Suggestions
+ *
+ * This example shows how to integrate the SSE stream into the chat interface
+ */
+export default function ChatPageExample() {
+  const { isConnected, connectionState, reconnect } = useSuggestionStreamContext();
+  const { messages, sendMessage } = useChatStore();
+
+  const [inputValue, setInputValue] = React.useState('');
+  const [showSuggestions, setShowSuggestions] = React.useState(true);
+
+  /**
+   * Handle suggestion click - add it to the chat
+   */
+  const handleSuggestionClick = React.useCallback(
+    (suggestion: Suggestion) => {
+      // Send a message asking AI to explain the suggestion
+      sendMessage(`Tell me more about this suggestion: ${suggestion.title}`);
+    },
+    [sendMessage]
+  );
+
+  /**
+   * Handle message submit
+   */
+  const handleSubmit = React.useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!inputValue.trim()) return;
+
+      sendMessage(inputValue);
+      setInputValue('');
+    },
+    [inputValue, sendMessage]
+  );
+
+  return (
+    <div className="flex h-screen">
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Header with Connection Status */}
+        <header className="border-b px-6 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Chat</h1>
+            <p className="text-sm text-gray-600">
+              {isConnected ? 'Live updates enabled' : 'Connecting...'}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <LiveSuggestionCounter />
+            {!isConnected && (
+              <button
+                onClick={reconnect}
+                className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Reconnect
+              </button>
+            )}
+          </div>
+        </header>
+
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <h2 className="text-xl font-semibold mb-2">Welcome to Operate Chat</h2>
+              <p className="text-gray-600 mb-4">
+                I'm here to help with your business operations, taxes, and HR.
+              </p>
+              {connectionState === 'connected' && (
+                <div className="flex items-center gap-2 text-sm text-green-600">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <span>Live updates enabled</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}
+              >
+                <div
+                  className={`max-w-2xl rounded-lg px-4 py-2 ${
+                    message.role === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-900'
+                  }`}
+                >
+                  {message.content}
+                  {message.metadata?.type && (
+                    <div className="text-xs opacity-70 mt-1">
+                      {message.metadata.type}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Input Area */}
+        <form onSubmit={handleSubmit} className="border-t p-4">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Ask me anything about your business..."
+              className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="submit"
+              disabled={!inputValue.trim()}
+              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            >
+              Send
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Sidebar with Live Suggestions */}
+      {showSuggestions && (
+        <aside className="w-80 border-l bg-gray-50 overflow-y-auto">
+          <div className="sticky top-0 bg-gray-50 border-b px-4 py-3 flex items-center justify-between">
+            <h2 className="font-semibold">Suggestions</h2>
+            <button
+              onClick={() => setShowSuggestions(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+          </div>
+          <LiveSuggestionPanel
+            maxSuggestions={10}
+            onSuggestionClick={handleSuggestionClick}
+            showConnectionBadge={false}
+          />
+        </aside>
+      )}
+
+      {/* Toggle Suggestions Button (when hidden) */}
+      {!showSuggestions && (
+        <button
+          onClick={() => setShowSuggestions(true)}
+          className="fixed right-4 top-20 p-3 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 z-50"
+        >
+          <LiveSuggestionCounter />
+        </button>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Example: Minimal Chat (no sidebar)
+ */
+export function MinimalChatPage() {
+  const { sendMessage } = useChatStore();
+  const { suggestions } = useSuggestionStreamContext();
+
+  const [inputValue, setInputValue] = React.useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim()) return;
+
+    sendMessage(inputValue);
+    setInputValue('');
+  };
+
+  return (
+    <div className="flex flex-col h-screen">
+      <header className="border-b px-6 py-4">
+        <h1 className="text-2xl font-bold">Chat</h1>
+        {suggestions.length > 0 && (
+          <p className="text-sm text-blue-600">
+            {suggestions.length} active suggestions
+          </p>
+        )}
+      </header>
+
+      <div className="flex-1 overflow-y-auto p-6">
+        {/* Messages would go here */}
+      </div>
+
+      <form onSubmit={handleSubmit} className="border-t p-4">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Type your message..."
+          className="w-full px-4 py-2 border rounded-lg"
+        />
+      </form>
+    </div>
+  );
+}
+
+/**
+ * Example: Inline Suggestions (no sidebar)
+ */
+export function InlineSuggestionsChat() {
+  const { suggestions } = useSuggestionStreamContext();
+  const { sendMessage } = useChatStore();
+
+  const handleSuggestionClick = (suggestion: Suggestion) => {
+    sendMessage(`Tell me about: ${suggestion.title}`);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      {/* Show suggestions inline above chat input */}
+      {suggestions.length > 0 && (
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold mb-2">Quick Actions</h3>
+          <div className="flex flex-wrap gap-2">
+            {suggestions.slice(0, 3).map((suggestion) => (
+              <button
+                key={suggestion.id}
+                onClick={() => handleSuggestionClick(suggestion)}
+                className="px-3 py-1 text-sm bg-blue-50 text-blue-700 rounded-full border border-blue-200 hover:bg-blue-100"
+              >
+                {suggestion.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Chat interface */}
+      <div className="border rounded-lg p-4">
+        {/* Messages and input */}
+      </div>
+    </div>
+  );
+}

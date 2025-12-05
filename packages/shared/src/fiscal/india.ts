@@ -83,7 +83,8 @@ export function getFinancialYear(year: number): FiscalYear {
  */
 export function getAssessmentYear(financialYear: string): string {
   const [startYear] = financialYear.split('-').map(Number);
-  return `${startYear + 1}-${(startYear + 2).toString().slice(-2)}`;
+  const year = startYear ?? 0;
+  return `${year + 1}-${(year + 2).toString().slice(-2)}`;
 }
 
 /**
@@ -93,7 +94,8 @@ export function getAssessmentYear(financialYear: string): string {
  */
 export function getFinancialYearFromAY(assessmentYear: string): string {
   const [startYear] = assessmentYear.split('-').map(Number);
-  return `${startYear - 1}-${startYear.toString().slice(-2)}`;
+  const year = startYear ?? 0;
+  return `${year - 1}-${year.toString().slice(-2)}`;
 }
 
 /**
@@ -101,34 +103,35 @@ export function getFinancialYearFromAY(assessmentYear: string): string {
  */
 export function getQuarters(financialYear: string): FiscalQuarter[] {
   const [startYear] = financialYear.split('-').map(Number);
+  const year = startYear ?? 0;
 
   return [
     {
       quarter: 1,
       name: 'Q1',
-      startDate: new Date(startYear, 3, 1), // Apr 1
-      endDate: new Date(startYear, 5, 30), // Jun 30
+      startDate: new Date(year, 3, 1), // Apr 1
+      endDate: new Date(year, 5, 30), // Jun 30
       financialYear,
     },
     {
       quarter: 2,
       name: 'Q2',
-      startDate: new Date(startYear, 6, 1), // Jul 1
-      endDate: new Date(startYear, 8, 30), // Sep 30
+      startDate: new Date(year, 6, 1), // Jul 1
+      endDate: new Date(year, 8, 30), // Sep 30
       financialYear,
     },
     {
       quarter: 3,
       name: 'Q3',
-      startDate: new Date(startYear, 9, 1), // Oct 1
-      endDate: new Date(startYear, 11, 31), // Dec 31
+      startDate: new Date(year, 9, 1), // Oct 1
+      endDate: new Date(year, 11, 31), // Dec 31
       financialYear,
     },
     {
       quarter: 4,
       name: 'Q4',
-      startDate: new Date(startYear + 1, 0, 1), // Jan 1
-      endDate: new Date(startYear + 1, 2, 31), // Mar 31
+      startDate: new Date(year + 1, 0, 1), // Jan 1
+      endDate: new Date(year + 1, 2, 31), // Mar 31
       financialYear,
     },
   ];
@@ -140,17 +143,19 @@ export function getQuarters(financialYear: string): FiscalQuarter[] {
 export function getQuarterForDate(date: Date): FiscalQuarter {
   const fy = getFinancialYearForDate(date);
   const quarters = getQuarters(fy.financialYear);
+  const firstQuarter = quarters[0];
 
   return quarters.find(
     (q) => date >= q.startDate && date <= q.endDate
-  ) || quarters[0];
+  ) ?? firstQuarter!;
 }
 
 /**
  * Check if a date is in a specific Financial Year
  */
 export function isDateInFinancialYear(date: Date, financialYear: string): boolean {
-  const fy = getFinancialYear(parseInt(financialYear.split('-')[0]));
+  const yearStr = financialYear.split('-')[0] ?? '0';
+  const fy = getFinancialYear(parseInt(yearStr, 10));
   return date >= fy.startDate && date <= fy.endDate;
 }
 
@@ -159,7 +164,8 @@ export function isDateInFinancialYear(date: Date, financialYear: string): boolea
  * GST returns are filed monthly (GSTR-1, GSTR-3B)
  */
 export function getMonthlyGSTReturnPeriods(financialYear: string): GSTReturnPeriod[] {
-  const [startYear] = financialYear.split('-').map(Number);
+  const [startYearRaw] = financialYear.split('-').map(Number);
+  const startYear = startYearRaw ?? 0;
   const periods: GSTReturnPeriod[] = [];
 
   const months = [
@@ -233,15 +239,17 @@ export function getCurrentGSTReturnPeriod(
 
   if (type === 'monthly') {
     const periods = getMonthlyGSTReturnPeriods(fy.financialYear);
+    const firstPeriod = periods[0];
     // Return previous month's period (since current month is not yet complete)
     const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     return periods.find(
       (p) => previousMonth >= p.startDate && previousMonth <= p.endDate
-    ) || periods[0];
+    ) ?? firstPeriod!;
   } else {
     const quarter = getQuarterForDate(now);
     const periods = getQuarterlyGSTReturnPeriods(fy.financialYear);
-    return periods.find((p) => p.period === `Q${quarter.quarter}-${fy.financialYear}`) || periods[0];
+    const firstPeriod = periods[0];
+    return periods.find((p) => p.period === `Q${quarter.quarter}-${fy.financialYear}`) ?? firstPeriod!;
   }
 }
 
@@ -327,7 +335,7 @@ export function formatAssessmentYear(ay: string): string {
 export function parseFinancialYear(fyString: string): number {
   const cleaned = fyString.replace(/[^0-9-]/g, '');
   const [startYear] = cleaned.split('-').map(Number);
-  return startYear;
+  return startYear ?? 0;
 }
 
 /**

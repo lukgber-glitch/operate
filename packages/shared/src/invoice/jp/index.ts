@@ -16,9 +16,9 @@ export * from './qualified-invoice.types';
 
 // Registration Number Validation
 export {
-  calculateCheckDigit,
-  isValidFormat,
-  isValidCheckDigit,
+  calculateCheckDigit as calculateJPRegistrationCheckDigit,
+  isValidFormat as isValidJPRegistrationFormat,
+  isValidCheckDigit as isValidJPRegistrationCheckDigit,
   validateRegistrationNumber,
   parseRegistrationNumber,
   generateRegistrationNumber,

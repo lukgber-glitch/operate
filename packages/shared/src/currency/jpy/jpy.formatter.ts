@@ -170,20 +170,20 @@ function parseJPYTraditional(value: string): number {
 
   // Extract 兆 (cho)
   const choMatch = value.match(/(\d+)兆/);
-  if (choMatch) {
-    total += parseInt(choMatch[1]) * JPY_CONSTANTS.largeNumbers.cho;
+  if (choMatch?.[1]) {
+    total += parseInt(choMatch[1], 10) * JPY_CONSTANTS.largeNumbers.cho;
   }
 
   // Extract 億 (oku)
   const okuMatch = value.match(/(\d+)億/);
-  if (okuMatch) {
-    total += parseInt(okuMatch[1]) * JPY_CONSTANTS.largeNumbers.oku;
+  if (okuMatch?.[1]) {
+    total += parseInt(okuMatch[1], 10) * JPY_CONSTANTS.largeNumbers.oku;
   }
 
   // Extract 万 (man)
   const manMatch = value.match(/(\d+)万/);
-  if (manMatch) {
-    total += parseInt(manMatch[1]) * JPY_CONSTANTS.largeNumbers.man;
+  if (manMatch?.[1]) {
+    total += parseInt(manMatch[1], 10) * JPY_CONSTANTS.largeNumbers.man;
   }
 
   // Extract remaining units (after the last kanji)

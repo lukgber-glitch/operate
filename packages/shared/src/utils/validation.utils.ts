@@ -118,11 +118,16 @@ export function isValidUKUTR(utr: string): boolean {
   let sum = 0;
 
   for (let i = 0; i < 9; i++) {
-    sum += parseInt(cleanUTR[i]) * weights[i];
+    const char = cleanUTR[i];
+    const weight = weights[i];
+    if (char && weight !== undefined) {
+      sum += parseInt(char, 10) * weight;
+    }
   }
 
   const checkDigit = (11 - (sum % 11)) % 11;
-  const lastDigit = parseInt(cleanUTR[9]);
+  const lastChar = cleanUTR[9];
+  const lastDigit = lastChar ? parseInt(lastChar, 10) : -1;
 
   // Check digit 10 is represented as 0, 11 as 1
   const expectedCheckDigit = checkDigit === 10 ? 0 : checkDigit === 11 ? 1 : checkDigit;
@@ -157,13 +162,15 @@ export function isValidUKNINO(nino: string): boolean {
 
   // First letter cannot be D, F, I, Q, U, or V
   const invalidFirstLetters = ['D', 'F', 'I', 'Q', 'U', 'V'];
-  if (invalidFirstLetters.includes(cleanNINO[0])) {
+  const firstChar = cleanNINO[0];
+  if (firstChar && invalidFirstLetters.includes(firstChar)) {
     return false;
   }
 
   // Second letter cannot be D, F, I, O, Q, U, or V
   const invalidSecondLetters = ['D', 'F', 'I', 'O', 'Q', 'U', 'V'];
-  if (invalidSecondLetters.includes(cleanNINO[1])) {
+  const secondChar = cleanNINO[1];
+  if (secondChar && invalidSecondLetters.includes(secondChar)) {
     return false;
   }
 

@@ -1,0 +1,398 @@
+/**
+ * Arabic Typography Styles
+ *
+ * Optimized fonts and typography settings for Arabic language
+ */
+
+/* Import Google Fonts optimized for Arabic */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
+
+/* Arabic-specific font stack */
+:root {
+  --font-arabic-primary: 'Noto Sans Arabic', 'Tajawal', 'Cairo', 'Segoe UI', 'Tahoma', sans-serif;
+  --font-arabic-headings: 'Cairo', 'Tajawal', 'Noto Sans Arabic', sans-serif;
+  --font-arabic-mono: 'Courier New', 'Courier', monospace;
+}
+
+/* Apply Arabic fonts when in RTL mode */
+[dir="rtl"] {
+  font-family: var(--font-arabic-primary);
+}
+
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4,
+[dir="rtl"] h5,
+[dir="rtl"] h6 {
+  font-family: var(--font-arabic-headings);
+  font-weight: 700;
+}
+
+/* Adjust line height for Arabic text */
+[dir="rtl"] {
+  line-height: 1.8;
+  /* Arabic text needs more vertical space due to diacritics */
+}
+
+[dir="rtl"] p,
+[dir="rtl"] li,
+[dir="rtl"] td,
+[dir="rtl"] th {
+  line-height: 1.9;
+}
+
+/* Adjust letter spacing for Arabic */
+[dir="rtl"] {
+  letter-spacing: 0.01em;
+  /* Slightly tighter for Arabic cursive script */
+}
+
+/* Headings specific adjustments */
+[dir="rtl"] h1 {
+  font-size: 2.5rem;
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+[dir="rtl"] h2 {
+  font-size: 2rem;
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+[dir="rtl"] h3 {
+  font-size: 1.75rem;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+[dir="rtl"] h4 {
+  font-size: 1.5rem;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+[dir="rtl"] h5 {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+[dir="rtl"] h6 {
+  font-size: 1rem;
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+/* Body text adjustments */
+[dir="rtl"] body {
+  font-size: 16px;
+  /* Slightly larger base font for better Arabic readability */
+}
+
+/* Small text adjustments */
+[dir="rtl"] small,
+[dir="rtl"] .text-sm {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+[dir="rtl"] .text-xs {
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* Large text adjustments */
+[dir="rtl"] .text-lg {
+  font-size: 1.15rem;
+  line-height: 1.8;
+}
+
+[dir="rtl"] .text-xl {
+  font-size: 1.3rem;
+  line-height: 1.7;
+}
+
+[dir="rtl"] .text-2xl {
+  font-size: 1.6rem;
+  line-height: 1.6;
+}
+
+/* Font weight adjustments for Arabic */
+[dir="rtl"] .font-light {
+  font-weight: 300;
+}
+
+[dir="rtl"] .font-normal {
+  font-weight: 400;
+}
+
+[dir="rtl"] .font-medium {
+  font-weight: 500;
+}
+
+[dir="rtl"] .font-semibold {
+  font-weight: 600;
+}
+
+[dir="rtl"] .font-bold {
+  font-weight: 700;
+}
+
+/* Text rendering optimization for Arabic */
+[dir="rtl"] {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+}
+
+/* Word breaking for Arabic */
+[dir="rtl"] {
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+}
+
+/* Lists in Arabic */
+[dir="rtl"] ul,
+[dir="rtl"] ol {
+  padding-right: 1.5rem;
+  padding-left: 0;
+}
+
+[dir="rtl"] li {
+  margin-bottom: 0.5rem;
+}
+
+/* Blockquotes in Arabic */
+[dir="rtl"] blockquote {
+  border-right: 4px solid hsl(var(--primary));
+  border-left: none;
+  padding-right: 1rem;
+  padding-left: 0;
+  margin-right: 0;
+  font-style: normal;
+  /* Arabic doesn't typically use italic */
+}
+
+/* Code and monospace in RTL */
+[dir="rtl"] code,
+[dir="rtl"] pre {
+  font-family: var(--font-arabic-mono);
+  direction: ltr;
+  /* Code should remain LTR */
+  text-align: left;
+}
+
+/* Inline code in RTL context */
+[dir="rtl"] code {
+  padding: 0.2em 0.4em;
+  background-color: hsl(var(--muted));
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+/* Tables in Arabic */
+[dir="rtl"] table {
+  font-variant-numeric: tabular-nums;
+}
+
+[dir="rtl"] th {
+  font-weight: 600;
+  text-align: right;
+}
+
+[dir="rtl"] td {
+  text-align: right;
+}
+
+/* Form elements typography */
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  font-family: var(--font-arabic-primary);
+}
+
+[dir="rtl"] input::placeholder,
+[dir="rtl"] textarea::placeholder {
+  font-family: var(--font-arabic-primary);
+  opacity: 0.6;
+}
+
+/* Button text */
+[dir="rtl"] button {
+  font-family: var(--font-arabic-primary);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* Navigation and menus */
+[dir="rtl"] nav {
+  font-weight: 500;
+}
+
+/* Dropdown and select menus */
+[dir="rtl"] select {
+  background-position: left 0.5rem center;
+  padding-right: 1rem;
+  padding-left: 2.5rem;
+}
+
+/* Labels and captions */
+[dir="rtl"] label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+[dir="rtl"] caption {
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Badge and tag typography */
+[dir="rtl"] .badge,
+[dir="rtl"] .tag {
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* Tooltip typography */
+[dir="rtl"] .tooltip {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Alert and notification text */
+[dir="rtl"] .alert {
+  line-height: 1.7;
+}
+
+/* Card typography */
+[dir="rtl"] .card-title {
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+
+[dir="rtl"] .card-subtitle {
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+/* Link styling for Arabic */
+[dir="rtl"] a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+/* Emphasis and strong in Arabic */
+[dir="rtl"] em {
+  font-style: normal;
+  /* Use bold or color instead of italic for Arabic */
+  font-weight: 500;
+}
+
+[dir="rtl"] strong {
+  font-weight: 700;
+}
+
+/* Responsive typography for Arabic */
+@media (max-width: 640px) {
+  [dir="rtl"] {
+    font-size: 15px;
+  }
+
+  [dir="rtl"] h1 {
+    font-size: 2rem;
+  }
+
+  [dir="rtl"] h2 {
+    font-size: 1.75rem;
+  }
+
+  [dir="rtl"] h3 {
+    font-size: 1.5rem;
+  }
+
+  [dir="rtl"] h4 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  [dir="rtl"] {
+    font-size: 17px;
+  }
+}
+
+/* Print styles for Arabic */
+@media print {
+  [dir="rtl"] {
+    font-family: var(--font-arabic-primary);
+    font-size: 12pt;
+    line-height: 1.6;
+  }
+
+  [dir="rtl"] h1,
+  [dir="rtl"] h2,
+  [dir="rtl"] h3,
+  [dir="rtl"] h4,
+  [dir="rtl"] h5,
+  [dir="rtl"] h6 {
+    page-break-after: avoid;
+  }
+}
+
+/* Accessibility: High contrast mode */
+@media (prefers-contrast: high) {
+  [dir="rtl"] {
+    font-weight: 500;
+    /* Slightly bolder for better readability */
+  }
+}
+
+/* Accessibility: Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  [dir="rtl"] * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Number formatting classes */
+[dir="rtl"] .number-ltr {
+  font-family: 'Segoe UI', 'Tahoma', sans-serif;
+  direction: ltr;
+  display: inline-block;
+  unicode-bidi: embed;
+}
+
+/* Special formatting for currency */
+[dir="rtl"] .currency {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-arabic-primary);
+}
+
+/* Date and time formatting */
+[dir="rtl"] .datetime {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Status and indicator text */
+[dir="rtl"] .status-text {
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: 0;
+}

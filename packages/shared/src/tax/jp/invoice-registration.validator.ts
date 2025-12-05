@@ -52,8 +52,11 @@ export class CorporateNumberValidator {
     const positions = [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2];
 
     for (let i = 0; i < 12; i++) {
-      const digit = parseInt(digits[i], 10);
-      sum += digit * positions[i];
+      const digitChar = digits[i];
+      if (!digitChar) continue;
+      const digit = parseInt(digitChar, 10);
+      const pos = positions[i] ?? 1;
+      sum += digit * pos;
     }
 
     const checkDigit = 9 - (sum % 9);
@@ -70,7 +73,9 @@ export class CorporateNumberValidator {
       return false;
     }
 
-    const checkDigit = parseInt(corporateNumber[0], 10);
+    const firstChar = corporateNumber[0];
+    if (!firstChar) return false;
+    const checkDigit = parseInt(firstChar, 10);
     const mainDigits = corporateNumber.substring(1);
 
     const calculatedCheckDigit = this.calculateCheckDigit(mainDigits);

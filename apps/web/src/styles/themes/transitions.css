@@ -1,0 +1,229 @@
+/**
+ * Theme Transition Animations
+ *
+ * Smooth transitions when switching between light and dark modes.
+ * Uses view-transition-name for modern browsers with fallback.
+ */
+
+/* Root element transitions */
+html {
+  /* Smooth background and text color transitions */
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* All themed elements get smooth transitions */
+html *,
+html *::before,
+html *::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+  transition-duration: 0.3s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fast animations should not be slowed down */
+[class*="animate-"],
+.transition-all,
+.transition-transform,
+.transition-opacity {
+  transition-duration: 150ms !important;
+}
+
+/* View Transition API support (modern browsers) */
+@supports (view-transition-name: none) {
+  /* Disable default transitions when View Transition API is supported */
+  html.theme-transitioning *,
+  html.theme-transitioning *::before,
+  html.theme-transitioning *::after {
+    transition: none !important;
+  }
+
+  /* Root view transition */
+  html::view-transition-old(root),
+  html::view-transition-new(root) {
+    animation-duration: 0.3s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Fade transition for theme changes */
+  html::view-transition-old(root) {
+    animation-name: theme-fade-out;
+  }
+
+  html::view-transition-new(root) {
+    animation-name: theme-fade-in;
+  }
+}
+
+@keyframes theme-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes theme-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Prevent flash of unstyled content during theme switch */
+.theme-loading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.theme-ready {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Special handling for images during transition */
+img,
+video,
+iframe {
+  /* Images should fade smoothly */
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth icon transitions in theme toggle */
+.theme-toggle-icon {
+  transition:
+    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    rotate 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle-icon.hidden {
+  opacity: 0;
+  transform: scale(0) rotate(90deg);
+}
+
+.theme-toggle-icon.visible {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+/* Smooth dropdown menu transitions */
+[data-radix-popper-content-wrapper] {
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Card and surface transitions */
+.card,
+[class*="card"] {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* Button transitions - preserve click feedback */
+button,
+[role="button"],
+.button {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.1s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:active,
+[role="button"]:active,
+.button:active {
+  transform: scale(0.98);
+  transition-duration: 0.05s;
+}
+
+/* Input field transitions */
+input,
+textarea,
+select {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  transition-duration: 0.15s;
+}
+
+/* Sidebar and navigation transitions */
+nav,
+aside,
+.sidebar,
+.navigation {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modal and overlay transitions */
+.overlay,
+[class*="overlay"],
+[data-state="open"] {
+  transition:
+    background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Badge and pill transitions */
+.badge,
+[class*="badge"] {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Toast notification transitions */
+.toast,
+[class*="toast"] {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  html *,
+  html *::before,
+  html *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Performance optimization */
+/* Use GPU acceleration for smoother transitions */
+.theme-transition-optimized {
+  will-change: background-color, color, border-color;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Remove will-change after transition completes */
+.theme-transition-complete {
+  will-change: auto;
+}

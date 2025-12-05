@@ -1,0 +1,347 @@
+/**
+ * Mobile Responsiveness Utilities
+ * Optimized for Operate/CoachOS chat-first interface
+ */
+
+/* ========================================
+   Safe Area Insets (iPhone X+, Android notch)
+   ======================================== */
+
+/* Safe area support for devices with notches */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .ps-safe {
+    padding-inline-start: env(safe-area-inset-left);
+  }
+
+  .pe-safe {
+    padding-inline-end: env(safe-area-inset-right);
+  }
+
+  .p-safe {
+    padding-top: env(safe-area-inset-top);
+    padding-inline-end: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-inline-start: env(safe-area-inset-left);
+  }
+}
+
+/* ========================================
+   Mobile-Specific Touch Targets
+   ======================================== */
+
+/* Ensure all interactive elements meet 44px minimum */
+@media (max-width: 767px) {
+  button,
+  a,
+  input[type="button"],
+  input[type="submit"],
+  [role="button"],
+  [tabindex="0"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Exception for inline text links */
+  p a,
+  span a,
+  li a {
+    min-height: auto;
+    min-width: auto;
+  }
+}
+
+/* ========================================
+   Virtual Keyboard Handling
+   ======================================== */
+
+/* Prevent zoom on input focus (iOS Safari) */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+}
+
+/* Maintain viewport on keyboard open */
+@media (max-width: 767px) {
+  .chat-input-container {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--background);
+    z-index: 40;
+  }
+
+  /* Add padding when virtual keyboard is open */
+  .chat-input-container.keyboard-open {
+    padding-bottom: env(keyboard-inset-height, 0px);
+  }
+}
+
+/* ========================================
+   Mobile Layout Utilities
+   ======================================== */
+
+/* Full-width cards on mobile */
+@media (max-width: 639px) {
+  .card-responsive {
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+}
+
+/* Mobile padding adjustments */
+.mobile-px {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .mobile-px {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-px {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* ========================================
+   Mobile Scrolling Optimizations
+   ======================================== */
+
+/* Momentum scrolling for iOS */
+.scroll-touch {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+/* Horizontal scroll with snap on mobile */
+@media (max-width: 767px) {
+  .horizontal-scroll-mobile {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .horizontal-scroll-mobile::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .horizontal-scroll-mobile > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+}
+
+/* ========================================
+   Mobile Navigation Spacing
+   ======================================== */
+
+/* Add bottom padding to content when bottom nav is present */
+@media (max-width: 767px) {
+  .mobile-content-with-nav {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ========================================
+   Mobile Chat Optimizations
+   ======================================== */
+
+@media (max-width: 767px) {
+  /* Chat container fills viewport */
+  .chat-container-mobile {
+    height: 100dvh; /* Use dynamic viewport height */
+    height: 100vh; /* Fallback */
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Messages area scrollable */
+  .chat-messages-mobile {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Suggestion cards scroll horizontally */
+  .suggestions-mobile {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0.5rem 1rem;
+  }
+
+  .suggestions-mobile::-webkit-scrollbar {
+    display: none;
+  }
+
+  .suggestions-mobile > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    min-width: 280px;
+    max-width: 320px;
+  }
+}
+
+/* ========================================
+   Reduced Motion Support
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ========================================
+   High Contrast Mode Support
+   ======================================== */
+
+@media (prefers-contrast: high) {
+  button,
+  a,
+  input,
+  textarea {
+    border-width: 2px;
+  }
+}
+
+/* ========================================
+   Orientation Handling
+   ======================================== */
+
+@media (max-width: 767px) and (orientation: landscape) {
+  /* Reduce header/footer heights in landscape */
+  .mobile-header {
+    height: 3rem;
+  }
+
+  .bottom-nav {
+    height: 3rem;
+  }
+
+  /* Smaller text in landscape */
+  .chat-message {
+    font-size: 0.875rem;
+  }
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+
+@media print {
+  .bottom-nav,
+  .mobile-header,
+  .chat-input-container {
+    display: none !important;
+  }
+
+  .chat-messages {
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
+
+/* ========================================
+   Focus Visible (Accessibility)
+   ======================================== */
+
+/* Enhanced focus indicators for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Remove outline for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ========================================
+   Responsive Typography
+   ======================================== */
+
+@media (max-width: 639px) {
+  /* Base font sizes */
+  html {
+    font-size: 14px;
+  }
+
+  /* Headings */
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  /* Ensure readable body text */
+  body,
+  p,
+  li {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
+/* ========================================
+   Mobile-Specific Animations
+   ======================================== */
+
+@media (max-width: 767px) {
+  /* Slide up animation for modals */
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .modal-mobile {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  /* Pull-to-refresh indicator */
+  .pull-to-refresh {
+    transform: translateY(0);
+    transition: transform 0.2s ease-out;
+  }
+
+  .pull-to-refresh.pulling {
+    transform: translateY(60px);
+  }
+}
