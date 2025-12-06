@@ -8,6 +8,7 @@ import {
   HttpCode,
   HttpStatus,
   UnauthorizedException,
+  Get,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import {
@@ -23,6 +24,8 @@ import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { CompleteMfaLoginDto } from './dto/complete-mfa-login.dto';
+import { SetPasswordDto } from './dto/set-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -257,5 +260,103 @@ export class AuthController {
     }
 
     return result;
+  }
+
+  /**
+   * Set password for OAuth-only accounts
+   */
+  @UseGuards(JwtAuthGuard)
+  @Post('password/set')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Set password for OAuth account',
+    description:
+      'Allows users who signed up with OAuth (Google, Microsoft) to set a password for traditional login',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Password set successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Password already set',
+  })
+  async setPassword(
+    @Req() req: Request,
+    @Body() setPasswordDto: SetPasswordDto,
+  ): Promise<void> {
+    const userId = (req.user as any).userId;
+    await this.authService.setPassword(userId, setPasswordDto.password);
+  }
+
+  /**
+   * Change password for existing accounts
+   */
+  @UseGuards(JwtAuthGuard)
+  @Post('password/change')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Change password',
+    description: 'Change password for accounts that already have a password',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Password changed successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized or current password incorrect',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'No password set',
+  })
+  async changePassword(
+    @Req() req: Request,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ): Promise<void> {
+    const userId = (req.user as any).userId;
+    await this.authService.changePassword(
+      userId,
+      changePasswordDto.currentPassword,
+      changePasswordDto.newPassword,
+    );
+  }
+
+  /**
+   * Check if user has password set
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('password/status')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Check password status',
+    description: 'Check if the current user has a password set',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Password status retrieved',
+    schema: {
+      type: 'object',
+      properties: {
+        hasPassword: { type: 'boolean' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  async getPasswordStatus(@Req() req: Request): Promise<{ hasPassword: boolean }> {
+    const userId = (req.user as any).userId;
+    const hasPassword = await this.authService.hasPassword(userId);
+    return { hasPassword };
   }
 }

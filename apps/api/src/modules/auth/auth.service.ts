@@ -420,4 +420,100 @@ export class AuthService {
       path: '/',
     });
   }
+
+  /**
+   * Set password for OAuth-only accounts
+   * Allows users who signed up with OAuth to add a password for traditional login
+   */
+  async setPassword(userId: string, newPassword: string): Promise<void> {
+    // Get user and verify they don't already have a password
+    const user = await this.usersRepository.findById(userId);
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (user.passwordHash) {
+      throw new ConflictException(
+        'Password already set. Use change password instead.',
+      );
+    }
+
+    // Hash the new password
+    const saltRounds = this.configService.get<number>('security.bcryptRounds') || 10;
+    const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update user with password
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    this.logger.log(`Password set for OAuth user: ${userId}`);
+  }
+
+  /**
+   * Change password for existing accounts
+   * Verifies current password before setting new one
+   */
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    // Get user with password
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (!user.passwordHash) {
+      throw new ConflictException(
+        'No password set. Use set password instead.',
+      );
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.passwordHash,
+    );
+
+    if (!isCurrentPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    // Hash the new password
+    const saltRounds = this.configService.get<number>('security.bcryptRounds') || 10;
+    const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update user with new password
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    this.logger.log(`Password changed for user: ${userId}`);
+  }
+
+  /**
+   * Check if user has a password set
+   * Useful for frontend to determine which password management UI to show
+   */
+  async hasPassword(userId: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { passwordHash: true },
+    });
+
+    return user ? user.passwordHash !== null : false;
+  }
 }
