@@ -98,10 +98,10 @@ export function ELSTERWizard() {
 
   const handleBack = () => {
     const prevIndex = currentStepIndex - 1;
-    if (prevIndex >= 0) {
+    if (prevIndex >= 0 && STEPS[prevIndex]) {
       setState((prev) => ({
         ...prev,
-        currentStep: STEPS[prevIndex].id,
+        currentStep: STEPS[prevIndex]!.id,
       }));
     }
   };
@@ -159,8 +159,8 @@ export function ELSTERWizard() {
       {/* Step Content */}
       <Card>
         <CardHeader>
-          <CardTitle>{STEPS[currentStepIndex].title}</CardTitle>
-          <CardDescription>{STEPS[currentStepIndex].description}</CardDescription>
+          <CardTitle>{STEPS[currentStepIndex]?.title}</CardTitle>
+          <CardDescription>{STEPS[currentStepIndex]?.description}</CardDescription>
         </CardHeader>
         <CardContent>
           {state.currentStep === 'authenticate' && (
