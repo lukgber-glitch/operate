@@ -13,6 +13,22 @@ interface User {
   orgId?: string;
 }
 
+// Helper to store tokens in cookies
+// WAF/proxy only allows ONE Set-Cookie, so we combine both tokens into a JSON cookie
+function setAuthCookies(accessToken: string, refreshToken?: string) {
+  const authData = JSON.stringify({
+    a: accessToken, // access token
+    r: refreshToken || '', // refresh token
+  });
+  document.cookie = `op_auth=${encodeURIComponent(authData)};path=/;max-age=604800;SameSite=Lax`;
+}
+
+// Helper to clear auth cookies
+function clearAuthCookies() {
+  document.cookie = 'op_auth=;path=/;max-age=0';
+  document.cookie = 'onboarding_complete=;path=/;max-age=0';
+}
+
 interface AuthState {
   user: User | null;
   isLoading: boolean;
@@ -80,15 +96,33 @@ export function useAuth() {
         return { requiresMfa: true };
       }
 
-      // Tokens are now in HTTP-only cookies, no need to store in localStorage
+      // Store tokens in cookies for middleware to check
+      if (response.accessToken) {
+        setAuthCookies(response.accessToken, response.refreshToken);
+      }
+
+      // API returns tokens, not user info - fetch user separately
+      let user: User | null = null;
+      try {
+        user = await authApi.getCurrentUser();
+      } catch {
+        // If we can't get user info, create minimal user from login response
+        user = {
+          id: '',
+          email: data.email,
+          firstName: '',
+          lastName: '',
+          role: 'user',
+        };
+      }
 
       // Set orgId in window for API clients to use
-      if (typeof window !== 'undefined' && response.user.orgId) {
-        (window as any).__orgId = response.user.orgId;
+      if (typeof window !== 'undefined' && user?.orgId) {
+        (window as any).__orgId = user.orgId;
       }
 
       setState({
-        user: response.user,
+        user,
         isLoading: false,
         isAuthenticated: true,
         requiresMfa: false,
@@ -112,15 +146,33 @@ export function useAuth() {
     try {
       const response = await authApi.register(data);
 
-      // Tokens are now in HTTP-only cookies, no need to store in localStorage
+      // Store tokens in cookies for middleware to check
+      if (response.accessToken) {
+        setAuthCookies(response.accessToken, response.refreshToken);
+      }
+
+      // API returns tokens, not user info - fetch user separately or use registration data
+      let user: User | null = null;
+      try {
+        user = await authApi.getCurrentUser();
+      } catch {
+        // If we can't get user info, create user from registration data
+        user = {
+          id: '',
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          role: 'user',
+        };
+      }
 
       // Set orgId in window for API clients to use
-      if (typeof window !== 'undefined' && response.user.orgId) {
-        (window as any).__orgId = response.user.orgId;
+      if (typeof window !== 'undefined' && user?.orgId) {
+        (window as any).__orgId = user.orgId;
       }
 
       setState({
-        user: response.user,
+        user,
         isLoading: false,
         isAuthenticated: true,
         requiresMfa: false,
@@ -146,7 +198,8 @@ export function useAuth() {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // Cookies are cleared by the server, no need to remove from localStorage
+      // Clear auth cookies
+      clearAuthCookies();
       setState({
         user: null,
         isLoading: false,

@@ -198,13 +198,13 @@ export function useOnboardingWizard({
       setIsSubmitting(true)
 
       try {
-        // Call API to save onboarding data
-        const response = await fetch('/api/connection-hub/onboarding', {
+        // Call API to mark onboarding as complete
+        const response = await fetch('/api/v1/onboarding/complete', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(data),
+          credentials: 'include',
         })
 
         if (!response.ok) {
@@ -215,6 +215,9 @@ export function useOnboardingWizard({
           title: 'Setup Complete!',
           description: 'Your account has been configured successfully.',
         })
+
+        // Set onboarding_complete cookie so middleware allows access to protected routes
+        document.cookie = 'onboarding_complete=true; path=/; max-age=31536000; SameSite=Lax'
 
         // Clear saved progress
         if (persistProgress) {

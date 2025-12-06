@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TinkService } from './tink.service';
+import { TinkController } from './tink.controller';
 import { DatabaseModule } from '../../database/database.module';
 import tinkConfig from './tink.config';
 
@@ -21,6 +22,7 @@ import tinkConfig from './tink.config';
     ConfigModule.forFeature(tinkConfig),
     DatabaseModule,
   ],
+  controllers: [TinkController],
   providers: [TinkService],
   exports: [TinkService],
 })

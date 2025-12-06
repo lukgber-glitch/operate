@@ -72,14 +72,18 @@ class AuthApi {
       credentials: 'include',
     });
 
+    const json = await response.json().catch(() => ({
+      error: { message: 'An error occurred' },
+    }));
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: 'An error occurred',
-      }));
-      throw new Error(error.message || `HTTP ${response.status}`);
+      // API returns errors in {error: {message: "..."}} format
+      const errorMessage = json.error?.message || json.message || `HTTP ${response.status}`;
+      throw new Error(errorMessage);
     }
 
-    return response.json();
+    // API wraps responses in {data: {...}, meta: {...}} format
+    return json.data !== undefined ? json.data : json;
   }
 
   /**
@@ -96,9 +100,11 @@ class AuthApi {
    * Register a new user
    */
   async register(data: RegisterRequest): Promise<AuthResponse> {
+    // API doesn't accept acceptTerms, only validate it on frontend
+    const { acceptTerms, ...apiData } = data;
     return this.request<AuthResponse>('/register', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(apiData),
     });
   }
 

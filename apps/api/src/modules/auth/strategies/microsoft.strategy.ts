@@ -36,8 +36,10 @@ export class MicrosoftStrategy extends PassportStrategy(
       clientID: clientId && clientId !== 'disabled' ? clientId : 'placeholder-disabled',
       clientSecret: clientSecret && clientSecret !== 'disabled' ? clientSecret : 'placeholder-disabled',
       callbackURL: callbackUrl || 'http://localhost:3000/api/v1/auth/microsoft/callback',
-      scope: ['user.read', 'email', 'profile'],
+      scope: ['openid', 'user.read', 'email', 'profile', 'offline_access'],
       tenant,
+      // Show account picker for selecting saved accounts
+      prompt: 'select_account',
     });
 
     if (!isMicrosoftOAuthEnabled(configService)) {

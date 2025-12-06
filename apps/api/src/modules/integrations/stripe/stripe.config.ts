@@ -54,9 +54,8 @@ export function validateStripeConfig(config: StripeConfig): void {
     );
   }
 
-  if (!config.webhookSecret) {
-    errors.push('STRIPE_WEBHOOK_SECRET is required');
-  } else if (!config.webhookSecret.startsWith('whsec_')) {
+  // Webhook secret is optional - only validate format if provided
+  if (config.webhookSecret && !config.webhookSecret.startsWith('whsec_')) {
     errors.push(
       'STRIPE_WEBHOOK_SECRET has invalid format (should start with whsec_)',
     );

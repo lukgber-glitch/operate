@@ -1,17 +1,19 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, Allow } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 /**
  * OAuth callback query parameters
+ * Allows extra parameters from Google/Microsoft OAuth callbacks
  */
 export class OAuthCallbackDto {
   @ApiProperty({
     description: 'Authorization code from OAuth provider',
     example: '4/0AY0e-g7...',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  code: string;
+  @IsOptional()
+  code?: string;
 
   @ApiProperty({
     description: 'State parameter for CSRF protection',
@@ -39,6 +41,28 @@ export class OAuthCallbackDto {
   @IsString()
   @IsOptional()
   error_description?: string;
+
+  // Google OAuth extra parameters
+  @Allow()
+  @IsOptional()
+  scope?: string;
+
+  @Allow()
+  @IsOptional()
+  authuser?: string;
+
+  @Allow()
+  @IsOptional()
+  prompt?: string;
+
+  @Allow()
+  @IsOptional()
+  hd?: string;
+
+  // Microsoft OAuth extra parameters
+  @Allow()
+  @IsOptional()
+  session_state?: string;
 }
 
 /**

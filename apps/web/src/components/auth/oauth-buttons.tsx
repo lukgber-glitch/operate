@@ -3,7 +3,6 @@
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { authApi } from '@/lib/auth';
 
 interface OAuthButtonsProps {
   onError?: (error: string) => void;
@@ -13,18 +12,14 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isMicrosoftLoading, setIsMicrosoftLoading] = useState(false);
 
-  const handleOAuthLogin = async (provider: 'google' | 'microsoft') => {
+  const handleOAuthLogin = (provider: 'google' | 'microsoft') => {
     const setLoading = provider === 'google' ? setIsGoogleLoading : setIsMicrosoftLoading;
-
     setLoading(true);
-    try {
-      const { redirectUrl } = await authApi.oauthLogin({ provider });
-      window.location.href = redirectUrl;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : `${provider} login failed`;
-      onError?.(message);
-      setLoading(false);
-    }
+
+    // Redirect directly to backend OAuth endpoint
+    // Backend will handle the OAuth flow and redirect back to /auth/callback with tokens
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    window.location.href = `${apiUrl}/auth/${provider}`;
   };
 
   return (

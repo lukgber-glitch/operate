@@ -1,5 +1,6 @@
 'use client'
 
+import '@/app/globals.css'
 import { ChatButton } from '@/components/chat'
 import { Header } from '@/components/dashboard/header'
 import { MobileNav } from '@/components/dashboard/mobile-nav'

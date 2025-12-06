@@ -62,7 +62,7 @@ export function useQuickActions(): UseQuickActionsReturn {
         variant: 'primary',
         action: () => {
           // TODO: Open CreateInvoiceModal
-          router.push('/dashboard/invoices/new')
+          router.push('/finance/invoices/new')
         },
         visible: true,
         order: 1,
@@ -76,7 +76,7 @@ export function useQuickActions(): UseQuickActionsReturn {
         variant: 'default',
         action: () => {
           // TODO: Open AddExpenseModal
-          router.push('/dashboard/expenses/new')
+          router.push('/finance/expenses/new')
         },
         visible: true,
         order: 2,
@@ -104,7 +104,7 @@ export function useQuickActions(): UseQuickActionsReturn {
         variant: 'success',
         action: () => {
           // TODO: Open RecordPaymentModal
-          router.push('/dashboard/payments/new')
+          router.push('/finance')
         },
         visible: true,
         order: 4,
@@ -117,7 +117,7 @@ export function useQuickActions(): UseQuickActionsReturn {
         subtitle: 'New customer',
         variant: 'default',
         action: () => {
-          router.push('/dashboard/clients/new')
+          router.push('/clients')
         },
         visible: true,
         order: 5,
@@ -130,7 +130,7 @@ export function useQuickActions(): UseQuickActionsReturn {
         subtitle: 'Financial reports',
         variant: 'default',
         action: () => {
-          router.push('/dashboard/reports')
+          router.push('/reports')
         },
         visible: true,
         order: 6,
@@ -157,7 +157,7 @@ export function useQuickActions(): UseQuickActionsReturn {
         subtitle: 'Recent activity',
         variant: 'default',
         action: () => {
-          router.push('/dashboard/banking/transactions')
+          router.push('/finance/banking')
         },
         visible: true,
         order: 8,
@@ -170,7 +170,7 @@ export function useQuickActions(): UseQuickActionsReturn {
         subtitle: 'New quotation',
         variant: 'default',
         action: () => {
-          router.push('/dashboard/quotes/new')
+          router.push('/finance/invoices')
         },
         visible: false,
         order: 9,
@@ -183,7 +183,7 @@ export function useQuickActions(): UseQuickActionsReturn {
         subtitle: 'Process payroll',
         variant: 'primary',
         action: () => {
-          router.push('/dashboard/hr/payroll')
+          router.push('/hr/payroll/run')
         },
         visible: false,
         order: 10,
@@ -196,7 +196,7 @@ export function useQuickActions(): UseQuickActionsReturn {
         subtitle: 'View forecast',
         variant: 'default',
         action: () => {
-          router.push('/dashboard/reports/cash-flow')
+          router.push('/reports')
         },
         visible: false,
         order: 11,

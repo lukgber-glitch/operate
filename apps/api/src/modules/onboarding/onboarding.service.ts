@@ -238,14 +238,22 @@ export class OnboardingService {
   /**
    * Mark onboarding as complete
    */
-  async completeOnboarding(orgId: string): Promise<OnboardingProgressDto> {
-    const progress = await this.repository.findByOrgId(orgId);
+  async completeOnboarding(orgId: string, userId?: string): Promise<OnboardingProgressDto> {
+    let progress = await this.repository.findByOrgId(orgId);
+
+    // Auto-create progress record if it doesn't exist
     if (!progress) {
-      throw new NotFoundException('Onboarding progress not found');
+      progress = await this.repository.create({
+        orgId,
+        userId: userId || orgId,
+        currentStep: 6,
+        totalSteps: 6,
+      });
     }
 
+    // If already completed, return current progress (don't error)
     if (progress.isCompleted) {
-      throw new ConflictException('Onboarding already completed');
+      return this.mapToDto(progress);
     }
 
     const updatedProgress = await this.repository.markComplete(orgId);

@@ -136,8 +136,8 @@ export class OnboardingController {
   @ApiResponse({ status: 404, description: 'Onboarding progress not found' })
   @ApiResponse({ status: 409, description: 'Onboarding already completed' })
   async completeOnboarding(@Req() req: any): Promise<OnboardingProgressDto> {
-    const { orgId } = req.user;
-    return this.onboardingService.completeOnboarding(orgId);
+    const { orgId, userId } = req.user;
+    return this.onboardingService.completeOnboarding(orgId, userId);
   }
 
   /**

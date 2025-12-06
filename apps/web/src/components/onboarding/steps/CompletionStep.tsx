@@ -84,6 +84,37 @@ interface CompletionStepProps {
 
 export function CompletionStep({ companyName, setupCompleted }: CompletionStepProps) {
   const router = useRouter()
+  const [isNavigating, setIsNavigating] = React.useState(false)
+
+  const handleGoToDashboard = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsNavigating(true)
+
+    try {
+      // Call API to ensure onboarding is marked complete
+      const response = await fetch('/api/v1/onboarding/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      })
+
+      // Set cookie regardless of API response (API may return 409 if already complete)
+      document.cookie = 'onboarding_complete=true; path=/; max-age=31536000; SameSite=Lax'
+
+      // Clear localStorage progress
+      localStorage.removeItem('operate_onboarding_progress')
+
+      // Navigate to dashboard
+      router.push('/dashboard')
+    } catch (error) {
+      console.error('Error completing onboarding:', error)
+      // Still try to navigate - set cookie and go
+      document.cookie = 'onboarding_complete=true; path=/; max-age=31536000; SameSite=Lax'
+      localStorage.removeItem('operate_onboarding_progress')
+      router.push('/dashboard')
+    }
+  }
 
   const handleNavigate = (e: React.MouseEvent, href: string) => {
     e.preventDefault()
@@ -220,9 +251,9 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
 
       {/* Primary CTA */}
       <div className="flex justify-center pt-4">
-        <Button type="button" size="lg" onClick={(e) => handleNavigate(e, '/dashboard')} className="w-full md:w-auto">
+        <Button type="button" size="lg" onClick={handleGoToDashboard} disabled={isNavigating} className="w-full md:w-auto">
           <LayoutDashboard className="w-4 h-4 mr-2" />
-          Go to Dashboard
+          {isNavigating ? 'Loading...' : 'Go to Dashboard'}
         </Button>
       </div>
     </div>

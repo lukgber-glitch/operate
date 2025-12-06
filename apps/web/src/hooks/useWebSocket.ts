@@ -105,12 +105,19 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
   const getAccessToken = useCallback((): string | undefined => {
     if (token) return token;
 
-    // Try to get from cookies
-    const cookieMatch = document.cookie.match(/access_token=([^;]+)/);
-    if (cookieMatch) return cookieMatch[1];
+    // Try to get from combined op_auth cookie
+    const cookieMatch = document.cookie.match(/op_auth=([^;]+)/);
+    if (cookieMatch && cookieMatch[1]) {
+      try {
+        const authData = JSON.parse(decodeURIComponent(cookieMatch[1]));
+        return authData.a; // access token
+      } catch {
+        // Invalid JSON
+      }
+    }
 
     // Try to get from localStorage (fallback)
-    return localStorage.getItem('access_token') || undefined;
+    return localStorage.getItem('op_auth') || undefined;
   }, [token]);
 
   /**

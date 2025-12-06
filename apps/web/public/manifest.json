@@ -21,44 +21,7 @@
       "purpose": "maskable any"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshots/dashboard-desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Dashboard overview with key metrics and insights"
-    },
-    {
-      "src": "/screenshots/invoices-desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Invoice management and tracking"
-    },
-    {
-      "src": "/screenshots/tax-desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Tax compliance and reporting"
-    },
-    {
-      "src": "/screenshots/dashboard-mobile.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile dashboard view"
-    },
-    {
-      "src": "/screenshots/invoices-mobile.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile invoice management"
-    }
-  ],
-  "shortcuts": [
+    "shortcuts": [
     {
       "name": "Dashboard",
       "short_name": "Dashboard",

@@ -6,6 +6,10 @@ module.exports = function (options) {
     ...options,
     externals: [
       nodeExternals({
+        modulesDir: path.resolve(__dirname, "node_modules"),
+        allowlist: [/^@operate\//],
+      }),
+      nodeExternals({
         modulesDir: path.resolve(__dirname, "../../node_modules"),
         allowlist: [/^@operate\//],
       }),

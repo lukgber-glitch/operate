@@ -32,12 +32,23 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       clientID: clientId && clientId !== 'disabled' ? clientId : 'placeholder-disabled',
       clientSecret: clientSecret && clientSecret !== 'disabled' ? clientSecret : 'placeholder-disabled',
       callbackURL: callbackUrl || 'http://localhost:3000/api/v1/auth/google/callback',
-      scope: ['email', 'profile'],
+      scope: ['openid', 'email', 'profile'],
     });
 
     if (!isGoogleOAuthEnabled(configService)) {
       this.logger.warn('Google OAuth is disabled - GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not configured');
     }
+  }
+
+  /**
+   * Add extra parameters to the authorization URL
+   * This is the proper passport-oauth2 way to add prompt and access_type
+   */
+  authorizationParams(): { [key: string]: string } {
+    return {
+      prompt: 'select_account',
+      access_type: 'offline',
+    };
   }
 
   /**

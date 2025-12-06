@@ -18,6 +18,8 @@ import { OAuthService } from './oauth.service';
 import { OAuthCallbackDto } from './dto/oauth-callback.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { MicrosoftAuthGuard } from './guards/microsoft-auth.guard';
 
 /**
  * OAuth Controller
@@ -35,7 +37,7 @@ export class OAuthController {
    * Initiates Google OAuth flow
    */
   @Get('google')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleAuthGuard)
   @ApiOperation({
     summary: 'Login with Google',
     description: 'Redirects to Google OAuth consent screen',
@@ -53,7 +55,7 @@ export class OAuthController {
    * Handles callback from Google OAuth flow
    */
   @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleAuthGuard)
   @ApiOperation({
     summary: 'Google OAuth callback',
     description: 'Handles callback from Google OAuth flow',
@@ -111,7 +113,7 @@ export class OAuthController {
    * Initiates Microsoft OAuth flow
    */
   @Get('microsoft')
-  @UseGuards(AuthGuard('microsoft'))
+  @UseGuards(MicrosoftAuthGuard)
   @ApiOperation({
     summary: 'Login with Microsoft',
     description: 'Redirects to Microsoft OAuth consent screen',
@@ -129,7 +131,7 @@ export class OAuthController {
    * Handles callback from Microsoft OAuth flow
    */
   @Get('microsoft/callback')
-  @UseGuards(AuthGuard('microsoft'))
+  @UseGuards(MicrosoftAuthGuard)
   @ApiOperation({
     summary: 'Microsoft OAuth callback',
     description: 'Handles callback from Microsoft OAuth flow',

@@ -3,7 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -12,17 +13,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { authApi } from '@/lib/auth';
 
-// Schema for requesting password reset
-const resetRequestSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-});
-
-type ResetRequestFormData = z.infer<typeof resetRequestSchema>;
+type ResetRequestFormData = {
+  email: string;
+};
 
 export function PasswordResetRequestForm() {
+  const t = useTranslations('auth');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const resetRequestSchema = useMemo(() => z.object({
+    email: z.string().email(t('invalidEmail')),
+  }), [t]);
 
   const {
     register,
@@ -43,7 +46,7 @@ export function PasswordResetRequestForm() {
       await authApi.forgotPassword({ email: data.email });
       setSuccess(true);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to send reset email. Please try again.';
+      const message = err instanceof Error ? err.message : t('failedToSendResetEmail');
       setError(message);
     } finally {
       setIsLoading(false);
@@ -54,13 +57,13 @@ export function PasswordResetRequestForm() {
     return (
       <div className="space-y-4">
         <div className="bg-green-50 dark:bg-green-950 text-green-800 dark:text-green-200 text-sm p-4 rounded-md border border-green-200 dark:border-green-800">
-          <p className="font-medium mb-1">Check your email</p>
-          <p>We&apos;ve sent a password reset link to your email address. Please check your inbox and follow the instructions.</p>
+          <p className="font-medium mb-1">{t('checkYourEmail')}</p>
+          <p>{t('resetLinkSent')}</p>
         </div>
 
         <div className="text-center text-sm">
           <Link href="/login" className="text-primary hover:underline font-medium">
-            Return to login
+            {t('returnToLogin')}
           </Link>
         </div>
       </div>
@@ -76,11 +79,11 @@ export function PasswordResetRequestForm() {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email address</Label>
+        <Label htmlFor="email">{t('emailAddress')}</Label>
         <Input
           id="email"
           type="email"
-          placeholder="you@example.com"
+          placeholder={t('emailPlaceholder')}
           {...register('email')}
           disabled={isLoading}
           className={errors.email ? 'border-destructive' : ''}
@@ -94,48 +97,51 @@ export function PasswordResetRequestForm() {
         {isLoading ? (
           <>
             <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            Sending reset link...
+            {t('sendingResetLink')}
           </>
         ) : (
-          'Send reset link'
+          t('sendResetLink')
         )}
       </Button>
 
       <div className="text-center text-sm">
-        <span className="text-muted-foreground">Remember your password? </span>
+        <span className="text-muted-foreground">{t('rememberPassword')} </span>
         <Link href="/login" className="text-primary hover:underline font-medium">
-          Sign in
+          {t('signIn')}
         </Link>
       </div>
     </form>
   );
 }
 
-// Schema for resetting password with token
-const resetPasswordSchema = z.object({
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
-
-type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+type ResetPasswordFormData = {
+  password: string;
+  confirmPassword: string;
+};
 
 interface PasswordResetFormProps {
   token: string;
 }
 
 export function PasswordResetForm({ token }: PasswordResetFormProps) {
+  const t = useTranslations('auth');
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const resetPasswordSchema = useMemo(() => z.object({
+    password: z
+      .string()
+      .min(8, t('passwordTooShort'))
+      .regex(/[A-Z]/, t('passwordUppercase'))
+      .regex(/[a-z]/, t('passwordLowercase'))
+      .regex(/[0-9]/, t('passwordNumber')),
+    confirmPassword: z.string(),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t('passwordsDoNotMatch'),
+    path: ['confirmPassword'],
+  }), [t]);
 
   const {
     register,
@@ -164,7 +170,7 @@ export function PasswordResetForm({ token }: PasswordResetFormProps) {
         router.push('/login');
       }, 2000);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to reset password. The link may have expired.';
+      const message = err instanceof Error ? err.message : t('failedToResetPassword');
       setError(message);
     } finally {
       setIsLoading(false);
@@ -175,8 +181,8 @@ export function PasswordResetForm({ token }: PasswordResetFormProps) {
     return (
       <div className="space-y-4">
         <div className="bg-green-50 dark:bg-green-950 text-green-800 dark:text-green-200 text-sm p-4 rounded-md border border-green-200 dark:border-green-800">
-          <p className="font-medium mb-1">Password reset successful!</p>
-          <p>Your password has been updated. Redirecting to login...</p>
+          <p className="font-medium mb-1">{t('passwordResetSuccess')}</p>
+          <p>{t('passwordResetSuccessMessage')}</p>
         </div>
       </div>
     );
@@ -191,11 +197,11 @@ export function PasswordResetForm({ token }: PasswordResetFormProps) {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="password">New password</Label>
+        <Label htmlFor="password">{t('newPassword')}</Label>
         <Input
           id="password"
           type="password"
-          placeholder="Create a strong password"
+          placeholder={t('createPasswordPlaceholder')}
           {...register('password')}
           disabled={isLoading}
           className={errors.password ? 'border-destructive' : ''}
@@ -204,16 +210,16 @@ export function PasswordResetForm({ token }: PasswordResetFormProps) {
           <p className="text-sm text-destructive">{errors.password.message}</p>
         )}
         <p className="text-xs text-muted-foreground">
-          Must be at least 8 characters with uppercase, lowercase, and numbers
+          {t('passwordHint')}
         </p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="confirmPassword">Confirm new password</Label>
+        <Label htmlFor="confirmPassword">{t('confirmNewPassword')}</Label>
         <Input
           id="confirmPassword"
           type="password"
-          placeholder="Re-enter your password"
+          placeholder={t('reenterPasswordPlaceholder')}
           {...register('confirmPassword')}
           disabled={isLoading}
           className={errors.confirmPassword ? 'border-destructive' : ''}
@@ -227,10 +233,10 @@ export function PasswordResetForm({ token }: PasswordResetFormProps) {
         {isLoading ? (
           <>
             <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            Resetting password...
+            {t('resettingPassword')}
           </>
         ) : (
-          'Reset password'
+          t('resetPassword')
         )}
       </Button>
     </form>

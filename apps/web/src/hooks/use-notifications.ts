@@ -81,7 +81,7 @@ export function useNotifications() {
   const { data: notifications = [], isLoading, error } = useQuery<Notification[]>({
     queryKey: ['notifications'],
     queryFn: async () => {
-      const response = await axios.get(`${API_BASE_URL}/api/notifications`, {
+      const response = await axios.get(`${API_BASE_URL}/notifications`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },

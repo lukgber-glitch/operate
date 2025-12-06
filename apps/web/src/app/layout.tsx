@@ -22,6 +22,14 @@ export const metadata: Metadata = {
   title: 'Operate | CoachOS - Enterprise Coaching Platform',
   description: 'AI-powered coaching platform for enterprise teams',
   manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',

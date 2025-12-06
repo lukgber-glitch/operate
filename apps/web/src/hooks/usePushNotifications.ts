@@ -118,7 +118,7 @@ export function usePushNotifications() {
 
       if (!pushSubscription) {
         // Get VAPID public key from server
-        const { data: config } = await axios.get(`${API_BASE_URL}/api/notifications/push/config`, {
+        const { data: config } = await axios.get(`${API_BASE_URL}/notifications/push/config`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -142,7 +142,7 @@ export function usePushNotifications() {
       }
 
       await axios.post(
-        `${API_BASE_URL}/api/notifications/push/subscribe`,
+        `${API_BASE_URL}/notifications/push/subscribe`,
         subscriptionData,
         {
           headers: {
@@ -187,7 +187,7 @@ export function usePushNotifications() {
 
       // Remove subscription from server
       await axios.post(
-        `${API_BASE_URL}/api/notifications/push/unsubscribe`,
+        `${API_BASE_URL}/notifications/push/unsubscribe`,
         {},
         {
           headers: {
@@ -231,7 +231,7 @@ export function usePushNotifications() {
 
     try {
       await axios.post(
-        `${API_BASE_URL}/api/notifications/push/test`,
+        `${API_BASE_URL}/notifications/push/test`,
         {},
         {
           headers: {

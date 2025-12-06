@@ -3,7 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -14,32 +15,41 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/use-auth';
 
-const registerSchema = z.object({
-  firstName: z.string().min(2, 'First name must be at least 2 characters'),
-  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address'),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[0-9]/, 'Password must contain at least one number'),
-  confirmPassword: z.string(),
-  acceptTerms: z.boolean().refine((val) => val === true, {
-    message: 'You must accept the terms and conditions',
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
-
-type RegisterFormData = z.infer<typeof registerSchema>;
+type RegisterFormData = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  acceptTerms: boolean;
+};
 
 export function RegisterForm() {
+  const t = useTranslations('auth');
+  const tCommon = useTranslations('common');
   const router = useRouter();
   const { register: registerUser, error: authError } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const registerSchema = useMemo(() => z.object({
+    firstName: z.string().min(2, t('firstNameTooShort')),
+    lastName: z.string().min(2, t('lastNameTooShort')),
+    email: z.string().email(t('invalidEmail')),
+    password: z
+      .string()
+      .min(8, t('passwordTooShort'))
+      .regex(/[A-Z]/, t('passwordUppercase'))
+      .regex(/[a-z]/, t('passwordLowercase'))
+      .regex(/[0-9]/, t('passwordNumber')),
+    confirmPassword: z.string(),
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: t('mustAcceptTerms'),
+    }),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t('passwordsDoNotMatch'),
+    path: ['confirmPassword'],
+  }), [t]);
 
   const {
     register,
@@ -74,10 +84,9 @@ export function RegisterForm() {
         acceptTerms: data.acceptTerms,
       });
 
-      // Redirect to dashboard after successful registration
       router.push('/dashboard');
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Registration failed. Please try again.';
+      const message = err instanceof Error ? err.message : t('registrationError');
       setError(message);
     } finally {
       setIsLoading(false);
@@ -105,11 +114,11 @@ export function RegisterForm() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
+            <Label htmlFor="firstName">{t('firstName')}</Label>
             <Input
               id="firstName"
               type="text"
-              placeholder="John"
+              placeholder={t('firstNamePlaceholder')}
               {...register('firstName')}
               disabled={isLoading}
               className={errors.firstName ? 'border-destructive' : ''}
@@ -124,11 +133,11 @@ export function RegisterForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
+            <Label htmlFor="lastName">{t('lastName')}</Label>
             <Input
               id="lastName"
               type="text"
-              placeholder="Doe"
+              placeholder={t('lastNamePlaceholder')}
               {...register('lastName')}
               disabled={isLoading}
               className={errors.lastName ? 'border-destructive' : ''}
@@ -144,11 +153,11 @@ export function RegisterForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t('email')}</Label>
           <Input
             id="email"
             type="email"
-            placeholder="you@example.com"
+            placeholder={t('emailPlaceholder')}
             {...register('email')}
             disabled={isLoading}
             className={errors.email ? 'border-destructive' : ''}
@@ -164,11 +173,11 @@ export function RegisterForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t('password')}</Label>
           <Input
             id="password"
             type="password"
-            placeholder="Create a strong password"
+            placeholder={t('createPasswordPlaceholder')}
             {...register('password')}
             disabled={isLoading}
             className={errors.password ? 'border-destructive' : ''}
@@ -177,7 +186,7 @@ export function RegisterForm() {
             autoComplete="new-password"
           />
           <p id="password-hint" className="text-xs text-muted-foreground">
-            Must be at least 8 characters with uppercase, lowercase, and number
+            {t('passwordHint')}
           </p>
           {errors.password && (
             <p id="password-error" className="text-sm text-destructive" role="alert">
@@ -187,11 +196,11 @@ export function RegisterForm() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <Label htmlFor="confirmPassword">{t('confirmPassword')}</Label>
           <Input
             id="confirmPassword"
             type="password"
-            placeholder="Re-enter your password"
+            placeholder={t('reenterPasswordPlaceholder')}
             {...register('confirmPassword')}
             disabled={isLoading}
             className={errors.confirmPassword ? 'border-destructive' : ''}
@@ -221,13 +230,13 @@ export function RegisterForm() {
               htmlFor="acceptTerms"
               className="text-sm font-normal leading-relaxed cursor-pointer"
             >
-              I agree to the{' '}
+              {t('iAgreeToThe')}{' '}
               <Link href="/terms" className="text-primary hover:underline">
-                Terms of Service
+                {t('termsOfService')}
               </Link>{' '}
-              and{' '}
+              {t('and')}{' '}
               <Link href="/privacy" className="text-primary hover:underline">
-                Privacy Policy
+                {t('privacyPolicy')}
               </Link>
             </Label>
           </div>
@@ -242,18 +251,18 @@ export function RegisterForm() {
           {isLoading ? (
             <>
               <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />
-              <span>Creating account...</span>
+              <span>{t('creatingAccount')}</span>
             </>
           ) : (
-            'Create Account'
+            t('createAccount')
           )}
         </Button>
       </form>
 
       <div className="text-center text-sm">
-        <span className="text-muted-foreground">Already have an account? </span>
+        <span className="text-muted-foreground">{t('alreadyHaveAccount')} </span>
         <Link href="/login" className="text-primary hover:underline font-medium">
-          Sign in
+          {t('signIn')}
         </Link>
       </div>
     </div>

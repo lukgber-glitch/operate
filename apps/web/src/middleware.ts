@@ -37,6 +37,7 @@ const nonLocalePaths = [
   '/admin',
   '/integrations',
   '/offline',
+  '/auth', // OAuth callback and error pages
 ]
 
 // Public routes that don't require authentication
@@ -46,6 +47,7 @@ const publicRoutes = [
   '/forgot-password',
   '/reset-password',
   '/verify-email',
+  '/auth', // OAuth callback and error pages
 ]
 
 // Routes that require authentication but not onboarding
@@ -76,8 +78,16 @@ const protectedRoutes = [
  * Check if user is authenticated by checking for access token cookie
  */
 function isAuthenticated(request: NextRequest): boolean {
-  const accessToken = request.cookies.get('access_token')
-  return !!accessToken
+  // Check combined op_auth cookie (contains both access and refresh tokens as JSON)
+  const authCookie = request.cookies.get('op_auth')
+  if (!authCookie?.value) return false
+
+  try {
+    const authData = JSON.parse(authCookie.value)
+    return !!authData.a // access token exists
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -112,7 +122,7 @@ function matchesRoute(pathname: string, routes: string[]): boolean {
 }
 
 export default async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname, searchParams } = request.nextUrl
 
   // Skip middleware for API routes, static files, and Next.js internals
   if (
@@ -123,6 +133,46 @@ export default async function middleware(request: NextRequest) {
     pathname.includes('.')
   ) {
     return NextResponse.next()
+  }
+
+  // ============================================
+  // OAuth Callback Handler - Process tokens server-side
+  // ============================================
+  if (pathname === '/auth/callback') {
+    const accessToken = searchParams.get('accessToken')
+    const refreshToken = searchParams.get('refreshToken')
+    const error = searchParams.get('error')
+
+    // Handle OAuth error
+    if (error) {
+      return NextResponse.redirect(new URL(`/auth/error?error=${error}`, request.url))
+    }
+
+    // Handle successful OAuth - set cookies and redirect
+    if (accessToken) {
+      const response = NextResponse.redirect(new URL('/dashboard', request.url))
+
+      // WAF/proxy only allows ONE Set-Cookie header to pass through
+      // Combine both tokens into a single JSON cookie
+      const authData = JSON.stringify({
+        a: accessToken, // access token
+        r: refreshToken || '', // refresh token
+      })
+
+      // Set combined auth cookie (using refresh token's longer expiry)
+      response.cookies.set('op_auth', authData, {
+        path: '/',
+        maxAge: 604800, // 7 days
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: false,
+      })
+
+      return response
+    }
+
+    // No token - redirect to error
+    return NextResponse.redirect(new URL('/auth/error?error=no_token', request.url))
   }
 
   // Check if this is a non-locale path (app router path)

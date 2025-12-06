@@ -1,13 +1,23 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+
 import { RegisterForm } from '@/components/auth/register-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { LanguageSelector } from '@/components/auth/language-selector';
 
 export default function RegisterPage() {
+  const t = useTranslations('auth');
+
   return (
     <Card className="w-full">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-2xl font-bold">{t('registerTitle') || 'Create an account'}</CardTitle>
+          <LanguageSelector />
+        </div>
         <CardDescription>
-          Enter your information to get started with Operate
+          {t('registerDescription') || 'Enter your information to get started with Operate'}
         </CardDescription>
       </CardHeader>
       <CardContent>

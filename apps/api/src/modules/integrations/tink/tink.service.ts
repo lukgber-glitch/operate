@@ -47,6 +47,8 @@ export class TinkService {
   private readonly encryptionKey: string;
   private readonly rateLimitInfo: Map<string, TinkRateLimitInfo> = new Map();
   private readonly isConfigured: boolean = false;
+  private clientAccessToken: string | null = null;
+  private clientTokenExpiresAt: Date | null = null;
 
   constructor(
     private readonly configService: ConfigService,
@@ -506,14 +508,27 @@ export class TinkService {
    * Get available providers (banks)
    */
   async getProviders(market: string = 'DE'): Promise<TinkProvider[]> {
+    if (!this.isConfigured) {
+      throw new BadRequestException('Tink service is not configured. Please configure TINK_CLIENT_ID and TINK_CLIENT_SECRET environment variables.');
+    }
+
     try {
       // Mock mode
       if (this.config.mockMode) {
         return TinkMockDataUtil.generateMockProviders();
       }
 
-      const response = await this.httpClient.get('/api/v1/providers', {
-        params: { market },
+      // Get client access token for server-to-server calls
+      const accessToken = await this.getClientAccessToken();
+
+      // Use /api/v1/providers/{market} endpoint which requires providers:read scope
+      // Include test providers for sandbox mode
+      const isSandbox = this.config.environment === 'sandbox';
+      const response = await this.httpClient.get(`/api/v1/providers/${market}`, {
+        params: isSandbox ? { includeTestProviders: true } : undefined,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
 
       return response.data.providers || [];
@@ -524,6 +539,54 @@ export class TinkService {
   }
 
   // ==================== PRIVATE METHODS ====================
+
+  /**
+   * Get client access token for server-to-server API calls
+   * Uses OAuth2 client_credentials grant
+   */
+  private async getClientAccessToken(): Promise<string> {
+    // Check if we have a valid cached token (with 5 minute buffer)
+    if (
+      this.clientAccessToken &&
+      this.clientTokenExpiresAt &&
+      this.clientTokenExpiresAt.getTime() - Date.now() > 5 * 60 * 1000
+    ) {
+      return this.clientAccessToken;
+    }
+
+    this.logger.debug('Fetching new client access token...');
+
+    try {
+      const response = await this.httpClient.post(
+        '/api/v1/oauth/token',
+        new URLSearchParams({
+          grant_type: 'client_credentials',
+          client_id: this.config.clientId,
+          client_secret: this.config.clientSecret,
+          scope: 'accounts:read,balances:read,transactions:read,credentials:read,providers:read,user:create,authorization:grant',
+        }).toString(),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        },
+      );
+
+      this.clientAccessToken = response.data.access_token;
+      const expiresIn = response.data.expires_in || 3600;
+      this.clientTokenExpiresAt = new Date(Date.now() + expiresIn * 1000);
+
+      this.logger.debug(`Client access token obtained, expires in ${expiresIn}s`);
+
+      return this.clientAccessToken;
+    } catch (error: any) {
+      this.logger.error('Failed to get client access token', {
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+      throw new ServiceUnavailableException('Failed to authenticate with Tink API');
+    }
+  }
 
   /**
    * Generate PKCE challenge

@@ -21,33 +21,33 @@ export default function DashboardPage() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Employees"
-          value="156"
-          change="+12"
-          changeLabel="from last month"
+          value="0"
+          change=""
+          changeLabel="No data yet"
           icon={Users}
           trend="up"
         />
         <StatCard
           title="Active Documents"
-          value="2,847"
-          change="+156"
-          changeLabel="from last month"
+          value="0"
+          change=""
+          changeLabel="No data yet"
           icon={FileText}
           trend="up"
         />
         <StatCard
           title="Monthly Revenue"
-          value="€45,231"
-          change="+8.2%"
-          changeLabel="from last month"
+          value="€0"
+          change=""
+          changeLabel="No data yet"
           icon={CreditCard}
           trend="up"
         />
         <StatCard
           title="Completion Rate"
-          value="94.5%"
-          change="+2.1%"
-          changeLabel="from last month"
+          value="0%"
+          change=""
+          changeLabel="No data yet"
           icon={CheckCircle2}
           trend="up"
         />
@@ -94,26 +94,10 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4" role="feed" aria-label="Recent activity feed">
-            <ActivityItem
-              title="New employee onboarded"
-              description="Sarah Johnson joined the team"
-              time="2 hours ago"
-            />
-            <ActivityItem
-              title="Invoice approved"
-              description="Invoice #INV-2024-0123 approved"
-              time="5 hours ago"
-            />
-            <ActivityItem
-              title="Document uploaded"
-              description="Q4 2024 Financial Report"
-              time="1 day ago"
-            />
-            <ActivityItem
-              title="Tax filing completed"
-              description="VAT return submitted successfully"
-              time="2 days ago"
-            />
+            <div className="text-center py-8 text-muted-foreground">
+              <p>No recent activity</p>
+              <p className="text-sm">Your activity will appear here</p>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -127,31 +111,9 @@ export default function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4" role="list" aria-label="Upcoming tasks">
-            <TaskItem
-              title="VAT Filing Deadline"
-              description="Submit monthly VAT return"
-              dueDate="In 3 days"
-              priority="high"
-            />
-            <TaskItem
-              title="Quarterly Review"
-              description="Review Q1 financial statements"
-              dueDate="In 5 days"
-              priority="medium"
-            />
-            <TaskItem
-              title="Employee Contracts"
-              description="Renew 5 employee contracts"
-              dueDate="In 1 week"
-              priority="medium"
-            />
-            <TaskItem
-              title="Expense Reports"
-              description="Review and approve pending expense reports"
-              dueDate="In 2 weeks"
-              priority="low"
-            />
+          <div className="text-center py-8 text-muted-foreground">
+            <p>No upcoming tasks</p>
+            <p className="text-sm">Your tasks will appear here</p>
           </div>
         </CardContent>
       </Card>
@@ -182,74 +144,14 @@ function StatCard({ title, value, change, changeLabel, icon: Icon, trend }: Stat
           {value}
         </div>
         <p className="mt-1 flex items-center text-xs text-slate-600 dark:text-slate-400">
-          <span className={trend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-            {change}
-          </span>
-          <span className="ml-1">{changeLabel}</span>
+          {change && (
+            <span className={trend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+              {change}
+            </span>
+          )}
+          <span className={change ? 'ml-1' : ''}>{changeLabel}</span>
         </p>
       </CardContent>
     </Card>
-  )
-}
-
-interface ActivityItemProps {
-  title: string
-  description: string
-  time: string
-}
-
-function ActivityItem({ title, description, time }: ActivityItemProps) {
-  return (
-    <article className="flex items-start gap-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 last:pb-0">
-      <div className="flex h-2 w-2 mt-2 rounded-full bg-blue-600 dark:bg-blue-400 flex-shrink-0" aria-hidden="true" />
-      <div className="flex-1 min-w-0 space-y-1">
-        <h3 className="text-sm font-medium text-slate-900 dark:text-white">
-          {title}
-        </h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          {description}
-        </p>
-      </div>
-      <time className="text-xs text-slate-500 dark:text-slate-500 whitespace-nowrap">
-        {time}
-      </time>
-    </article>
-  )
-}
-
-interface TaskItemProps {
-  title: string
-  description: string
-  dueDate: string
-  priority: 'high' | 'medium' | 'low'
-}
-
-function TaskItem({ title, description, dueDate, priority }: TaskItemProps) {
-  const priorityColors = {
-    high: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    medium: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-    low: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400',
-  }
-
-  return (
-    <div role="listitem" className="flex items-start justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 last:pb-0">
-      <div className="flex-1 min-w-0 space-y-1">
-        <div className="flex items-center gap-2">
-          <h3 className="text-sm font-medium text-slate-900 dark:text-white">
-            {title}
-          </h3>
-          <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${priorityColors[priority]}`} aria-label={`Priority: ${priority}`}>
-            {priority}
-          </span>
-        </div>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          {description}
-        </p>
-      </div>
-      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-500 whitespace-nowrap">
-        <TrendingUp className="h-3 w-3" aria-hidden="true" />
-        <time>{dueDate}</time>
-      </div>
-    </div>
   )
 }
