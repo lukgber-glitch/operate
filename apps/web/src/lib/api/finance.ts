@@ -228,19 +228,14 @@ class FinanceApi {
   private baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
   /**
-   * Get organisation ID from JWT token payload
-   * The orgId is stored in the JWT which is in HTTP-only cookies
-   * For now, we'll use a placeholder - this should be replaced with actual orgId from context
+   * Get organisation ID from auth context
+   * The orgId is set in window.__orgId by the useAuth hook when user authenticates
    */
   private getOrgId(): string {
-    // TODO: Get orgId from auth context/state
-    // For now, we'll try to get it from a global window object set by auth
     if (typeof window !== 'undefined' && (window as any).__orgId) {
       return (window as any).__orgId;
     }
-    // Fallback to a default orgId for development
-    // In production, this should throw an error if orgId is not available
-    return 'default-org-id';
+    throw new Error('Organisation ID not available. Please ensure you are logged in.');
   }
 
   private async request<T>(

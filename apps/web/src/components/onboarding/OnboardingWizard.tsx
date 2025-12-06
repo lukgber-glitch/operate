@@ -36,7 +36,7 @@ const onboardingSchema = z.object({
       city: z.string().min(1, 'City is required'),
       state: z.string().optional(),
     }),
-    businessEmail: z.string().email('Invalid email format'),
+    businessEmail: z.string().min(1, 'Business email is required').email('Invalid email format'),
     businessPhone: z.string().min(1, 'Business phone is required'),
     website: z.string().url('Invalid URL format').optional().or(z.literal('')),
     fiscalYearStart: z.string().min(1, 'Fiscal year start is required'),
