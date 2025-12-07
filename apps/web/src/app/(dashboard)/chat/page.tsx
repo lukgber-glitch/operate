@@ -7,6 +7,7 @@ import { useConversationHistory } from '@/hooks/use-conversation-history';
 import { useBankAccounts, useBankTransactions } from '@/hooks/use-banking';
 import { useInvoices } from '@/hooks/use-invoices';
 import { useCurrencyFormat } from '@/hooks/use-currency-format';
+import { useAIConsent } from '@/hooks/useAIConsent';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 import { ExtractionReviewStatus } from '@/types/extracted-invoice';
 import { useRef, useEffect, useState } from 'react';
@@ -15,9 +16,11 @@ import { cn } from '@/lib/utils';
 import { ChatMessage } from '@/components/chat/ChatMessage';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { SuggestionCard } from '@/components/chat/SuggestionCard';
-import { Mail, Building2, Calendar, Mic, History, Loader2 } from 'lucide-react';
+import { AIConsentDialog } from '@/components/consent/AIConsentDialog';
+import { Mail, Building2, Calendar, Mic, History, Loader2, Brain, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { listExtractedInvoices } from '@/lib/api/extracted-invoices';
 
 /**
@@ -45,9 +48,20 @@ export default function ChatPage() {
     updateMessage,
   } = useConversationHistory();
 
+  // AI Consent Management
+  const {
+    hasConsent,
+    needsConsent,
+    isLoading: consentLoading,
+    giveConsent,
+    revokeConsent,
+  } = useAIConsent();
+
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showConsentDialog, setShowConsentDialog] = useState(false);
+  const [attemptedMessage, setAttemptedMessage] = useState<string | null>(null);
 
   // Fetch real data from APIs
   const { accounts, fetchBankAccounts, isLoading: accountsLoading } = useBankAccounts();
@@ -114,6 +128,13 @@ export default function ChatPage() {
 
   // Handle sending a message
   const handleSendMessage = async (content: string) => {
+    // Check for AI consent before sending
+    if (needsConsent || !hasConsent) {
+      setAttemptedMessage(content);
+      setShowConsentDialog(true);
+      return;
+    }
+
     // Create or get conversation
     let conversationId = activeConversationId;
     if (!conversationId) {
@@ -218,6 +239,25 @@ export default function ChatPage() {
     handleSendMessage(suggestion.title);
   };
 
+  // Handle AI consent acceptance
+  const handleConsentAccept = async () => {
+    const success = await giveConsent();
+    if (success) {
+      setShowConsentDialog(false);
+      // If there was an attempted message, send it now
+      if (attemptedMessage) {
+        handleSendMessage(attemptedMessage);
+        setAttemptedMessage(null);
+      }
+    }
+  };
+
+  // Handle AI consent decline
+  const handleConsentDecline = () => {
+    setShowConsentDialog(false);
+    setAttemptedMessage(null);
+  };
+
   // Get top 3 suggestions for the suggestions bar
   const topSuggestions = suggestions.slice(0, 3);
   const hasMessages = messages.length > 0;
@@ -253,38 +293,69 @@ export default function ChatPage() {
   const isLoadingData = accountsLoading || transactionsLoading || invoicesLoading || extractedLoading;
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col overflow-hidden">
-      {/* Main Content Area */}
-      <ScrollArea className="flex-1">
-        <div
-          className="mx-auto px-4 py-6 md:py-8"
-          style={{
-            maxWidth: '800px',
-            minHeight: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          {/* Welcome Section */}
-          <div className="text-center mb-6 md:mb-8">
-            <h1
-              className="font-semibold mb-2"
-              style={{
-                fontSize: 'var(--font-size-3xl)',
-                color: 'var(--color-text-primary)',
-              }}
-            >
-              {getGreeting()}, {user?.firstName || 'there'}!
-            </h1>
-            <p
-              style={{
-                fontSize: 'var(--font-size-base)',
-                color: 'var(--color-text-secondary)',
-              }}
-            >
-              How can I help you manage your business today?
-            </p>
-          </div>
+    <>
+      {/* AI Consent Dialog */}
+      <AIConsentDialog
+        open={showConsentDialog}
+        onOpenChange={setShowConsentDialog}
+        onAccept={handleConsentAccept}
+        onDecline={handleConsentDecline}
+        isLoading={consentLoading}
+      />
+
+      <div className="h-[calc(100vh-4rem)] flex flex-col overflow-hidden">
+        {/* Main Content Area */}
+        <ScrollArea className="flex-1">
+          <div
+            className="mx-auto px-4 py-6 md:py-8"
+            style={{
+              maxWidth: '800px',
+              minHeight: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {/* Welcome Section */}
+            <div className="text-center mb-6 md:mb-8">
+              <h1
+                className="font-semibold mb-2"
+                style={{
+                  fontSize: 'var(--font-size-3xl)',
+                  color: 'var(--color-text-primary)',
+                }}
+              >
+                {getGreeting()}, {user?.firstName || 'there'}!
+              </h1>
+              <p
+                style={{
+                  fontSize: 'var(--font-size-base)',
+                  color: 'var(--color-text-secondary)',
+                }}
+              >
+                How can I help you manage your business today?
+              </p>
+            </div>
+
+            {/* AI Consent Warning */}
+            {!consentLoading && !hasConsent && (
+              <Alert className="mb-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="flex items-center justify-between">
+                  <span>
+                    AI features are disabled. Enable AI processing to use the chat assistant.
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowConsentDialog(true)}
+                    className="ml-4"
+                  >
+                    <Brain className="h-4 w-4 mr-2" />
+                    Enable AI
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
 
           {/* Chat Messages Area */}
           <div
@@ -612,14 +683,19 @@ export default function ChatPage() {
           {/* Chat Input with placeholders */}
           <ChatInput
             onSend={handleSendMessage}
-            disabled={isLoading}
+            disabled={isLoading || !hasConsent}
             isLoading={isLoading}
-            placeholder="Ask anything about your business..."
+            placeholder={
+              hasConsent
+                ? "Ask anything about your business..."
+                : "Enable AI to use chat features..."
+            }
             showAttachment={true}
             showVoice={true}
           />
         </div>
       </div>
     </div>
+    </>
   );
 }

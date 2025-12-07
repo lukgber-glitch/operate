@@ -378,13 +378,13 @@ export function DocumentViewer({ isOpen, onClose, document }: DocumentViewerProp
   // Prevent body scroll when open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      window.document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = '';
+      window.document.body.style.overflow = '';
     }
 
     return () => {
-      document.body.style.overflow = '';
+      window.document.body.style.overflow = '';
     };
   }, [isOpen]);
 

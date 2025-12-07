@@ -3,6 +3,7 @@
 import { ReactNode } from 'react'
 
 import { ThemeProvider } from '@/components/theme-provider'
+import { NativeProvider } from './NativeProvider'
 
 import { QueryProvider } from './query-provider'
 
@@ -17,7 +18,9 @@ export function Providers({ children }: { children: ReactNode }) {
         disableTransitionOnChange={false}
         storageKey="operate-theme"
       >
-        {children}
+        <NativeProvider>
+          {children}
+        </NativeProvider>
       </ThemeProvider>
     </QueryProvider>
   )

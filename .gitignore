@@ -46,3 +46,10 @@ uploads/
 # Deployment artifacts
 *.tar.gz
 pnpm-lock.yaml
+
+# Large build artifacts
+*.tar.gz
+web-deploy.tar.gz
+api-src-complete.tar.gz
+api-update.tar.gz
+web-build.tar.gz

@@ -18,37 +18,87 @@
       "src": "/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "maskable any"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-    "shortcuts": [
+  "shortcuts": [
     {
       "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "View your business dashboard and key metrics",
-      "url": "/dashboard"
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/icon.svg",
+          "sizes": "any"
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "short_name": "Chat",
+      "description": "AI-powered business assistant",
+      "url": "/chat",
+      "icons": [
+        {
+          "src": "/icon.svg",
+          "sizes": "any"
+        }
+      ]
     },
     {
       "name": "Invoices",
       "short_name": "Invoices",
       "description": "Manage and create invoices",
-      "url": "/invoices"
+      "url": "/finance/invoices",
+      "icons": [
+        {
+          "src": "/icon.svg",
+          "sizes": "any"
+        }
+      ]
     },
     {
       "name": "Tax",
       "short_name": "Tax",
       "description": "Access tax compliance and reporting tools",
-      "url": "/tax"
-    },
-    {
-      "name": "Receipts",
-      "short_name": "Receipts",
-      "description": "Scan and manage receipts",
-      "url": "/receipts"
+      "url": "/tax",
+      "icons": [
+        {
+          "src": "/icon.svg",
+          "sizes": "any"
+        }
+      ]
     }
   ],
   "prefer_related_applications": false,
   "related_applications": [],
   "lang": "en-US",
-  "dir": "ltr"
+  "dir": "ltr",
+  "screenshots": [],
+  "iarc_rating_id": ""
 }

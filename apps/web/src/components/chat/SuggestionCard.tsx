@@ -53,7 +53,7 @@ function extractEntityReference(suggestion: Suggestion): EntityReference {
   if (suggestion.actionUrl) {
     // Parse actionUrl to extract entity type and ID
     const urlMatch = suggestion.actionUrl.match(/\/(invoices|customers|expenses|bills|hr\/employees)\/([^/?]+)/);
-    if (urlMatch) {
+    if (urlMatch && urlMatch[1] && urlMatch[2]) {
       const type = urlMatch[1] === 'hr/employees' ? 'employee' : urlMatch[1].slice(0, -1) as EntityReference['type'];
       return {
         type,
@@ -70,8 +70,8 @@ function extractEntityReference(suggestion: Suggestion): EntityReference {
 
   for (const [type, pattern] of Object.entries(entityPatterns)) {
     const match = combinedText.match(pattern);
-    if (match) {
-      const id = match[1];
+    if (match && match[1]) {
+      const id: string = match[1];
       let url: string;
 
       switch (type) {

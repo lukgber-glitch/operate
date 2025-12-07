@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * ELSTER VAT Return Wizard Hook
  * Manages wizard state, data fetching, and submission logic

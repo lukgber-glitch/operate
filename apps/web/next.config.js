@@ -1,6 +1,7 @@
 const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
+  // Disable PWA in development AND when running inside Capacitor native app
+  disable: process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_IS_CAPACITOR === 'true',
   register: true,
   skipWaiting: true,
   scope: '/',
@@ -10,7 +11,13 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   },
   workboxOptions: {
     disableDevLogs: true,
+    // Exclude auth and sensitive endpoints from caching
+    navigateFallbackDenylist: [
+      /^\/api\/auth\/.*/,
+      /^\/auth\/.*/,
+    ],
     runtimeCaching: [
+      // Google Fonts - Cache First (rarely changes)
       {
         urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
         handler: 'CacheFirst',
@@ -18,10 +25,11 @@ const withPWA = require('@ducanh2912/next-pwa').default({
           cacheName: 'google-fonts',
           expiration: {
             maxEntries: 4,
-            maxAgeSeconds: 365 * 24 * 60 * 60,
+            maxAgeSeconds: 365 * 24 * 60 * 60, // 1 year
           },
         },
       },
+      // Font files - Stale While Revalidate
       {
         urlPattern: /\.(?:eot|otf|ttc|ttf|woff|woff2|font.css)$/i,
         handler: 'StaleWhileRevalidate',
@@ -29,10 +37,11 @@ const withPWA = require('@ducanh2912/next-pwa').default({
           cacheName: 'static-font-assets',
           expiration: {
             maxEntries: 4,
-            maxAgeSeconds: 7 * 24 * 60 * 60,
+            maxAgeSeconds: 7 * 24 * 60 * 60, // 1 week
           },
         },
       },
+      // Images - Stale While Revalidate
       {
         urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
         handler: 'StaleWhileRevalidate',
@@ -40,10 +49,11 @@ const withPWA = require('@ducanh2912/next-pwa').default({
           cacheName: 'static-image-assets',
           expiration: {
             maxEntries: 64,
-            maxAgeSeconds: 24 * 60 * 60,
+            maxAgeSeconds: 24 * 60 * 60, // 1 day
           },
         },
       },
+      // Next.js Image Optimization - Stale While Revalidate
       {
         urlPattern: /\/_next\/image\?url=.+$/i,
         handler: 'StaleWhileRevalidate',
@@ -51,10 +61,11 @@ const withPWA = require('@ducanh2912/next-pwa').default({
           cacheName: 'next-image',
           expiration: {
             maxEntries: 64,
-            maxAgeSeconds: 24 * 60 * 60,
+            maxAgeSeconds: 24 * 60 * 60, // 1 day
           },
         },
       },
+      // JavaScript - Stale While Revalidate
       {
         urlPattern: /\.(?:js)$/i,
         handler: 'StaleWhileRevalidate',
@@ -62,10 +73,11 @@ const withPWA = require('@ducanh2912/next-pwa').default({
           cacheName: 'static-js-assets',
           expiration: {
             maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60,
+            maxAgeSeconds: 24 * 60 * 60, // 1 day
           },
         },
       },
+      // CSS - Stale While Revalidate
       {
         urlPattern: /\.(?:css|less)$/i,
         handler: 'StaleWhileRevalidate',
@@ -73,25 +85,51 @@ const withPWA = require('@ducanh2912/next-pwa').default({
           cacheName: 'static-style-assets',
           expiration: {
             maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60,
+            maxAgeSeconds: 24 * 60 * 60, // 1 day
           },
         },
       },
+      // API routes - Network First with cache fallback
+      // Skip auth endpoints entirely (handled by navigateFallbackDenylist)
       {
-        urlPattern: /^https:\/\/api\..*\/.*/i,
+        urlPattern: ({ url }) => {
+          // Only cache non-auth API calls
+          return url.pathname.startsWith('/api/') &&
+                 !url.pathname.startsWith('/api/auth/') &&
+                 !url.pathname.includes('/login') &&
+                 !url.pathname.includes('/logout') &&
+                 !url.pathname.includes('/register');
+        },
         handler: 'NetworkFirst',
         options: {
           cacheName: 'api-cache',
           networkTimeoutSeconds: 10,
           expiration: {
             maxEntries: 128,
-            maxAgeSeconds: 24 * 60 * 60,
+            maxAgeSeconds: 60 * 60, // 1 hour (shorter for API data)
           },
           cacheableResponse: {
             statuses: [0, 200],
           },
         },
       },
+      // External API calls - Network First with cache fallback
+      {
+        urlPattern: /^https:\/\/.*\/api\/.*/i,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'external-api-cache',
+          networkTimeoutSeconds: 10,
+          expiration: {
+            maxEntries: 64,
+            maxAgeSeconds: 60 * 60, // 1 hour
+          },
+          cacheableResponse: {
+            statuses: [0, 200],
+          },
+        },
+      },
+      // Everything else - Network First
       {
         urlPattern: /.*/i,
         handler: 'NetworkFirst',
@@ -100,7 +138,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
           networkTimeoutSeconds: 10,
           expiration: {
             maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60,
+            maxAgeSeconds: 24 * 60 * 60, // 1 day
           },
           cacheableResponse: {
             statuses: [0, 200],

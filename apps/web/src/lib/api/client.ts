@@ -1,9 +1,15 @@
 /**
  * Base API Client
  * Provides a generic HTTP client for making API requests
+ *
+ * SECURITY:
+ * - Supports SSL certificate pinning for mobile apps (iOS/Android)
+ * - Uses standard fetch for web browsers
+ * - Certificate pinning prevents MITM attacks on mobile devices
  */
 
 import { ApiErrorHandler } from './error-handler';
+import { pinnedFetch } from '../security/pinned-fetch';
 
 export interface ApiResponse<T> {
   data: T;
@@ -37,7 +43,8 @@ class ApiClient {
     try {
       const url = endpoint.startsWith('http') ? endpoint : `${this.baseUrl}${endpoint}`;
 
-      const response = await fetch(url, {
+      // Use pinned fetch (falls back to standard fetch on web)
+      const response = await pinnedFetch(url, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
@@ -89,7 +96,8 @@ class ApiClient {
     try {
       const url = endpoint.startsWith('http') ? endpoint : `${this.baseUrl}${endpoint}`;
 
-      const response = await fetch(url, {
+      // Use pinned fetch (falls back to standard fetch on web)
+      const response = await pinnedFetch(url, {
         ...options,
         credentials: 'include',
       });
