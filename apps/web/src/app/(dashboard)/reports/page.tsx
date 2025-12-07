@@ -8,7 +8,8 @@ import { DocumentStats } from '@/components/reports/DocumentStats';
 import { FinancialOverview } from '@/components/reports/FinancialOverview';
 import { TaxSummary } from '@/components/reports/TaxSummary';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import {
   Select,
   SelectContent,
@@ -60,12 +61,9 @@ export default function ReportsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Reports</h1>
-          <p className="text-muted-foreground">
-            Generate and export business reports and analytics
-          </p>
-        </div>
+        <HeadlineOutside subtitle="Generate and export business reports and analytics">
+          Reports
+        </HeadlineOutside>
 
         <div className="flex gap-2">
           <Select value={dateRange} onValueChange={setDateRange}>
@@ -86,7 +84,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Export Actions */}
-      <Card className="p-4">
+      <AnimatedCard variant="elevated" padding="lg">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-sm font-medium">Export Options</p>
@@ -128,7 +126,7 @@ export default function ReportsPage() {
             </Button>
           </div>
         </div>
-      </Card>
+      </AnimatedCard>
 
       {/* Report Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -142,20 +140,20 @@ export default function ReportsPage() {
         {/* Financial Report Tab */}
         <TabsContent value="financial" className="space-y-4">
           {isLoading || !financial.data ? (
-            <Card className="p-12">
-              <div className="flex items-center justify-center">
+            <AnimatedCard variant="elevated" padding="lg">
+              <div className="flex items-center justify-center py-12">
                 <div className="text-center">
                   <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
                   <p className="text-sm text-muted-foreground">Loading financial report...</p>
                 </div>
               </div>
-            </Card>
+            </AnimatedCard>
           ) : financial.isError ? (
-            <Card className="p-12">
-              <div className="text-center">
+            <AnimatedCard variant="elevated" padding="lg">
+              <div className="text-center py-12">
                 <p className="text-sm text-red-600">Failed to load financial report</p>
               </div>
-            </Card>
+            </AnimatedCard>
           ) : (
             <FinancialOverview data={financial.data} />
           )}
@@ -164,20 +162,20 @@ export default function ReportsPage() {
         {/* Tax Report Tab */}
         <TabsContent value="tax" className="space-y-4">
           {isLoading || !tax.data ? (
-            <Card className="p-12">
-              <div className="flex items-center justify-center">
+            <AnimatedCard variant="elevated" padding="lg">
+              <div className="flex items-center justify-center py-12">
                 <div className="text-center">
                   <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
                   <p className="text-sm text-muted-foreground">Loading tax report...</p>
                 </div>
               </div>
-            </Card>
+            </AnimatedCard>
           ) : tax.isError ? (
-            <Card className="p-12">
-              <div className="text-center">
+            <AnimatedCard variant="elevated" padding="lg">
+              <div className="text-center py-12">
                 <p className="text-sm text-red-600">Failed to load tax report</p>
               </div>
-            </Card>
+            </AnimatedCard>
           ) : (
             <TaxSummary data={tax.data} />
           )}
@@ -186,20 +184,20 @@ export default function ReportsPage() {
         {/* Client Metrics Tab */}
         <TabsContent value="clients" className="space-y-4">
           {isLoading || !clients.data ? (
-            <Card className="p-12">
-              <div className="flex items-center justify-center">
+            <AnimatedCard variant="elevated" padding="lg">
+              <div className="flex items-center justify-center py-12">
                 <div className="text-center">
                   <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
                   <p className="text-sm text-muted-foreground">Loading client metrics...</p>
                 </div>
               </div>
-            </Card>
+            </AnimatedCard>
           ) : clients.isError ? (
-            <Card className="p-12">
-              <div className="text-center">
+            <AnimatedCard variant="elevated" padding="lg">
+              <div className="text-center py-12">
                 <p className="text-sm text-red-600">Failed to load client metrics</p>
               </div>
-            </Card>
+            </AnimatedCard>
           ) : (
             <ClientMetrics data={clients.data} />
           )}
@@ -208,20 +206,20 @@ export default function ReportsPage() {
         {/* Document Stats Tab */}
         <TabsContent value="documents" className="space-y-4">
           {isLoading || !documents.data ? (
-            <Card className="p-12">
-              <div className="flex items-center justify-center">
+            <AnimatedCard variant="elevated" padding="lg">
+              <div className="flex items-center justify-center py-12">
                 <div className="text-center">
                   <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
                   <p className="text-sm text-muted-foreground">Loading document statistics...</p>
                 </div>
               </div>
-            </Card>
+            </AnimatedCard>
           ) : documents.isError ? (
-            <Card className="p-12">
-              <div className="text-center">
+            <AnimatedCard variant="elevated" padding="lg">
+              <div className="text-center py-12">
                 <p className="text-sm text-red-600">Failed to load document statistics</p>
               </div>
-            </Card>
+            </AnimatedCard>
           ) : (
             <DocumentStats data={documents.data} />
           )}

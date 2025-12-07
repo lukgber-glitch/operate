@@ -16,9 +16,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Separator } from '@/components/ui/separator';
 
 // Placeholder data
@@ -83,53 +85,49 @@ export default function DeductionDetailPage({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/tax/deductions">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {deductionData.id}
-            </h1>
-            <p className="text-muted-foreground">Tax deduction details</p>
+      <HeadlineOutside
+        subtitle="Tax deduction details"
+        actions={
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/tax/deductions">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+            <div className="flex gap-2">
+              {status === 'pending' && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={handleApprove}
+                    disabled={isLoading}
+                  >
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Approve
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleReject}
+                    disabled={isLoading}
+                  >
+                    <XCircle className="mr-2 h-4 w-4" />
+                    Reject
+                  </Button>
+                </>
+              )}
+              <Button variant="outline" asChild>
+                <Link href={`/tax/deductions/${params.id}/edit`}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </Link>
+              </Button>
+            </div>
           </div>
-        </div>
+        }
+      >
+        {deductionData.id}
+      </HeadlineOutside>
 
-        <div className="flex gap-2">
-          {status === 'pending' && (
-            <>
-              <Button
-                variant="outline"
-                onClick={handleApprove}
-                disabled={isLoading}
-              >
-                <CheckCircle2 className="mr-2 h-4 w-4" />
-                Approve
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleReject}
-                disabled={isLoading}
-              >
-                <XCircle className="mr-2 h-4 w-4" />
-                Reject
-              </Button>
-            </>
-          )}
-          <Button variant="outline" asChild>
-            <Link href={`/tax/deductions/${params.id}/edit`}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      {/* Status Badge */}
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Status:</span>
         <Badge
@@ -140,7 +138,8 @@ export default function DeductionDetailPage({
         </Badge>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Deduction Details */}
@@ -382,7 +381,8 @@ export default function DeductionDetailPage({
             </CardContent>
           </Card>
         </div>
-      </div>
+        </div>
+      </AnimatedCard>
     </div>
   );
 }

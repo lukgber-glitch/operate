@@ -14,7 +14,8 @@ import { NotificationItem } from '@/components/notifications/NotificationItem'
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { AnimatedCard } from '@/components/ui/animated-card'
+import { HeadlineOutside } from '@/components/ui/headline-outside'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -95,14 +96,11 @@ export default function NotificationsPage() {
 
   if (activeTab === 'preferences') {
     return (
-      <div className="container max-w-4xl py-8">
+      <div className="space-y-6">
         <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Notification Settings</h1>
-            <p className="text-muted-foreground">
-              Manage how you receive notifications
-            </p>
-          </div>
+          <HeadlineOutside subtitle="Manage how you receive notifications">
+            Notification Settings
+          </HeadlineOutside>
           <Button variant="outline" onClick={() => setActiveTab('all')}>
             Back to Notifications
           </Button>
@@ -113,17 +111,14 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="container max-w-6xl py-8">
+    <div className="space-y-6">
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Notifications</h1>
-          <p className="text-muted-foreground">
-            {unreadCount > 0
+        <HeadlineOutside subtitle={unreadCount > 0
               ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`
-              : 'All caught up!'}
-          </p>
-        </div>
+              : 'All caught up!'}>
+          Notifications
+        </HeadlineOutside>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setActiveTab('preferences')}>
             <Settings className="mr-2 h-4 w-4" />
@@ -138,8 +133,8 @@ export default function NotificationsPage() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-6">
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
             <TabsList>
@@ -215,9 +210,8 @@ export default function NotificationsPage() {
               </div>
             </div>
           )}
-        </CardHeader>
 
-        <CardContent>
+          <div>
           {/* Notification list */}
           {paginatedNotifications.length === 0 ? (
             <div className="py-16 text-center">
@@ -294,8 +288,9 @@ export default function NotificationsPage() {
               )}
             </>
           )}
-        </CardContent>
-      </Card>
+          </div>
+        </div>
+      </AnimatedCard>
     </div>
   )
 }

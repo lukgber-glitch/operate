@@ -24,6 +24,8 @@ import { USJurisdictionSelector } from '@/components/tax/USJurisdictionSelector'
 import { TaxRateDisplay } from '@/components/tax/TaxRateDisplay';
 import { TaxBreakdownCard } from '@/components/tax/TaxBreakdownCard';
 import { useUSTax, type TaxAddress } from '@/hooks/useUSTax';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 
 export default function TaxSettingsPage() {
   const [selectedAddress, setSelectedAddress] = useState<TaxAddress | null>(null);

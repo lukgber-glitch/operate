@@ -7,11 +7,14 @@ import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { ExpenseBreakdown } from '@/components/dashboard/ExpenseBreakdown';
 import { UpcomingItems } from '@/components/dashboard/UpcomingItems';
 import { QuickActions } from '@/components/dashboard/QuickActions';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <HeadlineOutside subtitle="Overview of your business metrics and activities">
+        Dashboard
+      </HeadlineOutside>
 
       {/* Top row: Key metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

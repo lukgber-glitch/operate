@@ -4,8 +4,9 @@ import { FileText, ShieldCheck, Globe, Upload, Key, CheckCircle2, XCircle } from
 import * as React from 'react'
 import { useFormContext } from 'react-hook-form'
 
+import { AnimatedCard } from '@/components/ui/animated-card'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { HeadlineOutside } from '@/components/ui/headline-outside'
 import { TaxIntegrationCard } from './TaxIntegrationCard'
 
 export type TaxAuthType = 'oauth' | 'certificate' | 'apiKey' | 'credentials'
@@ -291,15 +292,11 @@ export function TaxSoftwareStep() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Connect Tax Software</CardTitle>
-          <CardDescription>
-            Connect to your tax filing system to automate VAT returns, tax submissions, and
-            compliance reporting. This step is optional but highly recommended for tax automation.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <HeadlineOutside subtitle="Connect to your tax filing system to automate VAT returns, tax submissions, and compliance reporting. This step is optional but highly recommended for tax automation.">
+        Connect Tax Software
+      </HeadlineOutside>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-6">
           {connectedTax && connectedIntegration ? (
             // Connected State
             <div className="space-y-4">
@@ -479,8 +476,8 @@ export function TaxSoftwareStep() {
               </div>
             </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
     </div>
   )
 }

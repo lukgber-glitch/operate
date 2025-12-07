@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AnimatedCard } from '@/components/ui/animated-card'
+import { HeadlineOutside } from '@/components/ui/headline-outside'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -95,15 +96,11 @@ export function CompanyInfoStep() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Company Information</CardTitle>
-          <CardDescription>
-            Tell us about your business. This information will be used to set up your account and
-            configure country-specific tax settings.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <HeadlineOutside subtitle="Tell us about your business. This information will be used to set up your account and configure country-specific tax settings.">
+        Company Information
+      </HeadlineOutside>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-4">
           {/* Company Name */}
           <div className="space-y-2">
             <Label htmlFor="companyName">
@@ -434,8 +431,8 @@ export function CompanyInfoStep() {
               </Label>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
     </div>
   )
 }

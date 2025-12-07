@@ -18,7 +18,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import {
   Dialog,
   DialogContent,
@@ -188,7 +189,6 @@ export default function InvoiceDetailPage({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
@@ -196,12 +196,9 @@ export default function InvoiceDetailPage({
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {invoiceData.number}
-            </h1>
-            <p className="text-muted-foreground">Invoice details</p>
-          </div>
+          <HeadlineOutside subtitle="Invoice details">
+            {invoiceData.number}
+          </HeadlineOutside>
         </div>
 
         <div className="flex gap-2">
@@ -276,9 +273,8 @@ export default function InvoiceDetailPage({
       </div>
 
       {/* Invoice Details */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="space-y-8">
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-8">
             {/* Header Information */}
             <div className="grid gap-8 sm:grid-cols-2">
               <div>
@@ -410,17 +406,13 @@ export default function InvoiceDetailPage({
                 </div>
               </>
             )}
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
 
       {/* Actions */}
       {status !== 'paid' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <AnimatedCard variant="elevated" padding="lg">
+          <div className="text-lg font-semibold mb-4">Actions</div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive">
@@ -447,8 +439,7 @@ export default function InvoiceDetailPage({
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          </CardContent>
-        </Card>
+        </AnimatedCard>
       )}
     </div>
   );

@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
 
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { UVAWizard } from './components/UVAWizard';
 
 export const metadata: Metadata = {
@@ -10,23 +12,20 @@ export const metadata: Metadata = {
 export default function AustrianTaxFilingPage() {
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center gap-4">
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold tracking-tight">
-            Austrian VAT Filing (UVA)
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Submit your Austrian VAT return (Umsatzsteuervoranmeldung) to FinanzOnline
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🇦🇹</span>
-        </div>
-      </div>
+      <HeadlineOutside
+        subtitle="Submit your Austrian VAT return (Umsatzsteuervoranmeldung) to FinanzOnline"
+        actions={
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🇦🇹</span>
+          </div>
+        }
+      >
+        Austrian VAT Filing (UVA)
+      </HeadlineOutside>
 
-      {/* Filing Wizard */}
-      <UVAWizard />
+      <AnimatedCard variant="elevated" padding="lg">
+        <UVAWizard />
+      </AnimatedCard>
     </div>
   );
 }

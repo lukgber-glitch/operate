@@ -6,8 +6,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PayRunWizard } from '@/components/hr/payroll/PayRunWizard';
 import { useCreatePayroll } from '@/hooks/use-payroll';
@@ -42,12 +44,9 @@ export default function PayRunPage() {
     return (
       <div className="container mx-auto py-8 max-w-4xl">
         <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Run Payroll</h1>
-            <p className="text-muted-foreground">
-              Process payroll for your employees with our step-by-step wizard
-            </p>
-          </div>
+          <HeadlineOutside subtitle="Process payroll for your employees with our step-by-step wizard">
+            Run Payroll
+          </HeadlineOutside>
 
           <Alert>
             <AlertCircle className="h-4 w-4" />
@@ -57,18 +56,19 @@ export default function PayRunPage() {
             </AlertDescription>
           </Alert>
 
-          <Card className="border-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-6 w-6 text-primary" />
-                Start New Pay Run
-              </CardTitle>
-              <CardDescription>
-                Follow the guided process to review employees, enter hours, and submit payroll
-                for processing.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold flex items-center gap-2 mb-2">
+                  <DollarSign className="h-6 w-6 text-primary" />
+                  Start New Pay Run
+                </h2>
+                <p className="text-muted-foreground">
+                  Follow the guided process to review employees, enter hours, and submit payroll
+                  for processing.
+                </p>
+              </div>
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="p-4 border rounded-lg">
                   <h3 className="font-semibold mb-2">What you'll do:</h3>
@@ -121,8 +121,8 @@ export default function PayRunPage() {
                   </AlertDescription>
                 </Alert>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedCard>
         </div>
       </div>
     );
@@ -131,10 +131,9 @@ export default function PayRunPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Run Payroll</h1>
-        <p className="text-muted-foreground">
-          Complete each step to process payroll for your employees
-        </p>
+        <HeadlineOutside subtitle="Complete each step to process payroll for your employees">
+          Run Payroll
+        </HeadlineOutside>
       </div>
 
       <PayRunWizard companyUuid={companyUuid} />

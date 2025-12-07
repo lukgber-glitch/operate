@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -127,28 +128,24 @@ export default function NewInvoicePage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/finance/invoices">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">New Invoice</h1>
-          <p className="text-muted-foreground">Create a new invoice</p>
-        </div>
+        <HeadlineOutside subtitle="Create a new invoice">
+          New Invoice
+        </HeadlineOutside>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Form */}
         <div className="space-y-6 lg:col-span-2">
           {/* Customer Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Customer Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="text-lg font-semibold mb-4">Customer Information</div>
+            <div className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="customerName">Customer Name</Label>
@@ -180,15 +177,13 @@ export default function NewInvoicePage() {
                   rows={3}
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedCard>
 
           {/* Invoice Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Invoice Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="text-lg font-semibold mb-4">Invoice Details</div>
+            <div className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label htmlFor="issueDate">Issue Date</Label>
@@ -224,19 +219,18 @@ export default function NewInvoicePage() {
                   </Select>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedCard>
 
           {/* Line Items */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Line Items</CardTitle>
+          <AnimatedCard variant="default" padding="sm">
+            <div className="flex flex-row items-center justify-between p-6 pb-3">
+              <div className="text-lg font-semibold">Line Items</div>
               <Button onClick={addLineItem} size="sm">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Item
               </Button>
-            </CardHeader>
-            <CardContent>
+            </div>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -326,32 +320,25 @@ export default function NewInvoicePage() {
                   </TableBody>
                 </Table>
               </div>
-            </CardContent>
-          </Card>
+          </AnimatedCard>
 
           {/* Notes */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Notes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                placeholder="Additional notes or payment instructions..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={4}
-              />
-            </CardContent>
-          </Card>
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="text-lg font-semibold mb-4">Notes</div>
+            <Textarea
+              placeholder="Additional notes or payment instructions..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={4}
+            />
+          </AnimatedCard>
         </div>
 
         {/* Summary Sidebar */}
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="text-lg font-semibold mb-4">Summary</div>
+            <div className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
                 <CurrencyDisplay
@@ -378,11 +365,11 @@ export default function NewInvoicePage() {
                   />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedCard>
 
-          <Card>
-            <CardContent className="space-y-3 pt-6">
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="space-y-3">
               <Button
                 className="w-full"
                 onClick={() => handleSubmit(false)}
@@ -406,8 +393,8 @@ export default function NewInvoicePage() {
               >
                 <Link href="/finance/invoices">Cancel</Link>
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedCard>
         </div>
       </div>
     </div>

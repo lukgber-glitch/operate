@@ -6,7 +6,8 @@ import { useState, useEffect } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import {
@@ -107,97 +108,88 @@ export default function ExpensesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Expenses</h1>
-          <p className="text-muted-foreground">
-            Manage and track expense reports
-          </p>
-        </div>
+      <HeadlineOutside subtitle="Manage and track expense reports">
+        Expenses
+      </HeadlineOutside>
 
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/finance/expenses/scan">
-              <Camera className="mr-2 h-4 w-4" />
-              Scan Receipt
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/finance/expenses/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Expense
-            </Link>
-          </Button>
-        </div>
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline">
+          <Download className="mr-2 h-4 w-4" />
+          Export
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/finance/expenses/scan">
+            <Camera className="mr-2 h-4 w-4" />
+            Scan Receipt
+          </Link>
+        </Button>
+        <Button asChild>
+          <Link href="/finance/expenses/new">
+            <Plus className="mr-2 h-4 w-4" />
+            New Expense
+          </Link>
+        </Button>
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search by description or submitter..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[180px]">
-                  <Filter className="mr-2 h-4 w-4" />
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Statuses</SelectItem>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="APPROVED">Approved</SelectItem>
-                  <SelectItem value="REJECTED">Rejected</SelectItem>
-                  <SelectItem value="SUBMITTED">Submitted</SelectItem>
-                  <SelectItem value="DRAFT">Draft</SelectItem>
-                  <SelectItem value="PAID">Paid</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-full sm:w-[180px]">
-                  <SelectValue placeholder="Filter by category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
-                </SelectContent>
-              </Select>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search by description or submitter..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
             </div>
-            {selectedExpenses.length > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  {selectedExpenses.length} selected
-                </span>
-                <Button size="sm" onClick={handleBulkApprove}>
-                  Approve Selected
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={handleBulkReject}
-                >
-                  Reject Selected
-                </Button>
-              </div>
-            )}
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <Filter className="mr-2 h-4 w-4" />
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="APPROVED">Approved</SelectItem>
+                <SelectItem value="REJECTED">Rejected</SelectItem>
+                <SelectItem value="SUBMITTED">Submitted</SelectItem>
+                <SelectItem value="DRAFT">Draft</SelectItem>
+                <SelectItem value="PAID">Paid</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Filter by category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Categories</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </CardContent>
-      </Card>
+          {selectedExpenses.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {selectedExpenses.length} selected
+              </span>
+              <Button size="sm" onClick={handleBulkApprove}>
+                Approve Selected
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={handleBulkReject}
+              >
+                Reject Selected
+              </Button>
+            </div>
+          )}
+        </div>
+      </AnimatedCard>
 
       {/* Expenses Table */}
-      <Card>
-        <CardContent className="p-0">
+      <AnimatedCard variant="default" padding="sm">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
@@ -374,8 +366,7 @@ export default function ExpensesPage() {
             )}
             </div>
           )}
-        </CardContent>
-      </Card>
+      </AnimatedCard>
     </div>
   );
 }

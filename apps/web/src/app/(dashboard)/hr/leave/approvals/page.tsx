@@ -3,7 +3,9 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 
 export default function LeaveApprovalsPage() {
   return (
@@ -14,19 +16,18 @@ export default function LeaveApprovalsPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Pending Approvals</h1>
-          <p className="text-muted-foreground">
-            Review and approve team leave requests
-          </p>
-        </div>
+        <HeadlineOutside subtitle="Review and approve team leave requests">
+          Pending Approvals
+        </HeadlineOutside>
       </div>
 
-      <div className="rounded-lg border p-8 text-center">
-        <p className="text-muted-foreground">
-          This page will show pending leave requests requiring your approval.
-        </p>
-      </div>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="rounded-lg border p-8 text-center">
+          <p className="text-muted-foreground">
+            This page will show pending leave requests requiring your approval.
+          </p>
+        </div>
+      </AnimatedCard>
     </div>
   );
 }

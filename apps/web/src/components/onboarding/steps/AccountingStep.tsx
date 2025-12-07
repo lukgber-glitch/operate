@@ -4,9 +4,11 @@ import { Calculator, ShieldCheck, Globe } from 'lucide-react'
 import * as React from 'react'
 import { useFormContext } from 'react-hook-form'
 
+import { AnimatedCard } from '@/components/ui/animated-card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
+import { HeadlineOutside } from '@/components/ui/headline-outside'
 
 interface AccountingProvider {
   id: string
@@ -87,15 +89,11 @@ export function AccountingStep() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Connect Accounting Software</CardTitle>
-          <CardDescription>
-            Sync with your existing accounting software to streamline your financial workflows.
-            This step is optional.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <HeadlineOutside subtitle="Sync with your existing accounting software to streamline your financial workflows. This step is optional.">
+        Connect Accounting Software
+      </HeadlineOutside>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-6">
           {connectedAccounting ? (
             <div className="flex items-center justify-between p-4 bg-primary/10 border border-primary/20 rounded-lg">
               <div className="flex items-center gap-3">
@@ -227,8 +225,8 @@ export function AccountingStep() {
               </div>
             </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
     </div>
   )
 }

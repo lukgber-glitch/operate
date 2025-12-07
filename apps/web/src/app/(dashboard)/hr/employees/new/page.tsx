@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { EmployeeForm } from '@/components/hr/employee-form';
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { useToast } from '@/components/ui/use-toast';
 import { useEmployees } from '@/hooks/use-employees';
 
@@ -43,17 +45,18 @@ export default function NewEmployeePage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Add Employee</h1>
-          <p className="text-muted-foreground">Create a new employee record</p>
-        </div>
+        <HeadlineOutside subtitle="Create a new employee record">
+          Add Employee
+        </HeadlineOutside>
       </div>
 
-      <EmployeeForm
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        isLoading={isLoading}
-      />
+      <AnimatedCard variant="elevated" padding="lg">
+        <EmployeeForm
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          isLoading={isLoading}
+        />
+      </AnimatedCard>
     </div>
   );
 }

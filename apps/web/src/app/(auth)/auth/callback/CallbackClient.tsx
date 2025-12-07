@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 
 // Helper to store tokens in cookies (secure, httpOnly should be set by API ideally)
 // WAF/proxy only allows ONE Set-Cookie, so we combine both tokens into a JSON cookie
@@ -138,47 +139,52 @@ export default function CallbackClient() {
     return () => clearTimeout(fallbackTimeout);
   }, [status, processCallback]);
 
+  const getTitle = () => {
+    if (status === 'processing') return 'Processing...';
+    if (status === 'success') return 'Success!';
+    return 'Authentication Failed';
+  };
+
+  const getSubtitle = () => {
+    if (status === 'processing') return 'Completing your sign in...';
+    if (status === 'success') return 'Redirecting to dashboard...';
+    return errorMessage;
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold">
-          {status === 'processing' && 'Processing...'}
-          {status === 'success' && 'Success!'}
-          {status === 'error' && 'Authentication Failed'}
-        </CardTitle>
-        <CardDescription>
-          {status === 'processing' && 'Completing your sign in...'}
-          {status === 'success' && 'Redirecting to dashboard...'}
-          {status === 'error' && errorMessage}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex justify-center py-8">
-        {status === 'processing' && (
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        )}
-        {status === 'success' && (
-          <div className="text-green-500">
-            <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-        )}
-        {status === 'error' && (
-          <div className="space-y-4 text-center">
-            <div className="text-destructive">
-              <svg className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    <div className="space-y-6">
+      <HeadlineOutside subtitle={getSubtitle()}>
+        {getTitle()}
+      </HeadlineOutside>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="flex justify-center py-8">
+          {status === 'processing' && (
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          )}
+          {status === 'success' && (
+            <div className="text-green-500">
+              <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <button
-              onClick={() => router.push('/login')}
-              className="text-primary hover:underline font-medium"
-            >
-              Return to login
-            </button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          )}
+          {status === 'error' && (
+            <div className="space-y-4 text-center">
+              <div className="text-destructive">
+                <svg className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <button
+                onClick={() => router.push('/login')}
+                className="text-primary hover:underline font-medium"
+              >
+                Return to login
+              </button>
+            </div>
+          )}
+        </div>
+      </AnimatedCard>
+    </div>
   );
 }

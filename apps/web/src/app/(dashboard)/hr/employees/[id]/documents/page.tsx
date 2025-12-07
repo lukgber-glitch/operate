@@ -16,7 +16,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -143,92 +145,93 @@ export default function EmployeeDocumentsPage() {
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
-            <p className="text-muted-foreground">
-              Upload and manage employee documents
-            </p>
+          <HeadlineOutside subtitle="Upload and manage employee documents">
+            Documents
+          </HeadlineOutside>
+        </div>
+
+        <AnimatedCard variant="elevated" padding="lg">
+          <div className="space-y-6">
+            <div>
+              <h2 className="mb-4 text-lg font-semibold">Upload Document</h2>
+              <DocumentUpload onUpload={handleUpload} isUploading={isUploading} />
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold">All Documents</h2>
+
+              {documents.length === 0 ? (
+                <div className="rounded-lg border p-8 text-center">
+                  <p className="text-muted-foreground">No documents uploaded yet</p>
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[50px]"></TableHead>
+                        <TableHead>File Name</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Size</TableHead>
+                        <TableHead>Uploaded</TableHead>
+                        <TableHead className="w-[100px]"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {documents.map((document) => (
+                        <TableRow key={document.id}>
+                          <TableCell>
+                            <div className="text-muted-foreground">
+                              {getFileIcon(document.mimeType)}
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {document.fileName}
+                          </TableCell>
+                          <TableCell>
+                            {document.documentType?.name || 'Other'}
+                          </TableCell>
+                          <TableCell>{formatFileSize(document.fileSize)}</TableCell>
+                          <TableCell>
+                            {new Date(document.createdAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                asChild
+                              >
+                                <a
+                                  href={document.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <Download className="h-4 w-4" />
+                                </a>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => setDeleteId(document.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-
-        <div className="rounded-lg border p-6">
-          <h2 className="mb-4 text-lg font-semibold">Upload Document</h2>
-          <DocumentUpload onUpload={handleUpload} isUploading={isUploading} />
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">All Documents</h2>
-
-          {documents.length === 0 ? (
-            <div className="rounded-lg border p-8 text-center">
-              <p className="text-muted-foreground">No documents uploaded yet</p>
-            </div>
-          ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[50px]"></TableHead>
-                    <TableHead>File Name</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Size</TableHead>
-                    <TableHead>Uploaded</TableHead>
-                    <TableHead className="w-[100px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {documents.map((document) => (
-                    <TableRow key={document.id}>
-                      <TableCell>
-                        <div className="text-muted-foreground">
-                          {getFileIcon(document.mimeType)}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {document.fileName}
-                      </TableCell>
-                      <TableCell>
-                        {document.documentType?.name || 'Other'}
-                      </TableCell>
-                      <TableCell>{formatFileSize(document.fileSize)}</TableCell>
-                      <TableCell>
-                        {new Date(document.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                        })}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            asChild
-                          >
-                            <a
-                              href={document.fileUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <Download className="h-4 w-4" />
-                            </a>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeleteId(document.id)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </div>
+        </AnimatedCard>
       </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>

@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -79,28 +80,24 @@ export default function NewExpensePage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/finance/expenses">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">New Expense</h1>
-          <p className="text-muted-foreground">Submit a new expense report</p>
-        </div>
+        <HeadlineOutside subtitle="Submit a new expense report">
+          New Expense
+        </HeadlineOutside>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Form */}
         <div className="space-y-6 lg:col-span-2">
           {/* Expense Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Expense Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="text-lg font-semibold mb-4">Expense Details</div>
+            <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Input
@@ -187,15 +184,12 @@ export default function NewExpensePage() {
                   />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedCard>
 
           {/* Receipt Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Receipt</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="text-lg font-semibold mb-4">Receipt</div>
               <div className="space-y-4">
                 <div className="flex items-center justify-center w-full">
                   <label
@@ -234,32 +228,25 @@ export default function NewExpensePage() {
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
+          </AnimatedCard>
 
           {/* Notes */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Additional Notes</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="text-lg font-semibold mb-4">Additional Notes</div>
               <Textarea
                 placeholder="Add any additional information about this expense..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={4}
               />
-            </CardContent>
-          </Card>
+          </AnimatedCard>
         </div>
 
         {/* Summary Sidebar */}
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="text-lg font-semibold mb-4">Summary</div>
+            <div className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Amount</span>
                 <CurrencyDisplay
@@ -286,11 +273,11 @@ export default function NewExpensePage() {
                   />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedCard>
 
-          <Card>
-            <CardContent className="space-y-3 pt-6">
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="space-y-3">
               <Button
                 className="w-full"
                 onClick={handleSubmit}
@@ -306,11 +293,10 @@ export default function NewExpensePage() {
               >
                 Cancel
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedCard>
 
-          <Card className="bg-muted/50">
-            <CardContent className="pt-6">
+          <AnimatedCard variant="elevated" padding="lg" className="bg-muted/50">
               <div className="space-y-2 text-sm text-muted-foreground">
                 <p className="font-semibold text-foreground">
                   Expense Guidelines
@@ -322,8 +308,7 @@ export default function NewExpensePage() {
                   <li>Include detailed description</li>
                 </ul>
               </div>
-            </CardContent>
-          </Card>
+          </AnimatedCard>
         </div>
       </div>
     </div>

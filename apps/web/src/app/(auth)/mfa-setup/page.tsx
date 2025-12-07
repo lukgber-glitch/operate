@@ -1,18 +1,18 @@
 import { MfaSetup } from '@/components/auth/mfa-setup';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 
 export default function MfaSetupPage() {
   return (
-    <Card className="w-full">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold">Set up two-factor authentication</CardTitle>
-        <CardDescription>
-          Secure your account with an additional layer of protection
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <MfaSetup />
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <HeadlineOutside subtitle="Secure your account with an additional layer of protection">
+        Set up two-factor authentication
+      </HeadlineOutside>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-6">
+          <MfaSetup />
+        </div>
+      </AnimatedCard>
+    </div>
   );
 }

@@ -6,7 +6,8 @@ import { useState } from 'react';
 
 import { VendorTable } from '@/components/vendors/VendorTable';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -87,17 +88,14 @@ export default function VendorsPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Vendors</h1>
-            <p className="text-muted-foreground">Manage your vendor relationships</p>
-          </div>
-        </div>
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+        <HeadlineOutside subtitle="Manage your vendor relationships">
+          Vendors
+        </HeadlineOutside>
+        <AnimatedCard variant="elevated" padding="lg">
+          <div className="flex flex-col items-center justify-center py-12 text-center">
             <p className="text-destructive mb-4">Error loading vendors. Please try again.</p>
-          </CardContent>
-        </Card>
+          </div>
+        </AnimatedCard>
       </div>
     );
   }
@@ -106,12 +104,9 @@ export default function VendorsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Vendors</h1>
-          <p className="text-muted-foreground">
-            Manage suppliers and accounts payable
-          </p>
-        </div>
+        <HeadlineOutside subtitle="Manage suppliers and accounts payable">
+          Vendors
+        </HeadlineOutside>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportCSV} disabled={!vendorsData?.items?.length}>
             <Download className="h-4 w-4 mr-2" />
@@ -125,8 +120,8 @@ export default function VendorsPage() {
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center">
             <div className="flex-1">
               <div className="relative">
@@ -158,8 +153,8 @@ export default function VendorsPage() {
               </Select>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
 
       {/* Data Table */}
       {isLoading ? (

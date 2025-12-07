@@ -3,26 +3,26 @@
 import { useTranslations } from 'next-intl';
 
 import { RegisterForm } from '@/components/auth/register-form';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { LanguageSelector } from '@/components/auth/language-selector';
 
 export default function RegisterPage() {
   const t = useTranslations('auth');
 
   return (
-    <Card className="w-full">
-      <CardHeader className="space-y-1">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-2xl font-bold">{t('registerTitle') || 'Create an account'}</CardTitle>
-          <LanguageSelector />
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <HeadlineOutside subtitle={t('registerDescription') || 'Enter your information to get started with Operate'}>
+          {t('registerTitle') || 'Create an account'}
+        </HeadlineOutside>
+        <LanguageSelector />
+      </div>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-6">
+          <RegisterForm />
         </div>
-        <CardDescription>
-          {t('registerDescription') || 'Enter your information to get started with Operate'}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <RegisterForm />
-      </CardContent>
-    </Card>
+      </AnimatedCard>
+    </div>
   );
 }

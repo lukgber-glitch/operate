@@ -8,9 +8,11 @@ import { useEffect, useState } from 'react';
 import { LeaveBalanceCard } from '@/components/hr/leave-balance-card';
 import { LeaveCalendar } from '@/components/hr/leave-calendar';
 import { LeaveRequestForm } from '@/components/hr/leave-request-form';
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -126,12 +128,9 @@ export default function EmployeeLeavePage() {
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Leave Management</h1>
-              <p className="text-muted-foreground">
-                View balances and manage leave requests
-              </p>
-            </div>
+            <HeadlineOutside subtitle="View balances and manage leave requests">
+              Leave Management
+            </HeadlineOutside>
           </div>
 
           <Button onClick={() => setShowDialog(true)}>
@@ -146,66 +145,68 @@ export default function EmployeeLeavePage() {
           ))}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <LeaveCalendar requests={requests} />
+        <AnimatedCard variant="elevated" padding="lg">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <LeaveCalendar requests={requests} />
 
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Leave History</h2>
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold">Leave History</h2>
 
-            {requests.length === 0 ? (
-              <div className="rounded-lg border p-8 text-center">
-                <p className="text-muted-foreground">No leave requests found</p>
-              </div>
-            ) : (
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Dates</TableHead>
-                      <TableHead>Days</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="w-[50px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {requests.map((request) => (
-                      <TableRow key={request.id}>
-                        <TableCell className="font-medium">
-                          {request.leaveType?.name}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {new Date(request.startDate).toLocaleDateString()} -{' '}
-                          {new Date(request.endDate).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>{request.days}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="secondary"
-                            className={cn(statusColors[request.status])}
-                          >
-                            {request.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {request.status === 'PENDING' && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleCancel(request.id)}
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </TableCell>
+              {requests.length === 0 ? (
+                <div className="rounded-lg border p-8 text-center">
+                  <p className="text-muted-foreground">No leave requests found</p>
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Dates</TableHead>
+                        <TableHead>Days</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="w-[50px]"></TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
+                    </TableHeader>
+                    <TableBody>
+                      {requests.map((request) => (
+                        <TableRow key={request.id}>
+                          <TableCell className="font-medium">
+                            {request.leaveType?.name}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {new Date(request.startDate).toLocaleDateString()} -{' '}
+                            {new Date(request.endDate).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>{request.days}</TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="secondary"
+                              className={cn(statusColors[request.status])}
+                            >
+                              {request.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {request.status === 'PENDING' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleCancel(request.id)}
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </AnimatedCard>
       </div>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>

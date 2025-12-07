@@ -7,7 +7,8 @@ import { AddClientDialog } from '@/components/clients/AddClientDialog';
 import { ClientDataTable } from '@/components/clients/ClientDataTable';
 import { ClientFilters } from '@/components/clients/ClientFilters';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useClients, useDeleteClient, useBulkUpdateClients } from '@/hooks/useClients';
 import type { ClientFilters as ClientFilterType } from '@/lib/api/clients';
@@ -72,17 +73,14 @@ export default function ClientsPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Clients</h1>
-            <p className="text-muted-foreground">Manage your client relationships</p>
-          </div>
-        </div>
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+        <HeadlineOutside subtitle="Manage your client relationships">
+          Clients
+        </HeadlineOutside>
+        <AnimatedCard variant="elevated" padding="lg">
+          <div className="flex flex-col items-center justify-center py-12 text-center">
             <p className="text-destructive mb-4">Error loading clients. Please try again.</p>
-          </CardContent>
-        </Card>
+          </div>
+        </AnimatedCard>
       </div>
     );
   }
@@ -91,12 +89,9 @@ export default function ClientsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Clients</h1>
-          <p className="text-muted-foreground">
-            Manage your client relationships and track key metrics
-          </p>
-        </div>
+        <HeadlineOutside subtitle="Manage your client relationships and track key metrics">
+          Clients
+        </HeadlineOutside>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportCSV} disabled={!clientsData?.items?.length}>
             <Download className="h-4 w-4 mr-2" />

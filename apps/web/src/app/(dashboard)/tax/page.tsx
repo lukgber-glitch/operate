@@ -11,9 +11,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -41,30 +43,30 @@ export default function TaxPage() {
   const { deductions, isLoading: isLoadingDeductions } = useDeductions({ autoFetch: true });
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tax Overview</h1>
-          <p className="text-muted-foreground">
-            Manage tax liabilities, deductions, and VAT
-          </p>
-        </div>
+      <HeadlineOutside
+        subtitle="Manage tax liabilities, deductions, and VAT"
+        actions={
+          <div className="flex gap-2">
+            <Button asChild>
+              <Link href="/tax/deductions/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Deduction
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/tax/reports">
+                <FileText className="mr-2 h-4 w-4" />
+                View Reports
+              </Link>
+            </Button>
+          </div>
+        }
+      >
+        Tax Overview
+      </HeadlineOutside>
 
-        <div className="flex gap-2">
-          <Button asChild>
-            <Link href="/tax/deductions/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Deduction
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/tax/reports">
-              <FileText className="mr-2 h-4 w-4" />
-              View Reports
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-6">
 
       {/* Stats Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -361,6 +363,8 @@ export default function TaxPage() {
           </div>
         </CardContent>
       </Card>
+        </div>
+      </AnimatedCard>
     </div>
   );
 }

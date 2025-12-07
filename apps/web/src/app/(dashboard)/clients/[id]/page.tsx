@@ -8,7 +8,7 @@ import { ClientOverview } from '@/components/clients/ClientOverview';
 import { ClientContactsTab } from '@/components/clients/ClientContactsTab';
 import { ClientAddressesTab } from '@/components/clients/ClientAddressesTab';
 import { ClientActivityTab } from '@/components/clients/ClientActivityTab';
-import { Card, CardContent } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useClient, useClientMetrics } from '@/hooks/use-clients';
 
@@ -29,11 +29,11 @@ export default function ClientDetailPage() {
 
   if (!client) {
     return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="flex flex-col items-center justify-center py-12 text-center">
           <p className="text-muted-foreground">Client not found</p>
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
     );
   }
 

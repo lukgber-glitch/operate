@@ -16,7 +16,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
@@ -111,12 +113,9 @@ export default function EmployeeDetailPage() {
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Employee Details</h1>
-              <p className="text-muted-foreground">
-                View and manage employee information
-              </p>
-            </div>
+            <HeadlineOutside subtitle="View and manage employee information">
+              Employee Details
+            </HeadlineOutside>
           </div>
 
           <div className="flex gap-2">
@@ -143,151 +142,153 @@ export default function EmployeeDetailPage() {
 
         <EmployeeCard employee={employee} />
 
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="contracts">Contracts</TabsTrigger>
-            <TabsTrigger value="leave">Leave</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
-          </TabsList>
+        <AnimatedCard variant="elevated" padding="lg">
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="contracts">Contracts</TabsTrigger>
+              <TabsTrigger value="leave">Leave</TabsTrigger>
+              <TabsTrigger value="documents">Documents</TabsTrigger>
+              <TabsTrigger value="activity">Activity</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-lg border p-4">
-                <h3 className="mb-4 font-semibold">Personal Information</h3>
-                <dl className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Date of Birth</dt>
-                    <dd>
-                      {employee.dateOfBirth
-                        ? new Date(employee.dateOfBirth).toLocaleDateString()
-                        : '-'}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Gender</dt>
-                    <dd>{employee.gender || '-'}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Nationality</dt>
-                    <dd>{employee.nationality || '-'}</dd>
-                  </div>
-                </dl>
+            <TabsContent value="overview" className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-lg border p-4">
+                  <h3 className="mb-4 font-semibold">Personal Information</h3>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Date of Birth</dt>
+                      <dd>
+                        {employee.dateOfBirth
+                          ? new Date(employee.dateOfBirth).toLocaleDateString()
+                          : '-'}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Gender</dt>
+                      <dd>{employee.gender || '-'}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Nationality</dt>
+                      <dd>{employee.nationality || '-'}</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div className="rounded-lg border p-4">
+                  <h3 className="mb-4 font-semibold">Employment Details</h3>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Employee Number</dt>
+                      <dd>{employee.employeeNumber}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Hire Date</dt>
+                      <dd>{new Date(employee.hireDate).toLocaleDateString()}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Department</dt>
+                      <dd>{employee.department || '-'}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Status</dt>
+                      <dd>{employee.status}</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div className="rounded-lg border p-4">
+                  <h3 className="mb-4 font-semibold">Tax Information</h3>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Tax ID</dt>
+                      <dd>{employee.taxId ? '••••••••••' : '-'}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Tax Class</dt>
+                      <dd>{employee.taxClass || '-'}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Church Tax</dt>
+                      <dd>{employee.churchTax ? 'Yes' : 'No'}</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div className="rounded-lg border p-4">
+                  <h3 className="mb-4 font-semibold">Banking Information</h3>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Bank Name</dt>
+                      <dd>{employee.bankName || '-'}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">IBAN</dt>
+                      <dd>
+                        {employee.iban
+                          ? `${employee.iban.slice(0, 4)}••••${employee.iban.slice(-4)}`
+                          : '-'}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">BIC</dt>
+                      <dd>{employee.bic || '-'}</dd>
+                    </div>
+                  </dl>
+                </div>
               </div>
+            </TabsContent>
 
-              <div className="rounded-lg border p-4">
-                <h3 className="mb-4 font-semibold">Employment Details</h3>
-                <dl className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Employee Number</dt>
-                    <dd>{employee.employeeNumber}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Hire Date</dt>
-                    <dd>{new Date(employee.hireDate).toLocaleDateString()}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Department</dt>
-                    <dd>{employee.department || '-'}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Status</dt>
-                    <dd>{employee.status}</dd>
-                  </div>
-                </dl>
+            <TabsContent value="contracts">
+              <div className="rounded-lg border p-8 text-center">
+                <p className="text-muted-foreground">
+                  Contracts view coming soon. Navigate to{' '}
+                  <Link
+                    href={`/hr/employees/${id}/contracts`}
+                    className="text-primary underline"
+                  >
+                    dedicated contracts page
+                  </Link>
+                </p>
               </div>
+            </TabsContent>
 
-              <div className="rounded-lg border p-4">
-                <h3 className="mb-4 font-semibold">Tax Information</h3>
-                <dl className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Tax ID</dt>
-                    <dd>{employee.taxId ? '••••••••••' : '-'}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Tax Class</dt>
-                    <dd>{employee.taxClass || '-'}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Church Tax</dt>
-                    <dd>{employee.churchTax ? 'Yes' : 'No'}</dd>
-                  </div>
-                </dl>
+            <TabsContent value="leave">
+              <div className="rounded-lg border p-8 text-center">
+                <p className="text-muted-foreground">
+                  Leave view coming soon. Navigate to{' '}
+                  <Link
+                    href={`/hr/employees/${id}/leave`}
+                    className="text-primary underline"
+                  >
+                    dedicated leave page
+                  </Link>
+                </p>
               </div>
+            </TabsContent>
 
-              <div className="rounded-lg border p-4">
-                <h3 className="mb-4 font-semibold">Banking Information</h3>
-                <dl className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Bank Name</dt>
-                    <dd>{employee.bankName || '-'}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">IBAN</dt>
-                    <dd>
-                      {employee.iban
-                        ? `${employee.iban.slice(0, 4)}••••${employee.iban.slice(-4)}`
-                        : '-'}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">BIC</dt>
-                    <dd>{employee.bic || '-'}</dd>
-                  </div>
-                </dl>
+            <TabsContent value="documents">
+              <div className="rounded-lg border p-8 text-center">
+                <p className="text-muted-foreground">
+                  Documents view coming soon. Navigate to{' '}
+                  <Link
+                    href={`/hr/employees/${id}/documents`}
+                    className="text-primary underline"
+                  >
+                    dedicated documents page
+                  </Link>
+                </p>
               </div>
-            </div>
-          </TabsContent>
+            </TabsContent>
 
-          <TabsContent value="contracts">
-            <div className="rounded-lg border p-8 text-center">
-              <p className="text-muted-foreground">
-                Contracts view coming soon. Navigate to{' '}
-                <Link
-                  href={`/hr/employees/${id}/contracts`}
-                  className="text-primary underline"
-                >
-                  dedicated contracts page
-                </Link>
-              </p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="leave">
-            <div className="rounded-lg border p-8 text-center">
-              <p className="text-muted-foreground">
-                Leave view coming soon. Navigate to{' '}
-                <Link
-                  href={`/hr/employees/${id}/leave`}
-                  className="text-primary underline"
-                >
-                  dedicated leave page
-                </Link>
-              </p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="documents">
-            <div className="rounded-lg border p-8 text-center">
-              <p className="text-muted-foreground">
-                Documents view coming soon. Navigate to{' '}
-                <Link
-                  href={`/hr/employees/${id}/documents`}
-                  className="text-primary underline"
-                >
-                  dedicated documents page
-                </Link>
-              </p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="activity">
-            <div className="rounded-lg border p-8 text-center">
-              <p className="text-muted-foreground">Activity log coming soon</p>
-            </div>
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="activity">
+              <div className="rounded-lg border p-8 text-center">
+                <p className="text-muted-foreground">Activity log coming soon</p>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </AnimatedCard>
       </div>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

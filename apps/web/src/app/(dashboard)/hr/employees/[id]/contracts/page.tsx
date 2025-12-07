@@ -7,8 +7,10 @@ import { useEffect, useState } from 'react';
 
 import { ContractForm } from '@/components/hr/contract-form';
 import { ContractList } from '@/components/hr/contract-list';
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
 import { useContracts } from '@/hooks/use-contracts';
@@ -131,12 +133,9 @@ export default function EmployeeContractsPage() {
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Contracts</h1>
-              <p className="text-muted-foreground">
-                Manage employment contracts
-              </p>
-            </div>
+            <HeadlineOutside subtitle="Manage employment contracts">
+              Contracts
+            </HeadlineOutside>
           </div>
 
           <Button onClick={handleCreate}>
@@ -145,11 +144,13 @@ export default function EmployeeContractsPage() {
           </Button>
         </div>
 
-        <ContractList
-          contracts={contracts}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <AnimatedCard variant="elevated" padding="lg">
+          <ContractList
+            contracts={contracts}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        </AnimatedCard>
       </div>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>

@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
 
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { TaxFilingWizard } from './components/tax-filing/TaxFilingWizard';
 
 export const metadata: Metadata = {
@@ -10,16 +12,13 @@ export const metadata: Metadata = {
 export default function TaxFilingPage() {
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">VAT Filing (UStVA)</h1>
-        <p className="text-muted-foreground mt-2">
-          Submit your German VAT return (Umsatzsteuervoranmeldung) to ELSTER
-        </p>
-      </div>
+      <HeadlineOutside subtitle="Submit your German VAT return (Umsatzsteuervoranmeldung) to ELSTER">
+        VAT Filing (UStVA)
+      </HeadlineOutside>
 
-      {/* Filing Wizard */}
-      <TaxFilingWizard />
+      <AnimatedCard variant="elevated" padding="lg">
+        <TaxFilingWizard />
+      </AnimatedCard>
     </div>
   );
 }

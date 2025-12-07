@@ -4,9 +4,11 @@ import { FileText, ShieldCheck, Globe } from 'lucide-react'
 import * as React from 'react'
 import { useFormContext } from 'react-hook-form'
 
+import { AnimatedCard } from '@/components/ui/animated-card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
+import { HeadlineOutside } from '@/components/ui/headline-outside'
 
 interface TaxProvider {
   id: string
@@ -74,15 +76,11 @@ export function TaxStep() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Connect Tax Software</CardTitle>
-          <CardDescription>
-            Connect to your country&apos;s tax authority portal to streamline tax filing and VAT
-            returns. This step is optional.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <HeadlineOutside subtitle="Connect to your country's tax authority portal to streamline tax filing and VAT returns. This step is optional.">
+        Connect Tax Software
+      </HeadlineOutside>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-6">
           {connectedTax ? (
             <div className="flex items-center justify-between p-4 bg-primary/10 border border-primary/20 rounded-lg">
               <div className="flex items-center gap-3">
@@ -207,8 +205,8 @@ export function TaxStep() {
               </div>
             </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
     </div>
   )
 }

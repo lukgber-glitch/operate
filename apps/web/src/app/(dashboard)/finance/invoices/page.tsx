@@ -6,7 +6,8 @@ import { useState, useEffect } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -63,69 +64,60 @@ export default function InvoicesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
-          <p className="text-muted-foreground">
-            Manage and track your invoices
-          </p>
-        </div>
+      <HeadlineOutside subtitle="Manage and track your invoices">
+        Invoices
+      </HeadlineOutside>
 
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link href="/finance/invoices/recurring">
-              <Repeat className="mr-2 h-4 w-4" />
-              Recurring
-            </Link>
-          </Button>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button asChild>
-            <Link href="/finance/invoices/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Invoice
-            </Link>
-          </Button>
-        </div>
+      <div className="flex gap-2">
+        <Button variant="outline" asChild>
+          <Link href="/finance/invoices/recurring">
+            <Repeat className="mr-2 h-4 w-4" />
+            Recurring
+          </Link>
+        </Button>
+        <Button variant="outline">
+          <Download className="mr-2 h-4 w-4" />
+          Export
+        </Button>
+        <Button asChild>
+          <Link href="/finance/invoices/new">
+            <Plus className="mr-2 h-4 w-4" />
+            New Invoice
+          </Link>
+        </Button>
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-4 sm:flex-row">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search by customer or invoice number..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <Filter className="mr-2 h-4 w-4" />
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
-                <SelectItem value="DRAFT">Draft</SelectItem>
-                <SelectItem value="SENT">Sent</SelectItem>
-                <SelectItem value="PAID">Paid</SelectItem>
-                <SelectItem value="OVERDUE">Overdue</SelectItem>
-                <SelectItem value="CANCELLED">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="flex flex-col gap-4 sm:flex-row">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search by customer or invoice number..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
           </div>
-        </CardContent>
-      </Card>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <Filter className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Statuses</SelectItem>
+              <SelectItem value="DRAFT">Draft</SelectItem>
+              <SelectItem value="SENT">Sent</SelectItem>
+              <SelectItem value="PAID">Paid</SelectItem>
+              <SelectItem value="OVERDUE">Overdue</SelectItem>
+              <SelectItem value="CANCELLED">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </AnimatedCard>
 
       {/* Invoices Table */}
-      <Card>
-        <CardContent className="p-0">
+      <AnimatedCard variant="default" padding="sm">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
@@ -286,8 +278,7 @@ export default function InvoicesPage() {
             )}
             </div>
           )}
-        </CardContent>
-      </Card>
+      </AnimatedCard>
     </div>
   );
 }

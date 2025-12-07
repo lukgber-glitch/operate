@@ -23,7 +23,7 @@ import { CommunicationTimeline } from '@/components/crm/CommunicationTimeline';
 import { ContactList } from '@/components/crm/ContactList';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
 import {
   Dialog,
   DialogContent,
@@ -154,11 +154,9 @@ export default function ClientDetailPage() {
       </div>
 
       {/* Client Info Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Contact Information</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-6">
+          <h3 className="text-lg font-semibold">Contact Information</h3>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-4">
               {client.email && (
@@ -274,8 +272,8 @@ export default function ClientDetailPage() {
               <p className="text-sm text-muted-foreground whitespace-pre-wrap">{client.notes}</p>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
 
       {/* Metrics */}
       {metricsLoading ? (
@@ -295,11 +293,9 @@ export default function ClientDetailPage() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold">Recent Activity</h3>
               {communicationsLoading ? (
                 <div className="space-y-4">
                   <Skeleton className="h-20 w-full" />
@@ -330,8 +326,8 @@ export default function ClientDetailPage() {
                   No recent activity
                 </p>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedCard>
         </TabsContent>
 
         <TabsContent value="contacts">
@@ -351,23 +347,23 @@ export default function ClientDetailPage() {
         </TabsContent>
 
         <TabsContent value="invoices">
-          <Card>
-            <CardContent className="py-12 text-center">
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="py-12 text-center">
               <p className="text-muted-foreground">
                 Invoice integration coming soon
               </p>
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedCard>
         </TabsContent>
 
         <TabsContent value="documents">
-          <Card>
-            <CardContent className="py-12 text-center">
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="py-12 text-center">
               <p className="text-muted-foreground">
                 Document management coming soon
               </p>
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedCard>
         </TabsContent>
       </Tabs>
 

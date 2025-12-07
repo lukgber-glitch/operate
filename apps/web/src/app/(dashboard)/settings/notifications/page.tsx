@@ -3,6 +3,8 @@
 import { Bell } from 'lucide-react'
 
 import { NotificationSettings } from '@/components/notifications'
+import { AnimatedCard } from '@/components/ui/animated-card'
+import { HeadlineOutside } from '@/components/ui/headline-outside'
 
 export default function NotificationsSettingsPage() {
   return (

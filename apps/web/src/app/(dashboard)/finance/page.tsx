@@ -13,7 +13,8 @@ import { useEffect } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import {
   Table,
   TableBody,
@@ -61,29 +62,23 @@ export default function FinancePage() {
   const hasError = statsError || invoicesError || expensesError;
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Finance</h1>
-          <p className="text-muted-foreground">
-            Manage invoices, expenses, and banking
-          </p>
-        </div>
+      <HeadlineOutside subtitle="Manage invoices, expenses, and banking">
+        Finance
+      </HeadlineOutside>
 
-        <div className="flex gap-2">
-          <Button asChild>
-            <Link href="/finance/invoices/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Invoice
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/finance/expenses/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Expense
-            </Link>
-          </Button>
-        </div>
+      <div className="flex gap-2">
+        <Button asChild>
+          <Link href="/finance/invoices/new">
+            <Plus className="mr-2 h-4 w-4" />
+            New Invoice
+          </Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href="/finance/expenses/new">
+            <Plus className="mr-2 h-4 w-4" />
+            New Expense
+          </Link>
+        </Button>
       </div>
 
       {isLoading ? (
@@ -115,82 +110,74 @@ export default function FinancePage() {
         <>
           {/* Stats Grid */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+            <AnimatedCard variant="elevated" padding="md">
+              <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="text-sm font-medium text-muted-foreground">
                   Total Revenue
-                </CardTitle>
+                </div>
                 <Euro className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {stats ? formatCurrency(stats.totalRevenue, stats.currency) : '-'}
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Year to date
-                </p>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="text-2xl font-bold">
+                {stats ? formatCurrency(stats.totalRevenue, stats.currency) : '-'}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Year to date
+              </p>
+            </AnimatedCard>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+            <AnimatedCard variant="elevated" padding="md">
+              <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="text-sm font-medium text-muted-foreground">
                   Outstanding
-                </CardTitle>
+                </div>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {stats ? formatCurrency(stats.outstandingInvoices, stats.currency) : '-'}
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Pending invoices
-                </p>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="text-2xl font-bold">
+                {stats ? formatCurrency(stats.outstandingInvoices, stats.currency) : '-'}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Pending invoices
+              </p>
+            </AnimatedCard>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+            <AnimatedCard variant="elevated" padding="md">
+              <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="text-sm font-medium text-muted-foreground">
                   Overdue
-                </CardTitle>
+                </div>
                 <AlertCircle className="h-4 w-4 text-red-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-red-600">
-                  {stats ? formatCurrency(stats.overdueInvoices, stats.currency) : '-'}
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Overdue invoices
-                </p>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="text-2xl font-bold text-red-600">
+                {stats ? formatCurrency(stats.overdueInvoices, stats.currency) : '-'}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Overdue invoices
+              </p>
+            </AnimatedCard>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+            <AnimatedCard variant="elevated" padding="md">
+              <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="text-sm font-medium text-muted-foreground">
                   Total Expenses
-                </CardTitle>
-                <Receipt className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {stats ? formatCurrency(stats.totalExpenses, stats.currency) : '-'}
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {stats ? formatCurrency(stats.pendingExpenses, stats.currency) : '-'} pending
-                </p>
-              </CardContent>
-            </Card>
+                <Receipt className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="text-2xl font-bold">
+                {stats ? formatCurrency(stats.totalExpenses, stats.currency) : '-'}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {stats ? formatCurrency(stats.pendingExpenses, stats.currency) : '-'} pending
+              </p>
+            </AnimatedCard>
           </div>
 
       {/* Recent Invoices and Expenses */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Invoices */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+        <AnimatedCard variant="default" padding="sm">
+          <div className="flex flex-row items-center justify-between p-6 pb-3">
             <div>
-              <CardTitle>Recent Invoices</CardTitle>
+              <div className="text-lg font-semibold">Recent Invoices</div>
               <p className="text-sm text-muted-foreground mt-1">
                 Latest invoice activity
               </p>
@@ -201,58 +188,56 @@ export default function FinancePage() {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Invoice</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {invoices.length === 0 ? (
                 <TableRow>
-                  <TableHead>Invoice</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    No invoices found
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invoices.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground">
-                      No invoices found
+              ) : (
+                invoices.map((invoice) => (
+                  <TableRow key={invoice.id}>
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/finance/invoices/${invoice.id}`}
+                        className="hover:underline"
+                      >
+                        {invoice.number}
+                      </Link>
+                    </TableCell>
+                    <TableCell>{invoice.customerName}</TableCell>
+                    <TableCell>{formatCurrency(invoice.totalAmount, invoice.currency)}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="secondary"
+                        className={statusColors[invoice.status as keyof typeof statusColors]}
+                      >
+                        {invoice.status.toLowerCase()}
+                      </Badge>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  invoices.map((invoice) => (
-                    <TableRow key={invoice.id}>
-                      <TableCell className="font-medium">
-                        <Link
-                          href={`/finance/invoices/${invoice.id}`}
-                          className="hover:underline"
-                        >
-                          {invoice.number}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{invoice.customerName}</TableCell>
-                      <TableCell>{formatCurrency(invoice.totalAmount, invoice.currency)}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="secondary"
-                          className={statusColors[invoice.status as keyof typeof statusColors]}
-                        >
-                          {invoice.status.toLowerCase()}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </AnimatedCard>
 
         {/* Recent Expenses */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+        <AnimatedCard variant="default" padding="sm">
+          <div className="flex flex-row items-center justify-between p-6 pb-3">
             <div>
-              <CardTitle>Recent Expenses</CardTitle>
+              <div className="text-lg font-semibold">Recent Expenses</div>
               <p className="text-sm text-muted-foreground mt-1">
                 Latest expense submissions
               </p>
@@ -263,54 +248,52 @@ export default function FinancePage() {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Description</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {expenses.length === 0 ? (
                 <TableRow>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    No expenses found
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {expenses.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground">
-                      No expenses found
+              ) : (
+                expenses.map((expense) => (
+                  <TableRow key={expense.id}>
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/finance/expenses/${expense.id}`}
+                        className="hover:underline"
+                      >
+                        {expense.description}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{expense.category?.name || 'Uncategorized'}</Badge>
+                    </TableCell>
+                    <TableCell>{formatCurrency(expense.totalAmount, expense.currency)}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="secondary"
+                        className={statusColors[expense.status as keyof typeof statusColors]}
+                      >
+                        {expense.status.toLowerCase()}
+                      </Badge>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  expenses.map((expense) => (
-                    <TableRow key={expense.id}>
-                      <TableCell className="font-medium">
-                        <Link
-                          href={`/finance/expenses/${expense.id}`}
-                          className="hover:underline"
-                        >
-                          {expense.description}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{expense.category?.name || 'Uncategorized'}</Badge>
-                      </TableCell>
-                      <TableCell>{formatCurrency(expense.totalAmount, expense.currency)}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="secondary"
-                          className={statusColors[expense.status as keyof typeof statusColors]}
-                        >
-                          {expense.status.toLowerCase()}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </AnimatedCard>
       </div>
         </>
       )}

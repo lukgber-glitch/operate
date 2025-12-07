@@ -12,14 +12,10 @@ import {
 import * as React from 'react';
 import { useFormContext } from 'react-hook-form';
 
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/use-auth';
 import {
@@ -141,19 +137,14 @@ export function EmailStep() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Mail className="w-5 h-5" />
-            Connect Your Email
-          </CardTitle>
-          <CardDescription>
-            Connect your business email to automatically extract invoices,
-            receipts, and important documents. Connect one or both email
-            providers.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <HeadlineOutside subtitle="Connect your business email to automatically extract invoices, receipts, and important documents. Connect one or both email providers.">
+        <span className="flex items-center gap-2">
+          <Mail className="w-5 h-5" />
+          Connect Your Email
+        </span>
+      </HeadlineOutside>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-6">
           {/* Security Notice */}
           <Alert>
             <ShieldCheck className="w-4 h-4" />
@@ -294,13 +285,12 @@ export function EmailStep() {
               </Button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
 
       {/* Alternative: Manual Upload Reminder */}
       {!anyConnected && (
-        <Card className="border-dashed">
-          <CardContent className="p-6">
+        <AnimatedCard variant="outlined" padding="lg" className="border-dashed">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
                 <FileText className="w-6 h-6 text-muted-foreground" />
@@ -316,8 +306,7 @@ export function EmailStep() {
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+        </AnimatedCard>
       )}
     </div>
   );

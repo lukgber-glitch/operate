@@ -8,7 +8,9 @@
 import * as React from 'react'
 import { Building2, FileText, Mail, CreditCard, Settings, Sparkles } from 'lucide-react'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AnimatedCard } from '@/components/ui/animated-card'
+import { HeadlineOutside } from '@/components/ui/headline-outside'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useGSAP } from '@gsap/react'
 import { gsap, staggerIn } from '@/lib/gsap'
@@ -101,26 +103,22 @@ export function WelcomeStep() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Message */}
-      <Card>
-        <CardHeader className="text-center space-y-4">
-          <div
-            ref={logoRef}
-            className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center"
-            style={{ opacity: 0 }}
-          >
-            <Sparkles className="w-8 h-8 text-primary" />
-          </div>
-          <div>
-            <CardTitle ref={titleRef} className="text-2xl" style={{ opacity: 0 }}>
-              Welcome to Operate
-            </CardTitle>
-            <CardDescription ref={subtitleRef} className="text-base mt-2" style={{ opacity: 0 }}>
-              Your all-in-one platform for business operations, tax automation, and HR management
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent ref={contentRef} className="space-y-6" style={{ opacity: 0 }}>
+      <div
+        ref={logoRef}
+        className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center"
+        style={{ opacity: 0 }}
+      >
+        <Sparkles className="w-8 h-8 text-primary" />
+      </div>
+      <HeadlineOutside
+        subtitle="Your all-in-one platform for business operations, tax automation, and HR management"
+        ref={subtitleRef}
+        style={{ opacity: 0 }}
+      >
+        <span ref={titleRef} style={{ opacity: 0 }}>Welcome to Operate</span>
+      </HeadlineOutside>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div ref={contentRef} className="space-y-6" style={{ opacity: 0 }}>
           {/* Overview */}
           <div className="prose dark:prose-invert max-w-none">
             <p className="text-sm text-muted-foreground text-center">
@@ -203,8 +201,8 @@ export function WelcomeStep() {
               You can modify any settings later from your dashboard.
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
     </div>
   )
 }

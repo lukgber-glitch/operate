@@ -6,7 +6,9 @@ import { useRouter, useParams } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { EmployeeForm } from '@/components/hr/employee-form';
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
 import { useEmployee } from '@/hooks/use-employees';
@@ -87,20 +89,19 @@ export default function EditEmployeePage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Edit Employee</h1>
-          <p className="text-muted-foreground">
-            Update {employee.firstName} {employee.lastName}&apos;s information
-          </p>
-        </div>
+        <HeadlineOutside subtitle={`Update ${employee.firstName} ${employee.lastName}'s information`}>
+          Edit Employee
+        </HeadlineOutside>
       </div>
 
-      <EmployeeForm
-        employee={employee}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        isLoading={isLoading}
-      />
+      <AnimatedCard variant="elevated" padding="lg">
+        <EmployeeForm
+          employee={employee}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          isLoading={isLoading}
+        />
+      </AnimatedCard>
     </div>
   );
 }

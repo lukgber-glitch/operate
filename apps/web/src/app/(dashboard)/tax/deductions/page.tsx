@@ -4,9 +4,11 @@ import { Plus, Download, Search, Filter } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
 
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -77,28 +79,28 @@ export default function DeductionsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tax Deductions</h1>
-          <p className="text-muted-foreground">
-            Manage and track your tax-deductible expenses
-          </p>
-        </div>
+      <HeadlineOutside
+        subtitle="Manage and track your tax-deductible expenses"
+        actions={
+          <div className="flex gap-2">
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export
+            </Button>
+            <Button asChild>
+              <Link href="/tax/deductions/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Deduction
+              </Link>
+            </Button>
+          </div>
+        }
+      >
+        Tax Deductions
+      </HeadlineOutside>
 
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button asChild>
-            <Link href="/tax/deductions/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Deduction
-            </Link>
-          </Button>
-        </div>
-      </div>
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-6">
 
       {/* Summary Card */}
       <Card>
@@ -352,6 +354,8 @@ export default function DeductionsPage() {
           </div>
         </CardContent>
       </Card>
+        </div>
+      </AnimatedCard>
     </div>
   );
 }

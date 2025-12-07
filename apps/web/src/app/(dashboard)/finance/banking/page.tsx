@@ -6,7 +6,8 @@ import { useEffect } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { useBankAccounts } from '@/hooks/use-banking';
 
 export default function BankingPage() {
@@ -28,22 +29,16 @@ export default function BankingPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Banking</h1>
-          <p className="text-muted-foreground">
-            Manage your bank accounts and transactions
-          </p>
-        </div>
+      <HeadlineOutside subtitle="Manage your bank accounts and transactions">
+        Banking
+      </HeadlineOutside>
 
-        <Button asChild>
-          <Link href="/finance/banking/connect">
-            <Plus className="mr-2 h-4 w-4" />
-            Connect Account
-          </Link>
-        </Button>
-      </div>
+      <Button asChild>
+        <Link href="/finance/banking/connect">
+          <Plus className="mr-2 h-4 w-4" />
+          Connect Account
+        </Link>
+      </Button>
 
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
@@ -67,8 +62,8 @@ export default function BankingPage() {
           </div>
         </div>
       ) : accounts.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center h-64">
+        <AnimatedCard variant="elevated" padding="lg">
+          <div className="flex flex-col items-center justify-center h-64">
             <p className="text-sm text-muted-foreground mb-4">No bank accounts found</p>
             <Button asChild>
               <Link href="/finance/banking/connect">
@@ -76,27 +71,25 @@ export default function BankingPage() {
                 Connect Account
               </Link>
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </AnimatedCard>
       ) : (
         <>
           {/* Total Balance Card */}
-          <Card className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
-            <CardContent className="pt-6">
-              <div className="space-y-2">
-                <p className="text-sm opacity-90">Total Balance</p>
-                <p className="text-4xl font-bold">{formatCurrency(totalBalance)}</p>
-                <p className="text-sm opacity-75">
-                  Across {accounts.length} accounts
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <AnimatedCard variant="elevated" padding="lg" className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+            <div className="space-y-2">
+              <p className="text-sm opacity-90">Total Balance</p>
+              <p className="text-4xl font-bold">{formatCurrency(totalBalance)}</p>
+              <p className="text-sm opacity-75">
+                Across {accounts.length} accounts
+              </p>
+            </div>
+          </AnimatedCard>
 
           {/* Bank Accounts Grid */}
           <div className="grid gap-6 md:grid-cols-2">
             {accounts.map((account) => (
-          <Card key={account.id} className="relative hover:shadow-lg transition-shadow">
+          <AnimatedCard key={account.id} variant="elevated" padding="lg" className="relative hover:shadow-lg transition-shadow">
             {account.isPrimary && (
               <div className="absolute top-4 right-4">
                 <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
@@ -106,14 +99,12 @@ export default function BankingPage() {
               </div>
             )}
 
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-lg font-semibold">
                 <CreditCard className="h-5 w-5 text-muted-foreground" />
                 {account.accountName}
-              </CardTitle>
-            </CardHeader>
+              </div>
 
-            <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Bank</span>
@@ -151,52 +142,39 @@ export default function BankingPage() {
                   </Button>
                 </div>
               </div>
-
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedCard>
             ))}
           </div>
 
           {/* Quick Stats */}
           <div className="grid gap-4 sm:grid-cols-3">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Total Balance
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">
-                  {formatCurrency(totalBalance)}
-                </p>
-              </CardContent>
-            </Card>
+            <AnimatedCard variant="elevated" padding="md">
+              <div className="text-sm font-medium text-muted-foreground pb-3">
+                Total Balance
+              </div>
+              <p className="text-2xl font-bold">
+                {formatCurrency(totalBalance)}
+              </p>
+            </AnimatedCard>
 
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Active Accounts
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">
-                  {accounts.filter((acc) => acc.isActive).length}
-                </p>
-              </CardContent>
-            </Card>
+            <AnimatedCard variant="elevated" padding="md">
+              <div className="text-sm font-medium text-muted-foreground pb-3">
+                Active Accounts
+              </div>
+              <p className="text-2xl font-bold">
+                {accounts.filter((acc) => acc.isActive).length}
+              </p>
+            </AnimatedCard>
 
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Total Accounts
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">
-                  {accounts.length}
-                </p>
-              </CardContent>
-            </Card>
+            <AnimatedCard variant="elevated" padding="md">
+              <div className="text-sm font-medium text-muted-foreground pb-3">
+                Total Accounts
+              </div>
+              <p className="text-2xl font-bold">
+                {accounts.length}
+              </p>
+            </AnimatedCard>
           </div>
         </>
       )}

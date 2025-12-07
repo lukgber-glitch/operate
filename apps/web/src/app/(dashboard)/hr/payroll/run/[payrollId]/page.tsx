@@ -6,8 +6,10 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
+import { AnimatedCard } from '@/components/ui/animated-card';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PayRunWizard } from '@/components/hr/payroll/PayRunWizard';
@@ -80,15 +82,12 @@ export default function SpecificPayrollPage() {
     return (
       <div className="container mx-auto py-8 max-w-2xl">
         <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Payroll Details</h1>
-            <p className="text-muted-foreground">
-              This payroll has been {payroll.status} and cannot be edited
-            </p>
-          </div>
+          <HeadlineOutside subtitle={`This payroll has been ${payroll.status} and cannot be edited`}>
+            Payroll Details
+          </HeadlineOutside>
 
-          <Card>
-            <CardContent className="p-6 space-y-4">
+          <AnimatedCard variant="elevated" padding="lg">
+            <div className="space-y-4">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Status:</span>
                 <span className="font-semibold capitalize">{payroll.status}</span>
@@ -113,8 +112,8 @@ export default function SpecificPayrollPage() {
                   ${parseFloat(payroll.payrollTotals?.netPayTotal || '0').toLocaleString()}
                 </span>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </AnimatedCard>
 
           <Button variant="outline" onClick={() => router.push('/hr/payroll')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -128,12 +127,9 @@ export default function SpecificPayrollPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Edit Payroll</h1>
-          <p className="text-muted-foreground">
-            Make changes to this payroll before submission
-          </p>
-        </div>
+        <HeadlineOutside subtitle="Make changes to this payroll before submission">
+          Edit Payroll
+        </HeadlineOutside>
         <Button variant="outline" onClick={() => router.push('/hr/payroll')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Cancel
