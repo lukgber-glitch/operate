@@ -1,0 +1,230 @@
+'use client';
+
+import { useRef, useLayoutEffect } from 'react';
+import {
+  FileText,
+  TrendingUp,
+  Calculator,
+  Mail,
+  Building2,
+  LucideIcon
+} from 'lucide-react';
+import gsap from 'gsap';
+import { cn } from '@/lib/utils';
+
+export interface QuickAction {
+  icon: LucideIcon;
+  label: string;
+  action: string;
+}
+
+interface QuickActionPillsProps {
+  onActionClick: (action: string) => void;
+  contextualActions?: QuickAction[];
+  className?: string;
+}
+
+/**
+ * QuickActionPills - Contextual action suggestions above chat input
+ *
+ * Features:
+ * - Horizontal scrollable row of action pills
+ * - Contextual actions based on current state
+ * - Click fills the chat input with the action text
+ * - GSAP stagger animation on appear
+ * - Design system compliant with CSS custom properties
+ * - Touch-friendly with native scroll on mobile
+ */
+
+// Default actions for empty chat state
+const defaultActions: QuickAction[] = [
+  { icon: FileText, label: 'Create invoice', action: 'Create a new invoice for...' },
+  { icon: TrendingUp, label: 'Cash flow', action: 'Show my cash flow forecast' },
+  { icon: Calculator, label: 'Tax summary', action: 'What is my current tax liability?' },
+  { icon: Mail, label: 'Email insights', action: 'Summarize my recent business emails' },
+  { icon: Building2, label: 'Bank summary', action: 'Show my bank account summary' },
+];
+
+export function QuickActionPills({
+  onActionClick,
+  contextualActions,
+  className,
+}: QuickActionPillsProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Use contextual actions if provided, otherwise use defaults
+  const actions = contextualActions && contextualActions.length > 0
+    ? contextualActions
+    : defaultActions;
+
+  // GSAP stagger animation on mount/update
+  useLayoutEffect(() => {
+    if (!containerRef.current || !actions.length) return;
+
+    const ctx = gsap.context(() => {
+      const pills = containerRef.current?.querySelectorAll('.quick-action-pill');
+      if (!pills || pills.length === 0) return;
+
+      gsap.fromTo(
+        pills,
+        {
+          opacity: 0,
+          scale: 0.85,
+          y: 8,
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.35,
+          stagger: 0.06,
+          ease: 'back.out(1.4)',
+        }
+      );
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, [actions]);
+
+  if (!actions || actions.length === 0) {
+    return null;
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      className={cn(
+        'py-2 px-3 md:px-4 border-t',
+        className
+      )}
+      style={{
+        background: 'var(--color-surface)',
+        borderColor: 'var(--color-border)',
+      }}
+    >
+      {/* Desktop: ScrollArea with subtle scrollbar */}
+      <div className="hidden md:block">
+        <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-rounded pb-2">
+          {actions.map((action, index) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={index}
+                onClick={() => onActionClick(action.action)}
+                className={cn(
+                  'quick-action-pill',
+                  'inline-flex items-center gap-2',
+                  'px-4 py-2',
+                  'rounded-full',
+                  'text-sm font-medium',
+                  'whitespace-nowrap',
+                  'cursor-pointer',
+                  'transition-all',
+                  'hover:scale-105',
+                  'active:scale-95',
+                  'focus:outline-none focus:ring-2',
+                )}
+                style={{
+                  background: 'var(--color-accent-light)',
+                  color: 'var(--color-primary-dark)',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: 'var(--font-size-sm)',
+                  padding: '8px 16px',
+                  gap: 'var(--space-2)',
+                  transition: 'var(--transition-fast)',
+                }}
+                aria-label={`Quick action: ${action.label}`}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                <span>{action.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Mobile: Native horizontal scroll with snap */}
+      <div className="md:hidden -mx-3">
+        <div
+          className="flex gap-2 px-3 pb-2 overflow-x-auto snap-x snap-mandatory"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
+          {actions.map((action, index) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={index}
+                onClick={() => onActionClick(action.action)}
+                className={cn(
+                  'quick-action-pill',
+                  'inline-flex items-center gap-2',
+                  'px-4 py-2.5',
+                  'rounded-full',
+                  'text-sm font-medium',
+                  'whitespace-nowrap',
+                  'cursor-pointer',
+                  'transition-all',
+                  'snap-start',
+                  'active:scale-95',
+                  'min-h-[44px]', // Touch-friendly
+                )}
+                style={{
+                  background: 'var(--color-accent-light)',
+                  color: 'var(--color-primary-dark)',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: 'var(--font-size-sm)',
+                  padding: '10px 16px',
+                  gap: 'var(--space-2)',
+                  transition: 'var(--transition-fast)',
+                }}
+                aria-label={`Quick action: ${action.label}`}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                <span>{action.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Optional: Scroll hint for desktop */}
+      <style jsx>{`
+        .scrollbar-thin::-webkit-scrollbar {
+          height: 4px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background: var(--color-border);
+          border-radius: var(--radius-full);
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background: var(--color-text-muted);
+        }
+
+        /* Hover effect using CSS variables */
+        .quick-action-pill:hover {
+          background: var(--color-secondary-light);
+          box-shadow: var(--shadow-sm);
+        }
+
+        .quick-action-pill:focus-visible {
+          box-shadow: var(--shadow-focus);
+        }
+
+        /* Hide scrollbar on mobile */
+        .md\\:hidden > div::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+    </div>
+  );
+}

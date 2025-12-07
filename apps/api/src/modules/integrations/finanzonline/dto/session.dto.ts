@@ -56,9 +56,8 @@ export class LoginDto {
   @ApiProperty({
     description: 'Authentication type',
     enum: FinanzOnlineAuthType,
-    example: FinanzOnlineAuthType.USER_PIN,
+    example: 'USER_PIN',
   })
-  @IsEnum(FinanzOnlineAuthType)
   @IsNotEmpty()
   authType: FinanzOnlineAuthType;
 
@@ -82,9 +81,8 @@ export class LoginDto {
   @ApiPropertyOptional({
     description: 'FinanzOnline environment',
     enum: FinanzOnlineEnvironment,
-    default: FinanzOnlineEnvironment.TEST,
+    default: 'TEST',
   })
-  @IsEnum(FinanzOnlineEnvironment)
   @IsOptional()
   environment?: FinanzOnlineEnvironment;
 
@@ -146,7 +144,7 @@ export class SessionInfoDto {
   @ApiProperty({
     description: 'FinanzOnline environment',
     enum: FinanzOnlineEnvironment,
-    example: FinanzOnlineEnvironment.TEST,
+    example: 'TEST',
   })
   environment: FinanzOnlineEnvironment;
 

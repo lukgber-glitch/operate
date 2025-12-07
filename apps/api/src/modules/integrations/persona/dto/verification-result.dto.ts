@@ -18,7 +18,7 @@ export class VerificationCheckDto {
   @ApiProperty({
     description: 'Status of the check',
     enum: PersonaVerificationStatus,
-    example: PersonaVerificationStatus.PASSED,
+    example: 'PASSED',
   })
   status: PersonaVerificationStatus;
 
@@ -49,14 +49,14 @@ export class VerificationDto {
   @ApiProperty({
     description: 'Type of verification',
     enum: PersonaVerificationType,
-    example: PersonaVerificationType.GOVERNMENT_ID,
+    example: 'GOVERNMENT_ID',
   })
   type: PersonaVerificationType;
 
   @ApiProperty({
     description: 'Overall status of the verification',
     enum: PersonaVerificationStatus,
-    example: PersonaVerificationStatus.PASSED,
+    example: 'PASSED',
   })
   status: PersonaVerificationStatus;
 
@@ -93,7 +93,7 @@ export class VerificationResultDto {
   @ApiProperty({
     description: 'Overall inquiry status',
     enum: PersonaInquiryStatus,
-    example: PersonaInquiryStatus.APPROVED,
+    example: 'APPROVED',
   })
   status: PersonaInquiryStatus;
 

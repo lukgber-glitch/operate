@@ -6,9 +6,8 @@ export class PreviewMigrationDto {
   @ApiProperty({
     description: 'Type of data to preview',
     enum: LexofficeMigrationType,
-    example: LexofficeMigrationType.CONTACTS,
+    example: 'CONTACTS',
   })
-  @IsEnum(LexofficeMigrationType)
   @IsNotEmpty()
   type: LexofficeMigrationType;
 }

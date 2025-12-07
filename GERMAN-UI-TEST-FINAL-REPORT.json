@@ -1,0 +1,76 @@
+{
+  "timestamp": "2025-12-07T13:27:01.942Z",
+  "languageSwitcher": {
+    "exists": true,
+    "dropdownOpens": true,
+    "languagesAvailable": [
+      "🇬🇧English",
+      "🇩🇪Deutsch",
+      "🇪🇸Español",
+      "🇫🇷Français",
+      "🇮🇹Italiano",
+      "🇳🇱Nederlands",
+      "🇸🇪Svenska",
+      "🇯🇵日本語",
+      "🇸🇦العربية",
+      "🇮🇳हिन्दी"
+    ],
+    "canSwitchToEnglish": true,
+    "canSwitchBackToGerman": true
+  },
+  "translations": {
+    "login": {
+      "german": [
+        "Willkommen",
+        "Anmelden",
+        "Passwort",
+        "vergessen",
+        "registrieren"
+      ],
+      "english": [],
+      "translationKeys": []
+    },
+    "register": {
+      "german": [
+        "Konto erstellen",
+        "Vorname",
+        "Nachname",
+        "Datenschutz"
+      ],
+      "english": [],
+      "translationKeys": []
+    },
+    "forgotPassword": {
+      "german": [
+        "Passwort vergessen",
+        "E-Mail",
+        "senden"
+      ],
+      "english": [],
+      "translationKeys": []
+    }
+  },
+  "pages": {
+    "/login": {
+      "status": "loaded",
+      "works": true
+    },
+    "/register": {
+      "status": "loaded",
+      "works": true
+    },
+    "/forgot-password": {
+      "status": "loaded",
+      "works": true
+    }
+  },
+  "issues": [],
+  "screenshots": [
+    "final-01-login-initial.png",
+    "final-02-menu-opened.png",
+    "final-03-english.png",
+    "final-04-german.png",
+    "final-05-register.png",
+    "final-06-forgot-password.png"
+  ]
+}

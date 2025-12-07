@@ -20,7 +20,7 @@ export class LeaveRequestResponseDto {
   @ApiProperty({
     description: 'Type of leave',
     enum: LeaveType,
-    example: LeaveType.ANNUAL,
+    example: 'ANNUAL',
   })
   leaveType: LeaveType;
 
@@ -52,7 +52,7 @@ export class LeaveRequestResponseDto {
   @ApiProperty({
     description: 'Request status',
     enum: LeaveRequestStatus,
-    example: LeaveRequestStatus.PENDING,
+    example: 'PENDING',
   })
   status: LeaveRequestStatus;
 

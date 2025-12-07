@@ -20,9 +20,8 @@ export class CreateContractDto {
   @ApiProperty({
     description: 'Contract type',
     enum: ContractType,
-    example: ContractType.PERMANENT,
+    example: 'PERMANENT',
   })
-  @IsEnum(ContractType)
   contractType: ContractType;
 
   @ApiProperty({
@@ -87,9 +86,8 @@ export class CreateContractDto {
   @ApiProperty({
     description: 'Salary period',
     enum: SalaryPeriod,
-    example: SalaryPeriod.MONTHLY,
+    example: 'MONTHLY',
   })
-  @IsEnum(SalaryPeriod)
   salaryPeriod: SalaryPeriod;
 
   @ApiProperty({

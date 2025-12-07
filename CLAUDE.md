@@ -1,22 +1,69 @@
-# Operate/CoachOS - Claude Code Guide
+# Operate - Full Automation Build Guide
 
 ## Quick Start
 
 ```bash
-/continue   # Resume from checkpoint - starts Chat-First Frontend work
+/continue   # Resume from checkpoint - reads STATE.json and continues
 ```
+
+## Current Phase: Full Automation Build
+
+**Status**: Planning Complete - Sprint 1 Ready to Launch
+**Role**: ATLAS (Project Manager) - Coordinate agents, do NOT write code directly
+
+### State Files (READ THESE FIRST)
+1. `agents/STATE.json` - Current progress checkpoint
+2. `agents/FULL_AUTOMATION_PLAN.md` - Master plan (49 tasks, 7 sprints)
+3. `agents/AGENT_INDEX.md` - Agent assignments and launch guide
+4. `agents/tasks/SPRINT1_TASK_ASSIGNMENTS.md` - Current sprint details
+
+## Build Goal
+
+**User Request**: "Fully automatic chat app where user can focus on working and app does everything else"
+
+### Automation Features (49 Tasks)
+- Email → Invoice extraction (automatic)
+- Bank → Transaction classification (automatic)
+- Proactive daily suggestions (automatic)
+- Chat actions with confirmation (semi-automatic)
+- Bills/AP management (automatic)
+- Tax filing assistance (one-click)
+- Cash flow predictions (proactive alerts)
+- Document search (natural language)
+
+## Sprint Overview
+
+| Sprint | Focus | Tasks | Status |
+|--------|-------|-------|--------|
+| 1 | Foundation Pipelines | 6 | READY_TO_LAUNCH |
+| 2 | Bills & Vendors | 7 | PLANNED |
+| 3 | Auto-Reconciliation | 7 | PLANNED |
+| 4 | Document Intelligence | 7 | PLANNED |
+| 5 | Tax Filing | 7 | PLANNED |
+| 6 | Cash Flow | 7 | PLANNED |
+| 7 | Production Hardening | 8 | PLANNED |
+
+## Agent Roles
+
+| Agent | Specialty | Note |
+|-------|-----------|------|
+| **ATLAS** | Project Manager | Coordinates, NEVER writes code |
+| **BRIDGE** | Integrations | Pipelines, APIs, storage |
+| **ORACLE** | AI/ML | Classification, search, proactive |
+| **FORGE** | Backend | CRUD, services, reports |
+| **PRISM** | Frontend | UI, wizards, dashboard |
+| **VAULT** | Database | Schemas, migrations |
+| **FLUX** | DevOps | Monitoring, performance |
+| **VERIFY** | QA | Testing |
+| **SENTINEL** | Security | Audit |
 
 ## Live Deployment
 
-**Production URL:** https://operate.guru
-
-| Component | Details |
-|-----------|---------|
-| **API** | https://operate.guru/api/v1 |
-| **Server** | Cloudways (164.90.202.153) |
-| **Database** | Neon PostgreSQL |
-| **PM2 Process** | operate-api |
-| **SSH** | `ssh cloudways` |
+- **App**: https://operate.guru
+- **API**: https://operate.guru/api/v1
+- **Server**: Cloudways (164.90.202.153)
+- **SSH**: `ssh cloudways`
+- **PM2 Process**: operate-api
 
 ## All Integrations Complete
 
@@ -27,45 +74,26 @@
 - Stripe Payments (with webhook)
 - Plaid US Banking (sandbox)
 
-## Current Phase: Chat-First Frontend
-
-**Plan File**: `agents/CHAT_FIRST_FRONTEND_PLAN.md`
-
-### Implementation Phases:
-1. **Phase 1**: Onboarding Wizard
-   - Business Profile
-   - Bank Connection (GoCardless/Plaid)
-   - Tax Setup (ELSTER/FinanzOnline)
-   - Email Integration (Gmail/Outlook)
-   - Data Import
-
-2. **Phase 2**: Chat-First Main Interface
-   - Full-page chat (not floating widget)
-   - Suggestion cards with actions
-   - Streaming message support
-   - Quick action buttons
-
-3. **Phase 3**: Action Execution
-   - Execute actions from chat responses
-   - Create invoices, send reminders, etc.
-
 ## Project Structure
 
 ```
 operate-fresh/
-├── apps/api/          # NestJS Backend (COMPLETE)
-├── apps/web/          # Next.js Frontend (CURRENT FOCUS)
+├── apps/api/          # NestJS Backend
+├── apps/web/          # Next.js Frontend
 ├── apps/workers/      # Background jobs
 ├── packages/database/ # Prisma
 ├── packages/shared/   # Shared types
-└── agents/            # Build plans
+└── agents/            # Build plans & state
+    ├── STATE.json           # Progress checkpoint
+    ├── FULL_AUTOMATION_PLAN.md
+    ├── AGENT_INDEX.md
+    └── tasks/
+        ├── SPRINT1_TASK_ASSIGNMENTS.md
+        ├── SPRINT2_TASK_ASSIGNMENTS.md
+        ├── SPRINT3_TASK_ASSIGNMENTS.md
+        ├── SPRINT4_TASK_ASSIGNMENTS.md
+        └── SPRINT5_TO_7_TASK_ASSIGNMENTS.md
 ```
-
-## Tech Stack
-
-- **Backend**: NestJS + Prisma + PostgreSQL + Redis
-- **Frontend**: Next.js 14 + React + TailwindCSS
-- **AI**: Anthropic Claude
 
 ## Server Commands
 
@@ -79,3 +107,11 @@ ssh cloudways "cd ~/applications/eagqdkxvzv/public_html/apps/api && npx pm2 logs
 # Restart API
 ssh cloudways "cd ~/applications/eagqdkxvzv/public_html/apps/api && npx pm2 restart operate-api --update-env"
 ```
+
+## Key Rules
+
+1. **ATLAS coordinates, doesn't code** - Launch agents for implementation
+2. **Update STATE.json** - After each task/phase completion
+3. **Parallel agents** - Launch independent tasks simultaneously
+4. **Dependencies** - Respect task dependencies in sprint files
+5. **Checkpoints** - Save state when context runs low

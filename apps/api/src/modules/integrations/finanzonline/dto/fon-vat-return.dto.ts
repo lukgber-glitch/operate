@@ -31,9 +31,8 @@ export class VatPeriodDto {
   @ApiProperty({
     description: 'Period type',
     enum: VatPeriodType,
-    example: VatPeriodType.MONTHLY,
+    example: 'MONTHLY',
   })
-  @IsEnum(VatPeriodType)
   type!: VatPeriodType;
 
   @ApiPropertyOptional({

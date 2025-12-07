@@ -31,7 +31,6 @@ export class CreateScheduledExportDto {
     description: 'Export type',
     enum: ExportType,
   })
-  @IsEnum(ExportType)
   @IsNotEmpty()
   exportType: ExportType;
 

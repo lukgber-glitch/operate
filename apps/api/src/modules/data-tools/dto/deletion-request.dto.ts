@@ -10,19 +10,17 @@ export class DeletionRequestDto {
   @ApiProperty({
     description: 'Deletion mode',
     enum: DeletionMode,
-    example: DeletionMode.SOFT,
+    example: 'SOFT',
   })
-  @IsEnum(DeletionMode)
   mode: DeletionMode;
 
   @ApiProperty({
     description: 'Data categories to delete',
     enum: DataCategory,
     isArray: true,
-    example: [DataCategory.PROFILE, DataCategory.FINANCIAL],
+    example: ['PROFILE', 'FINANCIAL'],
   })
   @IsArray()
-  @IsEnum(DataCategory, { each: true })
   categories: DataCategory[];
 
   @ApiPropertyOptional({

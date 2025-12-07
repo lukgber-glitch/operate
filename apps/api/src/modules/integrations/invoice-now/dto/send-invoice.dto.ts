@@ -101,7 +101,6 @@ export class InvoiceLineDto {
   @Min(0)
   lineExtensionAmount: number;
 
-  @IsEnum(SingaporeGstCategory)
   taxCategory: SingaporeGstCategory;
 
   @IsNumber()
@@ -154,7 +153,6 @@ export class PaymentMeansDto {
  * Send Invoice DTO
  */
 export class SendInvoiceDto {
-  @IsEnum(InvoiceNowDocumentType)
   documentType: InvoiceNowDocumentType;
 
   @IsString()

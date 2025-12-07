@@ -45,6 +45,18 @@ export enum Permission {
   EXPENSES_DELETE = 'expenses:delete',
   EXPENSES_APPROVE = 'expenses:approve',
 
+  BILLS_READ = 'bills:read',
+  BILLS_CREATE = 'bills:create',
+  BILLS_UPDATE = 'bills:update',
+  BILLS_DELETE = 'bills:delete',
+  BILLS_APPROVE = 'bills:approve',
+  BILLS_PAY = 'bills:pay',
+
+  VENDORS_READ = 'vendors:read',
+  VENDORS_CREATE = 'vendors:create',
+  VENDORS_UPDATE = 'vendors:update',
+  VENDORS_DELETE = 'vendors:delete',
+
   PAYMENTS_READ = 'payments:read',
   PAYMENTS_CREATE = 'payments:create',
   PAYMENTS_UPDATE = 'payments:update',
@@ -267,6 +279,60 @@ export const PermissionMetadata: Record<
     name: 'Approve Expenses',
     description: 'Approve expense reimbursements',
     category: 'Finance',
+  },
+
+  // Bills
+  [Permission.BILLS_READ]: {
+    name: 'Read Bills',
+    description: 'View bills and accounts payable',
+    category: 'Finance',
+  },
+  [Permission.BILLS_CREATE]: {
+    name: 'Create Bills',
+    description: 'Create new bills',
+    category: 'Finance',
+  },
+  [Permission.BILLS_UPDATE]: {
+    name: 'Update Bills',
+    description: 'Edit bills',
+    category: 'Finance',
+  },
+  [Permission.BILLS_DELETE]: {
+    name: 'Delete Bills',
+    description: 'Delete bills',
+    category: 'Finance',
+  },
+  [Permission.BILLS_APPROVE]: {
+    name: 'Approve Bills',
+    description: 'Approve bills for payment',
+    category: 'Finance',
+  },
+  [Permission.BILLS_PAY]: {
+    name: 'Pay Bills',
+    description: 'Record bill payments',
+    category: 'Finance',
+  },
+
+  // Vendors
+  [Permission.VENDORS_READ]: {
+    name: 'Read Vendors',
+    description: 'View vendors and suppliers',
+    category: 'CRM',
+  },
+  [Permission.VENDORS_CREATE]: {
+    name: 'Create Vendors',
+    description: 'Add new vendors',
+    category: 'CRM',
+  },
+  [Permission.VENDORS_UPDATE]: {
+    name: 'Update Vendors',
+    description: 'Edit vendor details',
+    category: 'CRM',
+  },
+  [Permission.VENDORS_DELETE]: {
+    name: 'Delete Vendors',
+    description: 'Delete vendors',
+    category: 'CRM',
   },
 
   // Payments

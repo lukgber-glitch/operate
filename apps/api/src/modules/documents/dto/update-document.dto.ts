@@ -33,10 +33,9 @@ export class UpdateDocumentDto {
   @ApiPropertyOptional({
     description: 'Document type',
     enum: DocumentType,
-    example: DocumentType.REPORT,
+    example: 'REPORT',
   })
   @IsOptional()
-  @IsEnum(DocumentType)
   type?: DocumentType;
 
   @ApiPropertyOptional({

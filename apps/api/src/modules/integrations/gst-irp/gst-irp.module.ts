@@ -8,7 +8,7 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from '@/modules/database/prisma.module';
+import { DatabaseModule } from '@/modules/database/database.module';
 import { GstIrpClient } from './gst-irp.client';
 import { GstIrpService } from './gst-irp.service';
 import { GstIrpAuditService } from './gst-irp-audit.service';
@@ -48,7 +48,7 @@ import { GstIrpValidationService } from './utils/gst-irp-validation.service';
       maxRedirects: 5,
     }),
     ConfigModule,
-    PrismaModule,
+    DatabaseModule,
   ],
   providers: [
     GstIrpClient,

@@ -22,3 +22,12 @@ export { NavItem } from './nav-item';
 export { OrgSwitcher } from './org-switcher';
 export { Sidebar } from './sidebar';
 export { UserMenu } from './user-menu';
+
+// Financial Dashboard Widget Components
+export { CashBalanceCard } from './CashBalanceCard';
+export { ArApSummaryCard } from './ArApSummaryCard';
+export { RunwayCard } from './RunwayCard';
+export { RevenueChart } from './RevenueChart';
+export { ExpenseBreakdown } from './ExpenseBreakdown';
+export { UpcomingItems } from './UpcomingItems';
+export { QuickActions } from './QuickActions';

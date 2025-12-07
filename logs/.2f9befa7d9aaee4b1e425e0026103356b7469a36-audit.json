@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\grube\\op\\operate-fresh\\logs\\.2f9befa7d9aaee4b1e425e0026103356b7469a36-audit.json",
+    "files": [
+        {
+            "date": 1765046501980,
+            "name": "C:\\Users\\grube\\op\\operate-fresh\\logs\\mcp-puppeteer-2025-12-06.log",
+            "hash": "3d7bb75d58dfa7ed9f65e7335bad74fd0e8b6cd1aa48c8881b80cacada2249aa"
+        },
+        {
+            "date": 1765111990222,
+            "name": "C:\\Users\\grube\\op\\operate-fresh\\logs\\mcp-puppeteer-2025-12-07.log",
+            "hash": "8c69aa124de7bb85aeb3089177e6684837e2861437a196125b76be44242d502b"
+        }
+    ],
+    "hashType": "sha256"
+}

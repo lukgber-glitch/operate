@@ -67,11 +67,10 @@ export class LineItemDto {
   amount: number;
 
   @ApiPropertyOptional({
-    example: ProductTaxability.SAAS,
+    example: 'SAAS',
     enum: ProductTaxability,
     description: 'AvaTax product taxability code',
   })
-  @IsEnum(ProductTaxability)
   @IsOptional()
   taxCode?: ProductTaxability;
 

@@ -96,7 +96,6 @@ export class CreateW4FormDto {
     enum: FilingStatus,
     description: 'Tax filing status',
   })
-  @IsEnum(FilingStatus)
   filingStatus: FilingStatus;
 
   @ApiProperty({
@@ -166,7 +165,6 @@ export class UpdateW4FormDto {
     description: 'Tax filing status',
   })
   @IsOptional()
-  @IsEnum(FilingStatus)
   filingStatus?: FilingStatus;
 
   @ApiPropertyOptional({

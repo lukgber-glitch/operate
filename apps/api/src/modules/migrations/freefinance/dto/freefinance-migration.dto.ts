@@ -9,9 +9,8 @@ export class UploadFreeFinanceFileDto {
   @ApiProperty({
     description: 'Type of data being migrated',
     enum: FreeFinanceMigrationType,
-    example: FreeFinanceMigrationType.CUSTOMERS,
+    example: 'CUSTOMERS',
   })
-  @IsEnum(FreeFinanceMigrationType)
   type: FreeFinanceMigrationType;
 
   @ApiProperty({
@@ -30,7 +29,6 @@ export class PreviewMigrationDto {
     description: 'Type of data being migrated',
     enum: FreeFinanceMigrationType,
   })
-  @IsEnum(FreeFinanceMigrationType)
   type: FreeFinanceMigrationType;
 
   @ApiPropertyOptional({
@@ -54,7 +52,6 @@ export class ExecuteMigrationDto {
     description: 'Type of data being migrated',
     enum: FreeFinanceMigrationType,
   })
-  @IsEnum(FreeFinanceMigrationType)
   type: FreeFinanceMigrationType;
 
   @ApiPropertyOptional({
@@ -174,7 +171,6 @@ export class ValidateMigrationDto {
     description: 'Type of data being validated',
     enum: FreeFinanceMigrationType,
   })
-  @IsEnum(FreeFinanceMigrationType)
   type: FreeFinanceMigrationType;
 
   @ApiPropertyOptional({

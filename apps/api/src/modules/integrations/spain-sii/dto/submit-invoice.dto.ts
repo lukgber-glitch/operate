@@ -50,7 +50,6 @@ export class SiiPartyDto {
  * VAT Line DTO
  */
 export class SiiVatLineDto {
-  @IsEnum(SiiVatKey)
   vatKey: SiiVatKey;
 
   @IsNumber({ maxDecimalPlaces: 2 })
@@ -154,7 +153,6 @@ export class SubmitIssuedInvoiceDto {
   @Type(() => Date)
   issueDate: Date;
 
-  @IsEnum(SiiInvoiceType)
   invoiceType: SiiInvoiceType;
 
   // Parties
@@ -167,11 +165,9 @@ export class SubmitIssuedInvoiceDto {
   recipient: SiiPartyDto;
 
   // Operation details
-  @IsEnum(SiiOperationType)
   operationType: SiiOperationType;
 
   @IsOptional()
-  @IsEnum(SiiSpecialCircumstance)
   specialCircumstance?: SiiSpecialCircumstance;
 
   // Invoice details
@@ -283,7 +279,6 @@ export class SubmitReceivedInvoiceDto {
   @Type(() => Date)
   issueDate: Date;
 
-  @IsEnum(SiiInvoiceType)
   invoiceType: SiiInvoiceType;
 
   // Parties
@@ -296,11 +291,9 @@ export class SubmitReceivedInvoiceDto {
   recipient: SiiPartyDto;
 
   // Operation details
-  @IsEnum(SiiOperationType)
   operationType: SiiOperationType;
 
   @IsOptional()
-  @IsEnum(SiiSpecialCircumstance)
   specialCircumstance?: SiiSpecialCircumstance;
 
   // Invoice details
@@ -420,7 +413,6 @@ export class SubmitPaymentDto {
   @Min(0)
   paymentAmount: number;
 
-  @IsEnum(SiiPaymentMethod)
   paymentMethod: SiiPaymentMethod;
 
   @IsOptional()

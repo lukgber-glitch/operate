@@ -7,6 +7,7 @@ import { ReminderEscalationService } from './reminder-escalation.service';
 import { ReminderProcessor } from './reminder.processor';
 import { ReminderScheduler } from './reminder.scheduler';
 import { RbacModule } from '../../../auth/rbac/rbac.module';
+import { NotificationsModule } from '../../../notifications/notifications.module';
 
 /**
  * Payment Reminder Module
@@ -15,6 +16,7 @@ import { RbacModule } from '../../../auth/rbac/rbac.module';
 @Module({
   imports: [
     RbacModule,
+    NotificationsModule,
     // Schedule module for cron jobs
     ScheduleModule.forRoot(),
     // Bull queue for background jobs

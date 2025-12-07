@@ -9,9 +9,8 @@ export class CreateLeaveRequestDto {
   @ApiProperty({
     description: 'Type of leave',
     enum: LeaveType,
-    example: LeaveType.ANNUAL,
+    example: 'ANNUAL',
   })
-  @IsEnum(LeaveType)
   leaveType: LeaveType;
 
   @ApiProperty({

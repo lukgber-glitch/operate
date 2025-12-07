@@ -30,7 +30,6 @@ import {
  */
 export class EntityMappingConfigDto implements EntityMappingConfig {
   @ApiProperty({ enum: XeroEntityType })
-  @IsEnum(XeroEntityType)
   entityType: XeroEntityType;
 
   @ApiProperty()
@@ -38,7 +37,6 @@ export class EntityMappingConfigDto implements EntityMappingConfig {
   enabled: boolean;
 
   @ApiProperty({ enum: ConflictStrategy })
-  @IsEnum(ConflictStrategy)
   conflictStrategy: ConflictStrategy;
 
   @ApiPropertyOptional({ type: 'object' })

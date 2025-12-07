@@ -13,7 +13,6 @@ export class LeaveQueryDto {
     required: false,
   })
   @IsOptional()
-  @IsEnum(LeaveType)
   leaveType?: LeaveType;
 
   @ApiProperty({
@@ -22,7 +21,6 @@ export class LeaveQueryDto {
     required: false,
   })
   @IsOptional()
-  @IsEnum(LeaveRequestStatus)
   status?: LeaveRequestStatus;
 
   @ApiProperty({
@@ -113,7 +111,7 @@ export class CalendarEntryDto {
   @ApiProperty({
     description: 'Leave type',
     enum: LeaveType,
-    example: LeaveType.ANNUAL,
+    example: 'ANNUAL',
   })
   leaveType: LeaveType;
 
@@ -138,7 +136,7 @@ export class CalendarEntryDto {
   @ApiProperty({
     description: 'Request status',
     enum: LeaveRequestStatus,
-    example: LeaveRequestStatus.APPROVED,
+    example: 'APPROVED',
   })
   status: LeaveRequestStatus;
 }

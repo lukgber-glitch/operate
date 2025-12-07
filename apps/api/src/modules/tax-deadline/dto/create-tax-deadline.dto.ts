@@ -20,9 +20,8 @@ export class CreateTaxDeadlineDto {
   @ApiProperty({
     description: 'Tax type',
     enum: TaxTypeEnum,
-    example: TaxTypeEnum.VAT_MONTHLY,
+    example: 'VAT_MONTHLY',
   })
-  @IsEnum(TaxTypeEnum)
   taxType: TaxTypeEnum;
 
   @ApiProperty({

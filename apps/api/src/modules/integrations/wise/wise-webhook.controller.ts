@@ -17,6 +17,7 @@ import {
   WiseWebhookPayload,
   WiseTransferStatus,
 } from './wise.types';
+import { Public } from '../../../common/decorators/public.decorator';
 
 /**
  * Wise Webhook Controller
@@ -41,6 +42,7 @@ export class WiseWebhookController {
 
   constructor(private readonly wiseService: WiseService) {}
 
+  @Public()
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

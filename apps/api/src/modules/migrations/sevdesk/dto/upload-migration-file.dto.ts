@@ -9,9 +9,8 @@ export class UploadMigrationFileDto {
   @ApiProperty({
     description: 'Type of entity to migrate',
     enum: SevDeskEntityType,
-    example: SevDeskEntityType.CONTACT,
+    example: 'CONTACT',
   })
-  @IsEnum(SevDeskEntityType)
   entityType: SevDeskEntityType;
 
   @ApiPropertyOptional({

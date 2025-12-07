@@ -25,10 +25,9 @@ export class EmployeeQueryDto {
   @ApiPropertyOptional({
     description: 'Filter by employment status',
     enum: EmploymentStatus,
-    example: EmploymentStatus.ACTIVE,
+    example: 'ACTIVE',
   })
   @IsOptional()
-  @IsEnum(EmploymentStatus)
   status?: EmploymentStatus;
 
   @ApiPropertyOptional({

@@ -11,7 +11,6 @@ export class PlaidWebhookDto {
     enum: PlaidWebhookType,
     example: 'TRANSACTIONS',
   })
-  @IsEnum(PlaidWebhookType)
   webhook_type: PlaidWebhookType;
 
   @ApiProperty({

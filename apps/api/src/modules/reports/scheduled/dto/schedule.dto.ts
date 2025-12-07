@@ -35,9 +35,8 @@ export class ScheduleConfigDto {
   @ApiProperty({
     description: 'Schedule frequency',
     enum: ScheduleFrequency,
-    example: ScheduleFrequency.MONTHLY,
+    example: 'MONTHLY',
   })
-  @IsEnum(ScheduleFrequency)
   frequency: ScheduleFrequency;
 
   @ApiProperty({

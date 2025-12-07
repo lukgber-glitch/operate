@@ -17,9 +17,8 @@ export class CreateCostEntryDto {
   @ApiProperty({
     description: 'Cost category',
     enum: CostCategory,
-    example: CostCategory.AI_CLASSIFICATION,
+    example: 'AI_CLASSIFICATION',
   })
-  @IsEnum(CostCategory)
   category: CostCategory;
 
   @ApiProperty({

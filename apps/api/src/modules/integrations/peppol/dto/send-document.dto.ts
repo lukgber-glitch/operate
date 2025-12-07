@@ -144,7 +144,6 @@ export class SendDocumentDto {
   @IsNotEmpty()
   organizationId: string;
 
-  @IsEnum(PeppolDocumentType)
   documentType: PeppolDocumentType;
 
   @IsString()

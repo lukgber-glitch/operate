@@ -118,9 +118,8 @@ export class PersonalInfoDto {
   @ApiPropertyOptional({
     description: 'Marital status',
     enum: MaritalStatus,
-    example: MaritalStatus.SINGLE,
+    example: 'SINGLE',
   })
-  @IsEnum(MaritalStatus)
   @IsOptional()
   maritalStatus?: MaritalStatus;
 }

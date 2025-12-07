@@ -1,14 +1,15 @@
 'use client';
 
-import { Send, Paperclip, Loader2, Upload } from 'lucide-react';
+import { Send, Paperclip, Loader2, Upload, Mic, History } from 'lucide-react';
 import { useRef, useState, KeyboardEvent, ChangeEvent, DragEvent } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { VoiceInputButton } from './VoiceInputButton';
+import { VoiceInput } from './VoiceInput';
 import { useFileUpload, type AttachedFile } from '@/hooks/use-file-upload';
 import { AttachmentPreview, AttachmentCounter } from './AttachmentPreview';
+import { QuickActionPills, type QuickAction } from './QuickActionPills';
 
 interface ChatInputProps {
   onSend: (message: string, files?: AttachedFile[]) => void;
@@ -23,6 +24,8 @@ interface ChatInputProps {
   onChange?: (value: string) => void;
   maxFiles?: number;
   maxFileSizeMB?: number;
+  showQuickActions?: boolean;
+  quickActions?: QuickAction[];
 }
 
 /**
@@ -51,6 +54,8 @@ export function ChatInput({
   onChange: controlledOnChange,
   maxFiles = 5,
   maxFileSizeMB = 10,
+  showQuickActions = true,
+  quickActions,
 }: ChatInputProps) {
   const [internalValue, setInternalValue] = useState('');
   const [isDragging, setIsDragging] = useState(false);
@@ -171,23 +176,52 @@ export function ChatInput({
     textareaRef.current?.focus();
   };
 
+  const handleQuickActionClick = (action: string) => {
+    // Set the action text as the input value
+    setValue(action);
+
+    // Focus the textarea
+    textareaRef.current?.focus();
+
+    // Auto-expand textarea to fit content
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
+    }
+  };
+
   const remainingChars = maxLength - value.length;
   const showCounter = value.length > maxLength * 0.8;
 
   return (
-    <div
-      ref={dropZoneRef}
-      className={cn(
-        'p-3 md:p-4 border-t bg-background transition-colors relative',
-        'chat-input-container',
-        isDragging && 'bg-accent/50 border-primary'
+    <div className="relative">
+      {/* Quick Action Pills - shown above input */}
+      {showQuickActions && (
+        <QuickActionPills
+          onActionClick={handleQuickActionClick}
+          contextualActions={quickActions}
+        />
       )}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-    >
-      {/* Drag overlay */}
+
+      {/* Main Input Container */}
+      <div
+        ref={dropZoneRef}
+        className={cn(
+          'border-t transition-colors relative',
+          isDragging && 'bg-accent/50 border-primary'
+        )}
+        style={{
+          padding: 'var(--space-4)',
+          background: 'var(--color-surface)',
+          boxShadow: 'var(--shadow-md)',
+          borderRadius: 'var(--radius-xl)',
+        }}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        {/* Drag overlay */}
       {isDragging && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-accent/80 border-2 border-dashed border-primary rounded-lg pointer-events-none">
           <div className="text-center">
@@ -219,9 +253,9 @@ export function ChatInput({
       {/* Attachment previews */}
       <AttachmentPreview files={attachedFiles} onRemove={removeFile} />
 
-      <div className="flex gap-1.5 md:gap-2">
+      <div className="flex gap-3">
         {/* Left buttons */}
-        <div className="flex items-end gap-0.5 md:gap-1">
+        <div className="flex items-end gap-2">
           {showAttachment && (
             <>
               <Button
@@ -253,12 +287,34 @@ export function ChatInput({
             </>
           )}
 
+          {/* Voice input */}
           {showVoice && (
-            <VoiceInputButton
+            <VoiceInput
               onTranscript={handleVoiceTranscript}
               disabled={disabled || isLoading}
+              className={cn(
+                'h-10 w-10 md:h-10 md:w-10 shrink-0',
+                'min-h-[44px] min-w-[44px]'
+              )}
+              showTranscript
             />
           )}
+
+          {/* History button placeholder */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className={cn(
+              'h-10 w-10 md:h-10 md:w-10 shrink-0',
+              'min-h-[44px] min-w-[44px]'
+            )}
+            disabled={disabled || isLoading}
+            aria-label="Conversation history"
+            title="History"
+          >
+            <History className="h-4 w-4 md:h-4 md:w-4" />
+          </Button>
         </div>
 
         {/* Textarea */}
@@ -314,16 +370,17 @@ export function ChatInput({
         </div>
       </div>
 
-      {/* Keyboard hint - hidden on mobile to save space */}
-      <div className="hidden md:flex items-center justify-between mt-2 px-1">
-        <p className="text-xs text-muted-foreground">
-          Press Enter to send, Shift + Enter for new line
-        </p>
-        {showAttachment && (
+        {/* Keyboard hint - hidden on mobile to save space */}
+        <div className="hidden md:flex items-center justify-between mt-2 px-1">
           <p className="text-xs text-muted-foreground">
-            Drag & drop files or click <Paperclip className="inline h-3 w-3" /> to attach
+            Press Enter to send, Shift + Enter for new line
           </p>
-        )}
+          {showAttachment && (
+            <p className="text-xs text-muted-foreground">
+              Drag & drop files or click <Paperclip className="inline h-3 w-3" /> to attach
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

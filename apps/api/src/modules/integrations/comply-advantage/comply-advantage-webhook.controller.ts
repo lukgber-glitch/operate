@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { ComplyAdvantageService } from './comply-advantage.service';
 import { WebhookPayloadDto } from './dto/webhook-payload.dto';
 import { ComplyAdvantageEncryptionUtil } from './utils/comply-advantage-encryption.util';
+import { Public } from '../../../common/decorators/public.decorator';
 
 /**
  * ComplyAdvantage Webhook Controller
@@ -34,6 +35,7 @@ export class ComplyAdvantageWebhookController {
    * Handle ComplyAdvantage webhooks
    * POST /aml/webhooks
    */
+  @Public()
   @Post()
   @HttpCode(HttpStatus.OK)
   async handleWebhook(

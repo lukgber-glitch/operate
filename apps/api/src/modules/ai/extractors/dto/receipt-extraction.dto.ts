@@ -136,7 +136,6 @@ export class ExtractedReceiptDataDto {
   taxRate?: number;
 
   @ApiProperty({ description: 'Payment method', enum: PaymentMethodType })
-  @IsEnum(PaymentMethodType)
   paymentMethod: PaymentMethodType;
 
   @ApiPropertyOptional({ description: 'Last 4 digits of card' })
@@ -145,7 +144,6 @@ export class ExtractedReceiptDataDto {
   cardLast4?: string;
 
   @ApiProperty({ description: 'Receipt type', enum: ReceiptType })
-  @IsEnum(ReceiptType)
   receiptType: ReceiptType;
 
   @ApiPropertyOptional({ description: 'Additional metadata' })
@@ -190,7 +188,6 @@ export class ReceiptExtractionResultDto {
   mimeType: string;
 
   @ApiProperty({ description: 'Extraction status', enum: ReceiptExtractionStatus })
-  @IsEnum(ReceiptExtractionStatus)
   status: ReceiptExtractionStatus;
 
   @ApiProperty({ description: 'Extracted receipt data', type: ExtractedReceiptDataDto })
@@ -280,7 +277,6 @@ export class ExtractReceiptRequestDto {
 export class ExtractionHistoryFilterDto {
   @ApiPropertyOptional({ description: 'Filter by status', enum: ReceiptExtractionStatus })
   @IsOptional()
-  @IsEnum(ReceiptExtractionStatus)
   status?: ReceiptExtractionStatus;
 
   @ApiPropertyOptional({ description: 'Filter by user ID' })
@@ -290,7 +286,6 @@ export class ExtractionHistoryFilterDto {
 
   @ApiPropertyOptional({ description: 'Filter by receipt type', enum: ReceiptType })
   @IsOptional()
-  @IsEnum(ReceiptType)
   receiptType?: ReceiptType;
 
   @ApiPropertyOptional({ description: 'From date (ISO string)' })

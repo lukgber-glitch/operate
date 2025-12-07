@@ -10,6 +10,9 @@ import { GmailModule } from '../gmail/gmail.module';
 import { OutlookModule } from '../outlook/outlook.module';
 import { AttachmentProcessorModule } from './attachment/attachment-processor.module';
 
+// Import Email Intelligence module for classification and suggestions
+import { EmailIntelligenceModule } from '../../ai/email-intelligence/email-intelligence.module';
+
 /**
  * Email Sync Module
  * Handles synchronization of emails from Gmail and Outlook
@@ -62,6 +65,9 @@ import { AttachmentProcessorModule } from './attachment/attachment-processor.mod
 
     // Import attachment processor module
     AttachmentProcessorModule,
+
+    // Import Email Intelligence module
+    EmailIntelligenceModule,
 
     // Register Bull queue for email sync jobs
     BullModule.registerQueue({

@@ -53,10 +53,9 @@ export class UpdateEmployeeDto {
   @ApiPropertyOptional({
     description: 'Gender',
     enum: Gender,
-    example: Gender.MALE,
+    example: 'MALE',
   })
   @IsOptional()
-  @IsEnum(Gender)
   gender?: Gender;
 
   @ApiPropertyOptional({
@@ -96,10 +95,9 @@ export class UpdateEmployeeDto {
   @ApiPropertyOptional({
     description: 'Employment status',
     enum: EmploymentStatus,
-    example: EmploymentStatus.ACTIVE,
+    example: 'ACTIVE',
   })
   @IsOptional()
-  @IsEnum(EmploymentStatus)
   status?: EmploymentStatus;
 
   @ApiPropertyOptional({

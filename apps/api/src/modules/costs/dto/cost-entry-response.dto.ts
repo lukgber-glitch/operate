@@ -20,7 +20,7 @@ export class CostEntryResponseDto {
   @ApiProperty({
     description: 'Cost category',
     enum: CostCategory,
-    example: CostCategory.AI_CLASSIFICATION,
+    example: 'AI_CLASSIFICATION',
   })
   category: CostCategory;
 

@@ -17,7 +17,6 @@ export class SDINotificationDto {
   @IsNotEmpty()
   nomeFile: string;
 
-  @IsEnum(SDINotificationType)
   notificationType: SDINotificationType;
 
   @IsString()

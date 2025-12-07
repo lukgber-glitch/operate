@@ -28,10 +28,9 @@ export class CreateBudgetDto {
   @ApiPropertyOptional({
     description: 'Cost category to limit (if null, applies to all categories)',
     enum: CostCategory,
-    example: CostCategory.AI_CLASSIFICATION,
+    example: 'AI_CLASSIFICATION',
   })
   @IsOptional()
-  @IsEnum(CostCategory)
   category?: CostCategory;
 
   @ApiProperty({
@@ -56,9 +55,8 @@ export class CreateBudgetDto {
   @ApiProperty({
     description: 'Budget period',
     enum: BudgetPeriod,
-    example: BudgetPeriod.MONTHLY,
+    example: 'MONTHLY',
   })
-  @IsEnum(BudgetPeriod)
   period: BudgetPeriod;
 
   @ApiPropertyOptional({

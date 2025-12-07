@@ -1,0 +1,78 @@
+[
+  {
+    "page": "login",
+    "url": "https://operate.guru/login",
+    "beforeSwitch": {
+      "bodyText": "Skip to main content\nWelcome to Operate\nSelect language\n\nSign in to your CoachOS account\n\nOR CONTINUE WITH\nGoogle\nMicrosoft\nEmail\nPassword\nForgot Password?\nRemember me for 30 days\nSign In\nDon't have an account? Create one now",
+      "foundGerman": [],
+      "foundEnglish": [
+        "Welcome",
+        "Sign in",
+        "Password",
+        "Forgot"
+      ],
+      "language": "English"
+    },
+    "afterSwitch": null,
+    "switchSuccessful": false,
+    "screenshot": null,
+    "allText": [
+      "Skip to main content",
+      "Welcome to Operate",
+      "Select language",
+      "Select language",
+      "Sign in to your CoachOS account",
+      "OR CONTINUE WITH",
+      "Google",
+      "Google",
+      "Microsoft",
+      "Microsoft",
+      "Email",
+      "Password",
+      "Forgot Password?",
+      "Remember me for 30 days",
+      "Sign In",
+      "Don't have an account?",
+      "Create one now"
+    ]
+  },
+  {
+    "page": "register",
+    "url": "https://operate.guru/register",
+    "beforeSwitch": null,
+    "afterSwitch": null,
+    "switchSuccessful": false,
+    "screenshot": null,
+    "error": "Navigation timeout of 30000 ms exceeded"
+  },
+  {
+    "page": "forgot-password",
+    "url": "https://operate.guru/forgot-password",
+    "beforeSwitch": {
+      "bodyText": "Skip to main content\nPasswort vergessen\nSelect language\n\nGeben Sie Ihre E-Mail ein und wir senden Ihnen einen Link zum Zurücksetzen\n\nE-Mail-Adresse\nLink zum Zurücksetzen senden\nErinnern Sie sich an Ihr Passwort? Anmelden",
+      "foundGerman": [
+        "Anmelden",
+        "Passwort",
+        "vergessen",
+        "E-Mail-Adresse",
+        "Geben Sie"
+      ],
+      "foundEnglish": [],
+      "language": "German"
+    },
+    "afterSwitch": null,
+    "switchSuccessful": false,
+    "screenshot": null,
+    "allText": [
+      "Skip to main content",
+      "Passwort vergessen",
+      "Select language",
+      "Select language",
+      "Geben Sie Ihre E-Mail ein und wir senden Ihnen einen Link zum Zurücksetzen",
+      "E-Mail-Adresse",
+      "Link zum Zurücksetzen senden",
+      "Erinnern Sie sich an Ihr Passwort?",
+      "Anmelden"
+    ]
+  }
+]

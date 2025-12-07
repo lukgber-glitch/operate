@@ -1,13 +1,15 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { BullModule } from '@nestjs/bull';
 import { BullModule as BullMQModule } from '@nestjs/bullmq';
-import Redis from 'ioredis';
+import { APP_GUARD } from '@nestjs/core';
+import { TenantGuard } from './common/guards/tenant.guard';
 import { HealthModule } from './modules/health/health.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { CacheModule } from './modules/cache/cache.module';
+import { SentryModule } from './modules/sentry/sentry.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { CountryContextModule } from './modules/country-context/country-context.module';
@@ -21,6 +23,10 @@ import { TinkModule } from './modules/integrations/tink/tink.module';
 import { StripeModule } from './modules/integrations/stripe/stripe.module';
 import { PlaidModule } from './modules/integrations/plaid/plaid.module';
 import { AvalaraModule } from './modules/avalara/avalara.module';
+import { QuickBooksModule } from './modules/quickbooks/quickbooks.module';
+import { XeroModule } from './modules/integrations/xero/xero.module';
+import { GoCardlessModule } from './modules/integrations/gocardless/gocardless.module';
+// EmailSyncModule removed - has broken dependencies (@aws-sdk/client-s3)
 import { HrModule } from './modules/hr/hr.module';
 import { FinanceModule } from './modules/finance/finance.module';
 import { AiModule } from './modules/ai/ai.module';
@@ -38,6 +44,13 @@ import { OnboardingModule } from './modules/onboarding/onboarding.module';
 import { UserOnboardingModule } from './modules/user-onboarding/user-onboarding.module';
 import { CostsModule } from './modules/costs/costs.module';
 import { EventsModule } from './websocket/events.module';
+// QueueModule temporarily disabled - causes startup hang with Redis ACL
+// import { QueueModule } from './modules/queue/queue.module';
+import { PerformanceModule } from './modules/performance/performance.module';
+// import { QueueBoardAuthMiddleware } from './modules/queue/queue-board.middleware';
+// JobsModule temporarily disabled - causes startup hang with Redis ACL
+// import { JobsModule } from './modules/jobs/jobs.module';
+import { FinancialAuditModule } from './modules/audit/financial-audit.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -73,34 +86,24 @@ import configuration from './config/configuration';
     ]),
 
     // Bull queue module for background jobs
-    // Requires specific Redis options per https://github.com/OptimalBits/bull/issues/1873
-    // Note: Bull requires enableReadyCheck: false and maxRetriesPerRequest: null for bclient/subscriber
-    // Note: Cloudways Redis ACL requires keys to be prefixed with the username
+    // Required for feature modules that use BullModule.registerQueue
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        // Get Redis key prefix (required for Cloudways ACL compliance)
         const redisUsername = configService.get<string>('redis.username');
         const redisPrefix = redisUsername ? `${redisUsername}:` : '';
 
-        // Create Redis client factory with correct options for Bull
-        const createClient = (type: 'client' | 'subscriber' | 'bclient') => {
-          const redisOptions = {
+        return {
+          redis: {
             host: configService.get<string>('redis.host') || 'localhost',
             port: configService.get<number>('redis.port') || 6379,
             username: redisUsername || undefined,
             password: configService.get<string>('redis.password') || undefined,
             db: configService.get<number>('redis.db') || 0,
-            // Add key prefix for Cloudways ACL compliance
-            keyPrefix: redisPrefix,
-            // CRITICAL: Required for Bull's subscriber/bclient
+            // Required for Bull's subscriber/bclient connections
             enableReadyCheck: false,
             maxRetriesPerRequest: null,
-          };
-          return new Redis(redisOptions);
-        };
-        return {
-          createClient,
+          },
           prefix: `${redisPrefix}bull`,
           settings: {
             stalledInterval: 30000,
@@ -112,7 +115,6 @@ import configuration from './config/configuration';
     }),
 
     // BullMQ module for background jobs (newer API, used by some integrations)
-    // Note: Cloudways Redis ACL requires keys to be prefixed with the username
     BullMQModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
@@ -126,8 +128,9 @@ import configuration from './config/configuration';
             username: redisUsername || undefined,
             password: configService.get<string>('redis.password') || undefined,
             db: configService.get<number>('redis.db') || 0,
-            // Add key prefix for Cloudways ACL compliance
-            keyPrefix: redisPrefix,
+            // Required for BullMQ connections
+            enableReadyCheck: false,
+            maxRetriesPerRequest: null,
           },
           prefix: `${redisPrefix}bull`,
         };
@@ -140,6 +143,12 @@ import configuration from './config/configuration';
 
     // Global cache module
     CacheModule,
+
+    // Global error tracking module
+    SentryModule,
+
+    // Global audit module for financial data access logging
+    FinancialAuditModule,
 
     // Feature modules
     HealthModule,
@@ -158,6 +167,10 @@ import configuration from './config/configuration';
     StripeModule,
     PlaidModule,
     AvalaraModule,
+    QuickBooksModule,
+    XeroModule,
+    GoCardlessModule,
+    // EmailSyncModule removed - has broken dependencies
 
     // HR module
     HrModule,
@@ -201,11 +214,28 @@ import configuration from './config/configuration';
     ChatbotModule,
 
     // Costs module (cost tracking)
+    CostsModule,
+
     // WebSocket module (real-time updates)
     EventsModule,
-    CostsModule,
+    PerformanceModule,
+
+    // QueueModule and JobsModule temporarily disabled
+    // They cause startup hang due to Bull Board Redis connection issues
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    // Global guards
+    // Note: TenantGuard enforces tenant isolation for all authenticated routes
+    // It runs after JwtAuthGuard and validates organizationId in requests
+    {
+      provide: APP_GUARD,
+      useClass: TenantGuard,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    // Queue board temporarily disabled
+  }
+}

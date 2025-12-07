@@ -140,13 +140,15 @@ export class BankImportProcessor {
       transactionsProcessed: syncResult.transactionsSynced,
     });
 
-    // Emit success event
+    // Emit success event for monitoring
     this.eventEmitter.emit('bank.sync.completed', {
       connectionId,
       accountsSynced: syncResult.accountsSynced,
       transactionsSynced: syncResult.transactionsSynced,
       timestamp: new Date(),
     });
+
+    this.logger.log(`Emitted bank.sync.completed event for connection ${connectionId}`);
 
     return {
       type: BankImportJobType.SYNC_CONNECTION,

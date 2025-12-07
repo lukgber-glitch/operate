@@ -10,7 +10,11 @@ import {
  * Loads configuration from environment variables
  */
 export default registerAs('truelayer', (): TrueLayerConfig => {
-  const sandbox = process.env.TRUELAYER_SANDBOX === 'true';
+  // Support both TRUELAYER_ENV and TRUELAYER_SANDBOX for backward compatibility
+  const envMode = process.env.TRUELAYER_ENV ||
+    (process.env.TRUELAYER_SANDBOX === 'true' ? 'sandbox' : 'production');
+
+  const sandbox = envMode === 'sandbox';
   const environment = sandbox
     ? TrueLayerEnvironment.SANDBOX
     : TrueLayerEnvironment.PRODUCTION;

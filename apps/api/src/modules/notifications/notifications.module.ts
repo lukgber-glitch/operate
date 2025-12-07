@@ -4,6 +4,7 @@ import { NotificationsService } from './notifications.service';
 import { DatabaseModule } from '../database/database.module';
 import { RbacModule } from '../auth/rbac/rbac.module';
 import { TemplateService } from './templates/template.service';
+import { EmailService } from './channels/email.service';
 
 /**
  * Notifications Module
@@ -12,7 +13,7 @@ import { TemplateService } from './templates/template.service';
 @Module({
   imports: [DatabaseModule, RbacModule],
   controllers: [NotificationsController],
-  providers: [NotificationsService, TemplateService],
-  exports: [NotificationsService, TemplateService],
+  providers: [NotificationsService, TemplateService, EmailService],
+  exports: [NotificationsService, TemplateService, EmailService],
 })
 export class NotificationsModule {}

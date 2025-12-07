@@ -13,9 +13,8 @@ export class CreateMandateFlowDto {
   @ApiProperty({
     description: 'Direct Debit scheme',
     enum: GoCardlessMandateScheme,
-    example: GoCardlessMandateScheme.BACS,
+    example: 'BACS',
   })
-  @IsEnum(GoCardlessMandateScheme)
   scheme: GoCardlessMandateScheme;
 
   @ApiProperty({

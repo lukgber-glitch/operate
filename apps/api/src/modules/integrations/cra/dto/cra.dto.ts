@@ -115,7 +115,6 @@ export class GstHstReturnDto {
     description: 'Return type',
     enum: GstHstReturnType,
   })
-  @IsEnum(GstHstReturnType)
   returnType: GstHstReturnType;
 
   // Line items

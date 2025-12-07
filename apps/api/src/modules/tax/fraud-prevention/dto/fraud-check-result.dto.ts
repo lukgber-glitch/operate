@@ -265,7 +265,6 @@ export class FraudCheckResultDto {
     enum: RecommendedActionDto,
     description: 'Recommended action',
   })
-  @IsEnum(RecommendedActionDto)
   recommendedAction!: RecommendedActionDto;
 
   @ApiProperty({ description: 'Blocked by system' })

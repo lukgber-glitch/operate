@@ -53,9 +53,8 @@ export class CreateExpenseDto {
   @ApiProperty({
     description: 'Expense category',
     enum: ExpenseCategory,
-    example: ExpenseCategory.MEALS,
+    example: 'MEALS',
   })
-  @IsEnum(ExpenseCategory)
   category: ExpenseCategory;
 
   @ApiPropertyOptional({

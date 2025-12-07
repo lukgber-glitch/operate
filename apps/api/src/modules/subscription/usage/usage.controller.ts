@@ -18,6 +18,7 @@ import {
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { UsageMeteringService } from './services/usage-metering.service';
 import { UsageStripeService } from './services/usage-stripe.service';
+import { UsageLimitService } from './services/usage-limit.service';
 import {
   TrackUsageDto,
   GetUsageSummaryDto,
@@ -50,6 +51,7 @@ export class UsageController {
   constructor(
     private readonly usageMeteringService: UsageMeteringService,
     private readonly usageStripeService: UsageStripeService,
+    private readonly usageLimitService: UsageLimitService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -248,5 +250,53 @@ export class UsageController {
     remaining: number;
   }> {
     return this.usageMeteringService.checkQuota(orgId, feature as any);
+  }
+
+  /**
+   * Get all usage limits for an organization based on subscription tier
+   */
+  @Get(':orgId/limits')
+  @ApiOperation({
+    summary: 'Get all usage limits for an organization based on subscription tier',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Usage limits retrieved successfully',
+  })
+  async getUsageLimits(@Param('orgId') orgId: string): Promise<{
+    tier: string;
+    limits: Array<{
+      feature: string;
+      featureName: string;
+      current: number;
+      limit: number;
+      percentage: number;
+      allowed: boolean;
+    }>;
+  }> {
+    return this.usageLimitService.getLimits(orgId);
+  }
+
+  /**
+   * Check if organization can use a specific feature
+   */
+  @Get(':orgId/check/:feature')
+  @ApiOperation({
+    summary: 'Check if organization can use a specific feature',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Limit check completed',
+  })
+  async checkFeatureLimit(
+    @Param('orgId') orgId: string,
+    @Param('feature') feature: string,
+  ): Promise<{
+    allowed: boolean;
+    current: number;
+    limit: number;
+    percentage: number;
+  }> {
+    return this.usageLimitService.checkLimit(orgId, feature as any);
   }
 }

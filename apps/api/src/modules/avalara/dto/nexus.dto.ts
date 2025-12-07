@@ -100,10 +100,9 @@ export class UpdateNexusDto {
   @ApiPropertyOptional({
     description: 'Nexus status',
     enum: NexusStatus,
-    example: NexusStatus.ACTIVE,
+    example: 'ACTIVE',
   })
   @IsOptional()
-  @IsEnum(NexusStatus)
   status?: NexusStatus;
 
   @ApiPropertyOptional({
@@ -192,7 +191,7 @@ export class NexusResponseDto {
   @ApiProperty({
     description: 'Nexus status',
     enum: NexusStatus,
-    example: NexusStatus.ACTIVE,
+    example: 'ACTIVE',
   })
   status: NexusStatus;
 

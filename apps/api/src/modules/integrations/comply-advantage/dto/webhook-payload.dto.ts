@@ -13,7 +13,6 @@ export enum WebhookEventType {
  * DTO for ComplyAdvantage webhook payload
  */
 export class WebhookPayloadDto {
-  @IsEnum(WebhookEventType)
   event_type: WebhookEventType;
 
   @IsString()

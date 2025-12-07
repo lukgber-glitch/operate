@@ -174,7 +174,6 @@ export class InvoiceExtractionResultDto {
   organisationId: string;
 
   @ApiProperty({ description: 'Extraction status' })
-  @IsEnum(InvoiceExtractionStatus)
   status: InvoiceExtractionStatus;
 
   @ApiProperty({ description: 'Extracted invoice data' })

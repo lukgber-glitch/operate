@@ -32,14 +32,14 @@ export class DocumentResponseDto {
   @ApiProperty({
     description: 'Document type',
     enum: DocumentType,
-    example: DocumentType.REPORT,
+    example: 'REPORT',
   })
   type: DocumentType;
 
   @ApiProperty({
     description: 'Document status',
     enum: DocumentStatus,
-    example: DocumentStatus.ACTIVE,
+    example: 'ACTIVE',
   })
   status: DocumentStatus;
 

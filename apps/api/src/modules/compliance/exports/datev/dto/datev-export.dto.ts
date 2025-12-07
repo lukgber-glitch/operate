@@ -89,7 +89,6 @@ export class DatevCompanyConfigDto {
     example: DatevSKRType.SKR03,
   })
   @IsNotEmpty()
-  @IsEnum(DatevSKRType)
   skrType!: DatevSKRType;
 
   @ApiPropertyOptional({
@@ -151,10 +150,9 @@ export class DatevExportOptionsDto {
   @ApiPropertyOptional({
     description: 'Format version',
     enum: DatevFormatVersion,
-    default: DatevFormatVersion.V7_0,
+    default: 'V7_0',
   })
   @IsOptional()
-  @IsEnum(DatevFormatVersion)
   formatVersion?: DatevFormatVersion;
 
   @ApiPropertyOptional({

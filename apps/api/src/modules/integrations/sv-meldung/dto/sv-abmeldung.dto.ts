@@ -73,9 +73,8 @@ export class SvAbmeldungDto {
   @ApiPropertyOptional({
     description: 'Reason for deregistration',
     enum: Abgabegrund,
-    default: Abgabegrund.ENDE,
+    default: 'ENDE',
   })
-  @IsEnum(Abgabegrund)
   @IsOptional()
   abgabegrund?: Abgabegrund;
 

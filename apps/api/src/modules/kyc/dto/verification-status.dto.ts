@@ -33,21 +33,21 @@ export class VerificationStatusDto {
   @ApiProperty({
     description: 'Current verification status',
     enum: KycStatus,
-    example: KycStatus.PENDING,
+    example: 'PENDING',
   })
   status: KycStatus;
 
   @ApiProperty({
     description: 'Verification level',
     enum: KycLevel,
-    example: KycLevel.ENHANCED,
+    example: 'ENHANCED',
   })
   level: KycLevel;
 
   @ApiProperty({
     description: 'Verification provider',
     enum: KycProvider,
-    example: KycProvider.PERSONA,
+    example: 'PERSONA',
   })
   provider: KycProvider;
 
@@ -66,7 +66,7 @@ export class VerificationStatusDto {
   @ApiPropertyOptional({
     description: 'Risk level classification',
     enum: KycRiskLevel,
-    example: KycRiskLevel.LOW,
+    example: 'LOW',
   })
   riskLevel?: KycRiskLevel;
 

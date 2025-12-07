@@ -36,7 +36,6 @@ export class CreateLinkTokenDto {
     default: ['US'],
   })
   @IsArray()
-  @IsEnum(CountryCode, { each: true })
   @IsOptional()
   countryCodes?: CountryCode[];
 
@@ -47,7 +46,6 @@ export class CreateLinkTokenDto {
     default: ['auth', 'transactions', 'balance'],
   })
   @IsArray()
-  @IsEnum(Products, { each: true })
   @IsOptional()
   products?: Products[];
 

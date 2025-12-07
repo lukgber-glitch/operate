@@ -20,7 +20,7 @@ export class InquiryResponseDto {
   @ApiProperty({
     description: 'Current status of the inquiry',
     enum: PersonaInquiryStatus,
-    example: PersonaInquiryStatus.PENDING,
+    example: 'PENDING',
   })
   status: PersonaInquiryStatus;
 

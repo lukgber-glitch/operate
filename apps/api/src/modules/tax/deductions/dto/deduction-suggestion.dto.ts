@@ -167,7 +167,6 @@ export class SuggestionFiltersDto {
     enum: DeductionSuggestionStatus,
   })
   @IsOptional()
-  @IsEnum(DeductionSuggestionStatus)
   status?: DeductionSuggestionStatus;
 
   @ApiPropertyOptional({

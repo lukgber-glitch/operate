@@ -2,16 +2,23 @@ const path = require("path");
 const nodeExternals = require("webpack-node-externals");
 
 module.exports = function (options) {
+  // Packages to bundle (not treat as external) - required at runtime
+  // Note: @sentry/* must stay external due to native binary modules
+  const bundledPackages = [
+    /^@operate\//,
+    'compression',
+  ];
+
   return {
     ...options,
     externals: [
       nodeExternals({
         modulesDir: path.resolve(__dirname, "node_modules"),
-        allowlist: [/^@operate\//],
+        allowlist: bundledPackages,
       }),
       nodeExternals({
         modulesDir: path.resolve(__dirname, "../../node_modules"),
-        allowlist: [/^@operate\//],
+        allowlist: bundledPackages,
       }),
     ],
     module: {

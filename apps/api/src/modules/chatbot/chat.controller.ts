@@ -18,6 +18,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PromptSanitizerGuard } from './guards/prompt-sanitizer.guard';
 import { ChatService } from './chat.service';
 import { ContextService } from './context/context.service';
 import {
@@ -32,6 +33,9 @@ import {
   ContextResponseDto,
 } from './dto';
 
+// Import EmailSuggestionsService for suggestion endpoints
+import { EmailSuggestionsService } from '../ai/email-intelligence/email-suggestions.service';
+
 @ApiTags('Chatbot')
 @Controller('chatbot')
 @UseGuards(JwtAuthGuard)
@@ -40,6 +44,7 @@ export class ChatController {
   constructor(
     private chatService: ChatService,
     private contextService: ContextService,
+    private emailSuggestionsService: EmailSuggestionsService,
   ) {}
 
   /**
@@ -127,6 +132,7 @@ export class ChatController {
    * Send a message in a conversation
    */
   @Post('conversations/:id/messages')
+  @UseGuards(PromptSanitizerGuard)
   @ApiOperation({ summary: 'Send a message and get AI response' })
   @ApiResponse({
     status: 201,
@@ -198,6 +204,7 @@ export class ChatController {
    * Quick ask - one-off question without persistence
    */
   @Post('quick-ask')
+  @UseGuards(PromptSanitizerGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Ask a quick question without creating a conversation',
@@ -264,6 +271,137 @@ export class ChatController {
       recentActivity: context.recentActivity,
       suggestions: context.suggestions,
       metadata: context.metadata,
+    };
+  }
+
+  /**
+   * Get pending suggestions for the organization
+   * Returns AI-generated suggestions from email analysis
+   */
+  @Get('suggestions')
+  @ApiOperation({ summary: 'Get pending email-based suggestions for chat' })
+  @ApiResponse({
+    status: 200,
+    description: 'Suggestions retrieved successfully',
+  })
+  async getSuggestions(
+    @Request() req: any,
+    @Query('types') types?: string,
+    @Query('priority') priority?: string,
+    @Query('entityId') entityId?: string,
+    @Query('limit') limit?: string,
+  ): Promise<any> {
+    const options: any = {
+      limit: limit ? parseInt(limit, 10) : 50,
+    };
+
+    // Parse types filter (comma-separated)
+    if (types) {
+      options.types = types.split(',');
+    }
+
+    // Parse priority filter (comma-separated)
+    if (priority) {
+      options.priority = priority.split(',');
+    }
+
+    // Filter by entity
+    if (entityId) {
+      options.entityId = entityId;
+    }
+
+    const suggestions = await this.emailSuggestionsService.getSuggestionsForOrg(
+      req.user.orgId,
+      options,
+    );
+
+    return {
+      suggestions,
+      total: suggestions.length,
+    };
+  }
+
+  /**
+   * Execute a suggestion
+   * This processes the suggestion's action and creates a chat response
+   */
+  @Post('suggestions/:id/execute')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Execute a suggestion action' })
+  @ApiResponse({
+    status: 200,
+    description: 'Suggestion executed successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Suggestion not found' })
+  async executeSuggestion(
+    @Request() req: any,
+    @Param('id') suggestionId: string,
+  ): Promise<any> {
+    // Mark suggestion as completed
+    await this.emailSuggestionsService.completeSuggestion(
+      suggestionId,
+      req.user.id,
+    );
+
+    return {
+      success: true,
+      message: 'Suggestion marked as completed',
+    };
+  }
+
+  /**
+   * Dismiss a suggestion
+   */
+  @Post('suggestions/:id/dismiss')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Dismiss a suggestion' })
+  @ApiResponse({
+    status: 200,
+    description: 'Suggestion dismissed successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Suggestion not found' })
+  async dismissSuggestion(
+    @Request() req: any,
+    @Param('id') suggestionId: string,
+  ): Promise<any> {
+    await this.emailSuggestionsService.dismissSuggestion(
+      suggestionId,
+      req.user.id,
+    );
+
+    return {
+      success: true,
+      message: 'Suggestion dismissed',
+    };
+  }
+
+  /**
+   * Snooze a suggestion
+   */
+  @Post('suggestions/:id/snooze')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Snooze a suggestion until a specific date' })
+  @ApiResponse({
+    status: 200,
+    description: 'Suggestion snoozed successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Suggestion not found' })
+  async snoozeSuggestion(
+    @Request() req: any,
+    @Param('id') suggestionId: string,
+    @Body() body: { until: string },
+  ): Promise<any> {
+    const until = new Date(body.until);
+
+    await this.emailSuggestionsService.snoozeSuggestion(
+      suggestionId,
+      req.user.id,
+      until,
+    );
+
+    return {
+      success: true,
+      message: `Suggestion snoozed until ${until.toISOString()}`,
     };
   }
 

@@ -20,7 +20,7 @@ export class BmdExportResponseDto {
   @ApiProperty({
     description: 'Export status',
     enum: ExportStatus,
-    example: ExportStatus.READY,
+    example: 'READY',
   })
   status!: ExportStatus;
 
@@ -90,7 +90,7 @@ export class BmdExportListItemDto {
   @ApiProperty({
     description: 'Export status',
     enum: ExportStatus,
-    example: ExportStatus.READY,
+    example: 'READY',
   })
   status!: ExportStatus;
 

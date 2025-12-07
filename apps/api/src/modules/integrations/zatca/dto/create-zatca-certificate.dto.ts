@@ -41,17 +41,15 @@ export class CreateZatcaCertificateDto {
   @ApiProperty({
     description: 'Certificate type',
     enum: ZatcaCertificateTypeDto,
-    example: ZatcaCertificateTypeDto.COMPLIANCE,
+    example: 'COMPLIANCE',
   })
-  @IsEnum(ZatcaCertificateTypeDto)
   certificateType: ZatcaCertificateTypeDto;
 
   @ApiProperty({
     description: 'Invoice type this certificate will be used for',
     enum: ZatcaInvoiceTypeDto,
-    example: ZatcaInvoiceTypeDto.TAX_INVOICE,
+    example: 'TAX_INVOICE',
   })
-  @IsEnum(ZatcaInvoiceTypeDto)
   invoiceType: ZatcaInvoiceTypeDto;
 
   @ApiProperty({

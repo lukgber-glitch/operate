@@ -18,7 +18,7 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
 
     // Redirect directly to backend OAuth endpoint
     // Backend will handle the OAuth flow and redirect back to /auth/callback with tokens
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
     window.location.href = `${apiUrl}/auth/${provider}`;
   };
 

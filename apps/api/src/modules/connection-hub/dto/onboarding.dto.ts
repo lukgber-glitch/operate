@@ -43,9 +43,8 @@ export class UpdateOnboardingStepDto {
   @ApiProperty({
     enum: OnboardingStepStatus,
     description: 'New status for the step',
-    example: OnboardingStepStatus.COMPLETED,
+    example: 'COMPLETED',
   })
-  @IsEnum(OnboardingStepStatus)
   status: OnboardingStepStatus;
 
   @ApiPropertyOptional({

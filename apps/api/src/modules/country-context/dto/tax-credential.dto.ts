@@ -26,7 +26,6 @@ export class CreateTaxCredentialDto {
     enum: TaxCredentialType,
     example: 'TAX_ID',
   })
-  @IsEnum(TaxCredentialType)
   type: TaxCredentialType;
 
   @ApiProperty({

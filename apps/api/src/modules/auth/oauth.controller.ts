@@ -20,6 +20,7 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { MicrosoftAuthGuard } from './guards/microsoft-auth.guard';
+import { Public } from '../../common/decorators/public.decorator';
 
 /**
  * OAuth Controller
@@ -36,6 +37,7 @@ export class OAuthController {
    * Redirect to Google OAuth
    * Initiates Google OAuth flow
    */
+  @Public()
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({
@@ -54,6 +56,7 @@ export class OAuthController {
    * Google OAuth callback
    * Handles callback from Google OAuth flow
    */
+  @Public()
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({
@@ -97,8 +100,23 @@ export class OAuthController {
         oauthData.profile,
       );
 
-      // Redirect to frontend with tokens
-      const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback?accessToken=${authResponse.accessToken}&refreshToken=${authResponse.refreshToken}`;
+      // Set httpOnly cookie with tokens (SECURITY FIX: tokens no longer in URL)
+      // Format matches frontend middleware expectation: { a: accessToken, r: refreshToken }
+      const authData = JSON.stringify({
+        a: authResponse.accessToken,
+        r: authResponse.refreshToken,
+      });
+
+      res.cookie('op_auth', authData, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 604800 * 1000, // 7 days (matches refresh token expiry)
+        path: '/',
+      });
+
+      // Redirect to frontend WITHOUT tokens in URL
+      const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback`;
       return res.redirect(redirectUrl);
     } catch (error) {
       this.logger.error('Google OAuth callback failed', error.message);
@@ -112,6 +130,7 @@ export class OAuthController {
    * Redirect to Microsoft OAuth
    * Initiates Microsoft OAuth flow
    */
+  @Public()
   @Get('microsoft')
   @UseGuards(MicrosoftAuthGuard)
   @ApiOperation({
@@ -130,6 +149,7 @@ export class OAuthController {
    * Microsoft OAuth callback
    * Handles callback from Microsoft OAuth flow
    */
+  @Public()
   @Get('microsoft/callback')
   @UseGuards(MicrosoftAuthGuard)
   @ApiOperation({
@@ -173,8 +193,23 @@ export class OAuthController {
         oauthData.profile,
       );
 
-      // Redirect to frontend with tokens
-      const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback?accessToken=${authResponse.accessToken}&refreshToken=${authResponse.refreshToken}`;
+      // Set httpOnly cookie with tokens (SECURITY FIX: tokens no longer in URL)
+      // Format matches frontend middleware expectation: { a: accessToken, r: refreshToken }
+      const authData = JSON.stringify({
+        a: authResponse.accessToken,
+        r: authResponse.refreshToken,
+      });
+
+      res.cookie('op_auth', authData, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 604800 * 1000, // 7 days (matches refresh token expiry)
+        path: '/',
+      });
+
+      // Redirect to frontend WITHOUT tokens in URL
+      const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback`;
       return res.redirect(redirectUrl);
     } catch (error) {
       this.logger.error('Microsoft OAuth callback failed', error.message);

@@ -1,39 +1,98 @@
 # Voice Input Integration
 
 ## Overview
-Voice input capability has been successfully integrated into the ChatInput component using the Web Speech API.
+Voice input capability has been successfully integrated into the ChatInput component using the Web Speech API. Two implementations are available:
+1. **VoiceInput** - Simple, focused component (S10-04)
+2. **voice/** - Advanced voice module with full features
 
 ## Implementation Summary
 
-### Files Modified/Created
+### Files Created (Task S10-04)
 
-1. **VoiceInputButton.tsx** (Created)
-   - Location: `apps/web/src/components/chat/VoiceInputButton.tsx`
-   - Standalone voice input button component
+1. **VoiceInput.tsx** (Main Component)
+   - Location: `apps/web/src/components/chat/VoiceInput.tsx`
+   - Standalone voice input component with transcript preview
    - Uses browser Web Speech API for speech-to-text conversion
+   - Auto-stop after silence, error handling, mobile-friendly
 
-2. **ChatInput.tsx** (Modified)
+2. **use-voice-input.ts** (Hook)
+   - Location: `apps/web/src/hooks/use-voice-input.ts`
+   - Reusable hook for voice input functionality
+   - Full state management and control methods
+   - TypeScript support
+
+3. **voice-utils.ts** (Utilities)
+   - Location: `apps/web/src/lib/voice-utils.ts`
+   - Browser support checking
+   - Microphone permission handling
+   - Error message formatting
+   - Language detection
+
+4. **VoiceInput.example.tsx** (Examples)
+   - Location: `apps/web/src/components/chat/VoiceInput.example.tsx`
+   - Complete usage examples
+   - Hook usage demonstrations
+
+5. **VoiceInput.test.tsx** (Tests)
+   - Location: `apps/web/src/components/chat/VoiceInput.test.tsx`
+   - Unit tests for component and hook
+   - Browser compatibility tests
+
+6. **VOICE_INPUT_README.md** (Documentation)
+   - Location: `apps/web/src/components/chat/VOICE_INPUT_README.md`
+   - Complete API reference
+   - Usage guide and troubleshooting
+
+### Files Modified
+
+1. **ChatInput.tsx**
    - Location: `apps/web/src/components/chat/ChatInput.tsx`
-   - Integrated VoiceInputButton component
+   - Integrated VoiceInput component
    - Added handler for voice transcripts
+
+2. **index.ts**
+   - Location: `apps/web/src/components/chat/index.ts`
+   - Exported VoiceInput component
 
 ## Features
 
-### VoiceInputButton Component
+### VoiceInput Component (New - S10-04)
 
 - **Speech Recognition**: Uses Web Speech API (SpeechRecognition/webkitSpeechRecognition)
 - **Visual Feedback**:
-  - Microphone icon turns red and pulses during recording
-  - Pulsing red dot indicator in top-right corner when recording
-  - Different icons for recording (MicOff) vs idle (Mic) vs error (AlertCircle)
+  - Microphone button with pulsing animation during recording
+  - Red indicator dot with ping effect
+  - Different icons for recording (MicOff) vs idle (Mic) vs error (AlertCircle) vs processing (Loader)
+- **Transcript Preview**:
+  - Shows interim transcript in real-time while speaking
+  - Displays final transcript before sending
+  - Collapsible preview with close button
+- **Auto-Stop After Silence**:
+  - Configurable delay (default: 2000ms)
+  - Automatically stops recording after silence detected
+  - Sends accumulated transcript
 - **Browser Compatibility Check**: Automatically detects if Web Speech API is supported
 - **Error Handling**: User-friendly error messages for common issues:
   - No speech detected
   - Microphone access denied
   - Network errors
   - Audio capture issues
-- **Tooltips**: Contextual tooltips showing status and instructions
-- **Cancel Recording**: Click the button again to stop recording
+- **Mobile-Friendly**:
+  - Touch targets >= 44px
+  - Optimized for mobile devices
+  - iOS Safari compatibility
+- **Multi-Language Support**: Configurable language (en-US, de-DE, fr-FR, etc.)
+- **TypeScript**: Full type definitions and IntelliSense support
+- **Accessibility**: ARIA labels, keyboard support, screen reader friendly
+
+### VoiceInputButton Component (Legacy)
+
+- **Speech Recognition**: Uses Web Speech API (SpeechRecognition/webkitSpeechRecognition)
+- **Visual Feedback**: Pulsing red dot indicator
+- **Browser Compatibility Check**: Automatically detects support
+- **Error Handling**: User-friendly error messages
+- **Tooltips**: Contextual tooltips
+- **Cancel Recording**: Click to stop
 
 ### ChatInput Integration
 
@@ -43,7 +102,9 @@ Voice input capability has been successfully integrated into the ChatInput compo
 - Auto-focuses the textarea after voice input completes
 - Respects disabled/loading states
 
-## Usage Example
+## Usage Examples
+
+### Using with ChatInput
 
 ```tsx
 import { ChatInput } from '@/components/chat/ChatInput';
@@ -60,6 +121,52 @@ function ChatInterface() {
       showAttachment={true}
       placeholder="Type or speak your message..."
     />
+  );
+}
+```
+
+### Using VoiceInput Standalone
+
+```tsx
+import { VoiceInput } from '@/components/chat';
+
+function MyComponent() {
+  const handleTranscript = (text: string) => {
+    console.log('Transcript:', text);
+  };
+
+  return (
+    <VoiceInput
+      onTranscript={handleTranscript}
+      showTranscript
+      language="en-US"
+      autoStopDelay={2000}
+    />
+  );
+}
+```
+
+### Using the Hook
+
+```tsx
+import { useVoiceInput } from '@/hooks/use-voice-input';
+
+function MyComponent() {
+  const voice = useVoiceInput({
+    language: 'en-US',
+    onTranscript: (text) => console.log(text),
+  });
+
+  return (
+    <div>
+      <button onClick={voice.toggleRecording}>
+        {voice.isRecording ? 'Stop' : 'Start'}
+      </button>
+      {voice.interimTranscript && (
+        <p className="italic">{voice.interimTranscript}</p>
+      )}
+      {voice.transcript && <p>{voice.transcript}</p>}
+    </div>
   );
 }
 ```

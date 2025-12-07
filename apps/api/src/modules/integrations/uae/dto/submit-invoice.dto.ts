@@ -126,7 +126,6 @@ export class AllowanceChargeDto {
 
   @ApiPropertyOptional({ enum: UAEVATRateCode })
   @IsOptional()
-  @IsEnum(UAEVATRateCode)
   taxCategory?: UAEVATRateCode;
 
   @ApiPropertyOptional()
@@ -169,7 +168,6 @@ export class InvoiceLineItemDto {
   lineExtensionAmount: number;
 
   @ApiProperty({ enum: UAEVATRateCode })
-  @IsEnum(UAEVATRateCode)
   taxCategory: UAEVATRateCode;
 
   @ApiProperty()
@@ -191,7 +189,6 @@ export class InvoiceLineItemDto {
  */
 export class TaxBreakdownDto {
   @ApiProperty({ enum: UAEVATRateCode })
-  @IsEnum(UAEVATRateCode)
   taxCategory: UAEVATRateCode;
 
   @ApiProperty()
@@ -270,7 +267,6 @@ export class SubmitInvoiceDto {
   invoiceNumber: string;
 
   @ApiProperty({ enum: UAEInvoiceType })
-  @IsEnum(UAEInvoiceType)
   invoiceType: UAEInvoiceType;
 
   @ApiProperty()

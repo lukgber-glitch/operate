@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useAuth } from '@/hooks/use-auth';
+import { useVatReturnPreview } from '@/hooks/useElsterSubmission';
 
 interface VATData {
   revenue: number;
@@ -41,52 +43,71 @@ const MONTHS = [
 ];
 
 export function UStVADataReview({ period, onDataReviewed, onBack }: UStVADataReviewProps) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState<VATData | null>(null);
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<Partial<VATData>>({});
 
+  // Build period string (YYYY-MM)
+  const periodString = `${period.year}-${String(period.month).padStart(2, '0')}`;
+
+  // Fetch VAT data from API
+  const {
+    data: previewData,
+    isLoading,
+    error,
+    refetch,
+  } = useVatReturnPreview(user?.orgId || '', periodString);
+
+  // Convert preview data to VATData format
+  const data: VATData | null = previewData
+    ? {
+        revenue: previewData.outputVat.total - previewData.outputVat.invoices.reduce((sum, inv) => sum + inv.vat, 0),
+        vatCollected: previewData.outputVat.total,
+        inputVat: previewData.inputVat.total,
+        vatPayable: previewData.netVat,
+        transactions: [
+          ...previewData.outputVat.invoices.map((inv) => ({
+            id: inv.id,
+            date: inv.date,
+            description: `Invoice - ${inv.customer}`,
+            amount: inv.amount,
+            vatRate: 19, // Default German VAT rate
+            vatAmount: inv.vat,
+            type: 'income' as const,
+          })),
+          ...previewData.inputVat.expenses.map((exp) => ({
+            id: exp.id,
+            date: exp.date,
+            description: `Expense - ${exp.vendor}`,
+            amount: exp.amount,
+            vatRate: 19, // Default German VAT rate
+            vatAmount: exp.vat,
+            type: 'expense' as const,
+          })),
+        ],
+      }
+    : null;
+
+  // Initialize edited data when preview data loads
   useEffect(() => {
-    loadVATData();
-  }, [period]);
-
-  const loadVATData = async () => {
-    setIsLoading(true);
-
-    // Simulate API call to fetch VAT data for the period
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Mock data - in production this would come from the API
-    const mockData: VATData = {
-      revenue: 45000,
-      vatCollected: 8550, // 19% of revenue
-      inputVat: 2850,
-      vatPayable: 5700, // vatCollected - inputVat
-      transactions: [
-        { id: '1', date: '2024-01-05', description: 'Software License Sale', amount: 15000, vatRate: 19, vatAmount: 2850, type: 'income' },
-        { id: '2', date: '2024-01-12', description: 'Consulting Services', amount: 20000, vatRate: 19, vatAmount: 3800, type: 'income' },
-        { id: '3', date: '2024-01-20', description: 'Product Sale', amount: 10000, vatRate: 19, vatAmount: 1900, type: 'income' },
-        { id: '4', date: '2024-01-08', description: 'Office Supplies', amount: 500, vatRate: 19, vatAmount: 95, type: 'expense' },
-        { id: '5', date: '2024-01-15', description: 'Software Subscription', amount: 1200, vatRate: 19, vatAmount: 228, type: 'expense' },
-        { id: '6', date: '2024-01-22', description: 'Equipment Purchase', amount: 13300, vatRate: 19, vatAmount: 2527, type: 'expense' },
-      ],
-    };
-
-    setData(mockData);
-    setEditedData(mockData);
-    setIsLoading(false);
-  };
+    if (data && !isEditing) {
+      setEditedData(data);
+    }
+  }, [data, isEditing]);
 
   const handleSaveEdits = () => {
-    if (editedData.revenue !== undefined) {
-      setData((prev) => prev ? { ...prev, ...editedData } : null);
-    }
+    // For now, just close editing mode
+    // In future, could save to draft API
     setIsEditing(false);
   };
 
   const handleContinue = () => {
-    if (data) {
-      onDataReviewed(data);
+    const finalData = isEditing && editedData.revenue !== undefined
+      ? { ...data!, ...editedData }
+      : data;
+
+    if (finalData) {
+      onDataReviewed(finalData);
     }
   };
 
@@ -104,13 +125,29 @@ export function UStVADataReview({ period, onDataReviewed, onBack }: UStVADataRev
     );
   }
 
-  if (!data) {
+  if (error) {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>
-          Failed to load VAT data. Please try again.
+          Failed to load VAT data. {error instanceof Error ? error.message : 'Please try again.'}
+        </AlertDescription>
+        <Button variant="outline" size="sm" onClick={() => refetch()} className="mt-4">
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Retry
+        </Button>
+      </Alert>
+    );
+  }
+
+  if (!data) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>No Data</AlertTitle>
+        <AlertDescription>
+          No VAT data found for this period.
         </AlertDescription>
       </Alert>
     );
@@ -129,8 +166,8 @@ export function UStVADataReview({ period, onDataReviewed, onBack }: UStVADataRev
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={loadVATData}>
-            <RefreshCw className="w-4 h-4 mr-2" />
+          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isLoading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Button

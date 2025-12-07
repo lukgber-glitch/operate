@@ -181,15 +181,23 @@ export class PeppolController {
 
   /**
    * Get specific transmission by message ID
+   * SECURITY: Requires organizationId to prevent cross-tenant data access
    *
-   * GET /integrations/peppol/transmissions/:messageId
+   * GET /integrations/peppol/transmissions/:messageId?organizationId=xxx
    */
   @Get('transmissions/:messageId')
-  async getTransmission(@Param('messageId') messageId: string) {
-    this.logger.log('Fetching transmission', { messageId });
+  async getTransmission(
+    @Param('messageId') messageId: string,
+    @Query('organizationId') organizationId: string,
+  ) {
+    if (!organizationId) {
+      throw new BadRequestException('Organization ID is required');
+    }
+
+    this.logger.log('Fetching transmission', { messageId, organizationId });
 
     try {
-      const transmission = await this.peppolService.getTransmission(messageId);
+      const transmission = await this.peppolService.getTransmission(organizationId, messageId);
 
       if (!transmission) {
         return {

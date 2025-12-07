@@ -162,9 +162,8 @@ export class CreateRecipientDto {
   @ApiProperty({
     description: 'Recipient type',
     enum: WiseRecipientType,
-    example: WiseRecipientType.IBAN,
+    example: 'IBAN',
   })
-  @IsEnum(WiseRecipientType)
   type: WiseRecipientType;
 
   @ApiProperty({

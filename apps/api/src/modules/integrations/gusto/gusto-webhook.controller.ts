@@ -16,6 +16,7 @@ import {
   GustoWebhookPayload,
   GustoWebhookEventType,
 } from './gusto.types';
+import { Public } from '../../../common/decorators/public.decorator';
 
 /**
  * Gusto Webhook Controller
@@ -38,6 +39,7 @@ export class GustoWebhookController {
     private readonly encryption: GustoEncryptionUtil,
   ) {}
 
+  @Public()
   @Post()
   @ApiOperation({ summary: 'Receive Gusto webhook events' })
   @ApiHeader({ name: 'X-Gusto-Signature', required: true })

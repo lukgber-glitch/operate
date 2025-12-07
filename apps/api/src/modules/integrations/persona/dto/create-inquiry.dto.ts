@@ -40,10 +40,9 @@ export class CreateInquiryDto {
   @ApiPropertyOptional({
     description: 'Verification level required',
     enum: PersonaVerificationLevel,
-    example: PersonaVerificationLevel.ENHANCED,
+    example: 'ENHANCED',
   })
   @IsOptional()
-  @IsEnum(PersonaVerificationLevel)
   verificationLevel?: PersonaVerificationLevel;
 
   @ApiPropertyOptional({

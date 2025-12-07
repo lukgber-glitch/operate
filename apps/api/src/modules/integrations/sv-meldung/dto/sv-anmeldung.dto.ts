@@ -210,7 +210,6 @@ export class SvAnmeldungDto {
     description: 'Reason code override (default: 10 for new employment)',
     enum: Abgabegrund,
   })
-  @IsEnum(Abgabegrund)
   @IsOptional()
   abgabegrund?: Abgabegrund;
 

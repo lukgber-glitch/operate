@@ -130,7 +130,6 @@ export class GenerateReportDto {
     enum: SpainReportType,
     example: SpainReportType.MODELO_303,
   })
-  @IsEnum(SpainReportType)
   type: SpainReportType;
 
   @ApiProperty({ description: 'Reporting period', type: ReportPeriodDto })
@@ -223,7 +222,6 @@ export class ListReportsQueryDto {
     enum: SpainReportType,
   })
   @IsOptional()
-  @IsEnum(SpainReportType)
   type?: SpainReportType;
 
   @ApiPropertyOptional({ description: 'Filter by year', example: 2024 })

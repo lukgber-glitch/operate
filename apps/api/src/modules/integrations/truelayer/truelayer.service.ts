@@ -53,17 +53,20 @@ export class TrueLayerService {
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
   ) {
-    // Load configuration
+    // Load configuration - support both TRUELAYER_ENV and TRUELAYER_SANDBOX
+    const envMode = this.configService.get<string>('TRUELAYER_ENV') ||
+      (this.configService.get<string>('TRUELAYER_SANDBOX') === 'true' ? 'sandbox' : 'production');
+
+    const isProduction = envMode === 'production';
+
     this.config = {
       clientId: this.configService.get<string>('TRUELAYER_CLIENT_ID') || '',
       clientSecret: this.configService.get<string>('TRUELAYER_CLIENT_SECRET') || '',
-      environment: this.configService.get<string>('TRUELAYER_SANDBOX') === 'true'
-        ? 'sandbox' as any
-        : 'production' as any,
+      environment: isProduction ? 'production' as any : 'sandbox' as any,
       redirectUri: this.configService.get<string>('TRUELAYER_REDIRECT_URI') ||
         'http://localhost:3000/integrations/truelayer/callback',
       webhookUrl: this.configService.get<string>('TRUELAYER_WEBHOOK_URL') || '',
-      sandbox: this.configService.get<string>('TRUELAYER_SANDBOX') === 'true',
+      sandbox: !isProduction,
     };
 
     // Get encryption key (use TRUELAYER_ENCRYPTION_KEY or fall back to JWT_SECRET)
@@ -136,6 +139,8 @@ export class TrueLayerService {
         code_challenge_method: 'S256',
         ...(request.providerId && { provider_id: request.providerId }),
         ...(request.enableMockProviders && this.config.sandbox && { enable_mock: 'true' }),
+        // Add providers filter for production (UK Open Banking + EU XS2A)
+        ...(!this.config.sandbox && !request.providerId && { providers: this.getProviders() }),
       });
 
       const authUrl = `${getTrueLayerAuthUrl(this.config.environment)}?${params.toString()}`;
@@ -531,6 +536,23 @@ export class TrueLayerService {
       },
     });
     return response.data.results[0];
+  }
+
+  /**
+   * Get provider filter for authorization URL
+   * Production: UK Open Banking + German/EU XS2A banks
+   * Sandbox: Mock providers
+   */
+  private getProviders(): string {
+    if (this.config.sandbox) {
+      return 'mock'; // Sandbox mock bank
+    }
+
+    // Production: Support UK Open Banking and EU banks via XS2A
+    // uk-ob-all: All UK Open Banking banks
+    // de-xs2a-all: All German banks via XS2A
+    // at-xs2a-all: All Austrian banks via XS2A
+    return 'uk-ob-all de-xs2a-all at-xs2a-all';
   }
 
   private async logAuditEvent(event: {

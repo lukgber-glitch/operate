@@ -15,6 +15,7 @@ import { GoCardlessService } from './gocardless.service';
 import { PrismaService } from '../../database/prisma.service';
 import { GoCardlessWebhookPayload, GoCardlessWebhookEvent } from './gocardless.types';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Public } from '../../../common/decorators/public.decorator';
 
 /**
  * GoCardless Webhook Controller
@@ -48,6 +49,7 @@ export class GoCardlessWebhookController {
   /**
    * Handle GoCardless webhook events
    */
+  @Public()
   @Post()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Throttle({ default: { limit: 100, ttl: 60000 } }) // 100 requests per minute

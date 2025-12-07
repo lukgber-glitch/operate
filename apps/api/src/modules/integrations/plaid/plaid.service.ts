@@ -149,17 +149,29 @@ export class PlaidService {
     try {
       this.logger.log(`Creating link token for user ${request.userId}`);
 
+      // Determine products based on environment
+      const products = request.products || (
+        this.config.environment === PlaidEnvironments.production
+          ? [Products.Transactions, Products.Auth] // Production: use only approved products
+          : PLAID_US_PRODUCTS // Sandbox: use all products
+      );
+
       const linkTokenRequest: LinkTokenCreateRequest = {
         user: {
           client_user_id: request.userId,
         },
         client_name: request.clientName,
-        products: request.products || PLAID_US_PRODUCTS,
+        products,
         country_codes: request.countryCodes || PLAID_US_COUNTRY_CODES,
         language: request.language || 'en',
         webhook: request.webhookUrl || this.config.webhookUrl,
         redirect_uri: request.redirectUri || this.config.redirectUri,
       };
+
+      // Production requires webhook URL
+      if (this.config.environment === PlaidEnvironments.production && !linkTokenRequest.webhook) {
+        throw new BadRequestException('Webhook URL is required in production environment');
+      }
 
       const response = await this.plaidClient.linkTokenCreate(linkTokenRequest);
 
@@ -168,6 +180,7 @@ export class PlaidService {
         userId: request.userId,
         action: 'LINK_TOKEN_CREATED',
         metadata: {
+          environment: this.config.environment,
           products: linkTokenRequest.products,
           countryCodes: linkTokenRequest.country_codes,
           duration: Date.now() - startTime,
@@ -188,7 +201,7 @@ export class PlaidService {
           duration: Date.now() - startTime,
         },
       });
-      throw new InternalServerErrorException('Failed to create Plaid link token');
+      this.handlePlaidError(error);
     }
   }
 
@@ -405,6 +418,174 @@ export class PlaidService {
   verifyWebhookSignature(payload: string, signature: string): boolean {
     const webhookSecret = this.configService.get<string>('PLAID_WEBHOOK_SECRET') || this.config.secret;
     return PlaidEncryptionUtil.verifyWebhookSignature(payload, signature, webhookSecret);
+  }
+
+  /**
+   * Handle Plaid errors with user-friendly messages
+   */
+  private handlePlaidError(error: any): never {
+    const plaidError = error.response?.data;
+
+    if (plaidError) {
+      this.logger.error(`Plaid Error: ${plaidError.error_code} - ${plaidError.error_message}`);
+
+      // Map Plaid error codes to user-friendly messages
+      const errorMap: Record<string, string> = {
+        'ITEM_LOGIN_REQUIRED': 'Bank connection needs to be re-authenticated. Please reconnect your account.',
+        'INVALID_CREDENTIALS': 'Invalid bank credentials provided.',
+        'INSTITUTION_NOT_RESPONDING': 'Bank is temporarily unavailable. Please try again later.',
+        'INSTITUTION_DOWN': 'Bank is currently down for maintenance.',
+        'RATE_LIMIT_EXCEEDED': 'Too many requests. Please try again in a few minutes.',
+        'INVALID_REQUEST': 'Invalid request. Please check your input.',
+        'INVALID_INPUT': 'Invalid input provided.',
+        'INVALID_API_KEYS': 'Plaid API configuration error. Please contact support.',
+        'ITEM_NOT_FOUND': 'Bank connection not found.',
+        'PRODUCT_NOT_READY': 'Bank data is still being processed. Please try again in a few minutes.',
+        'ITEM_LOCKED': 'Account is locked. Please contact your bank.',
+        'INVALID_MFA': 'Invalid multi-factor authentication code.',
+        'RECAPTCHA_REQUIRED': 'ReCAPTCHA verification required.',
+        'INSUFFICIENT_CREDENTIALS': 'Additional authentication required by your bank.',
+      };
+
+      const message = errorMap[plaidError.error_code] || plaidError.error_message || 'An error occurred with the bank connection';
+
+      // Map to appropriate HTTP status
+      if (plaidError.error_code === 'ITEM_LOGIN_REQUIRED' || plaidError.error_code === 'INVALID_CREDENTIALS') {
+        throw new UnauthorizedException(message);
+      } else if (plaidError.error_code === 'INSTITUTION_NOT_RESPONDING' || plaidError.error_code === 'INSTITUTION_DOWN') {
+        throw new ServiceUnavailableException(message);
+      } else if (plaidError.error_code === 'RATE_LIMIT_EXCEEDED') {
+        throw new ServiceUnavailableException(message);
+      } else {
+        throw new BadRequestException(message);
+      }
+    }
+
+    // If not a Plaid error, throw generic error
+    throw new InternalServerErrorException('An unexpected error occurred with Plaid integration');
+  }
+
+  /**
+   * Check connection health for a Plaid item
+   */
+  async checkConnectionHealth(userId: string, itemId: string): Promise<{
+    healthy: boolean;
+    lastSync?: Date;
+    error?: string;
+    needsReauth: boolean;
+    errorCode?: string;
+  }> {
+    try {
+      // Get encrypted access token from database
+      const connection = await this.prisma.$queryRaw<Array<{ access_token: string; last_synced: Date; status: string }>>`
+        SELECT access_token, last_synced, status
+        FROM plaid_connections
+        WHERE user_id = ${userId} AND item_id = ${itemId}
+        LIMIT 1
+      `;
+
+      if (!connection || connection.length === 0) {
+        return {
+          healthy: false,
+          error: 'Connection not found',
+          needsReauth: true,
+        };
+      }
+
+      // If status is already ERROR, return unhealthy
+      if (connection[0].status === 'ERROR') {
+        return {
+          healthy: false,
+          error: 'Connection is in error state',
+          needsReauth: true,
+          lastSync: connection[0].last_synced,
+        };
+      }
+
+      // Decrypt access token
+      const accessToken = PlaidEncryptionUtil.decrypt(connection[0].access_token, this.encryptionKey);
+
+      // Check item status with Plaid
+      const response = await this.plaidClient.itemGet({
+        access_token: accessToken,
+      });
+
+      const itemStatus = response.data.item;
+      const hasError = !!itemStatus.error;
+
+      return {
+        healthy: !hasError,
+        lastSync: connection[0].last_synced,
+        error: itemStatus.error?.error_message,
+        errorCode: itemStatus.error?.error_code,
+        needsReauth: itemStatus.error?.error_code === 'ITEM_LOGIN_REQUIRED',
+      };
+    } catch (error) {
+      this.logger.error('Failed to check connection health', error);
+      return {
+        healthy: false,
+        error: error.message,
+        needsReauth: true,
+      };
+    }
+  }
+
+  /**
+   * Create update mode link token for re-authentication
+   */
+  async createUpdateLinkToken(userId: string, itemId: string): Promise<PlaidLinkTokenResponse> {
+    if (!this.isConfigured) {
+      throw new BadRequestException('Plaid service is not configured.');
+    }
+
+    try {
+      // Get encrypted access token
+      const connection = await this.prisma.$queryRaw<Array<{ access_token: string }>>`
+        SELECT access_token
+        FROM plaid_connections
+        WHERE user_id = ${userId} AND item_id = ${itemId}
+        LIMIT 1
+      `;
+
+      if (!connection || connection.length === 0) {
+        throw new BadRequestException('Connection not found');
+      }
+
+      const accessToken = PlaidEncryptionUtil.decrypt(connection[0].access_token, this.encryptionKey);
+
+      const response = await this.plaidClient.linkTokenCreate({
+        user: { client_user_id: userId },
+        client_name: 'Operate',
+        access_token: accessToken, // Update mode
+        country_codes: PLAID_US_COUNTRY_CODES,
+        language: 'en',
+        webhook: this.config.webhookUrl,
+      });
+
+      return {
+        linkToken: response.data.link_token,
+        expiration: response.data.expiration,
+      };
+    } catch (error) {
+      this.logger.error('Failed to create update link token', error);
+      this.handlePlaidError(error);
+    }
+  }
+
+  /**
+   * Mark connection as needing re-authentication
+   */
+  async markConnectionNeedsReauth(itemId: string): Promise<void> {
+    try {
+      await this.prisma.$executeRaw`
+        UPDATE plaid_connections
+        SET status = 'ERROR', updated_at = NOW()
+        WHERE item_id = ${itemId}
+      `;
+      this.logger.log(`Marked connection ${itemId} as needing re-authentication`);
+    } catch (error) {
+      this.logger.error('Failed to mark connection as needing reauth', error);
+    }
   }
 
   /**

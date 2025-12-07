@@ -12,50 +12,81 @@ import { Request } from 'express';
 import { StripeService } from './stripe.service';
 import { StripeConnectService } from './services/stripe-connect.service';
 import { PrismaService } from '../../database/prisma.service';
-import { STRIPE_WEBHOOK_EVENTS, StripeAccountStatus, StripePaymentStatus } from './stripe.types';
+import {
+  STRIPE_WEBHOOK_EVENTS,
+  STRIPE_BILLING_WEBHOOK_EVENTS,
+  StripeAccountStatus,
+  StripePaymentStatus
+} from './stripe.types';
+import { StripeBillingWebhookHandlers } from './stripe-webhook-billing-handlers';
 import Stripe from 'stripe';
+import { Public } from '../../../common/decorators/public.decorator';
 
 /**
  * Stripe Webhook Controller
  * Handles incoming webhook events from Stripe
  *
  * Supported Events:
+ *
+ * Connect Events:
  * - account.updated - Connect account status changes
  * - account.application.authorized - OAuth Connect authorized
  * - account.application.deauthorized - OAuth Connect deauthorized
+ *
+ * Payment Events:
  * - payment_intent.succeeded - Payment completed successfully
  * - payment_intent.payment_failed - Payment failed
  * - payment_intent.canceled - Payment canceled
  * - charge.succeeded - Charge completed
  * - charge.failed - Charge failed
  * - charge.refunded - Charge refunded
+ *
+ * Transfer Events:
  * - transfer.created - Transfer created to connected account
  * - transfer.failed - Transfer failed
  * - transfer.reversed - Transfer reversed
+ *
+ * Payout Events:
  * - payout.created - Payout initiated
  * - payout.paid - Payout completed
  * - payout.failed - Payout failed
  * - payout.canceled - Payout canceled
  *
+ * Subscription Events:
+ * - customer.subscription.created - New subscription created
+ * - customer.subscription.updated - Subscription plan/status changed
+ * - customer.subscription.deleted - Subscription canceled
+ * - customer.subscription.trial_will_end - Trial ending soon (3 days)
+ *
+ * Invoice Events:
+ * - invoice.paid - Invoice payment succeeded
+ * - invoice.payment_failed - Invoice payment failed
+ * - invoice.upcoming - Upcoming invoice notification
+ *
  * Security:
  * - All webhooks are verified using Stripe signature
  * - Raw body is required for signature verification
  * - Events are idempotent and safe to retry
+ * - Webhook signature secret from STRIPE_WEBHOOK_SECRET env var
  */
 @Controller('integrations/stripe/webhooks')
 export class StripeWebhookController {
   private readonly logger = new Logger(StripeWebhookController.name);
+  private readonly billingHandlers: StripeBillingWebhookHandlers;
 
   constructor(
     private readonly stripeService: StripeService,
     private readonly stripeConnectService: StripeConnectService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) {
+    this.billingHandlers = new StripeBillingWebhookHandlers(this.prisma);
+  }
 
   /**
    * Handle Stripe webhook events
    * Requires raw body for signature verification
    */
+  @Public()
   @Post()
   async handleWebhook(
     @Headers('stripe-signature') signature: string,
@@ -81,6 +112,13 @@ export class StripeWebhookController {
       this.logger.log(
         `Received webhook event: ${event.type} (ID: ${event.id})`,
       );
+
+      // Check if event already processed (idempotency)
+      const alreadyProcessed = await this.isEventProcessed(event.id);
+      if (alreadyProcessed) {
+        this.logger.log(`Event ${event.id} already processed, skipping`);
+        return { received: true };
+      }
 
       // Process event based on type
       await this.processEvent(event);
@@ -178,6 +216,50 @@ export class StripeWebhookController {
 
       case STRIPE_WEBHOOK_EVENTS.PAYOUT_CANCELED:
         await this.handlePayoutCanceled(event.data.object as Stripe.Payout);
+        break;
+
+      // Subscription Events
+      case STRIPE_BILLING_WEBHOOK_EVENTS.CUSTOMER_SUBSCRIPTION_CREATED:
+        await this.billingHandlers.handleSubscriptionCreated(
+          event.data.object as Stripe.Subscription,
+        );
+        break;
+
+      case STRIPE_BILLING_WEBHOOK_EVENTS.CUSTOMER_SUBSCRIPTION_UPDATED:
+        await this.billingHandlers.handleSubscriptionUpdated(
+          event.data.object as Stripe.Subscription,
+        );
+        break;
+
+      case STRIPE_BILLING_WEBHOOK_EVENTS.CUSTOMER_SUBSCRIPTION_DELETED:
+        await this.billingHandlers.handleSubscriptionDeleted(
+          event.data.object as Stripe.Subscription,
+        );
+        break;
+
+      case STRIPE_BILLING_WEBHOOK_EVENTS.CUSTOMER_SUBSCRIPTION_TRIAL_WILL_END:
+        await this.billingHandlers.handleSubscriptionTrialWillEnd(
+          event.data.object as Stripe.Subscription,
+        );
+        break;
+
+      // Invoice Events
+      case STRIPE_BILLING_WEBHOOK_EVENTS.INVOICE_PAID:
+        await this.billingHandlers.handleInvoicePaid(
+          event.data.object as Stripe.Invoice,
+        );
+        break;
+
+      case STRIPE_BILLING_WEBHOOK_EVENTS.INVOICE_PAYMENT_FAILED:
+        await this.billingHandlers.handleInvoicePaymentFailed(
+          event.data.object as Stripe.Invoice,
+        );
+        break;
+
+      case STRIPE_BILLING_WEBHOOK_EVENTS.INVOICE_UPCOMING:
+        await this.billingHandlers.handleInvoiceUpcoming(
+          event.data.object as Stripe.Invoice,
+        );
         break;
 
       default:
@@ -335,6 +417,26 @@ export class StripeWebhookController {
     return StripeAccountStatus.ACTIVE;
   }
 
+  /**
+   * Check if webhook event has already been processed (idempotency)
+   */
+  private async isEventProcessed(eventId: string): Promise<boolean> {
+    try {
+      const result = await this.prisma.$queryRaw<any[]>`
+        SELECT id FROM stripe_webhook_logs
+        WHERE event_id = ${eventId} AND status = 'SUCCESS'
+        LIMIT 1
+      `;
+      return result.length > 0;
+    } catch (error) {
+      this.logger.error('Failed to check event idempotency', error);
+      return false; // Proceed with processing if check fails
+    }
+  }
+
+  /**
+   * Log webhook event processing result
+   */
   private async logWebhookEvent(
     event: Stripe.Event,
     status: 'SUCCESS' | 'FAILED',
@@ -346,6 +448,9 @@ export class StripeWebhookController {
         (event_id, event_type, status, error_message, created_at)
         VALUES
         (${event.id}, ${event.type}, ${status}, ${errorMessage || null}, NOW())
+        ON CONFLICT (event_id) DO UPDATE SET
+          status = EXCLUDED.status,
+          error_message = EXCLUDED.error_message
       `;
     } catch (error) {
       this.logger.error('Failed to log webhook event', error);

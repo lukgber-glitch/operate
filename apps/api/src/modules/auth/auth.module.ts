@@ -59,6 +59,6 @@ import { RbacModule } from './rbac/rbac.module';
     MicrosoftStrategy,
     MfaGuard,
   ],
-  exports: [AuthService, OAuthService, JwtStrategy, PassportModule, MfaGuard, RbacModule],
+  exports: [AuthService, OAuthService, JwtStrategy, PassportModule, JwtModule, MfaGuard, RbacModule],
 })
 export class AuthModule {}

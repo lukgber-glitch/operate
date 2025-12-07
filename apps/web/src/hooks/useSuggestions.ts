@@ -1,244 +1,203 @@
 /**
  * useSuggestions Hook
- * Fetch and manage AI suggestions, insights, and deadlines
+ * Fetch and manage AI suggestions from the chatbot API
  */
 
 import { useEffect, useState, useCallback } from 'react';
-import {
-  Suggestion,
-  Insight,
-  Deadline,
-  SuggestionsResponse,
-  InsightsResponse,
-  DeadlinesResponse,
-} from '@/types/suggestions';
+import { chatApi } from '@/lib/api/chat';
+import { ApiClientError } from '@/lib/api/client';
+
+/**
+ * Suggestion from the backend chatbot API
+ */
+export interface ChatbotSuggestion {
+  id: string;
+  title: string;
+  description: string;
+  actionLabel?: string;
+  type: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  entityType?: string;
+  entityId?: string;
+  actionType?: string;
+  actionParams?: Record<string, any>;
+  data?: Record<string, any>;
+  createdAt: Date;
+  expiresAt?: Date;
+  confidence?: number;
+}
 
 interface UseSuggestionsOptions {
-  page?: string;
-  entityId?: string;
-  autoRefresh?: boolean;
+  /**
+   * Page context to filter suggestions (e.g., 'finance.invoices')
+   */
+  context?: string;
+  /**
+   * Maximum number of suggestions to fetch
+   */
+  limit?: number;
+  /**
+   * Auto-refresh interval in milliseconds (0 to disable)
+   */
   refreshInterval?: number;
 }
 
 interface UseSuggestionsReturn {
-  suggestions: Suggestion[];
-  insights: Insight[];
-  deadlines: Deadline[];
+  suggestions: ChatbotSuggestion[];
   isLoading: boolean;
   error: string | null;
+  executeSuggestion: (id: string, params?: Record<string, any>) => Promise<void>;
+  dismissSuggestion: (id: string, reason?: string) => Promise<void>;
   refresh: () => Promise<void>;
-  dismissSuggestion: (id: string) => Promise<void>;
-  applySuggestion: (id: string) => Promise<void>;
-  dismissDeadline: (id: string, remindLater?: Date) => Promise<void>;
 }
 
 export function useSuggestions(
   options: UseSuggestionsOptions = {}
 ): UseSuggestionsReturn {
   const {
-    page = 'dashboard',
-    entityId,
-    autoRefresh = false,
-    refreshInterval = 60000, // 1 minute
+    context,
+    limit = 10,
+    refreshInterval = 0,
   } = options;
 
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [insights, setInsights] = useState<Insight[]>([]);
-  const [deadlines, setDeadlines] = useState<Deadline[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<ChatbotSuggestion[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Fetch suggestions from the chatbot API
+   */
   const fetchSuggestions = useCallback(async () => {
     try {
-      setIsLoading(true);
       setError(null);
+      const response = await chatApi.getSuggestions(context) as any;
 
-      // Build query params
-      const params = new URLSearchParams({ page });
-      if (entityId) params.append('entityId', entityId);
-
-      const response = await fetch(`/api/v1/suggestions?${params}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch suggestions: ${response.statusText}`);
-      }
-
-      const data: SuggestionsResponse = await response.json();
-
-      // Convert date strings to Date objects
-      const parsedSuggestions = data.suggestions.map((s) => ({
-        ...s,
+      // Transform the response to match our ChatbotSuggestion interface
+      const fetchedSuggestions: ChatbotSuggestion[] = (response?.suggestions || response || []).map((s: any) => ({
+        id: s.id,
+        title: s.title,
+        description: s.description,
+        actionLabel: s.actionLabel,
+        type: s.type,
+        priority: s.priority,
+        entityType: s.entityType,
+        entityId: s.entityId,
+        actionType: s.actionType,
+        actionParams: s.actionParams,
+        data: s.data,
         createdAt: new Date(s.createdAt),
         expiresAt: s.expiresAt ? new Date(s.expiresAt) : undefined,
+        confidence: s.confidence,
       }));
 
-      const parsedInsights = data.insights.map((i) => ({
-        ...i,
-        createdAt: new Date(i.createdAt),
-      }));
+      // Apply limit
+      const limitedSuggestions = limit > 0
+        ? fetchedSuggestions.slice(0, limit)
+        : fetchedSuggestions;
 
-      const parsedDeadlines = data.deadlines.map((d) => ({
-        ...d,
-        dueDate: new Date(d.dueDate),
-        remindLater: d.remindLater ? new Date(d.remindLater) : undefined,
-      }));
-
-      setSuggestions(parsedSuggestions);
-      setInsights(parsedInsights);
-      setDeadlines(parsedDeadlines);
+      setSuggestions(limitedSuggestions);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      const errorMessage =
+        err instanceof ApiClientError
+          ? err.message
+          : 'Failed to fetch suggestions. Please try again.';
+      setError(errorMessage);
       console.error('Error fetching suggestions:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [page, entityId]);
+  }, [context, limit]);
 
-  const fetchInsights = useCallback(async () => {
-    try {
-      const response = await fetch('/api/v1/suggestions/insights', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
+  /**
+   * Execute a suggestion
+   */
+  const executeSuggestion = useCallback(
+    async (id: string, params?: Record<string, any>) => {
+      try {
+        // Find the suggestion
+        const suggestion = suggestions.find((s) => s.id === id);
+        if (!suggestion) {
+          throw new Error('Suggestion not found');
+        }
 
-      if (!response.ok) return;
+        // Call the API to execute the suggestion (using confirmAction endpoint)
+        await chatApi.confirmAction(id, {
+          messageId: suggestion.entityId,
+          ...params,
+        });
 
-      const data: InsightsResponse = await response.json();
-      const parsedInsights = data.insights.map((i) => ({
-        ...i,
-        createdAt: new Date(i.createdAt),
-      }));
+        // Optimistically remove the suggestion from the list
+        setSuggestions((prev) => prev.filter((s) => s.id !== id));
 
-      setInsights(parsedInsights);
-    } catch (err) {
-      console.error('Error fetching insights:', err);
-    }
-  }, []);
+        // Optionally refresh to get new suggestions
+        setTimeout(() => {
+          fetchSuggestions();
+        }, 500);
+      } catch (err) {
+        const errorMessage =
+          err instanceof ApiClientError
+            ? err.message
+            : 'Failed to execute suggestion. Please try again.';
+        console.error('Error executing suggestion:', err);
+        throw new Error(errorMessage);
+      }
+    },
+    [suggestions, fetchSuggestions]
+  );
 
-  const fetchDeadlines = useCallback(async () => {
-    try {
-      const response = await fetch('/api/v1/suggestions/deadlines', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
+  /**
+   * Dismiss a suggestion
+   */
+  const dismissSuggestion = useCallback(
+    async (id: string, reason?: string) => {
+      try {
+        // Call the API to dismiss the suggestion (using cancelAction endpoint)
+        await chatApi.cancelAction(id, { reason });
 
-      if (!response.ok) return;
+        // Optimistically remove the suggestion from the list
+        setSuggestions((prev) => prev.filter((s) => s.id !== id));
+      } catch (err) {
+        const errorMessage =
+          err instanceof ApiClientError
+            ? err.message
+            : 'Failed to dismiss suggestion. Please try again.';
+        console.error('Error dismissing suggestion:', err);
+        throw new Error(errorMessage);
+      }
+    },
+    []
+  );
 
-      const data: DeadlinesResponse = await response.json();
-      const parsedDeadlines = data.deadlines.map((d) => ({
-        ...d,
-        dueDate: new Date(d.dueDate),
-        remindLater: d.remindLater ? new Date(d.remindLater) : undefined,
-      }));
-
-      setDeadlines(parsedDeadlines);
-    } catch (err) {
-      console.error('Error fetching deadlines:', err);
-    }
-  }, []);
-
+  /**
+   * Manual refresh
+   */
   const refresh = useCallback(async () => {
-    await Promise.all([fetchSuggestions(), fetchInsights(), fetchDeadlines()]);
-  }, [fetchSuggestions, fetchInsights, fetchDeadlines]);
-
-  const dismissSuggestion = useCallback(async (id: string) => {
-    try {
-      const response = await fetch(`/api/v1/suggestions/${id}/dismiss`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to dismiss suggestion');
-      }
-
-      // Remove from local state
-      setSuggestions((prev) => prev.filter((s) => s.id !== id));
-    } catch (err) {
-      console.error('Error dismissing suggestion:', err);
-      throw err;
-    }
-  }, []);
-
-  const applySuggestion = useCallback(async (id: string) => {
-    try {
-      const response = await fetch(`/api/v1/suggestions/${id}/apply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to apply suggestion');
-      }
-
-      // Remove from local state after applying
-      setSuggestions((prev) => prev.filter((s) => s.id !== id));
-
-      // Optionally return result
-      return await response.json();
-    } catch (err) {
-      console.error('Error applying suggestion:', err);
-      throw err;
-    }
-  }, []);
-
-  const dismissDeadline = useCallback(async (id: string, remindLater?: Date) => {
-    try {
-      const response = await fetch(`/api/v1/suggestions/deadlines/${id}/dismiss`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ remindLater }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to dismiss deadline');
-      }
-
-      // Update local state
-      setDeadlines((prev) =>
-        prev.map((d) =>
-          d.id === id ? { ...d, isDismissed: true, remindLater } : d
-        )
-      );
-    } catch (err) {
-      console.error('Error dismissing deadline:', err);
-      throw err;
-    }
-  }, []);
+    setIsLoading(true);
+    await fetchSuggestions();
+  }, [fetchSuggestions]);
 
   // Initial fetch
   useEffect(() => {
     fetchSuggestions();
-    // Only fetch insights and deadlines on initial load if needed
-    if (!autoRefresh) {
-      fetchInsights();
-      fetchDeadlines();
-    }
-  }, [fetchSuggestions, fetchInsights, fetchDeadlines, autoRefresh]);
+  }, [fetchSuggestions]);
 
   // Auto-refresh
   useEffect(() => {
-    if (!autoRefresh) return;
+    if (refreshInterval <= 0) return;
 
-    const interval = setInterval(() => {
-      refresh();
+    const intervalId = setInterval(() => {
+      fetchSuggestions();
     }, refreshInterval);
 
-    return () => clearInterval(interval);
-  }, [autoRefresh, refreshInterval, refresh]);
+    return () => clearInterval(intervalId);
+  }, [refreshInterval, fetchSuggestions]);
 
   return {
     suggestions,
-    insights,
-    deadlines,
     isLoading,
     error,
-    refresh,
+    executeSuggestion,
     dismissSuggestion,
-    applySuggestion,
-    dismissDeadline,
+    refresh,
   };
 }

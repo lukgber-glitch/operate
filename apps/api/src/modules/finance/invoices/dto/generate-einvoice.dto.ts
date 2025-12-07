@@ -38,30 +38,27 @@ export class GenerateEInvoiceDto {
   @ApiPropertyOptional({
     description: 'E-Invoice format to generate',
     enum: EInvoiceFormat,
-    default: EInvoiceFormat.STANDARD,
-    example: EInvoiceFormat.ZUGFERD,
+    default: 'STANDARD',
+    example: 'ZUGFERD',
   })
   @IsOptional()
-  @IsEnum(EInvoiceFormat)
-  format?: EInvoiceFormat = EInvoiceFormat.STANDARD;
+  format?: EInvoiceFormat = 'STANDARD' as EInvoiceFormat;
 
   @ApiPropertyOptional({
     description: 'ZUGFeRD/Factur-X profile (only for zugferd/facturx format)',
     enum: ZugferdProfile,
-    default: ZugferdProfile.EN16931,
+    default: 'EN16931',
     example: ZugferdProfile.EN16931,
   })
   @IsOptional()
-  @IsEnum(ZugferdProfile)
-  zugferdProfile?: ZugferdProfile = ZugferdProfile.EN16931;
+  zugferdProfile?: ZugferdProfile = 'EN16931' as ZugferdProfile;
 
   @ApiPropertyOptional({
     description: 'XRechnung XML syntax (only for xrechnung format)',
     enum: XRechnungSyntax,
-    default: XRechnungSyntax.UBL,
-    example: XRechnungSyntax.UBL,
+    default: 'UBL',
+    example: 'UBL',
   })
   @IsOptional()
-  @IsEnum(XRechnungSyntax)
-  xrechnungSyntax?: XRechnungSyntax = XRechnungSyntax.UBL;
+  xrechnungSyntax?: XRechnungSyntax = 'UBL' as XRechnungSyntax;
 }

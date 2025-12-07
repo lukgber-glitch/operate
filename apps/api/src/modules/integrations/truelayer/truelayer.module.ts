@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TrueLayerService } from './truelayer.service';
 import { TrueLayerBankingService } from './services/truelayer-banking.service';
 import { TrueLayerTransactionMatcherService } from './services/truelayer-transaction-matcher.service';
+import { TrueLayerTokenRefreshService } from './services/truelayer-token-refresh.service';
 import { TrueLayerController } from './truelayer.controller';
 import { TrueLayerSyncProcessor } from './jobs/truelayer-sync.job';
 import { TrueLayerBalanceRefreshProcessor } from './jobs/truelayer-balance-refresh.job';
@@ -44,6 +46,7 @@ import trueLayerConfig from './truelayer.config';
   imports: [
     ConfigModule.forFeature(trueLayerConfig),
     DatabaseModule,
+    ScheduleModule.forRoot(), // Enable scheduled tasks
     BullModule.registerQueue(
       { name: 'truelayer-sync' },
       { name: 'truelayer-balance' },
@@ -55,6 +58,7 @@ import trueLayerConfig from './truelayer.config';
     TrueLayerService,
     TrueLayerBankingService,
     TrueLayerTransactionMatcherService,
+    TrueLayerTokenRefreshService, // Token refresh scheduler
     TrueLayerSyncProcessor,
     TrueLayerBalanceRefreshProcessor,
   ],
@@ -62,6 +66,7 @@ import trueLayerConfig from './truelayer.config';
     TrueLayerService,
     TrueLayerBankingService,
     TrueLayerTransactionMatcherService,
+    TrueLayerTokenRefreshService,
   ],
 })
 export class TrueLayerModule {}

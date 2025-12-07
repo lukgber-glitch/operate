@@ -28,7 +28,6 @@ import {
 
 export class CreateClientDto {
   @ApiProperty({ enum: ClientType, default: ClientType.COMPANY })
-  @IsEnum(ClientType)
   type: ClientType;
 
   @ApiProperty({ example: 'Acme Corporation' })
@@ -161,12 +160,10 @@ export class CreateClientDto {
 export class UpdateClientDto extends PartialType(CreateClientDto) {
   @ApiPropertyOptional({ enum: ClientStatus })
   @IsOptional()
-  @IsEnum(ClientStatus)
   status?: ClientStatus;
 
   @ApiPropertyOptional({ enum: RiskLevel })
   @IsOptional()
-  @IsEnum(RiskLevel)
   riskLevel?: RiskLevel;
 
   @ApiPropertyOptional({ example: 45 })
@@ -198,17 +195,14 @@ export class ClientFilterDto {
 
   @ApiPropertyOptional({ enum: ClientStatus })
   @IsOptional()
-  @IsEnum(ClientStatus)
   status?: ClientStatus;
 
   @ApiPropertyOptional({ enum: ClientType })
   @IsOptional()
-  @IsEnum(ClientType)
   type?: ClientType;
 
   @ApiPropertyOptional({ enum: RiskLevel })
   @IsOptional()
-  @IsEnum(RiskLevel)
   riskLevel?: RiskLevel;
 
   @ApiPropertyOptional({ example: ['vip', 'high-priority'], type: [String] })
@@ -525,7 +519,6 @@ export class ContactResponseDto {
 
 export class CreateAddressDto {
   @ApiProperty({ enum: AddressType, default: AddressType.BILLING })
-  @IsEnum(AddressType)
   type: AddressType;
 
   @ApiPropertyOptional({ example: '123 Main Street' })

@@ -3,13 +3,22 @@ import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
 /**
- * Redis Service
- * Provides Redis caching functionality across the application
+ * Enhanced Redis Service
+ * Provides advanced Redis caching functionality across the application
+ *
+ * Features:
+ * - Basic get/set/delete operations
+ * - Batch operations for better performance
+ * - Pattern-based operations
+ * - Atomic operations
+ * - Cache statistics and monitoring
  */
 @Injectable()
 export class RedisService implements OnModuleDestroy {
   private readonly logger = new Logger(RedisService.name);
   private readonly client: Redis;
+  private cacheHits = 0;
+  private cacheMisses = 0;
 
   constructor(private readonly configService: ConfigService) {
     this.client = new Redis({
@@ -23,6 +32,8 @@ export class RedisService implements OnModuleDestroy {
         return delay;
       },
       maxRetriesPerRequest: 3,
+      enableReadyCheck: true,
+      enableOfflineQueue: true,
     });
 
     this.client.on('connect', () => {
@@ -45,12 +56,44 @@ export class RedisService implements OnModuleDestroy {
     try {
       const value = await this.client.get(key);
       if (!value) {
+        this.cacheMisses++;
         return null;
       }
+      this.cacheHits++;
       return JSON.parse(value) as T;
     } catch (error) {
       this.logger.error(`Failed to get key ${key} from cache`, error);
       return null;
+    }
+  }
+
+  /**
+   * Get multiple values from cache (batch operation)
+   */
+  async mget<T>(keys: string[]): Promise<Map<string, T>> {
+    try {
+      if (keys.length === 0) return new Map();
+
+      const values = await this.client.mget(...keys);
+      const result = new Map<string, T>();
+
+      for (let i = 0; i < keys.length; i++) {
+        if (values[i]) {
+          try {
+            result.set(keys[i], JSON.parse(values[i]!) as T);
+            this.cacheHits++;
+          } catch (e) {
+            this.logger.error(`Failed to parse cached value for ${keys[i]}`, e);
+          }
+        } else {
+          this.cacheMisses++;
+        }
+      }
+
+      return result;
+    } catch (error) {
+      this.logger.error(`Failed to get multiple keys from cache`, error);
+      return new Map();
     }
   }
 
@@ -71,6 +114,49 @@ export class RedisService implements OnModuleDestroy {
   }
 
   /**
+   * Set multiple values in cache with optional TTL (batch operation)
+   */
+  async mset(entries: Map<string, any>, ttl?: number): Promise<void> {
+    try {
+      if (entries.size === 0) return;
+
+      const pipeline = this.client.pipeline();
+
+      for (const [key, value] of entries) {
+        const serialized = JSON.stringify(value);
+        if (ttl) {
+          pipeline.setex(key, ttl, serialized);
+        } else {
+          pipeline.set(key, serialized);
+        }
+      }
+
+      await pipeline.exec();
+    } catch (error) {
+      this.logger.error(`Failed to set multiple keys in cache`, error);
+    }
+  }
+
+  /**
+   * Set value only if key doesn't exist (atomic operation)
+   */
+  async setnx(key: string, value: any, ttl?: number): Promise<boolean> {
+    try {
+      const serialized = JSON.stringify(value);
+      if (ttl) {
+        const result = await this.client.set(key, serialized, 'NX', 'EX', ttl);
+        return result === 'OK';
+      } else {
+        const result = await this.client.setnx(key, serialized);
+        return result === 1;
+      }
+    } catch (error) {
+      this.logger.error(`Failed to setnx key ${key} in cache`, error);
+      return false;
+    }
+  }
+
+  /**
    * Delete key from cache
    */
   async del(key: string): Promise<void> {
@@ -78,6 +164,18 @@ export class RedisService implements OnModuleDestroy {
       await this.client.del(key);
     } catch (error) {
       this.logger.error(`Failed to delete key ${key} from cache`, error);
+    }
+  }
+
+  /**
+   * Delete multiple keys from cache (batch operation)
+   */
+  async mdel(keys: string[]): Promise<void> {
+    try {
+      if (keys.length === 0) return;
+      await this.client.del(...keys);
+    } catch (error) {
+      this.logger.error(`Failed to delete multiple keys from cache`, error);
     }
   }
 
@@ -109,14 +207,17 @@ export class RedisService implements OnModuleDestroy {
   /**
    * Delete keys by pattern
    */
-  async delByPattern(pattern: string): Promise<void> {
+  async delByPattern(pattern: string): Promise<number> {
     try {
       const keys = await this.client.keys(pattern);
       if (keys.length > 0) {
         await this.client.del(...keys);
+        return keys.length;
       }
+      return 0;
     } catch (error) {
       this.logger.error(`Failed to delete keys by pattern ${pattern}`, error);
+      return 0;
     }
   }
 
@@ -133,10 +234,110 @@ export class RedisService implements OnModuleDestroy {
   }
 
   /**
+   * Increment counter
+   */
+  async incr(key: string, ttl?: number): Promise<number> {
+    try {
+      const value = await this.client.incr(key);
+      if (ttl && value === 1) {
+        await this.client.expire(key, ttl);
+      }
+      return value;
+    } catch (error) {
+      this.logger.error(`Failed to increment key ${key}`, error);
+      return 0;
+    }
+  }
+
+  /**
+   * Decrement counter
+   */
+  async decr(key: string): Promise<number> {
+    try {
+      return await this.client.decr(key);
+    } catch (error) {
+      this.logger.error(`Failed to decrement key ${key}`, error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get cache statistics
+   */
+  getCacheStats() {
+    const total = this.cacheHits + this.cacheMisses;
+    const hitRate = total > 0 ? (this.cacheHits / total) * 100 : 0;
+
+    return {
+      hits: this.cacheHits,
+      misses: this.cacheMisses,
+      total,
+      hitRate: hitRate.toFixed(2) + '%',
+    };
+  }
+
+  /**
+   * Reset cache statistics
+   */
+  resetCacheStats() {
+    this.cacheHits = 0;
+    this.cacheMisses = 0;
+  }
+
+  /**
+   * Get Redis info
+   */
+  async getInfo(): Promise<any> {
+    try {
+      const info = await this.client.info();
+      return this.parseRedisInfo(info);
+    } catch (error) {
+      this.logger.error('Failed to get Redis info', error);
+      return {};
+    }
+  }
+
+  /**
+   * Parse Redis INFO command output
+   */
+  private parseRedisInfo(info: string): any {
+    const lines = info.split('\r\n');
+    const result: any = {};
+    let section = 'default';
+
+    for (const line of lines) {
+      if (line.startsWith('#')) {
+        section = line.substring(2).toLowerCase();
+        result[section] = {};
+      } else if (line.includes(':')) {
+        const [key, value] = line.split(':');
+        if (section && key) {
+          result[section][key] = value;
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
    * Get Redis client (for advanced operations)
    */
   getClient(): Redis {
     return this.client;
+  }
+
+  /**
+   * Ping Redis server
+   */
+  async ping(): Promise<boolean> {
+    try {
+      const result = await this.client.ping();
+      return result === 'PONG';
+    } catch (error) {
+      this.logger.error('Failed to ping Redis', error);
+      return false;
+    }
   }
 
   /**

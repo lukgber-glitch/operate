@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, CheckCircle2, ChevronRight, FileText, Key, Send, Shield } from 'lucide-react';
+import { AlertCircle, CheckCircle2, ChevronRight, FileText, Key, Send, Shield, RefreshCw } from 'lucide-react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/use-auth';
+import { useSubmitVatReturn, useDownloadReceipt } from '@/hooks/useElsterSubmission';
 
 import { ELSTERAuth } from './ELSTERAuth';
 import { PeriodSelector } from './PeriodSelector';
@@ -51,6 +53,10 @@ const STEPS: { id: WizardStep; title: string; description: string }[] = [
 ];
 
 export function ELSTERWizard() {
+  const { user } = useAuth();
+  const submitVatReturn = useSubmitVatReturn();
+  const downloadReceipt = useDownloadReceipt();
+
   const [state, setState] = useState<WizardState>({
     currentStep: 'authenticate',
     isAuthenticated: false,
@@ -87,13 +93,41 @@ export function ELSTERWizard() {
   };
 
   const handleSubmit = async () => {
-    // Simulate submission
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setState((prev) => ({
-      ...prev,
-      submissionId: `ELSTER-${Date.now()}`,
-      currentStep: 'confirmation',
-    }));
+    if (!state.vatData || !state.selectedPeriod || !user?.orgId) return;
+
+    try {
+      // Build submission data
+      const submissionData = {
+        organizationId: user.orgId,
+        period: `${state.selectedPeriod.year}-${String(state.selectedPeriod.month).padStart(2, '0')}`,
+        periodType: 'monthly' as const,
+        outputVat: state.vatData.vatCollected,
+        inputVat: state.vatData.inputVat,
+        netVat: state.vatData.vatPayable,
+        transactions: state.vatData.transactions.map(tx => ({
+          id: tx.id,
+          amount: tx.amount,
+          vat: tx.vatAmount,
+          type: tx.type,
+          date: tx.date,
+          description: tx.description,
+        })),
+      };
+
+      // Submit to ELSTER
+      const result = await submitVatReturn.mutateAsync(submissionData);
+
+      if (result.success && result.receiptId) {
+        setState((prev) => ({
+          ...prev,
+          submissionId: result.receiptId!,
+          currentStep: 'confirmation',
+        }));
+      }
+    } catch (error) {
+      // Error is already handled by the mutation's onError
+      console.error('Submission error:', error);
+    }
   };
 
   const handleBack = () => {
@@ -214,12 +248,25 @@ export function ELSTERWizard() {
               </div>
 
               <div className="flex gap-4">
-                <Button variant="outline" onClick={handleBack}>
+                <Button variant="outline" onClick={handleBack} disabled={submitVatReturn.isPending}>
                   Back
                 </Button>
-                <Button onClick={handleSubmit} className="flex-1">
-                  <Send className="w-4 h-4 mr-2" />
-                  Submit to ELSTER
+                <Button
+                  onClick={handleSubmit}
+                  className="flex-1"
+                  disabled={submitVatReturn.isPending}
+                >
+                  {submitVatReturn.isPending ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Submit to ELSTER
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
@@ -263,9 +310,21 @@ export function ELSTERWizard() {
                 <Button variant="outline" onClick={handleStartOver}>
                   File Another Return
                 </Button>
-                <Button>
-                  <FileText className="w-4 h-4 mr-2" />
-                  Download Receipt
+                <Button
+                  onClick={() => state.submissionId && downloadReceipt.mutate(state.submissionId)}
+                  disabled={!state.submissionId || downloadReceipt.isPending}
+                >
+                  {downloadReceipt.isPending ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Downloading...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="w-4 h-4 mr-2" />
+                      Download Receipt
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

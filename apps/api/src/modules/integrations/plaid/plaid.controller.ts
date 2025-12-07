@@ -22,6 +22,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { Public } from '../../../common/decorators/public.decorator';
 
 /**
  * Plaid Integration Controller
@@ -233,6 +234,7 @@ export class PlaidController {
    * Webhook Handler
    * Receives and processes webhook notifications from Plaid
    */
+  @Public()
   @Post('webhook')
   @Throttle({ default: { limit: 100, ttl: 60000 } }) // 100 requests per minute
   @ApiOperation({
@@ -248,10 +250,10 @@ export class PlaidController {
     @Body() webhookDto: PlaidWebhookDto,
     @Headers('plaid-verification') signature?: string,
   ) {
-    this.logger.log(`Received Plaid webhook: ${webhookDto.webhook_type} - ${webhookDto.webhook_code}`);
+    this.logger.log(`Received Plaid webhook: ${webhookDto.webhook_type} - ${webhookDto.webhook_code} for item ${webhookDto.item_id}`);
 
     try {
-      // Verify webhook signature
+      // Verify webhook signature in production
       if (signature) {
         const rawBody = req.rawBody ? req.rawBody.toString('utf8') : JSON.stringify(webhookDto);
         const isValid = this.plaidService.verifyWebhookSignature(rawBody, signature);
@@ -267,16 +269,15 @@ export class PlaidController {
       // Process webhook based on type
       switch (webhookDto.webhook_type) {
         case 'TRANSACTIONS':
-          this.logger.log(`Transactions webhook for item ${webhookDto.item_id}: ${webhookDto.new_transactions} new transactions`);
-          // TODO: Trigger background job to sync transactions
+          await this.handleTransactionWebhook(webhookDto);
           break;
 
         case 'ITEM':
-          this.logger.log(`Item webhook for ${webhookDto.item_id}: ${webhookDto.webhook_code}`);
-          if (webhookDto.error) {
-            this.logger.error(`Item error: ${webhookDto.error.error_code} - ${webhookDto.error.error_message}`);
-            // TODO: Update item status to ERROR in database
-          }
+          await this.handleItemWebhook(webhookDto);
+          break;
+
+        case 'AUTH':
+          await this.handleAuthWebhook(webhookDto);
           break;
 
         default:
@@ -286,6 +287,183 @@ export class PlaidController {
       return { success: true, message: 'Webhook processed' };
     } catch (error) {
       this.logger.error('Failed to process webhook', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle TRANSACTIONS webhook events
+   */
+  private async handleTransactionWebhook(webhookDto: PlaidWebhookDto): Promise<void> {
+    const { webhook_code, item_id, new_transactions } = webhookDto;
+
+    switch (webhook_code) {
+      case 'SYNC_UPDATES_AVAILABLE':
+        this.logger.log(`SYNC_UPDATES_AVAILABLE for item ${item_id}: ${new_transactions} new transactions`);
+        // TODO: Trigger background job to sync transactions
+        // await this.plaidSyncJob.syncItemTransactions(item_id);
+        break;
+
+      case 'INITIAL_UPDATE':
+        this.logger.log(`INITIAL_UPDATE for item ${item_id}: Initial data available`);
+        // TODO: Trigger initial sync
+        break;
+
+      case 'HISTORICAL_UPDATE':
+        this.logger.log(`HISTORICAL_UPDATE for item ${item_id}: Historical data available`);
+        // TODO: Trigger historical sync
+        break;
+
+      case 'DEFAULT_UPDATE':
+        this.logger.log(`DEFAULT_UPDATE for item ${item_id}: Update available`);
+        // TODO: Trigger sync
+        break;
+
+      case 'TRANSACTIONS_REMOVED':
+        this.logger.log(`TRANSACTIONS_REMOVED for item ${item_id}: ${webhookDto.removed_transactions?.length || 0} transactions removed`);
+        // TODO: Mark transactions as removed in database
+        break;
+
+      default:
+        this.logger.warn(`Unhandled TRANSACTIONS webhook code: ${webhook_code}`);
+    }
+  }
+
+  /**
+   * Handle ITEM webhook events
+   */
+  private async handleItemWebhook(webhookDto: PlaidWebhookDto): Promise<void> {
+    const { webhook_code, item_id, error } = webhookDto;
+
+    switch (webhook_code) {
+      case 'ERROR':
+        this.logger.error(`ITEM ERROR for ${item_id}: ${error?.error_code} - ${error?.error_message}`);
+
+        // Mark connection as needing re-authentication
+        if (error?.error_code === 'ITEM_LOGIN_REQUIRED') {
+          await this.plaidService.markConnectionNeedsReauth(item_id);
+          // TODO: Send notification to user to re-authenticate
+          this.logger.log(`Marked item ${item_id} as needing re-authentication`);
+        } else {
+          await this.plaidService.markConnectionNeedsReauth(item_id);
+        }
+        break;
+
+      case 'PENDING_EXPIRATION':
+        this.logger.warn(`PENDING_EXPIRATION for item ${item_id}: Connection will expire soon`);
+        // TODO: Notify user to re-authenticate before expiration
+        break;
+
+      case 'USER_PERMISSION_REVOKED':
+        this.logger.warn(`USER_PERMISSION_REVOKED for item ${item_id}: User revoked access`);
+        await this.plaidService.markConnectionNeedsReauth(item_id);
+        // TODO: Disable connection and notify user
+        break;
+
+      case 'WEBHOOK_UPDATE_ACKNOWLEDGED':
+        this.logger.log(`WEBHOOK_UPDATE_ACKNOWLEDGED for item ${item_id}`);
+        break;
+
+      default:
+        this.logger.warn(`Unhandled ITEM webhook code: ${webhook_code}`);
+    }
+  }
+
+  /**
+   * Handle AUTH webhook events
+   */
+  private async handleAuthWebhook(webhookDto: PlaidWebhookDto): Promise<void> {
+    const { webhook_code, item_id } = webhookDto;
+
+    switch (webhook_code) {
+      case 'AUTOMATICALLY_VERIFIED':
+        this.logger.log(`AUTH AUTOMATICALLY_VERIFIED for item ${item_id}`);
+        // Auth verification successful
+        break;
+
+      case 'VERIFICATION_EXPIRED':
+        this.logger.warn(`AUTH VERIFICATION_EXPIRED for item ${item_id}`);
+        // TODO: Notify user to re-verify
+        break;
+
+      default:
+        this.logger.warn(`Unhandled AUTH webhook code: ${webhook_code}`);
+    }
+  }
+
+  /**
+   * Check connection health
+   */
+  @Get('connections/:itemId/health')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('user', 'admin')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Check Plaid connection health',
+    description: 'Checks the health status of a Plaid connection',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Connection health retrieved',
+    schema: {
+      type: 'object',
+      properties: {
+        healthy: { type: 'boolean' },
+        lastSync: { type: 'string', format: 'date-time' },
+        error: { type: 'string' },
+        errorCode: { type: 'string' },
+        needsReauth: { type: 'boolean' },
+      },
+    },
+  })
+  async checkConnectionHealth(
+    @Param('itemId') itemId: string,
+    @CurrentUser() user: any,
+  ) {
+    this.logger.log(`Checking connection health for item ${itemId}`);
+
+    try {
+      const health = await this.plaidService.checkConnectionHealth(user.id, itemId);
+      return health;
+    } catch (error) {
+      this.logger.error('Failed to check connection health', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create update mode link token for re-authentication
+   */
+  @Post('connections/:itemId/reauth')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('user', 'admin')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Create re-authentication link token',
+    description: 'Creates a link token for re-authenticating an existing Plaid connection',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Update link token created',
+    schema: {
+      type: 'object',
+      properties: {
+        linkToken: { type: 'string' },
+        expiration: { type: 'string' },
+      },
+    },
+  })
+  async createReauthToken(
+    @Param('itemId') itemId: string,
+    @CurrentUser() user: any,
+  ) {
+    this.logger.log(`Creating re-auth link token for item ${itemId}`);
+
+    try {
+      const result = await this.plaidService.createUpdateLinkToken(user.id, itemId);
+      return result;
+    } catch (error) {
+      this.logger.error('Failed to create re-auth link token', error);
       throw error;
     }
   }

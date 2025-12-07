@@ -77,9 +77,8 @@ export class SvAenderungDto {
   @ApiProperty({
     description: 'Type of change',
     enum: AenderungType,
-    example: AenderungType.BEITRAGSGRUPPE,
+    example: 'BEITRAGSGRUPPE',
   })
-  @IsEnum(AenderungType)
   aenderungType!: AenderungType;
 
   @ApiProperty({
@@ -155,9 +154,8 @@ export class SvAenderungDto {
   @ApiPropertyOptional({
     description: 'Reason code for change',
     enum: Abgabegrund,
-    default: Abgabegrund.AENDERUNG,
+    default: 'AENDERUNG',
   })
-  @IsEnum(Abgabegrund)
   @IsOptional()
   abgabegrund?: Abgabegrund;
 

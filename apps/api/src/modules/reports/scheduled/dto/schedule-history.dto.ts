@@ -161,7 +161,6 @@ export class HistoryQueryDto {
     enum: ExecutionStatus,
   })
   @IsOptional()
-  @IsEnum(ExecutionStatus)
   status?: ExecutionStatus;
 
   @ApiPropertyOptional({

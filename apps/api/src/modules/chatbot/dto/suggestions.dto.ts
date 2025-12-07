@@ -112,6 +112,5 @@ export class GetSuggestionsQueryDto {
 
   @ApiPropertyOptional({ enum: SuggestionPriority, description: 'Minimum priority' })
   @IsOptional()
-  @IsEnum(SuggestionPriority)
   minPriority?: SuggestionPriority;
 }

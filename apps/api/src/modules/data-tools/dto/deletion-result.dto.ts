@@ -15,7 +15,7 @@ export class DeletionResultDto {
   @ApiProperty({
     description: 'Deletion status',
     enum: DeletionStatus,
-    example: DeletionStatus.COMPLETED,
+    example: 'COMPLETED',
   })
   status: DeletionStatus;
 
@@ -36,7 +36,7 @@ export class DeletionResultDto {
     description: 'Data categories deleted',
     enum: DataCategory,
     isArray: true,
-    example: [DataCategory.PROFILE, DataCategory.FINANCIAL],
+    example: ['PROFILE', 'FINANCIAL'],
   })
   categories: DataCategory[];
 

@@ -11,7 +11,6 @@ export class TrueLayerWebhookDto {
     enum: TrueLayerWebhookType,
     example: 'transaction.created',
   })
-  @IsEnum(TrueLayerWebhookType)
   type: TrueLayerWebhookType;
 
   @ApiProperty({

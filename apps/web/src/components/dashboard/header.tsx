@@ -1,19 +1,50 @@
 'use client'
 
-import { Search, Menu } from 'lucide-react'
+import { Menu } from 'lucide-react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 import { NotificationBell } from '@/components/notifications'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { cn } from '@/lib/utils'
 
-import { Breadcrumbs } from './breadcrumbs'
 import { Sidebar } from './sidebar'
 import { UserMenu } from './user-menu'
 
 export function Header() {
+  const pathname = usePathname()
+
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-slate-200 bg-white px-6 dark:border-slate-800 dark:bg-slate-900">
+    <header
+      className="sticky top-0 z-40 flex h-16 items-center gap-6 border-b px-6 shadow-sm"
+      style={{
+        backgroundColor: 'var(--color-surface)',
+        borderColor: 'var(--color-border)'
+      }}
+    >
+      {/* Logo - Left Side */}
+      <Link
+        href="/"
+        className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+        aria-label="Operate home"
+      >
+        {/* Logo Icon */}
+        <div
+          className="flex h-9 w-9 items-center justify-center rounded-lg font-bold text-white"
+          style={{ backgroundColor: 'var(--color-primary)' }}
+        >
+          <span className="text-lg">O</span>
+        </div>
+        {/* Logo Text - Desktop only */}
+        <span
+          className="hidden text-xl font-bold sm:inline-block"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          Operate
+        </span>
+      </Link>
+
       {/* Mobile menu trigger */}
       <Sheet>
         <SheetTrigger asChild>
@@ -27,25 +58,39 @@ export function Header() {
         </SheetContent>
       </Sheet>
 
-      {/* Breadcrumbs */}
-      <div className="hidden md:block">
-        <Breadcrumbs />
-      </div>
+      {/* Navigation Links - Center */}
+      <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
+        <Link
+          href="/dashboard"
+          className={cn(
+            'rounded-md px-4 py-2 text-sm font-medium transition-colors',
+            'hover:bg-[var(--color-background)]',
+            pathname === '/dashboard' || pathname === '/'
+              ? 'text-[var(--color-primary)]'
+              : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+          )}
+        >
+          Dashboard
+        </Link>
+        <Link
+          href="/settings"
+          className={cn(
+            'rounded-md px-4 py-2 text-sm font-medium transition-colors',
+            'hover:bg-[var(--color-background)]',
+            pathname.startsWith('/settings')
+              ? 'text-[var(--color-primary)]'
+              : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+          )}
+        >
+          Settings
+        </Link>
+      </nav>
 
-      {/* Search */}
-      <div className="flex-1 max-w-md">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <Input
-            type="search"
-            placeholder="Search..."
-            className="pl-9 w-full"
-          />
-        </div>
-      </div>
+      {/* Spacer */}
+      <div className="flex-1" />
 
       {/* Right side actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <NotificationBell />
         <UserMenu />
       </div>

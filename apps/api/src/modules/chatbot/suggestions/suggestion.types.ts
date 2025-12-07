@@ -170,3 +170,39 @@ export enum AnomalyType {
   MISSING_DATA = 'missing_data',
   THRESHOLD_BREACH = 'threshold_breach',
 }
+
+/**
+ * Tax deadline suggestion (specialized)
+ */
+export interface TaxSuggestion extends Omit<Suggestion, 'type'> {
+  type: 'TAX_DEADLINE';
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  estimatedAmount?: number;
+  dueDate: Date;
+  action: {
+    type: 'OPEN_TAX_WIZARD' | 'VIEW_TAX_PREVIEW' | 'DISMISS';
+    url?: string;
+    label: string;
+  };
+}
+
+/**
+ * Cash flow alert suggestion (specialized)
+ */
+export interface CashFlowSuggestion extends Omit<Suggestion, 'type'> {
+  type: 'CASH_FLOW_ALERT';
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  data?: {
+    currentBalance?: number;
+    runwayMonths?: number;
+    burnRate?: number;
+    lowestDate?: Date;
+    lowestBalance?: number;
+    riskFactors?: string[];
+  };
+  action: {
+    type: 'VIEW_CASH_FLOW' | 'VIEW_RECEIVABLES' | 'VIEW_FORECAST' | 'VIEW_BILL' | 'SEND_REMINDERS';
+    url: string;
+    label: string;
+  };
+}

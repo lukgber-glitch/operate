@@ -25,9 +25,9 @@ import {
   UpdateRecurringInvoiceDto,
   RecurringInvoiceFiltersDto,
 } from './dto/recurring-invoice.dto';
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
-import { RbacGuard } from '../../../auth/rbac/rbac.guard';
-import { RequirePermissions } from '../../../auth/rbac/permissions.decorator';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { RbacGuard } from '@/modules/auth/rbac/rbac.guard';
+import { RequirePermissions } from '@/modules/auth/rbac/permissions';
 
 @ApiTags('Recurring Invoices')
 @ApiBearerAuth()

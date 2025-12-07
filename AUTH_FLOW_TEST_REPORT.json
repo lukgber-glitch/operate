@@ -1,0 +1,105 @@
+{
+  "timestamp": "2025-12-07T12:01:41.035Z",
+  "flows": [
+    {
+      "name": "Login Flow",
+      "steps": [
+        "Found login page at: /login (HTTP 200)"
+      ],
+      "status": "FAIL",
+      "issues": [
+        "No login form found on page"
+      ],
+      "screenshots": [
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\login-page-1765108903309.png"
+      ]
+    },
+    {
+      "name": "Registration Flow",
+      "steps": [
+        "Found register page at: /register (HTTP 200)"
+      ],
+      "status": "PARTIAL",
+      "issues": [
+        "No form found on registration page"
+      ],
+      "screenshots": [
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\home-page-1765108904420.png",
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\register-page-1765108905557.png"
+      ]
+    },
+    {
+      "name": "OAuth Flows",
+      "steps": [],
+      "status": "PARTIAL",
+      "issues": [
+        "Google OAuth button not found",
+        "Microsoft OAuth button not found"
+      ],
+      "screenshots": [
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\oauth-check-1765108906662.png"
+      ]
+    },
+    {
+      "name": "Password Reset Flow",
+      "steps": [
+        "Found password reset at: /forgot-password"
+      ],
+      "status": "PASS",
+      "issues": [],
+      "screenshots": [
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\password-reset-start-1765108907769.png",
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\password-reset-direct-1765108909000.png"
+      ]
+    },
+    {
+      "name": "Logout Flow",
+      "steps": [
+        "No logout button visible (user not logged in - expected)",
+        "✓ /dashboard redirects to login (protected)",
+        "/app - accessible without auth",
+        "/workspace - accessible without auth",
+        "/home - accessible without auth"
+      ],
+      "status": "PASS",
+      "issues": [],
+      "screenshots": [
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\logout-check-1765108910096.png"
+      ]
+    },
+    {
+      "name": "Session Persistence",
+      "steps": [
+        "LocalStorage keys: 0",
+        "SessionStorage keys: 0",
+        "Has cookies: No",
+        "Auth token found: No",
+        "Page refreshed successfully",
+        "✓ Session data persists after refresh"
+      ],
+      "status": "PASS",
+      "issues": [],
+      "screenshots": [
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\session-after-refresh-1765108917294.png"
+      ]
+    },
+    {
+      "name": "UI/UX Checks",
+      "steps": [],
+      "status": "FAIL",
+      "issues": [
+        "Error: page.waitForTimeout is not a function"
+      ],
+      "screenshots": [
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\ui-error-1765108918390.png"
+      ]
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "passed": 3,
+    "partial": 2,
+    "failed": 2,
+    "totalIssues": 5
+  }
+}

@@ -1,55 +1,113 @@
-# /continue - Resume Operate Session
+# /continue - Resume Operate Full Automation Build
 
-Read the checkpoint file and continue from where we left off.
+## Current Status (Updated: 2024-12-06)
 
-## Current Status (Updated: 2025-12-05)
+**STATUS**: Full Automation Plan Complete - Sprint 1 Ready to Launch
 
-**STATUS**: Production API RESTORED and WORKING
+**ROLE**: You are ATLAS (Project Manager). You coordinate agents. You do NOT write code directly.
+
+## 🎯 NEXT ACTION: Launch Sprint 1
+
+### Sprint 1 Phase 1 (Launch 3 Parallel Agents)
+
+| Agent | Task ID | Task Name | Status |
+|-------|---------|-----------|--------|
+| BRIDGE | S1-01 | Wire Invoice Extraction Pipeline | READY |
+| BRIDGE | S1-02 | Wire Transaction Classification Pipeline | READY |
+| BRIDGE | S1-03 | Implement Email Delivery Service | READY |
+
+### To Launch Sprint 1:
+Say: **"launch Sprint 1"** or **"start Sprint 1 Phase 1"**
+
+---
+
+## State Files (READ FIRST)
+
+1. **State Checkpoint**: `agents/STATE.json`
+2. **Master Plan**: `agents/FULL_AUTOMATION_PLAN.md`
+3. **Agent Index**: `agents/AGENT_INDEX.md`
+4. **Sprint 1 Tasks**: `agents/tasks/SPRINT1_TASK_ASSIGNMENTS.md`
+
+---
+
+## Automation Progress
+
+| Area | Status |
+|------|--------|
+| Email → Invoice Pipeline | NOT_STARTED |
+| Bank → Classification Pipeline | NOT_STARTED |
+| Proactive Suggestions | NOT_STARTED |
+| Chat Actions | NOT_STARTED |
+| Bills/AP Module | NOT_STARTED |
+| Vendor Management | NOT_STARTED |
+| Auto-Reconciliation | NOT_STARTED |
+| Document Search | NOT_STARTED |
+| Tax Filing | NOT_STARTED |
+| Cash Flow Intelligence | NOT_STARTED |
+
+**Total Tasks**: 49 across 7 sprints
+**Completed**: 0
+
+---
+
+## Sprint Overview
+
+| Sprint | Focus | Tasks | Status |
+|--------|-------|-------|--------|
+| 1 | Foundation Pipelines | 6 | READY_TO_LAUNCH |
+| 2 | Bills & Vendors | 7 | PLANNED |
+| 3 | Auto-Reconciliation | 7 | PLANNED |
+| 4 | Document Intelligence | 7 | PLANNED |
+| 5 | Tax Filing | 7 | PLANNED |
+| 6 | Cash Flow | 7 | PLANNED |
+| 7 | Production Hardening | 8 | PLANNED |
+
+---
+
+## Key Rules
+
+1. **ATLAS Role**: Coordinate agents, don't write code directly
+2. **Agent Launches**: Provide task file path and specific section
+3. **Parallel Work**: Launch independent agents simultaneously
+4. **Dependencies**: Wait for blocking tasks before launching dependent agents
+5. **State Updates**: Update STATE.json after each task completion
+
+---
 
 ## Live URLs
 
 - **App**: https://operate.guru
 - **API Health**: https://operate.guru/api/v1/health
-- **Google OAuth**: https://operate.guru/api/v1/auth/google
 
-## Server Details
-
-- **SSH**: `ssh cloudways` (or `ssh -i ~/.ssh/cloudways_key master_ayxzcfhxfe@164.90.202.153`)
-- **API Path**: `~/applications/eagqdkxvzv/public_html/apps/api/`
-- **PM2 Process**: operate-api
-
-## What's Working
-
-- ✅ API health endpoint
-- ✅ Redis connection with ACL authentication
-- ✅ Database connection (Neon PostgreSQL)
-- ✅ Google OAuth redirect
-- ✅ Varnish cache (purged)
-
-## Pending Tasks
-
-1. Test Google OAuth login flow end-to-end in browser
-2. Configure Microsoft OAuth (need Azure AD credentials)
-3. Test all 10 languages
-4. Test new user registration flow
-5. Fix Redis ACL permissions for Bull queues (minor)
-
-## Quick Commands
+## Server Access
 
 ```bash
-# Check API status
-ssh cloudways "./node_modules/.bin/pm2 list"
-
-# View API logs
-ssh cloudways "./node_modules/.bin/pm2 logs operate-api --lines 50"
-
-# Restart API
-ssh cloudways "./node_modules/.bin/pm2 restart operate-api --update-env"
-
-# Test health
-curl https://operate.guru/api/v1/health
+ssh cloudways
+cd ~/applications/eagqdkxvzv/public_html/apps/api
+npx pm2 logs operate-api --lines 50
 ```
 
-## Checkpoint File
+---
 
-Full details in: `C:\Users\grube\op\operate-live\CHECKPOINT_2025-12-05.md`
+## Resume Instructions
+
+When starting a new session:
+
+1. Read `agents/STATE.json` to get current state
+2. Read `agents/FULL_AUTOMATION_PLAN.md` for context
+3. Check which sprint/phase is active
+4. Continue from next action in STATE.json
+
+---
+
+## What User Wants
+
+**Goal**: Fully automatic business app where user can focus on working while app handles:
+- Invoice extraction from emails
+- Bank transaction classification
+- Proactive daily suggestions
+- Chat-based actions
+- Tax filing assistance
+- Cash flow predictions
+
+**User's Words**: "add all tasks needed to get a fully automatic chat app, so the app user can focus on working and app does everything else"

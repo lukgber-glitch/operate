@@ -140,7 +140,6 @@ export class ExportExcelDto {
     description: 'Excel template to use',
     enum: ExcelTemplate,
   })
-  @IsEnum(ExcelTemplate)
   template: ExcelTemplate;
 
   @ApiPropertyOptional({

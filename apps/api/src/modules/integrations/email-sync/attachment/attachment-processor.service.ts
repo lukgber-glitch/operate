@@ -74,6 +74,10 @@ export class AttachmentProcessorService {
     private readonly classifierService: AttachmentClassifierService,
     @InjectQueue(ATTACHMENT_PROCESSING_QUEUE)
     private readonly attachmentQueue: Queue,
+    @InjectQueue('invoice-extraction')
+    private readonly invoiceExtractionQueue: Queue,
+    @InjectQueue('receipt-extraction')
+    private readonly receiptExtractionQueue: Queue,
   ) {}
 
   /**
@@ -409,22 +413,65 @@ export class AttachmentProcessorService {
       `Routing attachment ${attachment.id} to ${extractorRoute}`,
     );
 
-    // Queue extraction job
-    // TODO: Create invoice-extractor and receipt-extractor queues
-    // await this.extractorQueue.add(extractorRoute, {
-    //   attachmentId: attachment.id,
-    //   orgId: attachment.orgId,
-    //   userId: attachment.userId,
-    //   classifiedType: attachment.classifiedType,
-    // });
+    try {
+      // Retrieve attachment file from storage
+      const fileBuffer = await this.storageService.retrieveAttachment(
+        attachment.storagePath,
+        attachment.storageBackend,
+      );
 
-    // Update extraction status
-    await this.prisma.emailAttachment.update({
-      where: { id: attachment.id },
-      data: {
-        extractionStatus: 'PENDING',
-      },
-    });
+      // Select appropriate queue based on extractor route
+      const queue = extractorRoute === 'invoice-extractor'
+        ? this.invoiceExtractionQueue
+        : this.receiptExtractionQueue;
+
+      const jobName = extractorRoute === 'invoice-extractor'
+        ? 'extract'
+        : 'extract';
+
+      // Queue extraction job
+      await queue.add(jobName, {
+        attachmentId: attachment.id,
+        organisationId: attachment.orgId,
+        fileBuffer: fileBuffer,
+        mimeType: attachment.mimeType,
+        fileName: attachment.originalFilename,
+        userId: attachment.userId,
+        options: {
+          maxRetries: 3,
+          timeout: 60000,
+          enableFallback: true,
+        },
+      });
+
+      // Update extraction status
+      await this.prisma.emailAttachment.update({
+        where: { id: attachment.id },
+        data: {
+          extractionStatus: 'PENDING',
+        },
+      });
+
+      this.logger.log(
+        `Successfully queued attachment ${attachment.id} for ${extractorRoute}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to route attachment ${attachment.id} to extractor: ${error.message}`,
+        error.stack,
+      );
+
+      // Update extraction status to FAILED
+      await this.prisma.emailAttachment.update({
+        where: { id: attachment.id },
+        data: {
+          extractionStatus: 'FAILED',
+          processingError: `Failed to queue extraction: ${error.message}`,
+        },
+      });
+
+      throw error;
+    }
   }
 
   /**

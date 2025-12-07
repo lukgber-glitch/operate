@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DatabaseModule } from '../../../../database/database.module';
+import { DatabaseModule } from '@/modules/database/database.module';
 import { BmdController } from './bmd.controller';
 import { BmdExportService } from './bmd-export.service';
 

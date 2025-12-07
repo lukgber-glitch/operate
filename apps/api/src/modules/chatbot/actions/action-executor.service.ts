@@ -27,6 +27,24 @@ import { CreateExpenseHandler } from './handlers/create-expense.handler';
 import { GenerateReportHandler } from './handlers/generate-report.handler';
 import { SendReminderHandler } from './handlers/send-reminder.handler';
 import { UpdateStatusHandler } from './handlers/update-status.handler';
+import { CreateBillHandler } from './handlers/create-bill.handler';
+import { PayBillHandler } from './handlers/pay-bill.handler';
+import { ListBillsHandler } from './handlers/list-bills.handler';
+import { BillStatusHandler } from './handlers/bill-status.handler';
+import { GetCashFlowHandler } from './handlers/get-cash-flow.handler';
+import { GetRunwayHandler } from './handlers/get-runway.handler';
+import { GetBurnRateHandler } from './handlers/get-burn-rate.handler';
+import { GetCashForecastHandler } from './handlers/get-cash-forecast.handler';
+import { HireEmployeeHandler } from './handlers/hire-employee.handler';
+import { TerminateEmployeeHandler } from './handlers/terminate-employee.handler';
+import { RequestLeaveHandler } from './handlers/request-leave.handler';
+import { ApproveLeaveHandler } from './handlers/approve-leave.handler';
+import { SearchDocumentsHandler } from './handlers/search-documents.handler';
+import { ReduceExpensesHandler } from './handlers/reduce-expenses.handler';
+import { TaxConsultationHandler } from './handlers/tax-consultation.handler';
+import { CreateCustomerHandler } from './handlers/create-customer.handler';
+import { GetBankBalanceHandler } from './handlers/get-bank-balance.handler';
+import { GetBankTransactionsHandler } from './handlers/get-bank-transactions.handler';
 import { ActionStatus } from '@prisma/client';
 
 @Injectable()
@@ -48,6 +66,24 @@ export class ActionExecutorService {
     private generateReportHandler: GenerateReportHandler,
     private sendReminderHandler: SendReminderHandler,
     private updateStatusHandler: UpdateStatusHandler,
+    private createBillHandler: CreateBillHandler,
+    private payBillHandler: PayBillHandler,
+    private listBillsHandler: ListBillsHandler,
+    private billStatusHandler: BillStatusHandler,
+    private getCashFlowHandler: GetCashFlowHandler,
+    private getRunwayHandler: GetRunwayHandler,
+    private getBurnRateHandler: GetBurnRateHandler,
+    private getCashForecastHandler: GetCashForecastHandler,
+    private hireEmployeeHandler: HireEmployeeHandler,
+    private terminateEmployeeHandler: TerminateEmployeeHandler,
+    private requestLeaveHandler: RequestLeaveHandler,
+    private approveLeaveHandler: ApproveLeaveHandler,
+    private searchDocumentsHandler: SearchDocumentsHandler,
+    private reduceExpensesHandler: ReduceExpensesHandler,
+    private taxConsultationHandler: TaxConsultationHandler,
+    private createCustomerHandler: CreateCustomerHandler,
+    private getBankBalanceHandler: GetBankBalanceHandler,
+    private getBankTransactionsHandler: GetBankTransactionsHandler,
   ) {
     this.registerHandlers();
   }
@@ -61,6 +97,24 @@ export class ActionExecutorService {
     this.handlers.set(ActionType.GENERATE_REPORT, this.generateReportHandler);
     this.handlers.set(ActionType.SEND_REMINDER, this.sendReminderHandler);
     this.handlers.set(ActionType.UPDATE_STATUS, this.updateStatusHandler);
+    this.handlers.set(ActionType.CREATE_BILL, this.createBillHandler);
+    this.handlers.set(ActionType.PAY_BILL, this.payBillHandler);
+    this.handlers.set(ActionType.LIST_BILLS, this.listBillsHandler);
+    this.handlers.set(ActionType.BILL_STATUS, this.billStatusHandler);
+    this.handlers.set(ActionType.GET_CASH_FLOW, this.getCashFlowHandler);
+    this.handlers.set(ActionType.GET_RUNWAY, this.getRunwayHandler);
+    this.handlers.set(ActionType.GET_BURN_RATE, this.getBurnRateHandler);
+    this.handlers.set(ActionType.GET_CASH_FORECAST, this.getCashForecastHandler);
+    this.handlers.set(ActionType.HIRE_EMPLOYEE, this.hireEmployeeHandler);
+    this.handlers.set(ActionType.TERMINATE_EMPLOYEE, this.terminateEmployeeHandler);
+    this.handlers.set(ActionType.REQUEST_LEAVE, this.requestLeaveHandler);
+    this.handlers.set(ActionType.APPROVE_LEAVE, this.approveLeaveHandler);
+    this.handlers.set(ActionType.SEARCH_DOCUMENTS, this.searchDocumentsHandler);
+    this.handlers.set(ActionType.REDUCE_EXPENSES, this.reduceExpensesHandler);
+    this.handlers.set(ActionType.CONSULT_TAXES, this.taxConsultationHandler);
+    this.handlers.set(ActionType.CREATE_CUSTOMER, this.createCustomerHandler);
+    this.handlers.set(ActionType.GET_BANK_BALANCE, this.getBankBalanceHandler);
+    this.handlers.set(ActionType.GET_BANK_TRANSACTIONS, this.getBankTransactionsHandler);
 
     this.logger.log(`Registered ${this.handlers.size} action handlers`);
   }
@@ -318,6 +372,188 @@ export class ActionExecutorService {
         riskLevel: 'low',
         examples: [
           '[ACTION:update_status params={"entityType":"expense","entityId":"exp_123","status":"approved"}]',
+        ],
+      },
+      {
+        type: ActionType.CREATE_BILL,
+        name: 'Create Bill',
+        description: 'Create a new bill (accounts payable) from a vendor',
+        parameters: this.createBillHandler.getRequiredParameters(),
+        requiredPermissions: ['bills:create'],
+        requiresConfirmation: true,
+        riskLevel: 'medium',
+        examples: [
+          '[ACTION:create_bill params={"vendorName":"AWS","amount":200,"currency":"EUR","description":"Cloud hosting services"}]',
+          '[ACTION:create_bill params={"vendorName":"Office Depot","amount":500,"dueDate":"2024-12-31"}]',
+        ],
+      },
+      {
+        type: ActionType.PAY_BILL,
+        name: 'Pay Bill',
+        description: 'Record a payment for a bill',
+        parameters: this.payBillHandler.getRequiredParameters(),
+        requiredPermissions: ['bills:update'],
+        requiresConfirmation: true,
+        riskLevel: 'high',
+        examples: [
+          '[ACTION:pay_bill params={"billId":"bill_123","amount":200,"paymentMethod":"bank_transfer"}]',
+        ],
+      },
+      {
+        type: ActionType.LIST_BILLS,
+        name: 'List Bills',
+        description: 'List and filter bills by various criteria',
+        parameters: this.listBillsHandler.getRequiredParameters(),
+        requiredPermissions: ['bills:view'],
+        requiresConfirmation: false,
+        riskLevel: 'low',
+        examples: [
+          '[ACTION:list_bills params={"filter":"overdue","limit":10}]',
+          '[ACTION:list_bills params={"filter":"due_soon","limit":5}]',
+          '[ACTION:list_bills params={"vendorName":"AWS"}]',
+        ],
+      },
+      {
+        type: ActionType.BILL_STATUS,
+        name: 'Bill Status',
+        description: 'Check the status of a specific bill or bills from a vendor',
+        parameters: this.billStatusHandler.getRequiredParameters(),
+        requiredPermissions: ['bills:view'],
+        requiresConfirmation: false,
+        riskLevel: 'low',
+        examples: [
+          '[ACTION:bill_status params={"billId":"bill_123"}]',
+          '[ACTION:bill_status params={"vendorName":"AWS"}]',
+        ],
+      },
+      {
+        type: ActionType.GET_CASH_FLOW,
+        name: 'Get Cash Flow',
+        description: 'Get current cash flow overview with burn rate and runway',
+        parameters: this.getCashFlowHandler.getRequiredParameters(),
+        requiredPermissions: ['reports:generate'],
+        requiresConfirmation: false,
+        riskLevel: 'low',
+        examples: [
+          '[ACTION:get_cash_flow params={}]',
+          '[ACTION:get_cash_flow params={"days":60}]',
+        ],
+      },
+      {
+        type: ActionType.GET_RUNWAY,
+        name: 'Get Runway',
+        description: 'Get runway analysis showing how long cash will last',
+        parameters: this.getRunwayHandler.getRequiredParameters(),
+        requiredPermissions: ['reports:generate'],
+        requiresConfirmation: false,
+        riskLevel: 'low',
+        examples: [
+          '[ACTION:get_runway params={}]',
+        ],
+      },
+      {
+        type: ActionType.GET_BURN_RATE,
+        name: 'Get Burn Rate',
+        description: 'Get monthly and daily burn rate analysis',
+        parameters: this.getBurnRateHandler.getRequiredParameters(),
+        requiredPermissions: ['reports:generate'],
+        requiresConfirmation: false,
+        riskLevel: 'low',
+        examples: [
+          '[ACTION:get_burn_rate params={}]',
+        ],
+      },
+      {
+        type: ActionType.GET_CASH_FORECAST,
+        name: 'Get Cash Forecast',
+        description: 'Get detailed cash flow forecast with daily projections',
+        parameters: this.getCashForecastHandler.getRequiredParameters(),
+        requiredPermissions: ['reports:generate'],
+        requiresConfirmation: false,
+        riskLevel: 'low',
+        examples: [
+          '[ACTION:get_cash_forecast params={"days":30}]',
+          '[ACTION:get_cash_forecast params={"days":90}]',
+        ],
+      },
+      {
+        type: ActionType.HIRE_EMPLOYEE,
+        name: 'Hire Employee',
+        description: 'Create a new employee record and hire them',
+        parameters: this.hireEmployeeHandler.getRequiredParameters(),
+        requiredPermissions: ['hr:employees:create'],
+        requiresConfirmation: true,
+        riskLevel: 'high',
+        examples: [
+          '[ACTION:hire_employee params={"firstName":"John","lastName":"Doe","email":"john.doe@example.com","position":"Software Engineer","startDate":"2024-01-15","countryCode":"DE"}]',
+        ],
+      },
+      {
+        type: ActionType.TERMINATE_EMPLOYEE,
+        name: 'Terminate Employee',
+        description: 'Terminate an employee and end their employment contract',
+        parameters: this.terminateEmployeeHandler.getRequiredParameters(),
+        requiredPermissions: ['hr:employees:terminate'],
+        requiresConfirmation: true,
+        riskLevel: 'high',
+        examples: [
+          '[ACTION:terminate_employee params={"employeeId":"emp_123","terminationDate":"2024-12-31","reason":"Resignation"}]',
+          '[ACTION:terminate_employee params={"employeeName":"John Doe","terminationDate":"2024-12-31"}]',
+        ],
+      },
+      {
+        type: ActionType.REQUEST_LEAVE,
+        name: 'Request Leave',
+        description: 'Submit a leave request for the current user',
+        parameters: this.requestLeaveHandler.getRequiredParameters(),
+        requiredPermissions: ['hr:leave:request'],
+        requiresConfirmation: false,
+        riskLevel: 'low',
+        examples: [
+          '[ACTION:request_leave params={"startDate":"2024-12-20","endDate":"2024-12-24","leaveType":"VACATION","reason":"Holiday vacation"}]',
+          '[ACTION:request_leave params={"startDate":"2024-11-15","endDate":"2024-11-15","leaveType":"SICK"}]',
+        ],
+      },
+      {
+        type: ActionType.APPROVE_LEAVE,
+        name: 'Approve Leave',
+        description: 'Approve or reject a leave request',
+        parameters: this.approveLeaveHandler.getRequiredParameters(),
+        requiredPermissions: ['hr:leave:approve'],
+        requiresConfirmation: true,
+        riskLevel: 'medium',
+        examples: [
+          '[ACTION:approve_leave params={"leaveRequestId":"req_123","approved":true,"comment":"Approved"}]',
+          '[ACTION:approve_leave params={"leaveRequestId":"req_123","approved":false,"comment":"Not enough coverage"}]',
+        ],
+      },
+      {
+        type: ActionType.SEARCH_DOCUMENTS,
+        name: 'Search Documents',
+        description: 'Search for documents by name, description, type, or date range',
+        parameters: this.searchDocumentsHandler.getRequiredParameters(),
+        requiredPermissions: ['documents:view'],
+        requiresConfirmation: false,
+        riskLevel: 'low',
+        examples: [
+          '[ACTION:search_documents params={"query":"invoices","documentType":"INVOICE"}]',
+          '[ACTION:search_documents params={"query":"contracts","dateFrom":"2024-10-01"}]',
+          '[ACTION:search_documents params={"query":"Q3","documentType":"REPORT"}]',
+          '[ACTION:search_documents params={"query":"Acme Corp"}]',
+        ],
+      },
+      {
+        type: ActionType.CREATE_CUSTOMER,
+        name: 'Create Customer',
+        description: 'Create a new customer or client record',
+        parameters: this.createCustomerHandler.getRequiredParameters(),
+        requiredPermissions: ['customers:create'],
+        requiresConfirmation: false,
+        riskLevel: 'low',
+        examples: [
+          '[ACTION:create_customer params={"name":"Acme Corporation","email":"contact@acme.com"}]',
+          '[ACTION:create_customer params={"name":"John Smith","phone":"+49 30 12345678","email":"john@example.com"}]',
+          '[ACTION:create_customer params={"name":"Tech Solutions GmbH","vatId":"DE123456789","address":"Berlin, Germany"}]',
         ],
       },
     ];

@@ -102,10 +102,9 @@ export class CreateBmdExportDto {
     description: 'Export types to generate',
     enum: BmdExportType,
     isArray: true,
-    example: [BmdExportType.BOOKING_JOURNAL, BmdExportType.CHART_OF_ACCOUNTS],
+    example: ['BOOKING_JOURNAL', 'CHART_OF_ACCOUNTS'],
   })
   @IsArray()
-  @IsEnum(BmdExportType, { each: true })
   exportTypes!: BmdExportType[];
 
   @ApiProperty({
@@ -120,11 +119,10 @@ export class CreateBmdExportDto {
   @ApiPropertyOptional({
     description: 'Export format',
     enum: BmdExportFormat,
-    example: BmdExportFormat.CSV,
-    default: BmdExportFormat.CSV,
+    example: 'CSV',
+    default: 'CSV',
   })
   @IsOptional()
-  @IsEnum(BmdExportFormat)
   format?: BmdExportFormat;
 
   @ApiPropertyOptional({

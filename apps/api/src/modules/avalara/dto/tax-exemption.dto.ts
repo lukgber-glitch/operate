@@ -27,7 +27,6 @@ export class CreateExemptionCertificateDto {
   certificateNumber: string;
 
   @ApiProperty({ enum: ExemptionType })
-  @IsEnum(ExemptionType)
   exemptionType: ExemptionType;
 
   @ApiPropertyOptional({ example: 'Nonprofit organization' })
@@ -75,7 +74,6 @@ export class CreateExemptionCertificateDto {
  */
 export class UpdateExemptionCertificateDto {
   @ApiPropertyOptional({ enum: ExemptionStatus })
-  @IsEnum(ExemptionStatus)
   @IsOptional()
   status?: ExemptionStatus;
 

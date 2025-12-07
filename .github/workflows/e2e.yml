@@ -1,0 +1,254 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8'
+
+jobs:
+  e2e-web:
+    name: E2E Tests - Web (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit]
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: operate
+          POSTGRES_PASSWORD: operate_test
+          POSTGRES_DB: operate_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup database
+        run: |
+          cd packages/database
+          pnpm prisma generate
+          pnpm prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
+
+      - name: Install Playwright browsers
+        run: |
+          cd apps/web
+          npx playwright install --with-deps ${{ matrix.project }}
+
+      - name: Build application
+        run: pnpm build
+        env:
+          DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
+          REDIS_URL: redis://localhost:6379
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: test-secret-for-e2e-tests
+
+      - name: Start API server
+        run: |
+          cd apps/api
+          pnpm start:prod &
+          sleep 10
+        env:
+          DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-jwt-secret
+          PORT: 3001
+
+      - name: Run E2E tests
+        run: |
+          cd apps/web
+          pnpm exec playwright test --project=${{ matrix.project }}
+        env:
+          TEST_BASE_URL: http://localhost:3000
+          TEST_USER_EMAIL: test@operate.guru
+          TEST_USER_PASSWORD: TestPassword123!
+          DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
+          REDIS_URL: redis://localhost:6379
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.project }}
+          path: apps/web/playwright-report/
+          retention-days: 30
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.project }}
+          path: apps/web/test-results/
+          retention-days: 30
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshots-${{ matrix.project }}
+          path: apps/web/test-results/**/screenshots/
+          retention-days: 7
+
+  e2e-api:
+    name: E2E Tests - API (Integration)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: operate
+          POSTGRES_PASSWORD: operate_test
+          POSTGRES_DB: operate_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup database
+        run: |
+          cd packages/database
+          pnpm prisma generate
+          pnpm prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
+
+      - name: Seed test data
+        run: |
+          cd packages/database
+          pnpm prisma db seed
+        env:
+          DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
+
+      - name: Run API integration tests
+        run: |
+          cd apps/api
+          pnpm test:e2e
+        env:
+          DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-jwt-secret
+          TEST_USER_EMAIL: test@operate.guru
+          TEST_USER_PASSWORD: TestPassword123!
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-test-results
+          path: apps/api/test-results/
+          retention-days: 30
+
+  merge-reports:
+    name: Merge Test Reports
+    runs-on: ubuntu-latest
+    needs: [e2e-web, e2e-api]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all reports
+        uses: actions/download-artifact@v4
+        with:
+          path: all-reports
+
+      - name: List downloaded artifacts
+        run: ls -R all-reports
+
+      - name: Create summary
+        run: |
+          echo "# E2E Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Web E2E Tests: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- API Integration Tests: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Test artifacts have been uploaded." >> $GITHUB_STEP_SUMMARY
+
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [e2e-web, e2e-api]
+    if: failure()
+
+    steps:
+      - name: Send notification
+        run: |
+          echo "E2E tests failed! Check the workflow run for details."

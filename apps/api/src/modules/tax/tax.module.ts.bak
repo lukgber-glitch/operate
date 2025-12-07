@@ -1,0 +1,16 @@
+/**
+ * Tax Module
+ * Main module for tax-related features
+ */
+
+import { Module } from '@nestjs/common';
+import { DeductionsModule } from './deductions/deductions.module';
+import { VatModule } from './vat/vat.module';
+import { ReportsModule } from './reports/reports.module';
+import { TaxCalendarModule } from './calendar/tax-calendar.module';
+
+@Module({
+  imports: [DeductionsModule, VatModule, ReportsModule, TaxCalendarModule],
+  exports: [DeductionsModule, VatModule, ReportsModule, TaxCalendarModule],
+})
+export class TaxModule {}

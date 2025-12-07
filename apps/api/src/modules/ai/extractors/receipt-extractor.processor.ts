@@ -12,10 +12,12 @@ import { ExpensesService } from '../../finance/expenses/expenses.service';
 import { ReceiptExtractionStatus } from './dto/receipt-extraction.dto';
 
 interface ExtractReceiptJobData {
+  attachmentId?: string;
   extractionId?: string;
   organisationId: string;
   userId: string;
   file?: Buffer;
+  fileBuffer?: Buffer;
   mimeType?: string;
   fileName?: string;
   autoCategorize?: boolean;
@@ -39,26 +41,54 @@ export class ReceiptExtractorProcessor {
   ) {}
 
   /**
-   * Process receipt extraction job
+   * Process receipt extraction job (legacy job name)
    */
   @Process('extract-receipt')
   async handleExtraction(job: Job<ExtractReceiptJobData>): Promise<void> {
-    const { extractionId, organisationId, userId, file, mimeType, fileName, autoCategorize, autoCreateExpense } = job.data;
+    return this.processExtraction(job);
+  }
 
-    this.logger.log(`Processing extraction job ${job.id} for org ${organisationId}`);
+  /**
+   * Process receipt extraction job (new job name matching invoice pattern)
+   */
+  @Process('extract')
+  async handleExtractionV2(job: Job<ExtractReceiptJobData>): Promise<void> {
+    return this.processExtraction(job);
+  }
+
+  /**
+   * Common extraction processing logic
+   */
+  private async processExtraction(job: Job<ExtractReceiptJobData>): Promise<void> {
+    const { attachmentId, extractionId, organisationId, userId, file, fileBuffer, mimeType, fileName, autoCategorize, autoCreateExpense } = job.data;
+
+    this.logger.log(`Processing extraction job ${job.id} for org ${organisationId}${attachmentId ? `, attachment ${attachmentId}` : ''}`);
+
+    // Update attachment status to EXTRACTING if attachmentId provided
+    if (attachmentId) {
+      await this.prisma.emailAttachment.update({
+        where: { id: attachmentId },
+        data: {
+          extractionStatus: 'PROCESSING',
+        },
+      }).catch(error => {
+        this.logger.warn(`Failed to update attachment status: ${error.message}`);
+      });
+    }
 
     try {
       // Update job progress
       await job.progress(10);
 
-      if (!file || !mimeType) {
+      const fileData = fileBuffer || file;
+      if (!fileData || !mimeType) {
         throw new Error('Missing file or mimeType in job data');
       }
 
       // Perform extraction
       await job.progress(30);
       const result = await this.extractorService.extractReceipt({
-        file,
+        file: fileData,
         mimeType,
         organisationId,
         userId,
@@ -68,6 +98,20 @@ export class ReceiptExtractorProcessor {
       });
 
       await job.progress(80);
+
+      // Update EmailAttachment record if attachmentId provided
+      if (attachmentId) {
+        await this.prisma.emailAttachment.update({
+          where: { id: attachmentId },
+          data: {
+            extractionStatus: 'COMPLETED',
+            extractedDataId: result.id,
+            extractedAt: new Date(),
+          },
+        }).catch(error => {
+          this.logger.error(`Failed to update attachment with extraction result: ${error.message}`);
+        });
+      }
 
       // If auto-create expense is enabled and extraction successful
       if (autoCreateExpense && result.status === ReceiptExtractionStatus.COMPLETED) {
@@ -83,6 +127,20 @@ export class ReceiptExtractorProcessor {
       this.logger.log(`Extraction job ${job.id} completed successfully: ${result.id}`);
     } catch (error) {
       this.logger.error(`Extraction job ${job.id} failed:`, error);
+
+      // Update attachment status to FAILED if attachmentId provided
+      if (attachmentId) {
+        await this.prisma.emailAttachment.update({
+          where: { id: attachmentId },
+          data: {
+            extractionStatus: 'FAILED',
+            processingError: `Extraction failed: ${error.message}`,
+          },
+        }).catch(updateError => {
+          this.logger.error(`Failed to update attachment failure status: ${updateError.message}`);
+        });
+      }
+
       throw error;
     }
   }

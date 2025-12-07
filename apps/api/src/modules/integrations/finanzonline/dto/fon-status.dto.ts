@@ -114,9 +114,8 @@ export class FonStatusResponseDto {
     description: 'Current submission status',
     enum: FonSubmissionStatus,
     required: false,
-    example: FonSubmissionStatus.COMPLETED,
+    example: 'COMPLETED',
   })
-  @IsEnum(FonSubmissionStatus)
   @IsOptional()
   status?: FonSubmissionStatus;
 

@@ -45,7 +45,7 @@ export class ExportResponseDto {
   @ApiProperty({
     description: 'Current export status',
     enum: ExportStatus,
-    example: ExportStatus.COMPLETED,
+    example: 'COMPLETED',
   })
   status: ExportStatus;
 

@@ -18,6 +18,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { SuggestionsService } from './suggestions.service';
+import { ProactiveScheduler } from './suggestions/proactive.scheduler';
 import {
   SuggestionDto,
   ContextDto,
@@ -28,6 +29,7 @@ import {
 } from './dto/suggestions.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 /**
  * Request object with user context
  */
@@ -45,7 +47,10 @@ interface AuthenticatedRequest {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('suggestions')
 export class SuggestionsController {
-  constructor(private readonly suggestionsService: SuggestionsService) {}
+  constructor(
+    private readonly suggestionsService: SuggestionsService,
+    private readonly proactiveScheduler: ProactiveScheduler,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get suggestions for current context' })
@@ -206,5 +211,25 @@ export class SuggestionsController {
     await this.suggestionsService.markAsViewed(suggestionId, orgId);
 
     return { success: true };
+  }
+
+  @Post('generate/manual')
+  @Roles('OWNER', 'ADMIN')
+  @ApiOperation({ summary: 'Manually trigger proactive suggestions generation (Admin only)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Proactive suggestions generation started',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        message: { type: 'string' },
+      },
+    },
+  })
+  async triggerProactiveSuggestions(
+    @Req() req: AuthenticatedRequest,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.proactiveScheduler.triggerManually();
   }
 }

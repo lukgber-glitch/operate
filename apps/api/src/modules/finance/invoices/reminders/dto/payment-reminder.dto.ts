@@ -20,9 +20,8 @@ export class CreateReminderDto {
   @ApiProperty({
     description: 'Type of reminder',
     enum: ReminderType,
-    example: ReminderType.AFTER_DUE,
+    example: 'AFTER_DUE',
   })
-  @IsEnum(ReminderType)
   reminderType: ReminderType;
 
   @ApiProperty({
@@ -152,19 +151,17 @@ export class ReminderQueryDto {
   @ApiPropertyOptional({
     description: 'Filter by status',
     enum: ReminderStatus,
-    example: ReminderStatus.PENDING,
+    example: 'PENDING',
   })
   @IsOptional()
-  @IsEnum(ReminderStatus)
   status?: ReminderStatus;
 
   @ApiPropertyOptional({
     description: 'Filter by reminder type',
     enum: ReminderType,
-    example: ReminderType.AFTER_DUE,
+    example: 'AFTER_DUE',
   })
   @IsOptional()
-  @IsEnum(ReminderType)
   reminderType?: ReminderType;
 
   @ApiPropertyOptional({

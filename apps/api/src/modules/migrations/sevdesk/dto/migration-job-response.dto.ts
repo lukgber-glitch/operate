@@ -31,14 +31,14 @@ export class MigrationJobResponseDto {
   @ApiProperty({
     description: 'Current job status',
     enum: SevDeskMigrationStatus,
-    example: SevDeskMigrationStatus.COMPLETED,
+    example: 'COMPLETED',
   })
   status: SevDeskMigrationStatus;
 
   @ApiProperty({
     description: 'Entity type being migrated',
     enum: SevDeskEntityType,
-    example: SevDeskEntityType.CONTACT,
+    example: 'CONTACT',
   })
   entityType: SevDeskEntityType;
 

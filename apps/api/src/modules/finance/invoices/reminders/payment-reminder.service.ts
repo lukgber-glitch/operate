@@ -5,6 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../../database/prisma.service';
+import { EmailService } from '../../../notifications/channels/email.service';
 import {
   CreateReminderDto,
   UpdateReminderSettingsDto,
@@ -28,7 +29,10 @@ import { addDays, differenceInDays, isBefore } from 'date-fns';
 export class PaymentReminderService {
   private readonly logger = new Logger(PaymentReminderService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   /**
    * Create a new payment reminder
@@ -108,10 +112,43 @@ export class PaymentReminderService {
   /**
    * Send a reminder immediately
    */
-  async sendReminder(reminder: PaymentReminder): Promise<void> {
+  async sendReminder(reminder: PaymentReminder & { invoice?: Invoice }): Promise<void> {
     try {
-      // TODO: Integrate with email service
-      // For now, just mark as sent
+      // Get invoice if not already included
+      const invoice = reminder.invoice || await this.prisma.invoice.findUnique({
+        where: { id: reminder.invoiceId },
+      });
+
+      if (!invoice) {
+        throw new Error('Invoice not found');
+      }
+
+      // Get customer email from invoice
+      const customerEmail = invoice.customerEmail;
+      if (!customerEmail) {
+        throw new Error('Customer email not found on invoice');
+      }
+
+      this.logger.log(
+        `Sending payment reminder ${reminder.id} to ${customerEmail}`,
+      );
+
+      // Send email using EmailService
+      const emailSent = await this.emailService.send({
+        to: customerEmail,
+        subject: reminder.subject,
+        title: reminder.subject,
+        message: reminder.body,
+        priority: reminder.escalationLevel + 2, // Map escalation (1-3) to priority (3-5)
+        actionUrl: `${process.env.APP_URL || 'https://operate.guru'}/invoices/${invoice.id}`,
+        actionText: 'View Invoice',
+      });
+
+      if (!emailSent) {
+        throw new Error('Email service failed to send');
+      }
+
+      // Mark reminder as sent
       await this.prisma.paymentReminder.update({
         where: { id: reminder.id },
         data: {
@@ -120,7 +157,7 @@ export class PaymentReminderService {
         },
       });
 
-      this.logger.log(`Sent reminder ${reminder.id}`);
+      this.logger.log(`Successfully sent reminder ${reminder.id}`);
     } catch (error) {
       this.logger.error(
         `Failed to send reminder ${reminder.id}: ${error.message}`,

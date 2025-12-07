@@ -81,19 +81,17 @@ export class CreateGobdExportDto {
     description: 'Document types to include in the export',
     enum: DocumentType,
     isArray: true,
-    example: [DocumentType.INVOICES, DocumentType.RECEIPTS],
+    example: ['INVOICES', 'RECEIPTS'],
   })
   @IsArray()
-  @IsEnum(DocumentType, { each: true })
   documentTypes!: DocumentType[];
 
   @ApiPropertyOptional({
     description: 'Export format (default: CSV with semicolon)',
     enum: ExportFormat,
-    example: ExportFormat.CSV_SEMICOLON,
+    example: 'CSV_SEMICOLON',
   })
   @IsOptional()
-  @IsEnum(ExportFormat)
   format?: ExportFormat;
 
   @ApiPropertyOptional({

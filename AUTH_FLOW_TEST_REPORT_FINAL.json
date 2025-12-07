@@ -1,0 +1,123 @@
+{
+  "timestamp": "2025-12-07T12:05:24.049Z",
+  "appUrl": "https://operate.guru",
+  "flows": [
+    {
+      "name": "Login Flow",
+      "steps": [
+        "Login page loaded: https://operate.guru/login",
+        "Title: \"\"",
+        "Has content: false",
+        "Forms: 0, Inputs: 0, Buttons: 0"
+      ],
+      "status": "FAIL",
+      "issues": [
+        "No form element found on login page"
+      ],
+      "screenshots": [
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\login-page-1765109132194.png"
+      ],
+      "pageInfo": [
+        {
+          "url": "https://operate.guru/login",
+          "title": "",
+          "bodyText": "",
+          "hasForm": false,
+          "formCount": 0,
+          "inputCount": 0,
+          "buttonCount": 0,
+          "linkCount": 0,
+          "hasContent": false
+        }
+      ]
+    },
+    {
+      "name": "Registration Flow",
+      "steps": [
+        "Registration page: https://operate.guru/register",
+        "Title: \"\"",
+        "Forms: 0, Inputs: 0"
+      ],
+      "status": "PARTIAL",
+      "issues": [
+        "No registration form found"
+      ],
+      "screenshots": [
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\register-page-1765109140314.png"
+      ],
+      "pageInfo": [
+        {
+          "url": "https://operate.guru/register",
+          "title": "",
+          "bodyText": "",
+          "hasForm": false,
+          "formCount": 0,
+          "inputCount": 0,
+          "buttonCount": 0,
+          "linkCount": 0,
+          "hasContent": false
+        }
+      ]
+    },
+    {
+      "name": "OAuth Flows",
+      "steps": [
+        "Total OAuth-related buttons: 0"
+      ],
+      "status": "PARTIAL",
+      "issues": [
+        "No Google OAuth button found",
+        "No Microsoft OAuth button found"
+      ],
+      "screenshots": [
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\oauth-buttons-1765109148440.png"
+      ]
+    },
+    {
+      "name": "Password Reset Flow",
+      "steps": [],
+      "status": "PARTIAL",
+      "issues": [
+        "Password reset page not found"
+      ],
+      "screenshots": []
+    },
+    {
+      "name": "Protected Routes & Session",
+      "steps": [
+        "/dashboard → error or not found",
+        "/app → redirects to https://operate.guru/de/app",
+        "/workspace → redirects to https://operate.guru/de/workspace"
+      ],
+      "status": "PASS",
+      "issues": [],
+      "screenshots": [
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\protected-routes-1765109182775.png"
+      ]
+    },
+    {
+      "name": "UI/UX Checks",
+      "steps": [
+        "✓ Desktop view (1920x1080)",
+        "✓ Tablet view (768x1024)",
+        "✓ Mobile view (375x667)",
+        "Forms analyzed: 0",
+        "✓ All inputs have proper labels"
+      ],
+      "status": "PASS",
+      "issues": [],
+      "screenshots": [
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\ui-desktop-1765109191401.png",
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\ui-tablet-1765109192019.png",
+        "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\ui-mobile-1765109192617.png"
+      ]
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "passed": 2,
+    "partial": 3,
+    "failed": 1,
+    "totalIssues": 5
+  }
+}

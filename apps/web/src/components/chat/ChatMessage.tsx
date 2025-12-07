@@ -1,7 +1,8 @@
 'use client';
 
 import { Bot, User, AlertCircle, CheckCircle } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useRef, useLayoutEffect } from 'react';
+import gsap from 'gsap';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -42,6 +43,36 @@ export function ChatMessage({ message, onRetry, onAction }: ChatMessageProps) {
   const isSending = message.status === 'sending';
   const isStreaming = message.status === 'streaming';
 
+  // Animation ref
+  const messageRef = useRef<HTMLDivElement>(null);
+
+  // GSAP appear animation
+  useLayoutEffect(() => {
+    if (!messageRef.current) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        messageRef.current,
+        {
+          opacity: 0,
+          y: 20,
+          scale: 0.9,
+          x: isUser ? 20 : -20,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          x: 0,
+          duration: 0.3,
+          ease: 'power2.out',
+        }
+      );
+    });
+
+    return () => ctx.revert();
+  }, [isUser]);
+
   // Simple markdown-like formatting
   const formattedContent = useMemo(() => {
     let content = message.content;
@@ -78,8 +109,9 @@ export function ChatMessage({ message, onRetry, onAction }: ChatMessageProps) {
 
   return (
     <div
+      ref={messageRef}
       className={cn(
-        'flex gap-3 group animate-in fade-in-50 slide-in-from-bottom-2 duration-300',
+        'flex gap-3 group',
         isUser ? 'flex-row-reverse' : 'flex-row'
       )}
       role="article"
@@ -105,13 +137,29 @@ export function ChatMessage({ message, onRetry, onAction }: ChatMessageProps) {
       <div className={cn('flex flex-col gap-2 max-w-[85%]')}>
         <div
           className={cn(
-            'rounded-lg px-4 py-2',
             'transition-all duration-200',
-            isUser ? 'bg-primary text-primary-foreground' : 'bg-muted',
             isError && 'border-2 border-destructive',
             isSending && 'opacity-70',
             isStreaming && 'relative'
           )}
+          style={
+            isUser
+              ? {
+                  background: 'var(--color-primary)',
+                  color: 'white',
+                  padding: 'var(--space-4)',
+                  borderRadius: 'var(--radius-2xl)',
+                  borderBottomRightRadius: 'var(--radius-sm)',
+                }
+              : {
+                  background: 'var(--color-surface)',
+                  color: 'var(--color-text-primary)',
+                  padding: 'var(--space-4)',
+                  borderRadius: 'var(--radius-2xl)',
+                  borderBottomLeftRadius: 'var(--radius-sm)',
+                  boxShadow: 'var(--shadow-sm)',
+                }
+          }
           role="article"
           aria-live={isStreaming ? 'polite' : undefined}
           aria-atomic={isStreaming ? 'false' : undefined}
@@ -241,22 +289,68 @@ export function ChatMessage({ message, onRetry, onAction }: ChatMessageProps) {
 }
 
 /**
- * LoadingMessage - Typing indicator component
+ * LoadingMessage - Typing indicator component with GSAP animation
  */
 export function LoadingMessage() {
+  const dotsRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!dotsRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const dots = dotsRef.current?.children;
+      if (!dots) return;
+
+      gsap.to(dots, {
+        y: -6,
+        duration: 0.4,
+        stagger: {
+          each: 0.15,
+          repeat: -1,
+          yoyo: true,
+        },
+        ease: 'power2.inOut',
+      });
+    });
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div className="flex gap-3 animate-in fade-in-50">
+    <div className="flex gap-3">
       <Avatar className="h-8 w-8 shrink-0">
         <AvatarFallback className="bg-muted">
           <Bot className="h-4 w-4" />
         </AvatarFallback>
       </Avatar>
 
-      <div className="rounded-lg px-4 py-3 bg-muted">
-        <div className="flex gap-1.5" role="status" aria-label="AI is thinking">
-          <span className="h-2 w-2 rounded-full bg-muted-foreground/50 animate-bounce" />
-          <span className="h-2 w-2 rounded-full bg-muted-foreground/50 animate-bounce animation-delay-150" />
-          <span className="h-2 w-2 rounded-full bg-muted-foreground/50 animate-bounce animation-delay-300" />
+      <div
+        style={{
+          background: 'var(--color-surface)',
+          padding: 'var(--space-4)',
+          borderRadius: 'var(--radius-2xl)',
+          borderBottomLeftRadius: 'var(--radius-sm)',
+          boxShadow: 'var(--shadow-sm)',
+        }}
+      >
+        <div
+          ref={dotsRef}
+          className="flex gap-1.5 items-center"
+          role="status"
+          aria-label="AI is thinking"
+        >
+          <span
+            className="h-2 w-2 rounded-full"
+            style={{ background: 'var(--color-text-muted)' }}
+          />
+          <span
+            className="h-2 w-2 rounded-full"
+            style={{ background: 'var(--color-text-muted)' }}
+          />
+          <span
+            className="h-2 w-2 rounded-full"
+            style={{ background: 'var(--color-text-muted)' }}
+          />
         </div>
       </div>
     </div>

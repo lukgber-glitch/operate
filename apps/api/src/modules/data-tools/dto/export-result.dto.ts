@@ -15,7 +15,7 @@ export class ExportResultDto {
   @ApiProperty({
     description: 'Export status',
     enum: ExportStatus,
-    example: ExportStatus.COMPLETED,
+    example: 'COMPLETED',
   })
   status: ExportStatus;
 
@@ -53,7 +53,7 @@ export class ExportResultDto {
     description: 'Data categories included in export',
     enum: DataCategory,
     isArray: true,
-    example: [DataCategory.PROFILE, DataCategory.FINANCIAL],
+    example: ['PROFILE', 'FINANCIAL'],
   })
   categoriesExported: DataCategory[];
 

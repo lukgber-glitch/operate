@@ -25,7 +25,6 @@ import {
 
 export class DateRangeDto {
   @ApiProperty({ enum: DateRangeType })
-  @IsEnum(DateRangeType)
   type: DateRangeType;
 
   @ApiProperty()
@@ -44,7 +43,6 @@ export class DateRangeDto {
 
 export class ComparisonPeriodDto {
   @ApiProperty({ enum: ComparisonPeriodType })
-  @IsEnum(ComparisonPeriodType)
   type: ComparisonPeriodType;
 
   @ApiPropertyOptional()
@@ -148,7 +146,6 @@ export class ReportOptionsDto {
 
 export class GenerateReportDto {
   @ApiProperty({ enum: ReportType })
-  @IsEnum(ReportType)
   reportType: ReportType;
 
   @ApiProperty({ type: DateRangeDto })
@@ -248,7 +245,6 @@ export class CreateTemplateDto {
   description?: string;
 
   @ApiProperty({ enum: ReportType })
-  @IsEnum(ReportType)
   reportType: ReportType;
 
   @ApiProperty({ type: Object })
@@ -306,7 +302,6 @@ export class DrillDownDto {
 
 export class ScheduleReportDto {
   @ApiProperty({ enum: ReportType })
-  @IsEnum(ReportType)
   reportType: ReportType;
 
   @ApiProperty()

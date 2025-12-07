@@ -47,10 +47,9 @@ export class UpdateExpenseDto {
   @ApiPropertyOptional({
     description: 'Expense category',
     enum: ExpenseCategory,
-    example: ExpenseCategory.MEALS,
+    example: 'MEALS',
   })
   @IsOptional()
-  @IsEnum(ExpenseCategory)
   category?: ExpenseCategory;
 
   @ApiPropertyOptional({

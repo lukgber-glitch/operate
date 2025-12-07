@@ -81,7 +81,7 @@ export class PaymentAnalyticsDto {
   @ApiProperty({ example: 22.3 })
   averagePaymentDaysLast30Days: number;
 
-  @ApiProperty({ example: PaymentVelocityTrend.IMPROVING })
+  @ApiProperty({ example: 'IMPROVING' })
   @ApiProperty({ enum: PaymentVelocityTrend })
   paymentVelocityTrend: PaymentVelocityTrend;
 
@@ -162,7 +162,7 @@ export class SeasonalPatternsDto {
 }
 
 export class RiskAssessmentDto {
-  @ApiProperty({ example: ChurnRiskLevel.LOW })
+  @ApiProperty({ example: 'LOW' })
   @ApiProperty({ enum: ChurnRiskLevel })
   churnRisk: ChurnRiskLevel;
 
@@ -399,8 +399,7 @@ export class ClientTrendsDto {
 export class InsightsQueryDto {
   @ApiPropertyOptional({ enum: TimeRange, default: TimeRange.ALL_TIME })
   @IsOptional()
-  @IsEnum(TimeRange)
-  timeRange?: TimeRange = TimeRange.ALL_TIME;
+  timeRange?: TimeRange = 'ALL_TIME' as TimeRange;
 }
 
 export class TopPerformersQueryDto {
@@ -413,8 +412,7 @@ export class TopPerformersQueryDto {
 
   @ApiPropertyOptional({ enum: TimeRange, default: TimeRange.ALL_TIME })
   @IsOptional()
-  @IsEnum(TimeRange)
-  timeRange?: TimeRange = TimeRange.ALL_TIME;
+  timeRange?: TimeRange = 'ALL_TIME' as TimeRange;
 }
 
 export class AtRiskQueryDto {
@@ -427,6 +425,5 @@ export class AtRiskQueryDto {
 
   @ApiPropertyOptional({ enum: ChurnRiskLevel })
   @IsOptional()
-  @IsEnum(ChurnRiskLevel)
   minRiskLevel?: ChurnRiskLevel;
 }

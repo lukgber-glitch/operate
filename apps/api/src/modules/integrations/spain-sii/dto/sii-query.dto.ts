@@ -56,7 +56,6 @@ export class QueryInvoicesDto {
   recipientNif?: string;
 
   @IsOptional()
-  @IsEnum(SiiInvoiceType)
   invoiceType?: SiiInvoiceType;
 
   @IsOptional()
@@ -107,6 +106,5 @@ export class DeleteInvoiceDto {
   @Type(() => Date)
   issueDate: Date;
 
-  @IsEnum(SiiInvoiceType)
   invoiceType: SiiInvoiceType;
 }

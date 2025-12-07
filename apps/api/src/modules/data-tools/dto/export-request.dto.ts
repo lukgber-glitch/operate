@@ -24,19 +24,17 @@ export class ExportRequestDto {
   @ApiProperty({
     description: 'Export format',
     enum: ExportFormat,
-    example: ExportFormat.JSON,
+    example: 'JSON',
   })
-  @IsEnum(ExportFormat)
   format: ExportFormat;
 
   @ApiProperty({
     description: 'Data categories to export',
     enum: DataCategory,
     isArray: true,
-    example: [DataCategory.PROFILE, DataCategory.FINANCIAL],
+    example: ['PROFILE', 'FINANCIAL'],
   })
   @IsArray()
-  @IsEnum(DataCategory, { each: true })
   categories: DataCategory[];
 
   @ApiPropertyOptional({

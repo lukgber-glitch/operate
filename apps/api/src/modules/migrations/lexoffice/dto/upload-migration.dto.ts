@@ -6,9 +6,8 @@ export class UploadMigrationDto {
   @ApiProperty({
     description: 'Type of data to migrate',
     enum: LexofficeMigrationType,
-    example: LexofficeMigrationType.INVOICES,
+    example: 'INVOICES',
   })
-  @IsEnum(LexofficeMigrationType)
   @IsNotEmpty()
   type: LexofficeMigrationType;
 }

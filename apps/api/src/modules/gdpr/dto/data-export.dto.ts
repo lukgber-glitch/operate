@@ -10,9 +10,8 @@ export class DataExportRequestDto {
   @IsString()
   userId: string;
 
-  @ApiPropertyOptional({ enum: DataExportFormat, description: 'Export format', default: DataExportFormat.JSON })
+  @ApiPropertyOptional({ enum: DataExportFormat, description: 'Export format', default: 'JSON' })
   @IsOptional()
-  @IsEnum(DataExportFormat)
   format?: DataExportFormat;
 
   @ApiPropertyOptional({ description: 'Specific data categories to include', type: [String] })
@@ -76,7 +75,6 @@ export class BulkDataExportDto {
 
   @ApiPropertyOptional({ enum: DataExportFormat, description: 'Export format' })
   @IsOptional()
-  @IsEnum(DataExportFormat)
   format?: DataExportFormat;
 
   @ApiPropertyOptional({ description: 'Organisation ID for filtering' })

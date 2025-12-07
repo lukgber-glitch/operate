@@ -35,7 +35,6 @@ export class ExportOptionsDto {
     description: 'Export format',
     enum: ExportFormat,
   })
-  @IsEnum(ExportFormat)
   format: ExportFormat;
 
   @ApiPropertyOptional({

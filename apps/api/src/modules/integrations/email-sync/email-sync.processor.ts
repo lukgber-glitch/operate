@@ -11,6 +11,11 @@ import {
 } from '@prisma/client';
 import { EMAIL_SYNC_QUEUE } from './email-sync.service';
 
+// Import Email Intelligence services
+import { EmailClassifierService } from '../../ai/email-intelligence/email-classifier.service';
+import { EntityExtractorService } from '../../ai/email-intelligence/entity-extractor.service';
+import { EmailSuggestionsService } from '../../ai/email-intelligence/email-suggestions.service';
+
 /**
  * Email Sync Processor
  * Background processor for email synchronization jobs
@@ -65,6 +70,9 @@ export class EmailSyncProcessor {
     private readonly prisma: PrismaService,
     private readonly gmailService: GmailService,
     private readonly outlookService: OutlookService,
+    private readonly emailClassifier: EmailClassifierService,
+    private readonly entityExtractor: EntityExtractorService,
+    private readonly suggestionsService: EmailSuggestionsService,
   ) {}
 
   /**
@@ -258,11 +266,16 @@ export class EmailSyncProcessor {
 
             if (!existingEmail) {
               // Create synced email record
-              await this.createSyncedEmailFromGmail(
+              const syncedEmail = await this.createSyncedEmailFromGmail(
                 emailDetails,
                 syncJob,
               );
               newEmails++;
+
+              // Process email intelligence (classification, extraction, suggestions)
+              if (syncedEmail) {
+                await this.processEmailIntelligence(syncedEmail, syncJob);
+              }
             }
           } catch (error) {
             this.logger.error(
@@ -373,8 +386,13 @@ export class EmailSyncProcessor {
 
             if (!existingEmail) {
               // Create synced email record
-              await this.createSyncedEmailFromOutlook(message, syncJob);
+              const syncedEmail = await this.createSyncedEmailFromOutlook(message, syncJob);
               newEmails++;
+
+              // Process email intelligence (classification, extraction, suggestions)
+              if (syncedEmail) {
+                await this.processEmailIntelligence(syncedEmail, syncJob);
+              }
             }
           } catch (error) {
             this.logger.error(
@@ -421,7 +439,7 @@ export class EmailSyncProcessor {
   private async createSyncedEmailFromGmail(
     message: any,
     syncJob: any,
-  ): Promise<void> {
+  ): Promise<any> {
     const headers = message.payload?.headers || [];
     const getHeader = (name: string) =>
       headers.find((h: any) => h.name.toLowerCase() === name.toLowerCase())
@@ -466,7 +484,7 @@ export class EmailSyncProcessor {
         'estimate',
       ]);
 
-    await this.prisma.syncedEmail.create({
+    const syncedEmail = await this.prisma.syncedEmail.create({
       data: {
         connectionId: syncJob.connectionId,
         orgId: syncJob.orgId,
@@ -499,6 +517,8 @@ export class EmailSyncProcessor {
         syncJobId: syncJob.id,
       },
     });
+
+    return syncedEmail;
   }
 
   /**
@@ -507,7 +527,7 @@ export class EmailSyncProcessor {
   private async createSyncedEmailFromOutlook(
     message: any,
     syncJob: any,
-  ): Promise<void> {
+  ): Promise<any> {
     // Extract attachment info
     const attachments = message.hasAttachments
       ? await this.getOutlookAttachments(message.id, syncJob)
@@ -537,7 +557,7 @@ export class EmailSyncProcessor {
         'estimate',
       ]);
 
-    await this.prisma.syncedEmail.create({
+    const syncedEmail = await this.prisma.syncedEmail.create({
       data: {
         connectionId: syncJob.connectionId,
         orgId: syncJob.orgId,
@@ -575,6 +595,89 @@ export class EmailSyncProcessor {
         syncJobId: syncJob.id,
       },
     });
+
+    return syncedEmail;
+  }
+
+  /**
+   * Process email intelligence: classification, entity extraction, and suggestions
+   * This is called after a SyncedEmail record is created
+   */
+  private async processEmailIntelligence(
+    syncedEmail: any,
+    syncJob: any,
+  ): Promise<void> {
+    try {
+      this.logger.debug(
+        `Processing email intelligence for email: ${syncedEmail.subject}`,
+      );
+
+      // Skip if email intelligence services are not available
+      if (
+        !this.emailClassifier.isHealthy() ||
+        !this.entityExtractor ||
+        !this.suggestionsService
+      ) {
+        this.logger.warn(
+          'Email intelligence services not fully initialized - skipping processing',
+        );
+        return;
+      }
+
+      // 1. Classify the email
+      const emailInput = {
+        subject: syncedEmail.subject || '',
+        body: syncedEmail.snippet || syncedEmail.bodyPreview || '',
+        from: syncedEmail.from || '',
+        to: syncedEmail.to || [],
+        hasAttachments: syncedEmail.hasAttachments,
+        attachmentNames: syncedEmail.attachmentNames || [],
+      };
+
+      const classification = await this.emailClassifier.classifyEmail(
+        emailInput,
+      );
+
+      this.logger.debug(
+        `Email classified as: ${classification.classification} (confidence: ${classification.confidence})`,
+      );
+
+      // 2. Extract entities from the email
+      const entities = await this.entityExtractor.extractEntities({
+        subject: syncedEmail.subject || '',
+        body: syncedEmail.snippet || syncedEmail.bodyPreview || '',
+        from: syncedEmail.from || '',
+        to: syncedEmail.to || [],
+      });
+
+      this.logger.debug(
+        `Extracted entities: ${entities.companies.length} companies, ${entities.contacts.length} contacts, ${entities.amounts.length} amounts`,
+      );
+
+      // 3. Generate suggestions based on classification and entities
+      const suggestions =
+        await this.suggestionsService.generateSuggestionsForEmail(
+          {
+            id: syncedEmail.id,
+            subject: syncedEmail.subject,
+            classification,
+            entities,
+          },
+          classification,
+          entities,
+          syncedEmail.orgId,
+        );
+
+      this.logger.log(
+        `Email intelligence complete for "${syncedEmail.subject}": ${suggestions.length} suggestions generated`,
+      );
+    } catch (error) {
+      // Log error but don't fail the entire sync
+      this.logger.error(
+        `Failed to process email intelligence for email ${syncedEmail.id}: ${error.message}`,
+        error.stack,
+      );
+    }
   }
 
   /**

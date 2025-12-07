@@ -42,9 +42,8 @@ export class DateRangeDto {
   @ApiProperty({
     description: 'Date range type',
     enum: DateRangeType,
-    example: DateRangeType.LAST_MONTH,
+    example: 'LAST_MONTH',
   })
-  @IsEnum(DateRangeType)
   type: DateRangeType;
 
   @ApiPropertyOptional({
@@ -128,9 +127,8 @@ export class ReportParamsDto {
   @ApiProperty({
     description: 'Type of report to generate',
     enum: ReportType,
-    example: ReportType.PROFIT_LOSS,
+    example: 'PROFIT_LOSS',
   })
-  @IsEnum(ReportType)
   reportType: ReportType;
 
   @ApiProperty({
@@ -144,9 +142,8 @@ export class ReportParamsDto {
   @ApiProperty({
     description: 'Export format(s)',
     enum: ExportFormat,
-    example: ExportFormat.PDF,
+    example: 'PDF',
   })
-  @IsEnum(ExportFormat)
   format: ExportFormat;
 
   @ApiPropertyOptional({

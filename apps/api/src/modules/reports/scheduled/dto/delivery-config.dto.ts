@@ -113,9 +113,8 @@ export class DeliveryConfigDto {
   @ApiProperty({
     description: 'Delivery method',
     enum: DeliveryMethod,
-    example: DeliveryMethod.EMAIL,
+    example: 'EMAIL',
   })
-  @IsEnum(DeliveryMethod)
   method: DeliveryMethod;
 
   @ApiPropertyOptional({

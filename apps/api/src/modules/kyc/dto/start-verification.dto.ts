@@ -23,18 +23,16 @@ export class StartVerificationDto {
   @ApiProperty({
     description: 'KYC verification level',
     enum: KycLevel,
-    example: KycLevel.ENHANCED,
+    example: 'ENHANCED',
   })
-  @IsEnum(KycLevel)
   level: KycLevel;
 
   @ApiPropertyOptional({
     description: 'Preferred verification provider',
     enum: KycProvider,
-    example: KycProvider.PERSONA,
+    example: 'PERSONA',
   })
   @IsOptional()
-  @IsEnum(KycProvider)
   provider?: KycProvider;
 
   @ApiPropertyOptional({

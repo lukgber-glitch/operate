@@ -19,6 +19,7 @@ import {
   PersonaInquiryStatus,
   PersonaWebhookPayload,
 } from './types/persona.types';
+import { Public } from '../../../common/decorators/public.decorator';
 
 /**
  * Persona Webhook Controller
@@ -57,6 +58,7 @@ export class PersonaWebhookController {
    * Handle Persona webhook events
    * Requires raw body for signature verification
    */
+  @Public()
   @Post()
   @ApiOperation({ summary: 'Receive Persona webhook events' })
   @ApiResponse({ status: 200, description: 'Webhook processed successfully' })

@@ -29,7 +29,6 @@ export class SearchQueryDto {
     return value;
   })
   @IsArray()
-  @IsEnum(SearchableEntityType, { each: true })
   types?: SearchableEntityType[];
 
   @ApiPropertyOptional({

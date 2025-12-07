@@ -16,9 +16,8 @@ export class MakeDecisionDto {
   @ApiProperty({
     description: 'Decision type',
     enum: KycDecisionType,
-    example: KycDecisionType.APPROVE,
+    example: 'APPROVE',
   })
-  @IsEnum(KycDecisionType)
   decision: KycDecisionType;
 
   @ApiPropertyOptional({
@@ -57,7 +56,7 @@ export class KycDecisionResponseDto {
   @ApiProperty({
     description: 'Decision made',
     enum: KycDecisionType,
-    example: KycDecisionType.APPROVE,
+    example: 'APPROVE',
   })
   decision: KycDecisionType;
 
@@ -82,14 +81,14 @@ export class KycDecisionResponseDto {
   @ApiProperty({
     description: 'Previous verification status',
     enum: KycStatus,
-    example: KycStatus.PENDING,
+    example: 'PENDING',
   })
   previousStatus: KycStatus;
 
   @ApiProperty({
     description: 'New verification status',
     enum: KycStatus,
-    example: KycStatus.APPROVED,
+    example: 'APPROVED',
   })
   newStatus: KycStatus;
 

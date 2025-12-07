@@ -238,11 +238,12 @@ export class PeppolService {
 
   /**
    * Get transmission by message ID
+   * SECURITY: Requires organizationId to prevent cross-tenant data access
    */
-  async getTransmission(messageId: string): Promise<PeppolTransmission | null> {
+  async getTransmission(organizationId: string, messageId: string): Promise<PeppolTransmission | null> {
     const result = await this.prisma.$queryRaw<PeppolTransmission[]>`
       SELECT * FROM peppol_transmissions
-      WHERE message_id = ${messageId}
+      WHERE organization_id = ${organizationId} AND message_id = ${messageId}
       LIMIT 1
     `;
 

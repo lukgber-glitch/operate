@@ -32,11 +32,8 @@ export class ScheduleExportDto {
 
   @ApiProperty({
     description: 'Export frequency',
-    enum: ExportFrequency,
-    example: ExportFrequency.MONTHLY,
-  })
-  @IsEnum(ExportFrequency, {
-    message: `Frequency must be one of: ${Object.values(ExportFrequency).join(', ')}`,
+    enum: ['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY'],
+    example: 'MONTHLY',
   })
   frequency: ExportFrequency;
 
@@ -198,7 +195,7 @@ export class ScheduleResponseDto {
   @ApiProperty({
     description: 'Export frequency',
     enum: ExportFrequency,
-    example: ExportFrequency.MONTHLY,
+    example: 'MONTHLY',
   })
   frequency: ExportFrequency;
 

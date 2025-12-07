@@ -35,7 +35,6 @@ export class QueryTaxDeadlineDto {
     required: false,
   })
   @IsOptional()
-  @IsEnum(TaxTypeEnum)
   taxType?: TaxTypeEnum;
 
   @ApiProperty({
@@ -44,7 +43,6 @@ export class QueryTaxDeadlineDto {
     required: false,
   })
   @IsOptional()
-  @IsEnum(TaxDeadlineStatusEnum)
   status?: TaxDeadlineStatusEnum;
 
   @ApiProperty({

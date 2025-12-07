@@ -33,17 +33,15 @@ export class CreateSaftExportDto {
   @ApiProperty({
     description: 'SAF-T variant/country format',
     enum: SaftVariant,
-    example: SaftVariant.INTERNATIONAL,
+    example: 'INTERNATIONAL',
   })
-  @IsEnum(SaftVariant)
   variant!: SaftVariant;
 
   @ApiProperty({
     description: 'Export scope',
     enum: ExportScope,
-    example: ExportScope.FULL,
+    example: 'FULL',
   })
-  @IsEnum(ExportScope)
   scope!: ExportScope;
 
   @ApiProperty({
@@ -139,7 +137,6 @@ export class SaftExportFilterDto {
     enum: SaftVariant,
   })
   @IsOptional()
-  @IsEnum(SaftVariant)
   variant?: SaftVariant;
 
   @ApiPropertyOptional({
@@ -147,7 +144,6 @@ export class SaftExportFilterDto {
     enum: ExportScope,
   })
   @IsOptional()
-  @IsEnum(ExportScope)
   scope?: ExportScope;
 
   @ApiPropertyOptional({

@@ -42,7 +42,7 @@ export class LeaveBalanceItemDto {
   @ApiProperty({
     description: 'Type of leave',
     enum: LeaveType,
-    example: LeaveType.ANNUAL,
+    example: 'ANNUAL',
   })
   leaveType: LeaveType;
 

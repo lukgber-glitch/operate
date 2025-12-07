@@ -9,6 +9,7 @@ export { UsageModule } from './usage.module';
 // Services
 export { UsageMeteringService } from './services/usage-metering.service';
 export { UsageStripeService } from './services/usage-stripe.service';
+export { UsageLimitService } from './services/usage-limit.service';
 
 // Controller
 export { UsageController } from './usage.controller';

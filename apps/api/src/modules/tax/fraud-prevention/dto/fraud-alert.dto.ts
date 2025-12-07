@@ -69,11 +69,9 @@ export class FraudAlertDto {
   id!: string;
 
   @ApiProperty({ enum: FraudAlertTypeDto, description: 'Alert type' })
-  @IsEnum(FraudAlertTypeDto)
   type!: FraudAlertTypeDto;
 
   @ApiProperty({ enum: FraudAlertSeverityDto, description: 'Alert severity' })
-  @IsEnum(FraudAlertSeverityDto)
   severity!: FraudAlertSeverityDto;
 
   @ApiPropertyOptional({ description: 'Associated transaction ID' })
@@ -105,7 +103,6 @@ export class FraudAlertDto {
   evidence!: FraudEvidenceDto[];
 
   @ApiProperty({ enum: FraudAlertStatusDto, description: 'Alert status' })
-  @IsEnum(FraudAlertStatusDto)
   status!: FraudAlertStatusDto;
 
   @ApiPropertyOptional({ description: 'Reviewer user ID' })
@@ -133,7 +130,6 @@ export class FraudAlertDto {
     enum: RecommendedActionDto,
     description: 'Recommended action',
   })
-  @IsEnum(RecommendedActionDto)
   recommendedAction!: RecommendedActionDto;
 
   @ApiProperty({ description: 'Whether alert was auto-resolved' })
@@ -172,7 +168,6 @@ export class AlertFiltersDto {
   })
   @IsOptional()
   @IsArray()
-  @IsEnum(FraudAlertStatusDto, { each: true })
   status?: FraudAlertStatusDto[];
 
   @ApiPropertyOptional({
@@ -182,7 +177,6 @@ export class AlertFiltersDto {
   })
   @IsOptional()
   @IsArray()
-  @IsEnum(FraudAlertSeverityDto, { each: true })
   severity?: FraudAlertSeverityDto[];
 
   @ApiPropertyOptional({
@@ -192,7 +186,6 @@ export class AlertFiltersDto {
   })
   @IsOptional()
   @IsArray()
-  @IsEnum(FraudAlertTypeDto, { each: true })
   type?: FraudAlertTypeDto[];
 
   @ApiPropertyOptional({ description: 'Filter from date (ISO 8601)' })

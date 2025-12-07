@@ -28,13 +28,10 @@ export class ExportFilterDto {
 
   @ApiPropertyOptional({
     description: 'Filter by export status',
-    enum: ExportStatus,
-    example: ExportStatus.COMPLETED,
+    enum: ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'FAILED'],
+    example: 'COMPLETED',
   })
   @IsOptional()
-  @IsEnum(ExportStatus, {
-    message: `Status must be one of: ${Object.values(ExportStatus).join(', ')}`,
-  })
   status?: ExportStatus;
 
   @ApiPropertyOptional({

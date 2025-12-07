@@ -186,7 +186,6 @@ export class TransactionDetailsDto {
   taxSch: 'GST';
 
   @IsNotEmpty()
-  @IsEnum(SupplyType)
   supTyp: SupplyType;
 
   @IsOptional()
@@ -204,7 +203,6 @@ export class TransactionDetailsDto {
 
 export class DocumentDetailsDto {
   @IsNotEmpty()
-  @IsEnum(GstInvoiceType)
   typ: GstInvoiceType;
 
   @IsNotEmpty()

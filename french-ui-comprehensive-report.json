@@ -1,0 +1,73 @@
+{
+  "languageSwitchingWorks": false,
+  "translationsComplete": true,
+  "brokenLinks": [
+    {
+      "url": "https://operate.guru/chat",
+      "pageName": "Chat",
+      "status": 404
+    },
+    {
+      "url": "https://operate.guru/invoices",
+      "pageName": "Invoices",
+      "status": 404
+    },
+    {
+      "url": "https://operate.guru/transactions",
+      "pageName": "Transactions",
+      "status": 404
+    }
+  ],
+  "errors": [
+    {
+      "url": "https://operate.guru/login",
+      "pageName": "Login Page",
+      "error": "Navigation timeout of 45000 ms exceeded"
+    },
+    {
+      "url": "https://operate.guru/register",
+      "pageName": "Register Page",
+      "error": "Navigation timeout of 45000 ms exceeded"
+    },
+    {
+      "url": "https://operate.guru/forgot-password",
+      "pageName": "Forgot Password",
+      "error": "Navigation timeout of 45000 ms exceeded"
+    },
+    {
+      "url": "https://operate.guru/",
+      "pageName": "Home Page",
+      "error": "Navigation timeout of 45000 ms exceeded"
+    },
+    {
+      "url": "https://operate.guru/dashboard",
+      "pageName": "Dashboard",
+      "error": "Navigation timeout of 45000 ms exceeded"
+    },
+    {
+      "url": "https://operate.guru/settings",
+      "pageName": "Settings",
+      "error": "Navigation timeout of 45000 ms exceeded"
+    },
+    {
+      "url": "https://operate.guru/onboarding",
+      "pageName": "Onboarding",
+      "error": "Navigation timeout of 45000 ms exceeded"
+    }
+  ],
+  "screenshots": [
+    "C:\\Users\\grube\\op\\operate-fresh\\screenshots-french-comprehensive\\error-Login-Page.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\screenshots-french-comprehensive\\error-Register-Page.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\screenshots-french-comprehensive\\error-Forgot-Password.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\screenshots-french-comprehensive\\error-Home-Page.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\screenshots-french-comprehensive\\error-Dashboard.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\screenshots-french-comprehensive\\error-Settings.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\screenshots-french-comprehensive\\error-Onboarding.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\screenshots-french-comprehensive\\404-Chat.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\screenshots-french-comprehensive\\404-Invoices.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\screenshots-french-comprehensive\\404-Transactions.png"
+  ],
+  "testedPages": [],
+  "untranslatedText": [],
+  "issues": []
+}

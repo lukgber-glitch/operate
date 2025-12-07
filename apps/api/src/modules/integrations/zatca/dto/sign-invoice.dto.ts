@@ -27,7 +27,6 @@ export class SignInvoiceDto {
     description: 'Invoice type',
     enum: InvoiceTypeDto,
   })
-  @IsEnum(InvoiceTypeDto)
   invoiceType: InvoiceTypeDto;
 
   @ApiProperty({

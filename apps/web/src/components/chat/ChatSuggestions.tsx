@@ -1,6 +1,8 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
+import { useRef, useLayoutEffect } from 'react';
+import gsap from 'gsap';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -36,6 +38,37 @@ export function ChatSuggestions({
   maxVisible = 5,
   className,
 }: ChatSuggestionsProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // GSAP stagger animation on mount/update
+  useLayoutEffect(() => {
+    if (!containerRef.current || isLoading || !suggestions.length) return;
+
+    const ctx = gsap.context(() => {
+      const pills = containerRef.current?.querySelectorAll('.suggestion-pill');
+      if (!pills || pills.length === 0) return;
+
+      gsap.fromTo(
+        pills,
+        {
+          opacity: 0,
+          scale: 0.8,
+          y: 10,
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.3,
+          stagger: 0.08,
+          ease: 'back.out(1.5)',
+        }
+      );
+    });
+
+    return () => ctx.revert();
+  }, [suggestions, isLoading]);
+
   if (isLoading) {
     return (
       <div className={cn('py-3 px-4 border-t bg-muted/30', className)}>
@@ -62,7 +95,10 @@ export function ChatSuggestions({
   const hasMore = suggestions.length > maxVisible;
 
   return (
-    <div className={cn('py-3 px-3 md:px-4 border-t bg-muted/30', className)}>
+    <div
+      ref={containerRef}
+      className={cn('py-3 px-3 md:px-4 border-t bg-muted/30', className)}
+    >
       <div className="flex items-center justify-between mb-2 px-1">
         <h3 className="text-sm font-medium text-foreground">
           Suggestions for you
@@ -79,13 +115,14 @@ export function ChatSuggestions({
         <ScrollArea className="w-full whitespace-nowrap">
           <div className="flex gap-3 pb-2">
             {visibleSuggestions.map((suggestion) => (
-              <SuggestionCard
-                key={suggestion.id}
-                suggestion={suggestion}
-                onApply={onApply}
-                onDismiss={onDismiss}
-                compact
-              />
+              <div key={suggestion.id} className="suggestion-pill">
+                <SuggestionCard
+                  suggestion={suggestion}
+                  onApply={onApply}
+                  onDismiss={onDismiss}
+                  compact
+                />
+              </div>
             ))}
           </div>
         </ScrollArea>
@@ -95,7 +132,7 @@ export function ChatSuggestions({
       <div className="md:hidden -mx-3">
         <div className="horizontal-scroll-mobile px-3 gap-3 pb-2">
           {visibleSuggestions.map((suggestion) => (
-            <div key={suggestion.id} className="w-[280px] flex-shrink-0">
+            <div key={suggestion.id} className="w-[280px] flex-shrink-0 suggestion-pill">
               <SuggestionCard
                 suggestion={suggestion}
                 onApply={onApply}

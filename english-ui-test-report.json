@@ -1,0 +1,313 @@
+{
+  "timestamp": "2025-12-07T13:21:26.787Z",
+  "baseUrl": "https://operate.guru",
+  "pages": [
+    {
+      "name": "login",
+      "url": "https://operate.guru/login",
+      "status": 200,
+      "statusText": "",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\screenshots-english-ui\\login.png",
+      "translationKeys": [],
+      "clickableElements": [
+        {
+          "type": "link",
+          "text": "Skip to main content",
+          "href": "#main-content",
+          "selector": "a[href=\"#main-content\"]:nth-of-type(1)"
+        },
+        {
+          "type": "link",
+          "text": "Passwort vergessen?",
+          "href": "/forgot-password",
+          "selector": "a[href=\"/forgot-password\"]:nth-of-type(2)"
+        },
+        {
+          "type": "link",
+          "text": "Jetzt registrieren",
+          "href": "/register",
+          "selector": "a[href=\"/register\"]:nth-of-type(3)"
+        },
+        {
+          "type": "button",
+          "text": "Select language",
+          "selector": "button:nth-of-type(1)",
+          "onclick": "no onclick"
+        },
+        {
+          "type": "button",
+          "text": "Google",
+          "selector": "button:nth-of-type(2)",
+          "onclick": "has onclick"
+        },
+        {
+          "type": "button",
+          "text": "Microsoft",
+          "selector": "button:nth-of-type(3)",
+          "onclick": "has onclick"
+        },
+        {
+          "type": "button",
+          "text": "No text",
+          "selector": "button:nth-of-type(4)",
+          "onclick": "has onclick"
+        },
+        {
+          "type": "button",
+          "text": "Anmelden",
+          "selector": "button:nth-of-type(5)",
+          "onclick": "no onclick"
+        }
+      ],
+      "errors": [],
+      "title": "Operate | CoachOS - Enterprise Coaching Platform",
+      "hasErrors": false
+    },
+    {
+      "name": "register",
+      "url": "https://operate.guru/register",
+      "status": "ERROR",
+      "statusText": "",
+      "screenshot": null,
+      "translationKeys": [],
+      "clickableElements": [],
+      "errors": [
+        "Navigation timeout of 30000 ms exceeded"
+      ]
+    },
+    {
+      "name": "forgot-password",
+      "url": "https://operate.guru/forgot-password",
+      "status": 200,
+      "statusText": "",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\screenshots-english-ui\\forgot-password.png",
+      "translationKeys": [],
+      "clickableElements": [
+        {
+          "type": "link",
+          "text": "Skip to main content",
+          "href": "#main-content",
+          "selector": "a[href=\"#main-content\"]:nth-of-type(1)"
+        },
+        {
+          "type": "link",
+          "text": "Anmelden",
+          "href": "/login",
+          "selector": "a[href=\"/login\"]:nth-of-type(2)"
+        },
+        {
+          "type": "button",
+          "text": "Select language",
+          "selector": "button:nth-of-type(1)",
+          "onclick": "no onclick"
+        },
+        {
+          "type": "button",
+          "text": "Link zum Zurücksetzen senden",
+          "selector": "button:nth-of-type(2)",
+          "onclick": "no onclick"
+        }
+      ],
+      "errors": [],
+      "title": "Operate | CoachOS - Enterprise Coaching Platform",
+      "hasErrors": false
+    },
+    {
+      "name": "homepage",
+      "url": "https://operate.guru/",
+      "status": 200,
+      "statusText": "",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\screenshots-english-ui\\homepage.png",
+      "translationKeys": [],
+      "clickableElements": [
+        {
+          "type": "link",
+          "text": "Skip to main content",
+          "href": "#main-content",
+          "selector": "a[href=\"#main-content\"]:nth-of-type(1)"
+        },
+        {
+          "type": "link",
+          "text": "Passwort vergessen?",
+          "href": "/forgot-password",
+          "selector": "a[href=\"/forgot-password\"]:nth-of-type(2)"
+        },
+        {
+          "type": "link",
+          "text": "Jetzt registrieren",
+          "href": "/register",
+          "selector": "a[href=\"/register\"]:nth-of-type(3)"
+        },
+        {
+          "type": "button",
+          "text": "Select language",
+          "selector": "button:nth-of-type(1)",
+          "onclick": "no onclick"
+        },
+        {
+          "type": "button",
+          "text": "Google",
+          "selector": "button:nth-of-type(2)",
+          "onclick": "has onclick"
+        },
+        {
+          "type": "button",
+          "text": "Microsoft",
+          "selector": "button:nth-of-type(3)",
+          "onclick": "has onclick"
+        },
+        {
+          "type": "button",
+          "text": "No text",
+          "selector": "button:nth-of-type(4)",
+          "onclick": "has onclick"
+        },
+        {
+          "type": "button",
+          "text": "Anmelden",
+          "selector": "button:nth-of-type(5)",
+          "onclick": "no onclick"
+        }
+      ],
+      "errors": [],
+      "title": "Operate | CoachOS - Enterprise Coaching Platform",
+      "hasErrors": false
+    },
+    {
+      "name": "about",
+      "url": "https://operate.guru/about",
+      "status": 404,
+      "statusText": "",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\screenshots-english-ui\\about.png",
+      "translationKeys": [],
+      "clickableElements": [
+        {
+          "type": "link",
+          "text": "Skip to main content",
+          "href": "#main-content",
+          "selector": "a[href=\"#main-content\"]:nth-of-type(1)"
+        }
+      ],
+      "errors": [],
+      "title": "404: This page could not be found.",
+      "hasErrors": true
+    },
+    {
+      "name": "pricing",
+      "url": "https://operate.guru/pricing",
+      "status": 404,
+      "statusText": "",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\screenshots-english-ui\\pricing.png",
+      "translationKeys": [],
+      "clickableElements": [
+        {
+          "type": "link",
+          "text": "Skip to main content",
+          "href": "#main-content",
+          "selector": "a[href=\"#main-content\"]:nth-of-type(1)"
+        }
+      ],
+      "errors": [],
+      "title": "404: This page could not be found.",
+      "hasErrors": true
+    },
+    {
+      "name": "contact",
+      "url": "https://operate.guru/contact",
+      "status": 404,
+      "statusText": "",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\screenshots-english-ui\\contact.png",
+      "translationKeys": [],
+      "clickableElements": [
+        {
+          "type": "link",
+          "text": "Skip to main content",
+          "href": "#main-content",
+          "selector": "a[href=\"#main-content\"]:nth-of-type(1)"
+        }
+      ],
+      "errors": [],
+      "title": "404: This page could not be found.",
+      "hasErrors": true
+    },
+    {
+      "name": "privacy",
+      "url": "https://operate.guru/privacy",
+      "status": 404,
+      "statusText": "",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\screenshots-english-ui\\privacy.png",
+      "translationKeys": [],
+      "clickableElements": [
+        {
+          "type": "link",
+          "text": "Skip to main content",
+          "href": "#main-content",
+          "selector": "a[href=\"#main-content\"]:nth-of-type(1)"
+        }
+      ],
+      "errors": [],
+      "title": "404: This page could not be found.",
+      "hasErrors": true
+    },
+    {
+      "name": "terms",
+      "url": "https://operate.guru/terms",
+      "status": 404,
+      "statusText": "",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\screenshots-english-ui\\terms.png",
+      "translationKeys": [],
+      "clickableElements": [
+        {
+          "type": "link",
+          "text": "Skip to main content",
+          "href": "#main-content",
+          "selector": "a[href=\"#main-content\"]:nth-of-type(1)"
+        }
+      ],
+      "errors": [],
+      "title": "404: This page could not be found.",
+      "hasErrors": true
+    }
+  ],
+  "brokenLinks": [
+    {
+      "from": "login",
+      "text": "Jetzt registrieren",
+      "href": "https://operate.guru/register",
+      "status": "ERROR",
+      "error": "Navigation timeout of 15000 ms exceeded"
+    }
+  ],
+  "missingTranslations": [],
+  "formValidationIssues": [
+    {
+      "page": "register",
+      "tests": [],
+      "error": "Navigation timeout of 30000 ms exceeded"
+    },
+    {
+      "page": "forgot-password",
+      "tests": [
+        {
+          "name": "Empty form submission",
+          "passed": false,
+          "errors": [],
+          "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\screenshots-english-ui\\forgot-password-empty-submit.png"
+        },
+        {
+          "name": "Invalid email format",
+          "passed": false,
+          "errors": [],
+          "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\screenshots-english-ui\\forgot-password-invalid-email.png"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "totalPages": 9,
+    "successfulPages": 3,
+    "failedPages": 6,
+    "totalLinks": 2,
+    "brokenLinks": 1
+  }
+}

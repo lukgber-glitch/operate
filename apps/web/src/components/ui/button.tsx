@@ -5,29 +5,32 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center whitespace-nowrap font-medium transition-all disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
+        // New design system variants
+        primary: 'bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-[var(--shadow-md)] active:bg-[var(--color-primary-dark)] active:translate-y-0 focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
+        secondary: 'bg-white text-[var(--color-primary)] border border-[var(--color-primary)] hover:bg-[var(--color-accent-light)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
+        ghost: 'bg-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-background)] hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
+
+        // Keep legacy Shadcn variants for compatibility
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
         destructive:
           'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         outline:
           'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-        secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 rounded-md px-3',
-        lg: 'h-11 rounded-md px-8',
-        icon: 'h-10 w-10',
+        sm: 'h-9 px-4 text-sm rounded-[var(--radius-md)]',
+        default: 'h-10 px-6 text-base rounded-[var(--radius-md)]',
+        lg: 'h-12 px-8 text-lg rounded-[var(--radius-md)]',
+        icon: 'h-10 w-10 rounded-[var(--radius-md)]',
       },
     },
     defaultVariants: {
-      variant: 'default',
+      variant: 'primary',
       size: 'default',
     },
   }

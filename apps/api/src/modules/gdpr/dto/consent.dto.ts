@@ -11,7 +11,6 @@ export class RecordConsentDto {
   userId: string;
 
   @ApiProperty({ enum: ConsentPurpose, description: 'Purpose of consent' })
-  @IsEnum(ConsentPurpose)
   purpose: ConsentPurpose;
 
   @ApiProperty({ description: 'Whether consent is granted' })
@@ -19,7 +18,6 @@ export class RecordConsentDto {
   granted: boolean;
 
   @ApiProperty({ enum: ConsentSource, description: 'Source of consent' })
-  @IsEnum(ConsentSource)
   source: ConsentSource;
 
   @ApiPropertyOptional({ description: 'IP address of user when consent was given' })
@@ -70,7 +68,6 @@ export class RevokeConsentDto {
   userId: string;
 
   @ApiProperty({ enum: ConsentPurpose, description: 'Purpose to revoke' })
-  @IsEnum(ConsentPurpose)
   purpose: ConsentPurpose;
 
   @ApiPropertyOptional({ description: 'IP address of user' })
@@ -95,7 +92,6 @@ export class QueryConsentDto {
 
   @ApiPropertyOptional({ enum: ConsentPurpose, description: 'Filter by purpose' })
   @IsOptional()
-  @IsEnum(ConsentPurpose)
   purpose?: ConsentPurpose;
 
   @ApiPropertyOptional({ description: 'Filter by granted status' })

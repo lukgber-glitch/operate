@@ -32,7 +32,6 @@ export class NotificationFilterDto {
     required: false,
   })
   @IsOptional()
-  @IsEnum(NotificationStatus)
   status?: NotificationStatus;
 
   @ApiProperty({
@@ -41,7 +40,6 @@ export class NotificationFilterDto {
     required: false,
   })
   @IsOptional()
-  @IsEnum(NotificationType)
   type?: NotificationType;
 
   @ApiProperty({
@@ -95,7 +93,7 @@ export class NotificationResponseDto {
   @ApiProperty({
     description: 'Notification type',
     enum: NotificationType,
-    example: NotificationType.APPROVAL_NEEDED,
+    example: 'APPROVAL_NEEDED',
   })
   type: string;
 
@@ -121,7 +119,7 @@ export class NotificationResponseDto {
   @ApiProperty({
     description: 'Notification status',
     enum: NotificationStatus,
-    example: NotificationStatus.UNREAD,
+    example: 'UNREAD',
   })
   status: string;
 

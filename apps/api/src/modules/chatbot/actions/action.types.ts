@@ -15,6 +15,26 @@ export enum ActionType {
   EXPORT_DATA = 'export_data',
   UPDATE_STATUS = 'update_status',
   SCHEDULE_TASK = 'schedule_task',
+  CREATE_BILL = 'create_bill',
+  PAY_BILL = 'pay_bill',
+  LIST_BILLS = 'list_bills',
+  BILL_STATUS = 'bill_status',
+  GET_CASH_FLOW = 'get_cash_flow',
+  GET_RUNWAY = 'get_runway',
+  GET_BURN_RATE = 'get_burn_rate',
+  GET_CASH_FORECAST = 'get_cash_forecast',
+  HIRE_EMPLOYEE = 'hire_employee',
+  TERMINATE_EMPLOYEE = 'terminate_employee',
+  REQUEST_LEAVE = 'request_leave',
+  APPROVE_LEAVE = 'approve_leave',
+  // New automation actions for S2-08
+  SEARCH_DOCUMENTS = 'search_documents',
+  REDUCE_EXPENSES = 'reduce_expenses',
+  CONSULT_TAXES = 'consult_taxes',
+  CREATE_CUSTOMER = 'create_customer',
+  // Bank account actions for S2-01
+  GET_BANK_BALANCE = 'get_bank_balance',
+  GET_BANK_TRANSACTIONS = 'get_bank_transactions',
 }
 
 /**

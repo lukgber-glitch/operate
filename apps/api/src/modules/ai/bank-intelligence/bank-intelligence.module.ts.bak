@@ -1,0 +1,18 @@
+import { Module } from '@nestjs/common';
+import { DatabaseModule } from '@/modules/database/database.module';
+import { InvoiceMatcherService } from './invoice-matcher.service';
+
+/**
+ * Bank Intelligence Module
+ * Provides AI-powered banking intelligence features including:
+ * - Invoice auto-matching and reconciliation
+ * - Transaction classification
+ * - Anomaly detection
+ * - Cash flow predictions
+ */
+@Module({
+  imports: [DatabaseModule],
+  providers: [InvoiceMatcherService],
+  exports: [InvoiceMatcherService],
+})
+export class BankIntelligenceModule {}

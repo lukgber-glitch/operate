@@ -85,9 +85,8 @@ export class CreateInvoiceDto {
   @ApiProperty({
     description: 'Invoice type',
     enum: InvoiceType,
-    example: InvoiceType.STANDARD,
+    example: 'STANDARD',
   })
-  @IsEnum(InvoiceType)
   type: InvoiceType;
 
   @ApiPropertyOptional({

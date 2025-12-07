@@ -7,7 +7,7 @@ import { DatevImportController } from './datev-import.controller';
 import { DatevImportService } from './datev-import.service';
 import { DatevImportParserService } from './datev-import-parser.service';
 import { DatevImportMapperService } from './datev-import-mapper.service';
-import { DatabaseModule } from '../../../database/database.module';
+import { DatabaseModule } from '@/modules/database/database.module';
 import { SKRMappingService } from '../../compliance/exports/datev/account-mapping/skr-mapping.service';
 
 @Module({

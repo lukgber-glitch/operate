@@ -10,7 +10,6 @@ export class DocumentUploadDto {
     enum: EmployeeDocumentType,
     description: 'Type of document being uploaded',
   })
-  @IsEnum(EmployeeDocumentType)
   documentType: EmployeeDocumentType;
 
   @ApiPropertyOptional({
@@ -86,7 +85,6 @@ export class DocumentQueryDto {
     description: 'Filter by document type',
   })
   @IsOptional()
-  @IsEnum(EmployeeDocumentType)
   documentType?: EmployeeDocumentType;
 
   @ApiPropertyOptional({

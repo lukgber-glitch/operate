@@ -21,7 +21,6 @@ export class UpdateProgressDto {
     required: false,
   })
   @IsOptional()
-  @IsEnum(OnboardingStepStatus)
   status?: OnboardingStepStatus;
 
   @ApiProperty({

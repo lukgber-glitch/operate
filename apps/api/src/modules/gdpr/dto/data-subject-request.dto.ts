@@ -16,7 +16,6 @@ export class CreateDataSubjectRequestDto {
   organisationId?: string;
 
   @ApiProperty({ enum: DataSubjectRequestType, description: 'Type of request' })
-  @IsEnum(DataSubjectRequestType)
   requestType: DataSubjectRequestType;
 
   @ApiPropertyOptional({ description: 'Additional metadata' })
@@ -30,7 +29,6 @@ export class CreateDataSubjectRequestDto {
  */
 export class UpdateDataSubjectRequestDto {
   @ApiProperty({ enum: DataSubjectRequestStatus, description: 'New status' })
-  @IsEnum(DataSubjectRequestStatus)
   status: DataSubjectRequestStatus;
 
   @ApiPropertyOptional({ description: 'Reason for status change (required for rejection)' })
@@ -79,12 +77,10 @@ export class QueryDataSubjectRequestDto {
 
   @ApiPropertyOptional({ enum: DataSubjectRequestType, description: 'Filter by request type' })
   @IsOptional()
-  @IsEnum(DataSubjectRequestType)
   requestType?: DataSubjectRequestType;
 
   @ApiPropertyOptional({ enum: DataSubjectRequestStatus, description: 'Filter by status' })
   @IsOptional()
-  @IsEnum(DataSubjectRequestStatus)
   status?: DataSubjectRequestStatus;
 
   @ApiPropertyOptional({ description: 'Filter by overdue requests' })

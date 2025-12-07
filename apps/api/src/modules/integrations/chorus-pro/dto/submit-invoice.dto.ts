@@ -115,9 +115,8 @@ export class SubmitInvoiceDto {
   @ApiProperty({
     description: 'Invoice type',
     enum: ChorusProInvoiceType,
-    example: ChorusProInvoiceType.FACTURE,
+    example: 'FACTURE',
   })
-  @IsEnum(ChorusProInvoiceType)
   invoiceType: ChorusProInvoiceType;
 
   @ApiProperty({
@@ -197,9 +196,8 @@ export class SubmitInvoiceDto {
   @ApiProperty({
     description: 'Document format',
     enum: ChorusProDocumentFormat,
-    example: ChorusProDocumentFormat.FACTURX,
+    example: 'FACTURX',
   })
-  @IsEnum(ChorusProDocumentFormat)
   documentFormat: ChorusProDocumentFormat;
 
   @ApiPropertyOptional({

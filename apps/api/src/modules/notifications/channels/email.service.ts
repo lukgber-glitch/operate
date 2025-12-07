@@ -1,24 +1,36 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as sgMail from '@sendgrid/mail';
 
 /**
  * Email notification channel
- * Handles sending notifications via email
- *
- * Note: This is a basic implementation. In production, you would use
- * services like SendGrid, AWS SES, or Resend for better deliverability.
+ * Handles sending notifications via email using SendGrid
  */
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private enabled: boolean;
+  private readonly fromEmail: string;
+  private readonly fromName: string;
+  private readonly maxRetries = 3;
 
   constructor(private configService: ConfigService) {
     // Check if email notifications are enabled
     this.enabled = this.configService.get('notifications.email.enabled', false);
 
-    if (this.enabled) {
-      this.logger.log('Email notification channel initialized');
+    // Get SendGrid configuration
+    const apiKey = this.configService.get<string>('SENDGRID_API_KEY');
+    this.fromEmail = this.configService.get<string>('SENDGRID_FROM_EMAIL', 'noreply@operate.guru');
+    this.fromName = this.configService.get<string>('SENDGRID_FROM_NAME', 'Operate');
+
+    // Initialize SendGrid if API key is provided
+    if (apiKey) {
+      sgMail.setApiKey(apiKey);
+      this.enabled = true;
+      this.logger.log('Email notification channel initialized with SendGrid');
+    } else if (this.enabled) {
+      this.logger.warn('Email notifications enabled but SENDGRID_API_KEY not configured');
+      this.enabled = false;
     } else {
       this.logger.warn('Email notification channel is disabled');
     }
@@ -38,21 +50,75 @@ export class EmailService {
       return false;
     }
 
-    try {
-      // TODO: Implement actual email sending using nodemailer, resend, or similar
-      // For now, we'll just log the notification
-      this.logger.log(
-        `[EMAIL] To: ${to}, Subject: ${subject}, Body: ${body.substring(0, 100)}...`,
-      );
-
-      // Simulate async email sending
-      await this.simulateEmailSend(to, subject, body, metadata);
-
-      return true;
-    } catch (error) {
-      this.logger.error(`Failed to send email to ${to}: ${error.message}`, error.stack);
+    if (!this.isValidEmail(to)) {
+      this.logger.error(`Invalid email address: ${to}`);
       return false;
     }
+
+    // Try sending with retry logic
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        this.logger.log(
+          `Sending email to ${to} (attempt ${attempt}/${this.maxRetries})`,
+        );
+
+        const msg = {
+          to,
+          from: {
+            email: this.fromEmail,
+            name: this.fromName,
+          },
+          subject,
+          html: body,
+          text: this.stripHtml(body), // Plain text fallback
+          trackingSettings: {
+            clickTracking: {
+              enable: true,
+              enableText: false,
+            },
+            openTracking: {
+              enable: true,
+            },
+          },
+          customArgs: metadata || {},
+        };
+
+        const response = await sgMail.send(msg);
+
+        this.logger.log(
+          `Email sent successfully to ${to}, Message ID: ${response[0].headers['x-message-id']}`,
+        );
+
+        return true;
+      } catch (error) {
+        this.logger.error(
+          `Attempt ${attempt}/${this.maxRetries} failed to send email to ${to}: ${error.message}`,
+        );
+
+        // Log SendGrid specific error details
+        if (error.response) {
+          this.logger.error(
+            `SendGrid error: ${JSON.stringify(error.response.body)}`,
+          );
+        }
+
+        // If this was the last attempt, return false
+        if (attempt === this.maxRetries) {
+          this.logger.error(
+            `All ${this.maxRetries} attempts failed for email to ${to}`,
+            error.stack,
+          );
+          return false;
+        }
+
+        // Wait before retrying (exponential backoff)
+        const delayMs = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
+        this.logger.log(`Retrying in ${delayMs}ms...`);
+        await this.delay(delayMs);
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -142,24 +208,26 @@ export class EmailService {
   }
 
   /**
-   * Simulate email sending (placeholder for actual implementation)
+   * Strip HTML tags from content for plain text version
    */
-  private async simulateEmailSend(
-    to: string,
-    subject: string,
-    body: string,
-    metadata?: Record<string, any>,
-  ): Promise<void> {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 100));
+  private stripHtml(html: string): string {
+    return html
+      .replace(/<style[^>]*>.*?<\/style>/gi, '')
+      .replace(/<script[^>]*>.*?<\/script>/gi, '')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .trim();
+  }
 
-    // In production, replace this with:
-    // - Nodemailer: for SMTP-based sending
-    // - Resend: for modern email API
-    // - AWS SES: for AWS infrastructure
-    // - SendGrid: for enterprise email delivery
-
-    this.logger.debug(`Email queued for delivery to ${to}`);
+  /**
+   * Delay helper for retry logic
+   */
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**

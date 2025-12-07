@@ -12,7 +12,6 @@ export class CostQueryDto {
     enum: CostCategory,
   })
   @IsOptional()
-  @IsEnum(CostCategory)
   category?: CostCategory;
 
   @ApiPropertyOptional({

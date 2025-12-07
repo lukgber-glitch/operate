@@ -42,3 +42,7 @@ packages/database/prisma/*.db-journal
 
 # Uploads (local storage)
 uploads/
+
+# Deployment artifacts
+*.tar.gz
+pnpm-lock.yaml

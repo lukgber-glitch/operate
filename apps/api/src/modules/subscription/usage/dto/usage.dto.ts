@@ -5,7 +5,7 @@
 
 import {
   IsString,
-  IsEnum,
+  IsIn,
   IsInt,
   IsOptional,
   IsObject,
@@ -16,6 +16,23 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UsageFeature } from '@prisma/client';
+
+/**
+ * UsageFeature values as string array for @IsIn validation
+ * (Prisma enums are undefined at decorator evaluation on Node 20)
+ */
+const UsageFeatureValues = [
+  'OCR_SCAN',
+  'API_CALL',
+  'STORAGE_GB',
+  'AI_CLASSIFICATION',
+  'EMAIL_SENT',
+  'BANK_SYNC',
+  'SMS_SENT',
+  'EXPORT_PDF',
+  'WEBHOOK_CALL',
+  'CUSTOM_REPORT',
+] as const;
 import { Type } from 'class-transformer';
 
 /**
@@ -26,8 +43,8 @@ export class TrackUsageDto {
   @IsString()
   organizationId: string;
 
-  @ApiProperty({ enum: UsageFeature, description: 'Feature being used' })
-  @IsEnum(UsageFeature)
+  @ApiProperty({ enum: UsageFeatureValues, description: 'Feature being used' })
+  @IsIn(UsageFeatureValues)
   feature: UsageFeature;
 
   @ApiPropertyOptional({ description: 'Usage quantity', default: 1 })
@@ -72,12 +89,12 @@ export class GetUsageSummaryDto {
   periodEnd?: string;
 
   @ApiPropertyOptional({
-    enum: UsageFeature,
+    enum: UsageFeatureValues,
     isArray: true,
     description: 'Filter by specific features',
   })
   @IsOptional()
-  @IsEnum(UsageFeature, { each: true })
+  @IsIn(UsageFeatureValues, { each: true })
   features?: UsageFeature[];
 }
 
@@ -94,7 +111,7 @@ export class UsageSummaryResponseDto {
   @ApiProperty()
   periodEnd: Date;
 
-  @ApiProperty({ type: [FeatureUsageDto] })
+  @ApiProperty({ type: () => [FeatureUsageDto] })
   features: FeatureUsageDto[];
 
   @ApiProperty()
@@ -147,8 +164,8 @@ export class ConfigureUsageQuotaDto {
   @IsString()
   organizationId: string;
 
-  @ApiProperty({ enum: UsageFeature })
-  @IsEnum(UsageFeature)
+  @ApiProperty({ enum: UsageFeatureValues })
+  @IsIn(UsageFeatureValues)
   feature: UsageFeature;
 
   @ApiProperty({ description: 'Included quantity in free tier' })
@@ -191,7 +208,7 @@ export class UsageEstimateDto {
   @ApiProperty()
   estimatedDate: Date;
 
-  @ApiProperty({ type: [FeatureEstimateDto] })
+  @ApiProperty({ type: () => [FeatureEstimateDto] })
   features: FeatureEstimateDto[];
 
   @ApiProperty()
@@ -244,12 +261,12 @@ export class UsageHistoryQueryDto {
   limit?: number;
 
   @ApiPropertyOptional({
-    enum: UsageFeature,
+    enum: UsageFeatureValues,
     isArray: true,
     description: 'Filter by specific features',
   })
   @IsOptional()
-  @IsEnum(UsageFeature, { each: true })
+  @IsIn(UsageFeatureValues, { each: true })
   features?: UsageFeature[];
 }
 
@@ -260,7 +277,7 @@ export class UsageHistoryResponseDto {
   @ApiProperty()
   organizationId: string;
 
-  @ApiProperty({ type: [UsageHistoryPeriodDto] })
+  @ApiProperty({ type: () => [UsageHistoryPeriodDto] })
   periods: UsageHistoryPeriodDto[];
 }
 
@@ -274,7 +291,7 @@ export class UsageHistoryPeriodDto {
   @ApiProperty()
   periodEnd: Date;
 
-  @ApiProperty({ type: [FeatureUsageDto] })
+  @ApiProperty({ type: () => [FeatureUsageDto] })
   features: FeatureUsageDto[];
 
   @ApiProperty()
@@ -292,7 +309,7 @@ export class BulkTrackUsageDto {
   @IsString()
   organizationId: string;
 
-  @ApiProperty({ type: [TrackUsageEventDto], description: 'Usage events to track' })
+  @ApiProperty({ type: () => [TrackUsageEventDto], description: 'Usage events to track' })
   events: TrackUsageEventDto[];
 }
 
@@ -300,8 +317,8 @@ export class BulkTrackUsageDto {
  * Track Usage Event DTO
  */
 export class TrackUsageEventDto {
-  @ApiProperty({ enum: UsageFeature })
-  @IsEnum(UsageFeature)
+  @ApiProperty({ enum: UsageFeatureValues })
+  @IsIn(UsageFeatureValues)
   feature: UsageFeature;
 
   @ApiPropertyOptional({ default: 1 })

@@ -148,7 +148,6 @@ export class DunningListResponseDto {
 export class DunningQueryDto {
   @ApiPropertyOptional({ description: 'Filter by state', enum: DunningStatus })
   @IsOptional()
-  @IsEnum(DunningStatus)
   state?: DunningStatus;
 
   @ApiPropertyOptional({ description: 'Page number', default: 1 })

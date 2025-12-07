@@ -120,6 +120,39 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 })
 
+// Sentry configuration (optional - gracefully handles if not installed)
+let withSentryConfig;
+let sentryWebpackPluginOptions = {};
+
+try {
+  withSentryConfig = require('@sentry/nextjs').withSentryConfig;
+  sentryWebpackPluginOptions = {
+    // Sentry organization and project
+    org: process.env.SENTRY_ORG || 'operate',
+    project: process.env.SENTRY_PROJECT_WEB || 'operate-web',
+
+    // Auth token for uploading source maps
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+
+    // Suppress console output during build
+    silent: true,
+
+    // Upload source maps
+    widenClientFileUpload: true,
+
+    // Hide source maps from public
+    hideSourceMaps: true,
+
+    // Disable source map upload in development
+    disableServerWebpackPlugin: process.env.NODE_ENV === 'development',
+    disableClientWebpackPlugin: process.env.NODE_ENV === 'development',
+  };
+} catch (e) {
+  console.warn('⚠️  @sentry/nextjs not found - Sentry monitoring disabled');
+  // Fallback: no-op wrapper if Sentry is not installed
+  withSentryConfig = (config) => config;
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -202,4 +235,8 @@ const nextConfig = {
   },
 }
 
-module.exports = withBundleAnalyzer(withPWA(withNextIntl(nextConfig)))
+// Export configuration with Sentry wrapper
+module.exports = withSentryConfig(
+  withBundleAnalyzer(withPWA(withNextIntl(nextConfig))),
+  sentryWebpackPluginOptions
+)

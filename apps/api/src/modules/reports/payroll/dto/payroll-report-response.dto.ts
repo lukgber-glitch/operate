@@ -18,14 +18,14 @@ export class ReportResponseDto {
   @ApiProperty({
     description: 'Report type',
     enum: PayrollReportType,
-    example: PayrollReportType.PAYROLL_SUMMARY,
+    example: 'PAYROLL_SUMMARY',
   })
   reportType: PayrollReportType;
 
   @ApiProperty({
     description: 'Report format',
     enum: ReportFormat,
-    example: ReportFormat.PDF,
+    example: 'PDF',
   })
   format: ReportFormat;
 
@@ -280,7 +280,7 @@ export class ReportScheduleResponseDto {
   @ApiProperty({
     description: 'Report type',
     enum: PayrollReportType,
-    example: PayrollReportType.PAYROLL_SUMMARY,
+    example: 'PAYROLL_SUMMARY',
   })
   reportType: PayrollReportType;
 
@@ -306,7 +306,7 @@ export class ReportScheduleResponseDto {
   @ApiProperty({
     description: 'Report format',
     enum: ReportFormat,
-    example: ReportFormat.PDF,
+    example: 'PDF',
   })
   format: ReportFormat;
 

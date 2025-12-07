@@ -201,7 +201,6 @@ export class CreateI9Section2Dto {
     enum: I9DocumentListType,
   })
   @IsOptional()
-  @IsEnum(I9DocumentListType)
   documentListA?: I9DocumentListType;
 
   @ApiPropertyOptional({
@@ -242,7 +241,6 @@ export class CreateI9Section2Dto {
     enum: I9DocumentListType,
   })
   @IsOptional()
-  @IsEnum(I9DocumentListType)
   documentListB?: I9DocumentListType;
 
   @ApiPropertyOptional({
@@ -283,7 +281,6 @@ export class CreateI9Section2Dto {
     enum: I9DocumentListType,
   })
   @IsOptional()
-  @IsEnum(I9DocumentListType)
   documentListC?: I9DocumentListType;
 
   @ApiPropertyOptional({

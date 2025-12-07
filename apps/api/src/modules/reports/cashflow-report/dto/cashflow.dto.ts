@@ -79,20 +79,18 @@ export class GenerateCashFlowStatementDto {
   @ApiPropertyOptional({
     description: 'Period type for predefined date ranges',
     enum: PeriodType,
-    example: PeriodType.QUARTERLY,
+    example: 'QUARTERLY',
   })
-  @IsEnum(PeriodType)
   @IsOptional()
   periodType?: PeriodType;
 
   @ApiPropertyOptional({
     description: 'Cash flow method (Indirect is default and most common)',
     enum: CashFlowMethod,
-    default: CashFlowMethod.INDIRECT,
+    default: 'INDIRECT',
   })
-  @IsEnum(CashFlowMethod)
   @IsOptional()
-  method?: CashFlowMethod = CashFlowMethod.INDIRECT;
+  method?: CashFlowMethod = 'INDIRECT' as CashFlowMethod;
 
   @ApiPropertyOptional({
     description: 'Include comparison with previous period',
@@ -162,11 +160,10 @@ export class CashFlowProjectionDto {
   @ApiPropertyOptional({
     description: 'Projection method to use',
     enum: ProjectionMethod,
-    default: ProjectionMethod.WEIGHTED_AVERAGE,
+    default: 'WEIGHTED_AVERAGE',
   })
-  @IsEnum(ProjectionMethod)
   @IsOptional()
-  method?: ProjectionMethod = ProjectionMethod.WEIGHTED_AVERAGE;
+  method?: ProjectionMethod = 'WEIGHTED_AVERAGE' as ProjectionMethod;
 
   @ApiPropertyOptional({
     description: 'Number of historical months to analyze (3-24)',
@@ -417,7 +414,6 @@ export class CashFlowFiltersDto {
     enum: CashFlowCategory,
     isArray: true,
   })
-  @IsEnum(CashFlowCategory, { each: true })
   @IsArray()
   @IsOptional()
   categories?: CashFlowCategory[];

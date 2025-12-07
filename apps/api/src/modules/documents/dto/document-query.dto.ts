@@ -26,20 +26,18 @@ export class DocumentQueryDto {
   @ApiPropertyOptional({
     description: 'Filter by document type',
     enum: DocumentType,
-    example: DocumentType.REPORT,
+    example: 'REPORT',
   })
   @IsOptional()
-  @IsEnum(DocumentType)
   type?: DocumentType;
 
   @ApiPropertyOptional({
     description: 'Filter by document status',
     enum: DocumentStatus,
-    example: DocumentStatus.ACTIVE,
-    default: DocumentStatus.ACTIVE,
+    example: 'ACTIVE',
+    default: 'ACTIVE',
   })
   @IsOptional()
-  @IsEnum(DocumentStatus)
   status?: DocumentStatus;
 
   @ApiPropertyOptional({

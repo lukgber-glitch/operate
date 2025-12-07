@@ -5,7 +5,6 @@ import { PeppolEventType } from '../types/peppol.types';
  * Peppol Webhook DTO
  */
 export class PeppolWebhookDto {
-  @IsEnum(PeppolEventType)
   eventType: PeppolEventType;
 
   @IsString()

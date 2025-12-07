@@ -71,7 +71,6 @@ export class GenerateTaxSummaryDto {
 
   @ApiPropertyOptional({ enum: TaxReportCountry, default: TaxReportCountry.GERMANY })
   @IsOptional()
-  @IsEnum(TaxReportCountry)
   country?: TaxReportCountry;
 
   @ApiPropertyOptional({ description: 'Include detailed deductions breakdown' })
@@ -108,12 +107,10 @@ export class GenerateVatReportDto {
 
   @ApiProperty({ enum: TaxReportCountry })
   @IsNotEmpty()
-  @IsEnum(TaxReportCountry)
   country: TaxReportCountry;
 
   @ApiPropertyOptional({ enum: TaxReportPeriod, default: TaxReportPeriod.MONTHLY })
   @IsOptional()
-  @IsEnum(TaxReportPeriod)
   period?: TaxReportPeriod;
 
   @ApiPropertyOptional({ description: 'Include intra-EU transactions' })
@@ -137,7 +134,6 @@ export class GenerateIncomeTaxReportDto {
 
   @ApiProperty({ enum: TaxReportCountry })
   @IsNotEmpty()
-  @IsEnum(TaxReportCountry)
   country: TaxReportCountry;
 
   @ApiPropertyOptional({ description: 'Include quarterly estimates' })
@@ -161,7 +157,6 @@ export class TaxExportDto {
 
   @ApiProperty({ enum: TaxExportFormat })
   @IsNotEmpty()
-  @IsEnum(TaxExportFormat)
   format: TaxExportFormat;
 
   @ApiPropertyOptional({ description: 'Tax office number (Germany)' })

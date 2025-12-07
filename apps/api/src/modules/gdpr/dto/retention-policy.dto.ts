@@ -12,7 +12,6 @@ export class CreateRetentionPolicyDto {
   organisationId?: string;
 
   @ApiProperty({ enum: DataCategory, description: 'Category of data' })
-  @IsEnum(DataCategory)
   dataCategory: DataCategory;
 
   @ApiProperty({ description: 'Retention period in days', minimum: 1 })
@@ -21,7 +20,6 @@ export class CreateRetentionPolicyDto {
   retentionPeriod: number;
 
   @ApiProperty({ enum: LegalBasis, description: 'Legal basis for retention' })
-  @IsEnum(LegalBasis)
   legalBasis: LegalBasis;
 
   @ApiPropertyOptional({ description: 'Description of the policy' })
@@ -47,7 +45,6 @@ export class UpdateRetentionPolicyDto {
 
   @ApiPropertyOptional({ enum: LegalBasis, description: 'Legal basis for retention' })
   @IsOptional()
-  @IsEnum(LegalBasis)
   legalBasis?: LegalBasis;
 
   @ApiPropertyOptional({ description: 'Description of the policy' })
@@ -77,12 +74,10 @@ export class QueryRetentionPolicyDto {
 
   @ApiPropertyOptional({ enum: DataCategory, description: 'Filter by data category' })
   @IsOptional()
-  @IsEnum(DataCategory)
   dataCategory?: DataCategory;
 
   @ApiPropertyOptional({ enum: LegalBasis, description: 'Filter by legal basis' })
   @IsOptional()
-  @IsEnum(LegalBasis)
   legalBasis?: LegalBasis;
 
   @ApiPropertyOptional({ description: 'Filter by active status' })

@@ -8,7 +8,7 @@ export class ClassificationResultDto {
   @ApiProperty({
     description: 'Classified document type',
     enum: DocumentType,
-    example: DocumentType.INVOICE,
+    example: 'INVOICE',
   })
   type: DocumentType;
 

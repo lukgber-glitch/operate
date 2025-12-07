@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduledReportController } from './scheduled-report.controller';
 import { ScheduledReportService, SCHEDULED_REPORT_QUEUE } from './scheduled-report.service';
 import { ScheduledReportProcessor } from './scheduled-report.processor';
-import { DatabaseModule } from '../../../database/database.module';
+import { DatabaseModule } from '@/modules/database/database.module';
 import { ExportModule } from '../export/export.module';
 
 /**

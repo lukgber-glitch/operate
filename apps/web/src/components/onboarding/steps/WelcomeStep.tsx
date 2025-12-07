@@ -10,6 +10,8 @@ import { Building2, FileText, Mail, CreditCard, Settings, Sparkles } from 'lucid
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useGSAP } from '@gsap/react'
+import { gsap, staggerIn } from '@/lib/gsap'
 
 const FEATURES = [
   {
@@ -48,22 +50,77 @@ const FEATURES = [
 ]
 
 export function WelcomeStep() {
+  const logoRef = React.useRef<HTMLDivElement>(null)
+  const titleRef = React.useRef<HTMLHeadingElement>(null)
+  const subtitleRef = React.useRef<HTMLParagraphElement>(null)
+  const contentRef = React.useRef<HTMLDivElement>(null)
+  const featuresRef = React.useRef<HTMLDivElement>(null)
+
+  // Welcome animation sequence
+  useGSAP(() => {
+    const tl = gsap.timeline({ delay: 0.3 })
+
+    // Logo bounces in with rotation
+    tl.fromTo(
+      logoRef.current,
+      { scale: 0, rotation: -180, opacity: 0 },
+      { scale: 1, rotation: 0, opacity: 1, duration: 0.8, ease: 'back.out(1.7)' }
+    )
+      // Title fades up
+      .fromTo(
+        titleRef.current,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
+        '-=0.3'
+      )
+      // Subtitle fades up with delay
+      .fromTo(
+        subtitleRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' },
+        '-=0.2'
+      )
+      // Content fades in
+      .fromTo(
+        contentRef.current,
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' },
+        '-=0.1'
+      )
+
+    // Stagger feature cards
+    if (featuresRef.current) {
+      const featureCards = featuresRef.current.querySelectorAll('.feature-card')
+      staggerIn(featureCards, {
+        delay: 1.2,
+        stagger: 0.08,
+        duration: 0.4,
+      })
+    }
+  }, [])
+
   return (
     <div className="space-y-6">
       {/* Welcome Message */}
       <Card>
         <CardHeader className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+          <div
+            ref={logoRef}
+            className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center"
+            style={{ opacity: 0 }}
+          >
             <Sparkles className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-2xl">Welcome to Operate</CardTitle>
-            <CardDescription className="text-base mt-2">
+            <CardTitle ref={titleRef} className="text-2xl" style={{ opacity: 0 }}>
+              Welcome to Operate
+            </CardTitle>
+            <CardDescription ref={subtitleRef} className="text-base mt-2" style={{ opacity: 0 }}>
               Your all-in-one platform for business operations, tax automation, and HR management
             </CardDescription>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent ref={contentRef} className="space-y-6" style={{ opacity: 0 }}>
           {/* Overview */}
           <div className="prose dark:prose-invert max-w-none">
             <p className="text-sm text-muted-foreground text-center">
@@ -76,9 +133,9 @@ export function WelcomeStep() {
           {/* What to Expect */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-center">What to Expect</h3>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div ref={featuresRef} className="grid gap-4 md:grid-cols-2">
               {FEATURES.map((feature) => (
-                <Card key={feature.title} className="border-muted">
+                <Card key={feature.title} className="border-muted feature-card" style={{ opacity: 0 }}>
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <div className="mt-0.5 p-2 rounded-lg bg-primary/10">

@@ -48,9 +48,8 @@ export class UVASubmissionDto {
   @ApiProperty({
     description: 'Period type',
     enum: UVAPeriodType,
-    example: UVAPeriodType.QUARTERLY,
+    example: 'QUARTERLY',
   })
-  @IsEnum(UVAPeriodType)
   periodType!: UVAPeriodType;
 
   @ApiProperty({
@@ -307,9 +306,8 @@ export class UVAPreparationDto {
   @ApiProperty({
     description: 'Period type',
     enum: UVAPeriodType,
-    example: UVAPeriodType.QUARTERLY,
+    example: 'QUARTERLY',
   })
-  @IsEnum(UVAPeriodType)
   periodType!: UVAPeriodType;
 
   @ApiPropertyOptional({

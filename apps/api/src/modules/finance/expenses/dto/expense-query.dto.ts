@@ -39,19 +39,17 @@ export class ExpenseQueryDto {
   @ApiPropertyOptional({
     description: 'Filter by expense status',
     enum: ExpenseStatus,
-    example: ExpenseStatus.PENDING,
+    example: 'PENDING',
   })
   @IsOptional()
-  @IsEnum(ExpenseStatus)
   status?: ExpenseStatus;
 
   @ApiPropertyOptional({
     description: 'Filter by expense category',
     enum: ExpenseCategory,
-    example: ExpenseCategory.TRAVEL,
+    example: 'TRAVEL',
   })
   @IsOptional()
-  @IsEnum(ExpenseCategory)
   category?: ExpenseCategory;
 
   @ApiPropertyOptional({

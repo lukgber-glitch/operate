@@ -102,6 +102,46 @@ export const USAGE_FEATURE_CONFIGS: Record<UsageFeature, UsageFeatureConfig> = {
     defaultIncludedQuantity: 50,
     defaultPricePerUnit: 5, // $0.05 per report
   },
+  [UsageFeature.AI_MESSAGES]: {
+    feature: UsageFeature.AI_MESSAGES,
+    displayName: 'AI Chat Messages',
+    description: 'AI-powered chat messages per month',
+    unit: 'message',
+    defaultIncludedQuantity: 50,
+    defaultPricePerUnit: 2, // $0.02 per message
+  },
+  [UsageFeature.BANK_CONNECTIONS]: {
+    feature: UsageFeature.BANK_CONNECTIONS,
+    displayName: 'Bank Connections',
+    description: 'Connected bank accounts (current count)',
+    unit: 'connection',
+    defaultIncludedQuantity: 1,
+    defaultPricePerUnit: 0, // Not charged per-unit, tier-based
+  },
+  [UsageFeature.INVOICES]: {
+    feature: UsageFeature.INVOICES,
+    displayName: 'Invoices',
+    description: 'Invoices created per month',
+    unit: 'invoice',
+    defaultIncludedQuantity: 5,
+    defaultPricePerUnit: 10, // $0.10 per invoice over limit
+  },
+  [UsageFeature.EMAIL_SYNCS]: {
+    feature: UsageFeature.EMAIL_SYNCS,
+    displayName: 'Email Syncs',
+    description: 'Email inbox synchronizations per month',
+    unit: 'sync',
+    defaultIncludedQuantity: 10,
+    defaultPricePerUnit: 5, // $0.05 per sync
+  },
+  [UsageFeature.TAX_FILINGS]: {
+    feature: UsageFeature.TAX_FILINGS,
+    displayName: 'Tax Filings',
+    description: 'Tax filings submitted per month',
+    unit: 'filing',
+    defaultIncludedQuantity: 1,
+    defaultPricePerUnit: 50, // $0.50 per filing
+  },
 };
 
 /**

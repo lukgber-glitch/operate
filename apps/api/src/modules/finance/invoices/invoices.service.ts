@@ -8,11 +8,12 @@ import { InvoicesRepository } from './invoices.repository';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
 import { InvoiceQueryDto } from './dto/invoice-query.dto';
-import { Prisma, InvoiceStatus } from '@prisma/client';
+import { Prisma, InvoiceStatus, AuditEntityType } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import { MultiCurrencyService } from '../../currency/multi-currency.service';
 import { InvoiceCurrencyHelper } from './helpers/invoice-currency.helper';
 import { PrismaService } from '../../database/prisma.service';
+import { FinancialAuditService } from '../../audit/financial-audit.service';
 
 /**
  * Invoices Service
@@ -27,6 +28,7 @@ export class InvoicesService {
     private multiCurrencyService: MultiCurrencyService,
     private currencyHelper: InvoiceCurrencyHelper,
     private prisma: PrismaService,
+    private auditService: FinancialAuditService,
   ) {}
 
   /**
@@ -117,7 +119,7 @@ export class InvoicesService {
   /**
    * Find invoice by ID
    */
-  async findById(id: string) {
+  async findById(id: string, userId?: string) {
     const invoice = await this.repository.findById(id, {
       items: {
         orderBy: { sortOrder: 'asc' },
@@ -128,13 +130,21 @@ export class InvoicesService {
       throw new NotFoundException(`Invoice with ID ${id} not found`);
     }
 
+    // Audit log: READ access
+    await this.auditService.logAccess({
+      userId,
+      organisationId: invoice.orgId,
+      entityType: AuditEntityType.INVOICE,
+      entityId: id,
+    });
+
     return invoice;
   }
 
   /**
    * Create new invoice with multi-currency support
    */
-  async create(orgId: string, dto: CreateInvoiceDto) {
+  async create(orgId: string, dto: CreateInvoiceDto, userId?: string) {
     // Validate that items array is not empty
     if (!dto.items || dto.items.length === 0) {
       throw new BadRequestException('Invoice must have at least one item');
@@ -248,13 +258,22 @@ export class InvoicesService {
       `Created invoice ${invoice.number} for organisation ${orgId}`,
     );
 
+    // Audit log: CREATE
+    await this.auditService.logCreate({
+      userId,
+      organisationId: orgId,
+      entityType: AuditEntityType.INVOICE,
+      entityId: invoice.id,
+      newState: invoice,
+    });
+
     return invoice;
   }
 
   /**
    * Update invoice (only DRAFT invoices)
    */
-  async update(id: string, dto: UpdateInvoiceDto) {
+  async update(id: string, dto: UpdateInvoiceDto, userId?: string) {
     const existing = await this.repository.findById(id);
 
     if (!existing) {
@@ -334,6 +353,17 @@ export class InvoicesService {
     );
 
     this.logger.log(`Updated invoice ${id}`);
+
+    // Audit log: UPDATE
+    await this.auditService.logUpdate({
+      userId,
+      organisationId: existing.orgId,
+      entityType: AuditEntityType.INVOICE,
+      entityId: id,
+      previousState: existing,
+      newState: invoice,
+      changes: updateData,
+    });
 
     return invoice;
   }
@@ -418,7 +448,7 @@ export class InvoicesService {
   /**
    * Delete invoice (only DRAFT invoices)
    */
-  async delete(id: string): Promise<void> {
+  async delete(id: string, userId?: string): Promise<void> {
     const existing = await this.repository.findById(id);
 
     if (!existing) {
@@ -434,6 +464,15 @@ export class InvoicesService {
     await this.repository.delete(id);
 
     this.logger.log(`Deleted invoice ${id}`);
+
+    // Audit log: DELETE
+    await this.auditService.logDelete({
+      userId,
+      organisationId: existing.orgId,
+      entityType: AuditEntityType.INVOICE,
+      entityId: id,
+      previousState: existing,
+    });
   }
 
   /**

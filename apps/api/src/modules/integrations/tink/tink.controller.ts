@@ -9,6 +9,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Request,
 } from '@nestjs/common';
 import { TinkService } from './tink.service';
 import {
@@ -16,12 +17,15 @@ import {
   CompleteAuthorizationDto,
   GetTransactionsDto,
 } from './dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { Public } from '../../../common/decorators/public.decorator';
 
 /**
- * Example Tink Controller
- * Add authentication guards and organization/user context as needed
+ * Tink Controller
+ * Handles Tink banking integration with proper authentication and tenant isolation
  */
 @Controller('integrations/tink')
+@UseGuards(JwtAuthGuard)
 export class TinkController {
   constructor(private readonly tinkService: TinkService) {}
 
@@ -30,12 +34,16 @@ export class TinkController {
    * GET /integrations/tink/authorize
    */
   @Get('authorize')
-  async startAuthorization(@Query() dto: StartAuthorizationDto) {
+  async startAuthorization(
+    @Request() req,
+    @Query('market') market?: string,
+    @Query('locale') locale?: string,
+  ) {
     const { authorizationUrl, state } = await this.tinkService.startAuthorization(
-      dto.organizationId,
-      dto.userId,
-      dto.market || 'DE',
-      dto.locale || 'en_US',
+      req.orgId, // Use TenantGuard-validated orgId
+      req.user.userId,
+      market || 'DE',
+      locale || 'en_US',
     );
 
     return {
@@ -48,9 +56,12 @@ export class TinkController {
   /**
    * Handle OAuth2 callback (complete authorization)
    * GET /integrations/tink/callback?code=...&state=...
+   * This endpoint is public as it receives callbacks from Tink
    */
+  @Public()
   @Get('callback')
   async completeAuthorization(@Query() dto: CompleteAuthorizationDto) {
+    // State parameter is validated by TinkService to prevent CSRF
     const token = await this.tinkService.completeAuthorization(
       dto.code,
       dto.state,
@@ -68,11 +79,11 @@ export class TinkController {
    * GET /integrations/tink/accounts
    */
   @Get('accounts')
-  async getAccounts(
-    @Query('organizationId') organizationId: string,
-    @Query('userId') userId: string,
-  ) {
-    const accounts = await this.tinkService.getAccounts(organizationId, userId);
+  async getAccounts(@Request() req) {
+    const accounts = await this.tinkService.getAccounts(
+      req.orgId, // Use TenantGuard-validated orgId
+      req.user.userId,
+    );
 
     return {
       accounts,
@@ -85,19 +96,24 @@ export class TinkController {
    * GET /integrations/tink/transactions
    */
   @Get('transactions')
-  async getTransactions(@Query() dto: GetTransactionsDto) {
+  async getTransactions(
+    @Request() req,
+    @Query('accountId') accountId: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
     const transactions = await this.tinkService.getTransactions(
-      dto.organizationId,
-      dto.userId,
-      dto.accountId,
-      dto.startDate ? new Date(dto.startDate) : undefined,
-      dto.endDate ? new Date(dto.endDate) : undefined,
+      req.orgId, // Use TenantGuard-validated orgId
+      req.user.userId,
+      accountId,
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
     );
 
     return {
       transactions,
       count: transactions.length,
-      accountId: dto.accountId,
+      accountId,
     };
   }
 
@@ -107,11 +123,11 @@ export class TinkController {
    */
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refreshToken(
-    @Body('organizationId') organizationId: string,
-    @Body('userId') userId: string,
-  ) {
-    const token = await this.tinkService.refreshToken(organizationId, userId);
+  async refreshToken(@Request() req) {
+    const token = await this.tinkService.refreshToken(
+      req.orgId, // Use TenantGuard-validated orgId
+      req.user.userId,
+    );
 
     return {
       success: true,
@@ -125,16 +141,17 @@ export class TinkController {
    */
   @Delete('credentials')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteCredentials(
-    @Query('organizationId') organizationId: string,
-    @Query('userId') userId: string,
-  ) {
-    await this.tinkService.deleteCredentials(organizationId, userId);
+  async deleteCredentials(@Request() req) {
+    await this.tinkService.deleteCredentials(
+      req.orgId, // Use TenantGuard-validated orgId
+      req.user.userId,
+    );
   }
 
   /**
    * Get available bank providers
    * GET /integrations/tink/providers
+   * This endpoint doesn't require organization context
    */
   @Get('providers')
   async getProviders(@Query('market') market: string = 'DE') {

@@ -24,11 +24,10 @@ export class VoidTransactionDto {
   transactionCode: string;
 
   @ApiProperty({
-    example: VoidReasonCode.DOC_VOIDED,
+    example: 'DOC_VOIDED',
     enum: VoidReasonCode,
     description: 'Reason for voiding the transaction',
   })
-  @IsEnum(VoidReasonCode)
   code: VoidReasonCode;
 
   @ApiPropertyOptional({

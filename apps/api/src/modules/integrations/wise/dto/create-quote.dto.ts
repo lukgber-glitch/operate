@@ -44,9 +44,8 @@ export class CreateQuoteDto {
   @ApiPropertyOptional({
     description: 'Quote type',
     enum: WiseQuoteType,
-    default: WiseQuoteType.REGULAR,
+    default: 'REGULAR',
   })
   @IsOptional()
-  @IsEnum(WiseQuoteType)
   type?: WiseQuoteType;
 }

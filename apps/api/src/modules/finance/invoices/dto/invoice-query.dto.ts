@@ -39,19 +39,17 @@ export class InvoiceQueryDto {
   @ApiPropertyOptional({
     description: 'Filter by invoice status',
     enum: InvoiceStatus,
-    example: InvoiceStatus.SENT,
+    example: 'SENT',
   })
   @IsOptional()
-  @IsEnum(InvoiceStatus)
   status?: InvoiceStatus;
 
   @ApiPropertyOptional({
     description: 'Filter by invoice type',
     enum: InvoiceType,
-    example: InvoiceType.STANDARD,
+    example: 'STANDARD',
   })
   @IsOptional()
-  @IsEnum(InvoiceType)
   type?: InvoiceType;
 
   @ApiPropertyOptional({

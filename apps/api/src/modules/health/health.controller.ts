@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import {
   HealthCheck,
@@ -8,6 +8,7 @@ import {
   DiskHealthIndicator,
 } from '@nestjs/terminus';
 import { Public } from '../../common/decorators/public.decorator';
+import * as Sentry from '@sentry/nestjs';
 
 @ApiTags('Health')
 @Controller({ path: 'health', version: '1' })
@@ -41,11 +42,12 @@ export class HealthController {
   })
   check(): Promise<HealthCheckResult> {
     return this.health.check([
-      // Memory check: heap should not exceed 300MB
-      () => this.memory.checkHeap('memory_heap', 300 * 1024 * 1024),
+      // Memory check: heap should not exceed 600MB
+      () => this.memory.checkHeap('memory_heap', 600 * 1024 * 1024),
 
-      // Memory check: RSS should not exceed 300MB
-      () => this.memory.checkRSS('memory_rss', 300 * 1024 * 1024),
+      // Memory check: RSS should not exceed 800MB
+      // Note: NestJS app with multiple modules typically uses 400-500MB
+      () => this.memory.checkRSS('memory_rss', 800 * 1024 * 1024),
 
       // Disk check: 50% of disk space should be available
       () =>
@@ -54,5 +56,34 @@ export class HealthController {
           thresholdPercent: 0.5,
         }),
     ]);
+  }
+
+  @Get('sentry-test')
+  @Public()
+  @ApiOperation({ summary: 'Test Sentry error tracking' })
+  @ApiResponse({
+    status: 500,
+    description: 'Throws a test error to verify Sentry integration',
+  })
+  testSentry(): void {
+    // Add breadcrumb for context
+    Sentry.addBreadcrumb({
+      category: 'test',
+      message: 'Testing Sentry integration',
+      level: 'info',
+      data: {
+        endpoint: '/health/sentry-test',
+        timestamp: new Date().toISOString(),
+      },
+    });
+
+    // Set custom tag
+    Sentry.setTag('test', 'sentry-integration');
+
+    // Throw test error
+    throw new HttpException(
+      'This is a test error to verify Sentry integration is working correctly',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
 }

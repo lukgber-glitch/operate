@@ -94,9 +94,8 @@ export class CreateRecurringInvoiceDto {
   @ApiProperty({
     description: 'Recurrence frequency',
     enum: RecurringFrequency,
-    example: RecurringFrequency.MONTHLY,
+    example: 'MONTHLY',
   })
-  @IsEnum(RecurringFrequency)
   frequency: RecurringFrequency;
 
   @ApiPropertyOptional({
@@ -223,7 +222,6 @@ export class RecurringInvoiceFiltersDto {
     enum: RecurringFrequency,
   })
   @IsOptional()
-  @IsEnum(RecurringFrequency)
   frequency?: RecurringFrequency;
 
   @ApiPropertyOptional({

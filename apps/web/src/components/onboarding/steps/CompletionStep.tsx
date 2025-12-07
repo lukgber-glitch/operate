@@ -19,6 +19,8 @@ import {
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useGSAP } from '@gsap/react'
+import { gsap, staggerIn } from '@/lib/gsap'
 
 const NEXT_STEPS = [
   {
@@ -85,6 +87,84 @@ interface CompletionStepProps {
 export function CompletionStep({ companyName, setupCompleted }: CompletionStepProps) {
   const router = useRouter()
   const [isNavigating, setIsNavigating] = React.useState(false)
+  const checkmarkRef = React.useRef<HTMLDivElement>(null)
+  const titleRef = React.useRef<HTMLHeadingElement>(null)
+  const descriptionRef = React.useRef<HTMLParagraphElement>(null)
+  const badgeRef = React.useRef<HTMLDivElement>(null)
+  const nextStepsRef = React.useRef<HTMLDivElement>(null)
+  const ctaButtonRef = React.useRef<HTMLButtonElement>(null)
+
+  // Celebration animation sequence
+  useGSAP(() => {
+    const tl = gsap.timeline({ delay: 0.2 })
+
+    // Checkmark bounces in with rotation
+    tl.fromTo(
+      checkmarkRef.current,
+      { scale: 0, rotation: -180, opacity: 0 },
+      { scale: 1, rotation: 0, opacity: 1, duration: 0.8, ease: 'back.out(2)' }
+    )
+      // Add a little bounce
+      .to(checkmarkRef.current, {
+        scale: 1.1,
+        duration: 0.15,
+        ease: 'power2.out',
+      })
+      .to(checkmarkRef.current, {
+        scale: 1,
+        duration: 0.15,
+        ease: 'power2.in',
+      })
+      // Title fades up
+      .fromTo(
+        titleRef.current,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
+        '-=0.2'
+      )
+      // Description fades up
+      .fromTo(
+        descriptionRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' },
+        '-=0.2'
+      )
+      // Badge pops in
+      .fromTo(
+        badgeRef.current,
+        { opacity: 0, scale: 0.8 },
+        { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.7)' },
+        '-=0.1'
+      )
+
+    // Stagger next steps cards
+    if (nextStepsRef.current) {
+      const cards = nextStepsRef.current.querySelectorAll('.next-step-card')
+      staggerIn(cards, {
+        delay: 1.2,
+        stagger: 0.08,
+        duration: 0.4,
+      })
+    }
+
+    // CTA button pulses in at the end
+    if (ctaButtonRef.current) {
+      tl.fromTo(
+        ctaButtonRef.current,
+        { opacity: 0, scale: 0.9 },
+        { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.7)' },
+        '-=0.2'
+      )
+        // Add subtle pulse animation
+        .to(ctaButtonRef.current, {
+          scale: 1.05,
+          duration: 0.6,
+          ease: 'power1.inOut',
+          yoyo: true,
+          repeat: -1,
+        })
+    }
+  }, [])
 
   const handleGoToDashboard = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -129,14 +209,26 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       {/* Success Message */}
       <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
         <CardHeader className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+          <div
+            ref={checkmarkRef}
+            className="mx-auto w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center"
+            style={{ opacity: 0 }}
+          >
             <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-500" />
           </div>
           <div>
-            <CardTitle className="text-2xl text-green-900 dark:text-green-100">
+            <CardTitle
+              ref={titleRef}
+              className="text-2xl text-green-900 dark:text-green-100"
+              style={{ opacity: 0 }}
+            >
               Setup Complete!
             </CardTitle>
-            <CardDescription className="text-base mt-2 text-green-700 dark:text-green-300">
+            <CardDescription
+              ref={descriptionRef}
+              className="text-base mt-2 text-green-700 dark:text-green-300"
+              style={{ opacity: 0 }}
+            >
               {companyName
                 ? `Welcome aboard, ${companyName}! Your account is ready to use.`
                 : 'Your account is ready to use.'}
@@ -144,7 +236,11 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
           </div>
         </CardHeader>
         <CardContent className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-900 text-sm">
+          <div
+            ref={badgeRef}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-900 text-sm"
+            style={{ opacity: 0 }}
+          >
             <CheckCircle2 className="w-4 h-4 text-green-600" />
             <span>
               <strong>{completedIntegrations}</strong> integration
@@ -161,11 +257,12 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       {/* Quick Actions */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-center">What Would You Like to Do First?</h3>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div ref={nextStepsRef} className="grid gap-4 md:grid-cols-2">
           {NEXT_STEPS.map((step) => (
             <Card
               key={step.title}
-              className="border-muted hover:border-primary/50 transition-all cursor-pointer group"
+              className="next-step-card border-muted hover:border-primary/50 transition-all cursor-pointer group"
+              style={{ opacity: 0 }}
               onClick={(e) => handleNavigate(e, step.href)}
             >
               <CardContent className="p-4">
@@ -251,7 +348,15 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
 
       {/* Primary CTA */}
       <div className="flex justify-center pt-4">
-        <Button type="button" size="lg" onClick={handleGoToDashboard} disabled={isNavigating} className="w-full md:w-auto">
+        <Button
+          ref={ctaButtonRef}
+          type="button"
+          size="lg"
+          onClick={handleGoToDashboard}
+          disabled={isNavigating}
+          className="w-full md:w-auto"
+          style={{ opacity: 0 }}
+        >
           <LayoutDashboard className="w-4 h-4 mr-2" />
           {isNavigating ? 'Loading...' : 'Go to Dashboard'}
         </Button>

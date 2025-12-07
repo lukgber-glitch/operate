@@ -58,9 +58,8 @@ export class EmployeeJobDto {
   @IsString()
   rate?: string;
 
-  @ApiProperty({ required: false, enum: PaymentUnit, example: PaymentUnit.Year })
+  @ApiProperty({ required: false, enum: PaymentUnit, example: 'Year' })
   @IsOptional()
-  @IsEnum(PaymentUnit)
   payment_unit?: PaymentUnit;
 }
 

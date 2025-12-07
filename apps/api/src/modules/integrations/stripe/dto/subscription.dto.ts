@@ -106,7 +106,6 @@ export class CreateSubscriptionDto {
 
   @ApiPropertyOptional({ description: 'Proration behavior', enum: ProrationBehavior, default: ProrationBehavior.CREATE_PRORATIONS })
   @IsOptional()
-  @IsEnum(ProrationBehavior)
   prorationBehavior?: ProrationBehavior;
 
   @ApiPropertyOptional({ description: 'Additional metadata' })
@@ -147,7 +146,6 @@ export class UpdateSubscriptionDto {
 
   @ApiPropertyOptional({ description: 'Proration behavior', enum: ProrationBehavior, default: ProrationBehavior.CREATE_PRORATIONS })
   @IsOptional()
-  @IsEnum(ProrationBehavior)
   prorationBehavior?: ProrationBehavior;
 
   @ApiPropertyOptional({ description: 'Cancel at period end' })
@@ -317,7 +315,6 @@ export class CreateProductDto {
 
   @ApiPropertyOptional({ description: 'Subscription tier', enum: SubscriptionTier })
   @IsOptional()
-  @IsEnum(SubscriptionTier)
   tier?: SubscriptionTier;
 
   @ApiPropertyOptional({ description: 'Additional metadata' })
@@ -350,7 +347,6 @@ export class CreatePriceDto {
   currency: string;
 
   @ApiProperty({ description: 'Billing interval', enum: BillingInterval })
-  @IsEnum(BillingInterval)
   interval: BillingInterval;
 
   @ApiPropertyOptional({ description: 'Interval count (e.g., 3 for quarterly)', default: 1 })

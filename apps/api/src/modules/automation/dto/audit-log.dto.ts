@@ -139,7 +139,7 @@ export class AuditLogResponseDto {
   @ApiProperty({
     description: 'Automation mode at time of action',
     enum: AutomationMode,
-    example: AutomationMode.AUTO_APPROVE,
+    example: 'AUTO_APPROVE',
   })
   mode: AutomationMode;
 

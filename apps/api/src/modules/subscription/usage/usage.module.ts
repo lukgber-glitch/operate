@@ -3,6 +3,7 @@ import { BullModule } from '@nestjs/bull';
 import { UsageController } from './usage.controller';
 import { UsageMeteringService } from './services/usage-metering.service';
 import { UsageStripeService } from './services/usage-stripe.service';
+import { UsageLimitService } from './services/usage-limit.service';
 import { UsageTrackingInterceptor } from './interceptors/usage-tracking.interceptor';
 import {
   UsageAggregationProcessor,
@@ -82,6 +83,7 @@ import { StripeModule } from '../../integrations/stripe/stripe.module';
   providers: [
     UsageMeteringService,
     UsageStripeService,
+    UsageLimitService,
     UsageTrackingInterceptor,
     UsageAggregationProcessor,
     UsageStripeReportProcessor,
@@ -89,6 +91,7 @@ import { StripeModule } from '../../integrations/stripe/stripe.module';
   exports: [
     UsageMeteringService,
     UsageStripeService,
+    UsageLimitService,
     UsageTrackingInterceptor,
   ],
 })

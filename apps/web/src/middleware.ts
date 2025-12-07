@@ -9,7 +9,7 @@ const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
   localePrefix: 'as-needed',
-  localeDetection: true,
+  localeDetection: false, // Disabled to default to English
 })
 
 // Paths that should NOT be processed by i18n middleware
@@ -139,8 +139,6 @@ export default async function middleware(request: NextRequest) {
   // OAuth Callback Handler - Process tokens server-side
   // ============================================
   if (pathname === '/auth/callback') {
-    const accessToken = searchParams.get('accessToken')
-    const refreshToken = searchParams.get('refreshToken')
     const error = searchParams.get('error')
 
     // Handle OAuth error
@@ -148,24 +146,35 @@ export default async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(`/auth/error?error=${error}`, request.url))
     }
 
-    // Handle successful OAuth - set cookies and redirect
+    // SECURITY FIX: Tokens are now set as httpOnly cookies by the backend
+    // Check if auth cookie exists (set by backend OAuth controller)
+    const authCookie = request.cookies.get('op_auth')
+
+    if (authCookie?.value) {
+      // Cookie already set by backend - just redirect to dashboard
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+
+    // Fallback for legacy URL-based tokens (backwards compatibility)
+    // This should be removed after all users have migrated
+    const accessToken = searchParams.get('accessToken')
+    const refreshToken = searchParams.get('refreshToken')
+
     if (accessToken) {
       const response = NextResponse.redirect(new URL('/dashboard', request.url))
 
-      // WAF/proxy only allows ONE Set-Cookie header to pass through
-      // Combine both tokens into a single JSON cookie
+      // Set cookie from URL params (legacy path)
       const authData = JSON.stringify({
-        a: accessToken, // access token
-        r: refreshToken || '', // refresh token
+        a: accessToken,
+        r: refreshToken || '',
       })
 
-      // Set combined auth cookie (using refresh token's longer expiry)
       response.cookies.set('op_auth', authData, {
         path: '/',
         maxAge: 604800, // 7 days
         sameSite: 'lax',
         secure: process.env.NODE_ENV === 'production',
-        httpOnly: false,
+        httpOnly: false, // Cannot be httpOnly on frontend
       })
 
       return response

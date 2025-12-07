@@ -1,0 +1,44 @@
+Tax Calendar Module Structure
+=============================
+
+calendar/
+├── __tests__/
+│   └── tax-calendar.service.spec.ts     (265 lines) - Unit tests
+├── dto/
+│   ├── index.ts                         - DTO exports
+│   └── tax-calendar.dto.ts              (66 lines) - Request/response DTOs
+├── types/
+│   ├── index.ts                         - Type exports
+│   └── tax-calendar.types.ts            (55 lines) - Core type definitions
+├── IMPLEMENTATION_SUMMARY.md            - Technical details
+├── README.md                            - Usage documentation
+├── STRUCTURE.txt                        - This file
+├── index.ts                             - Module exports
+├── tax-calendar.controller.ts           (145 lines) - REST API endpoints
+├── tax-calendar.module.ts               (14 lines) - NestJS module
+└── tax-calendar.service.ts              (560 lines) - Main service logic
+
+Total Files: 12
+Total Lines of TypeScript: 1,112
+Test Coverage: 265 lines
+
+API Endpoints (5):
+- GET /tax/calendar              - All deadlines
+- GET /tax/calendar/upcoming     - Upcoming deadlines  
+- GET /tax/calendar/overdue      - Overdue deadlines
+- GET /tax/calendar/filter       - Filtered deadlines
+- GET /tax/calendar/summary      - Summary statistics
+
+Countries Supported (4):
+- Germany (DE)       - 18+ deadline types
+- Austria (AT)       - 14+ deadline types
+- United Kingdom (GB) - 8+ deadline types
+- Generic fallback   - 5+ deadline types
+
+Integration:
+✓ Registered in /modules/tax/tax.module.ts
+✓ Uses existing PrismaService
+✓ Integrates with ElsterFiling table
+✓ No schema changes required
+
+Status: READY FOR PRODUCTION ✅

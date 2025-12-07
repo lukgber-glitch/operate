@@ -17,7 +17,6 @@ export class WiseWebhookDto {
     description: 'Event type',
     enum: WiseWebhookEvent,
   })
-  @IsEnum(WiseWebhookEvent)
   eventType: WiseWebhookEvent;
 
   @ApiProperty({

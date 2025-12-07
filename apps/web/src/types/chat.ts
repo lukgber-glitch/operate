@@ -31,6 +31,9 @@ export interface MessageMetadata {
   accountId?: string;
   count?: number;
   invoiceId?: string;
+  // Action metadata
+  action?: ActionIntent;
+  actionResult?: ActionResult;
 }
 
 export interface Attachment {
@@ -75,4 +78,42 @@ export interface ChatInputState {
   value: string;
   attachments: Attachment[];
   isComposing: boolean;
+}
+
+/**
+ * Action-related types
+ */
+export enum ActionType {
+  CREATE_INVOICE = 'create_invoice',
+  SEND_REMINDER = 'send_reminder',
+  GENERATE_REPORT = 'generate_report',
+  CREATE_EXPENSE = 'create_expense',
+  SEND_EMAIL = 'send_email',
+  EXPORT_DATA = 'export_data',
+  UPDATE_STATUS = 'update_status',
+  SCHEDULE_TASK = 'schedule_task',
+}
+
+export interface ActionIntent {
+  type: ActionType;
+  parameters: Record<string, any>;
+  confirmationRequired: boolean;
+  description: string;
+}
+
+export interface ActionResult {
+  success: boolean;
+  message: string;
+  entityId?: string;
+  entityType?: string;
+  data?: any;
+  error?: string;
+}
+
+export interface PendingAction {
+  id: string;
+  action: ActionIntent;
+  createdAt: Date;
+  expiresAt: Date;
+  status: 'pending' | 'expired';
 }

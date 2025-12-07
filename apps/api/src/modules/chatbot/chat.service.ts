@@ -9,11 +9,13 @@ import { ClaudeService, ChatMessage } from './claude.service';
 import { buildSystemPrompt } from './prompts/system-prompt';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { SendMessageDto } from './dto/send-message.dto';
-import { Conversation, Message, Prisma } from '@prisma/client';
+import { Conversation, Message, Prisma, UsageFeature } from '@prisma/client';
 import { ActionExecutorService } from './actions/action-executor.service';
 import { ActionContext } from './actions/action.types';
 import { ContextService } from './context/context.service';
 import { ContextParams } from './context/context.types';
+import { ChatScenarioExtension } from './chat-scenario.extension';
+import { UsageMeteringService } from '../subscription/usage/services/usage-metering.service';
 
 export interface PaginationOptions {
   limit?: number;
@@ -29,6 +31,8 @@ export class ChatService {
     private claudeService: ClaudeService,
     private actionExecutor: ActionExecutorService,
     private contextService: ContextService,
+    private scenarioExtension: ChatScenarioExtension,
+    private usageMeteringService: UsageMeteringService,
   ) {}
 
   /**
@@ -61,6 +65,7 @@ export class ChatService {
 
   /**
    * Send a message and get AI response
+   * Tracks AI_MESSAGES usage automatically
    */
   async sendMessage(
     conversationId: string,
@@ -73,6 +78,50 @@ export class ChatService {
 
     // Sanitize input
     const sanitizedContent = this.claudeService.sanitizeInput(dto.content);
+
+    // Check if this is a scenario planning query
+    if (this.scenarioExtension.isScenarioQuery(sanitizedContent)) {
+      this.logger.log('Detected scenario planning query, processing...');
+
+      // Create user message
+      const userMessage = await this.prisma.message.create({
+        data: {
+          conversationId,
+          role: 'USER',
+          type: 'TEXT',
+          content: sanitizedContent,
+        },
+      });
+
+      // Process scenario query
+      const scenarioResponse = await this.scenarioExtension.processScenarioQuery(
+        sanitizedContent,
+        orgId,
+      );
+
+      // Create assistant message with scenario result
+      const assistantMessage = await this.prisma.message.create({
+        data: {
+          conversationId,
+          role: 'ASSISTANT',
+          type: 'TEXT',
+          content: scenarioResponse.text,
+          metadata: scenarioResponse.data as any,
+        },
+      });
+
+      // Update conversation
+      await this.prisma.conversation.update({
+        where: { id: conversationId },
+        data: {
+          messageCount: { increment: 2 },
+          lastMessageAt: new Date(),
+          title: conversation.title || this.generateTitle(sanitizedContent),
+        },
+      });
+
+      return { userMessage, assistantMessage };
+    }
 
     // Create user message
     const userMessage = await this.prisma.message.create({
@@ -225,6 +274,11 @@ export class ChatService {
       });
 
       this.logger.log(`AI response generated for conversation ${conversationId}`);
+
+      // Track AI message usage (background, don't await)
+      this.trackAiMessageUsage(orgId, userId).catch((err) =>
+        this.logger.warn('Failed to track AI message usage:', err),
+      );
 
       return { userMessage, assistantMessage };
     } catch (error) {
@@ -415,6 +469,29 @@ export class ChatService {
   }
 
   /**
+   * Track AI message usage
+   */
+  private async trackAiMessageUsage(
+    orgId: string,
+    userId: string,
+  ): Promise<void> {
+    try {
+      await this.usageMeteringService.trackUsage({
+        organizationId: orgId,
+        feature: UsageFeature.AI_MESSAGES,
+        quantity: 1,
+        userId,
+        metadata: {
+          source: 'chat',
+        },
+      });
+    } catch (error) {
+      this.logger.error('Failed to track AI message usage', error);
+      // Don't throw - usage tracking failures shouldn't break chat
+    }
+  }
+
+  /**
    * Get user permissions for action execution
    */
   private async getUserPermissions(userId: string): Promise<string[]> {
@@ -436,6 +513,9 @@ export class ChatService {
         'invoices:send',
         'expenses:create',
         'expenses:update',
+        'bills:create',
+        'bills:update',
+        'bills:view',
         'reports:generate',
       ],
       ACCOUNTANT: [
@@ -444,10 +524,13 @@ export class ChatService {
         'invoices:send',
         'expenses:create',
         'expenses:update',
+        'bills:create',
+        'bills:update',
+        'bills:view',
         'reports:generate',
       ],
-      EMPLOYEE: ['expenses:create', 'reports:generate'],
-      VIEWER: ['reports:generate'],
+      EMPLOYEE: ['expenses:create', 'bills:view', 'reports:generate'],
+      VIEWER: ['bills:view', 'reports:generate'],
     };
 
     return rolePermissions[user.role] || [];

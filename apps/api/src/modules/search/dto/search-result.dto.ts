@@ -9,7 +9,7 @@ export class SearchResultDto implements SearchResult {
   @ApiProperty({
     description: 'Type of entity',
     enum: SearchableEntityType,
-    example: SearchableEntityType.INVOICE,
+    example: 'INVOICE',
   })
   entityType: SearchableEntityType;
 

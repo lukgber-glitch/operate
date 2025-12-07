@@ -6,6 +6,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClaudeClient } from '@operate/ai';
+import { PiiMaskingService, MaskingLevel } from '../../common/services/pii-masking.service';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -29,7 +30,10 @@ export class ClaudeService {
   private readonly maxTokens: number;
   private readonly temperature: number;
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private piiMaskingService: PiiMaskingService,
+  ) {
     const apiKey = this.configService.get<string>('ANTHROPIC_API_KEY');
 
     if (!apiKey) {
@@ -57,10 +61,32 @@ export class ClaudeService {
     try {
       this.logger.debug(`Sending ${messages.length} messages to Claude`);
 
-      const claudeMessages = messages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-      }));
+      // Mask PII in user messages before sending to Claude
+      const claudeMessages = messages.map(msg => {
+        if (msg.role === 'user') {
+          const maskResult = this.piiMaskingService.maskPII(msg.content, {
+            level: MaskingLevel.MODERATE,
+            preserveFormat: true,
+          });
+
+          // Log masked fields for audit
+          if (maskResult.maskedCount > 0) {
+            this.logger.warn(
+              `Masked ${maskResult.maskedCount} PII fields before sending to Claude API: ${maskResult.maskedFields.map(f => f.type).join(', ')}`,
+            );
+          }
+
+          return {
+            role: msg.role,
+            content: maskResult.maskedText,
+          };
+        }
+
+        return {
+          role: msg.role,
+          content: msg.content,
+        };
+      });
 
       const response = await this.client.sendMessage(claudeMessages, {
         system: systemPrompt,

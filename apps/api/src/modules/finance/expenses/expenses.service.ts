@@ -8,8 +8,9 @@ import { ExpensesRepository } from './expenses.repository';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { ExpenseQueryDto } from './dto/expense-query.dto';
-import { Prisma, ExpenseStatus } from '@prisma/client';
+import { Prisma, ExpenseStatus, AuditEntityType } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
+import { FinancialAuditService } from '../../audit/financial-audit.service';
 
 /**
  * Expenses Service
@@ -19,7 +20,10 @@ import { Decimal } from '@prisma/client/runtime/library';
 export class ExpensesService {
   private readonly logger = new Logger(ExpensesService.name);
 
-  constructor(private repository: ExpensesRepository) {}
+  constructor(
+    private repository: ExpensesRepository,
+    private auditService: FinancialAuditService,
+  ) {}
 
   /**
    * Find all expenses with pagination and filters
@@ -111,12 +115,20 @@ export class ExpensesService {
   /**
    * Find expense by ID
    */
-  async findById(id: string) {
+  async findById(id: string, userId?: string) {
     const expense = await this.repository.findById(id);
 
     if (!expense) {
       throw new NotFoundException(`Expense with ID ${id} not found`);
     }
+
+    // Audit log: READ access
+    await this.auditService.logAccess({
+      userId,
+      organisationId: expense.orgId,
+      entityType: AuditEntityType.EXPENSE,
+      entityId: id,
+    });
 
     return expense;
   }
@@ -124,7 +136,7 @@ export class ExpensesService {
   /**
    * Create new expense
    */
-  async create(orgId: string, dto: CreateExpenseDto) {
+  async create(orgId: string, dto: CreateExpenseDto, userId?: string) {
     const expenseData: Prisma.ExpenseCreateInput = {
       orgId,
       description: dto.description,
@@ -151,13 +163,22 @@ export class ExpensesService {
 
     this.logger.log(`Created expense ${expense.id} for organisation ${orgId}`);
 
+    // Audit log: CREATE
+    await this.auditService.logCreate({
+      userId,
+      organisationId: orgId,
+      entityType: AuditEntityType.EXPENSE,
+      entityId: expense.id,
+      newState: expense,
+    });
+
     return expense;
   }
 
   /**
    * Update expense (only PENDING expenses)
    */
-  async update(id: string, dto: UpdateExpenseDto) {
+  async update(id: string, dto: UpdateExpenseDto, userId?: string) {
     const existing = await this.repository.findById(id);
 
     if (!existing) {
@@ -195,6 +216,17 @@ export class ExpensesService {
     const expense = await this.repository.update(id, updateData);
 
     this.logger.log(`Updated expense ${id}`);
+
+    // Audit log: UPDATE
+    await this.auditService.logUpdate({
+      userId,
+      organisationId: existing.orgId,
+      entityType: AuditEntityType.EXPENSE,
+      entityId: id,
+      previousState: existing,
+      newState: expense,
+      changes: updateData,
+    });
 
     return expense;
   }
@@ -281,7 +313,7 @@ export class ExpensesService {
   /**
    * Delete expense (only PENDING expenses)
    */
-  async delete(id: string): Promise<void> {
+  async delete(id: string, userId?: string): Promise<void> {
     const existing = await this.repository.findById(id);
 
     if (!existing) {
@@ -297,5 +329,14 @@ export class ExpensesService {
     await this.repository.delete(id);
 
     this.logger.log(`Deleted expense ${id}`);
+
+    // Audit log: DELETE
+    await this.auditService.logDelete({
+      userId,
+      organisationId: existing.orgId,
+      entityType: AuditEntityType.EXPENSE,
+      entityId: id,
+      previousState: existing,
+    });
   }
 }

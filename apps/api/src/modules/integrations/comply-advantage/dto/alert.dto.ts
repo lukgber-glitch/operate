@@ -5,7 +5,6 @@ import { AlertStatus } from '../types/comply-advantage.types';
  * DTO for reviewing an AML alert
  */
 export class ReviewAlertDto {
-  @IsEnum(AlertStatus)
   status: AlertStatus;
 
   @IsOptional()

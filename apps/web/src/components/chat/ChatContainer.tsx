@@ -15,6 +15,8 @@ import { ChatSuggestions } from './ChatSuggestions';
 import { QuickActionsBar } from './QuickActionsBar';
 import { DeadlineReminder } from './DeadlineReminder';
 import { ActionType } from './MessageActions';
+import { Deadline, Suggestion, SuggestionType } from '@/types/suggestions';
+import { ChatbotSuggestion } from '@/hooks/useSuggestions';
 
 interface ChatContainerProps {
   isOpen: boolean;
@@ -49,21 +51,85 @@ export function ChatContainer({ isOpen, onClose }: ChatContainerProps) {
   const [inputValue, setInputValue] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Fetch suggestions, insights, and deadlines
+  // Fetch suggestions
   const {
     suggestions,
-    insights,
-    deadlines,
     isLoading: suggestionsLoading,
     dismissSuggestion,
-    applySuggestion,
-    dismissDeadline,
+    executeSuggestion,
     refresh: refreshSuggestions,
   } = useSuggestions({
-    page: 'chat',
-    autoRefresh: true,
+    context: 'chat',
     refreshInterval: 60000,
   });
+
+  // Extract insights and deadlines from suggestions by type
+  const insights = suggestions.filter(s => s.type === 'INSIGHT');
+  const deadlineSuggestions = suggestions.filter(s => s.type === 'TAX_DEADLINE' || s.type === 'DEADLINE');
+
+  // Helper function to convert ChatbotSuggestion to Deadline type
+  const mapSuggestionToDeadline = (suggestion: ChatbotSuggestion): Deadline => {
+    const dueDate = suggestion.expiresAt || suggestion.createdAt;
+    const now = new Date();
+    const daysRemaining = Math.ceil((new Date(dueDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+    let status: Deadline['status'] = 'UPCOMING';
+    if (daysRemaining < 0) {
+      status = 'OVERDUE';
+    } else if (daysRemaining <= 7) {
+      status = 'DUE_SOON';
+    }
+
+    let category: Deadline['category'] = 'OTHER';
+    if (suggestion.type === 'TAX_DEADLINE') {
+      category = 'TAX';
+    } else if (suggestion.data?.category) {
+      category = suggestion.data.category as Deadline['category'];
+    }
+
+    return {
+      id: suggestion.id,
+      title: suggestion.title,
+      description: suggestion.description,
+      dueDate: new Date(dueDate),
+      category,
+      priority: suggestion.priority,
+      status,
+      actionUrl: suggestion.data?.actionUrl,
+      actionLabel: suggestion.actionLabel,
+    };
+  };
+
+  // Convert deadline suggestions to Deadline type
+  const deadlines = deadlineSuggestions.map(mapSuggestionToDeadline);
+
+  // Helper function to map ChatbotSuggestion to Suggestion type (for ChatSuggestions component)
+  const mapChatbotSuggestionToSuggestion = (s: ChatbotSuggestion): Suggestion => {
+    // Validate type is a valid SuggestionType, default to TIP if not
+    const validTypes: SuggestionType[] = ['WARNING', 'DEADLINE', 'INSIGHT', 'QUICK_ACTION', 'TIP'];
+    const type: SuggestionType = validTypes.includes(s.type as SuggestionType)
+      ? (s.type as SuggestionType)
+      : 'TIP';
+
+    return {
+      id: s.id,
+      type,
+      title: s.title,
+      description: s.description,
+      priority: s.priority,
+      page: 'chat', // Default page context
+      entityId: s.entityId,
+      actionUrl: s.data?.actionUrl,
+      actionLabel: s.actionLabel,
+      createdAt: s.createdAt,
+      expiresAt: s.expiresAt,
+    };
+  };
+
+  // Map suggestions for the ChatSuggestions component (exclude deadlines which are shown separately)
+  const displaySuggestions: Suggestion[] = suggestions
+    .filter(s => s.type !== 'TAX_DEADLINE' && s.type !== 'DEADLINE')
+    .map(mapChatbotSuggestionToSuggestion);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -182,7 +248,7 @@ export function ChatContainer({ isOpen, onClose }: ChatContainerProps) {
 
   const handleApplySuggestion = async (id: string) => {
     try {
-      await applySuggestion(id);
+      await executeSuggestion(id);
       // Optionally show success message
       const successMessage: ChatMessageType = {
         id: Date.now().toString(),
@@ -205,15 +271,15 @@ export function ChatContainer({ isOpen, onClose }: ChatContainerProps) {
     }
   };
 
-  const handleDeadlineAction = (deadline: any) => {
+  const handleDeadlineAction = (deadline: Deadline) => {
     if (deadline.actionUrl) {
       window.location.href = deadline.actionUrl;
     }
   };
 
-  const handleDismissDeadline = async (id: string, remindLater?: Date) => {
+  const handleDismissDeadline = async (id: string, _remindLater?: Date) => {
     try {
-      await dismissDeadline(id, remindLater);
+      await dismissSuggestion(id, 'remind_later');
     } catch (error) {
       console.error('Error dismissing deadline:', error);
     }
@@ -279,9 +345,9 @@ export function ChatContainer({ isOpen, onClose }: ChatContainerProps) {
     }
   };
 
-  // Get the most urgent deadline
+  // Get the most urgent deadline (filter out overdue ones, sort by dueDate)
   const urgentDeadline = deadlines
-    .filter((d) => !d.isDismissed)
+    .filter((d) => d.status !== 'OVERDUE')
     .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
 
   // Mobile view (Sheet)
@@ -330,7 +396,7 @@ export function ChatContainer({ isOpen, onClose }: ChatContainerProps) {
 
         {/* Suggestions */}
         <ChatSuggestions
-          suggestions={suggestions}
+          suggestions={displaySuggestions}
           isLoading={suggestionsLoading}
           onApply={handleApplySuggestion}
           onDismiss={handleDismissSuggestion}
@@ -352,18 +418,23 @@ export function ChatContainer({ isOpen, onClose }: ChatContainerProps) {
     </Sheet>
   );
 
-  // Desktop view (Fixed panel)
+  // Desktop view (Fixed panel) - Updated with design system tokens
   const DesktopView = (
     <div
       className={cn(
-        'fixed z-40 bg-background border rounded-lg shadow-xl',
+        'fixed z-40 border rounded-lg',
         'transition-all duration-300 ease-in-out',
         'hidden md:flex flex-col',
+        'mx-auto max-w-[800px]',
         isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none',
         isExpanded
           ? 'bottom-4 end-4 start-4 top-4 lg:start-auto lg:w-[700px] lg:h-[85vh]'
           : 'bottom-24 end-6 w-[420px] h-[600px]'
       )}
+      style={{
+        background: 'var(--color-background)',
+        boxShadow: 'var(--shadow-lg)',
+      }}
       role="dialog"
       aria-label="Chat interface"
       aria-hidden={!isOpen}
@@ -387,8 +458,11 @@ export function ChatContainer({ isOpen, onClose }: ChatContainerProps) {
         </div>
       )}
 
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-        <div className="space-y-4">
+      <ScrollArea className="flex-1" ref={scrollRef}>
+        <div
+          className="max-w-[800px] mx-auto space-y-4"
+          style={{ padding: 'var(--space-6)' }}
+        >
           {messages.map((message) => (
             <ChatMessage
               key={message.id}
@@ -403,7 +477,7 @@ export function ChatContainer({ isOpen, onClose }: ChatContainerProps) {
 
       {/* Suggestions */}
       <ChatSuggestions
-        suggestions={suggestions}
+        suggestions={displaySuggestions}
         isLoading={suggestionsLoading}
         onApply={handleApplySuggestion}
         onDismiss={handleDismissSuggestion}

@@ -15,7 +15,6 @@ export class GetIrnByIrnDto {
 
 export class GetIrnByDocumentDto {
   @IsNotEmpty()
-  @IsEnum(GstInvoiceType)
   docType: GstInvoiceType;
 
   @IsNotEmpty()

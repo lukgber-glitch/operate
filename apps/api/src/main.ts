@@ -2,11 +2,15 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, VersioningType, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import { HttpAdapterHost } from '@nestjs/core';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import compression from 'compression';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { SentryExceptionFilter } from './common/filters/sentry-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { SentryTracingInterceptor } from './common/interceptors/sentry-tracing.interceptor';
 
 async function bootstrap(): Promise<void> {
   const logger = new Logger('Bootstrap');
@@ -25,6 +29,22 @@ async function bootstrap(): Promise<void> {
   // Cookie parser
   app.use(cookieParser());
 
+  // Enable gzip compression for responses > 1KB
+  app.use(
+    compression({
+      threshold: 1024, // Only compress responses larger than 1KB
+      level: 6, // Balanced compression level (0-9, where 9 is max compression)
+      filter: (req, res) => {
+        // Don't compress responses with this request header
+        if (req.headers['x-no-compression']) {
+          return false;
+        }
+        // Use compression filter function
+        return compression.filter(req, res);
+      },
+    }),
+  );
+
   // CORS
   app.enableCors({
     origin: configService.get<string>('corsOrigin', 'http://localhost:3000'),
@@ -40,7 +60,7 @@ async function bootstrap(): Promise<void> {
     defaultVersion: '1',
   });
 
-  // Global validation pipe
+  // Global validation pipe with transformation
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -49,13 +69,20 @@ async function bootstrap(): Promise<void> {
       transformOptions: {
         enableImplicitConversion: true,
       },
+      // Disable detailed errors in production for security
+      disableErrorMessages: environment === 'production',
     }),
   );
 
-  // Global exception filter
+  // Global exception filters
+  // Note: Sentry filter should be registered first to capture all exceptions
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new SentryExceptionFilter(httpAdapter));
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  // Global response transformer
+  // Global interceptors
+  // Note: Sentry tracing should be registered first for accurate performance monitoring
+  app.useGlobalInterceptors(new SentryTracingInterceptor());
   app.useGlobalInterceptors(new TransformInterceptor());
 
   // Swagger documentation
@@ -77,6 +104,7 @@ async function bootstrap(): Promise<void> {
       )
       .addTag('Health', 'Health check endpoints')
       .addTag('Auth', 'Authentication endpoints')
+      .addTag('Performance', 'Performance monitoring endpoints')
       .addTag('VAT Validation', 'EU VAT number validation via VIES')
       .addTag('CRM', 'Customer relationship management')
       .addTag('Finance', 'Financial management')
@@ -97,14 +125,21 @@ async function bootstrap(): Promise<void> {
       },
     });
 
-    logger.log(`Swagger documentation available at http://localhost:${port}/api/docs`);
+    logger.log(
+      `Swagger documentation available at http://localhost:${port}/api/docs`,
+    );
   }
+
+  // Graceful shutdown
+  app.enableShutdownHooks();
 
   await app.listen(port);
 
   logger.log(`Application is running on: http://localhost:${port}`);
   logger.log(`Environment: ${environment}`);
   logger.log(`API Version: v1`);
+  logger.log(`Compression: enabled (threshold: 1KB, level: 6)`);
+  logger.log(`Performance monitoring: /api/admin/performance`);
 }
 
 bootstrap();

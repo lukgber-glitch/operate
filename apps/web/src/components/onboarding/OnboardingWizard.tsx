@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card'
 
 import { OnboardingProgress, type OnboardingStep } from './OnboardingProgress'
 import { useOnboardingWizard } from './hooks/useOnboardingWizard'
+import { StepTransition } from './StepTransition'
 import { AccountingStep } from './steps/AccountingStep'
 import { BankingStep } from './steps/BankingStep'
 import { CompanyInfoStep } from './steps/CompanyInfoStep'
@@ -136,6 +137,8 @@ interface OnboardingWizardProps {
 }
 
 export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardProps) {
+  const [direction, setDirection] = React.useState<'forward' | 'backward'>('forward')
+
   const methods = useForm<OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
     mode: 'onChange',
@@ -261,6 +264,22 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
   const currentStepData = STEPS[currentStep]
   const showSkipButton = currentStepData?.optional && !isLastStep
 
+  // Wrapped navigation functions to track direction
+  const handleNext = () => {
+    setDirection('forward')
+    nextStep()
+  }
+
+  const handlePrevious = () => {
+    setDirection('backward')
+    previousStep()
+  }
+
+  const handleSkip = () => {
+    setDirection('forward')
+    skipStep()
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
       <FormProvider {...methods}>
@@ -284,8 +303,12 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
             />
           )}
 
-          {/* Step Content */}
-          <div className="my-8">{renderStep()}</div>
+          {/* Step Content with Transition */}
+          <div className="my-8">
+            <StepTransition stepKey={currentStep} direction={direction}>
+              {renderStep()}
+            </StepTransition>
+          </div>
 
           {/* Navigation - Hide on completion step */}
           {currentStepData?.id !== 'completion' && (
@@ -294,7 +317,7 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={previousStep}
+                  onClick={handlePrevious}
                   disabled={isFirstStep}
                 >
                   <ChevronLeft className="w-4 h-4 mr-2" />
@@ -314,7 +337,7 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
 
                 <div className="flex items-center gap-2">
                   {showSkipButton && (
-                    <Button type="button" variant="ghost" onClick={skipStep}>
+                    <Button type="button" variant="ghost" onClick={handleSkip}>
                       Skip
                     </Button>
                   )}
@@ -330,7 +353,7 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
                       )}
                     </Button>
                   ) : (
-                    <Button type="button" onClick={nextStep}>
+                    <Button type="button" onClick={handleNext}>
                       Next
                       <ChevronRight className="w-4 h-4 ml-2" />
                     </Button>

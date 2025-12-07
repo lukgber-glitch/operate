@@ -7,6 +7,7 @@ import { MobileNav } from '@/components/dashboard/mobile-nav'
 import { Sidebar } from '@/components/dashboard/sidebar'
 import { MobileHeader } from '@/components/mobile'
 import { PushPermissionBanner } from '@/components/notifications'
+import { TrialManager, UsageManager } from '@/components/billing'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
 
@@ -44,6 +45,12 @@ export default function DashboardLayout({
         <main id="main-content" className="p-4 pb-20 sm:p-6 lg:pb-6" role="main" aria-label="Main content">
           {/* Push Notification Permission Banner */}
           <PushPermissionBanner />
+
+          {/* Trial Status Management */}
+          <TrialManager />
+
+          {/* Usage Limit Warnings & Modals */}
+          <UsageManager />
 
           {children}
         </main>

@@ -65,9 +65,8 @@ export class VATReturnDto {
   @ApiProperty({
     description: 'Period type',
     enum: VATReturnPeriodType,
-    example: VATReturnPeriodType.QUARTERLY,
+    example: 'QUARTERLY',
   })
-  @IsEnum(VATReturnPeriodType)
   periodType!: VATReturnPeriodType;
 
   @ApiProperty({

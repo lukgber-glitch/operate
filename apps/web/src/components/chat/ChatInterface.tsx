@@ -2,15 +2,20 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { useSuggestions } from '@/hooks/useSuggestions';
+import { useSuggestions, ChatbotSuggestion } from '@/hooks/useSuggestions';
+import { Suggestion, SuggestionType } from '@/types/suggestions';
 import { useConversationHistory } from '@/hooks/use-conversation-history';
+import { useActionExecution } from '@/hooks/useActionExecution';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { SuggestionCard } from './SuggestionCard';
+import { ChatPromptSuggestions } from './ChatPromptSuggestions';
 import { ConversationHistory } from './ConversationHistory';
+import { ActionConfirmationDialog } from './ActionConfirmationDialog';
+import { ActionResultCard } from './ActionResultCard';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { ChatMessage as ChatMessageType } from '@/types/chat';
+import { ChatMessage as ChatMessageType, ActionIntent } from '@/types/chat';
 
 interface ChatInterfaceProps {
   className?: string;
@@ -32,8 +37,8 @@ interface ChatInterfaceProps {
  */
 export function ChatInterface({ className }: ChatInterfaceProps) {
   const { user } = useAuth();
-  const { suggestions, applySuggestion, dismissSuggestion } = useSuggestions({
-    page: 'chat-interface',
+  const { suggestions, executeSuggestion, dismissSuggestion } = useSuggestions({
+    context: 'chat-interface',
   });
 
   const {
@@ -45,8 +50,38 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
     updateMessage,
   } = useConversationHistory();
 
+  const {
+    isExecuting,
+    pendingAction,
+    result: actionResult,
+    setPending,
+    confirm,
+    cancel,
+    clearResult,
+  } = useActionExecution({
+    onSuccess: (result) => {
+      // Add result to message metadata
+      if (activeConversationId) {
+        const resultMessage: ChatMessageType = {
+          id: crypto.randomUUID(),
+          conversationId: activeConversationId,
+          role: 'assistant',
+          content: result.message,
+          timestamp: new Date(),
+          status: 'sent',
+          metadata: {
+            actionResult: result,
+          },
+        };
+        setMessages((prev) => [...prev, resultMessage]);
+        addMessage(activeConversationId, resultMessage);
+      }
+    },
+  });
+
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -132,6 +167,16 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
 
       setMessages((prev) => [...prev, assistantMessage]);
       addMessage(conversationId, assistantMessage);
+
+      // Check if the response contains an action that needs confirmation
+      if (data.metadata?.action) {
+        const action = data.metadata.action as ActionIntent;
+        if (action.confirmationRequired) {
+          // Store the pending action with the message ID as confirmation ID
+          // In a real scenario, the backend would return a confirmationId
+          setPending(data.id, action);
+        }
+      }
     } catch (error) {
       // Mark message as error
       const errorMessage = {
@@ -186,7 +231,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
     if (!suggestion) return;
 
     try {
-      await applySuggestion(id);
+      await executeSuggestion(id);
 
       // Create new conversation with suggestion
       const newConversation = createConversation();
@@ -227,8 +272,29 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
   // Check if we have an active conversation
   const hasMessages = messages.length > 0;
 
-  // Get top 4 suggestions for the grid
-  const topSuggestions = suggestions.slice(0, 4);
+  // Helper function to map ChatbotSuggestion to Suggestion type
+  const mapToSuggestion = (s: ChatbotSuggestion): Suggestion => {
+    const validTypes: SuggestionType[] = ['WARNING', 'DEADLINE', 'INSIGHT', 'QUICK_ACTION', 'TIP'];
+    const type: SuggestionType = validTypes.includes(s.type as SuggestionType)
+      ? (s.type as SuggestionType)
+      : 'TIP';
+    return {
+      id: s.id,
+      type,
+      title: s.title,
+      description: s.description,
+      priority: s.priority,
+      page: 'chat-interface',
+      entityId: s.entityId,
+      actionUrl: s.data?.actionUrl,
+      actionLabel: s.actionLabel,
+      createdAt: s.createdAt,
+      expiresAt: s.expiresAt,
+    };
+  };
+
+  // Get top 4 suggestions for the grid (mapped to Suggestion type)
+  const topSuggestions: Suggestion[] = suggestions.slice(0, 4).map(mapToSuggestion);
 
   return (
     <div className={cn('flex h-full bg-background chat-container-mobile', className)}>
@@ -288,15 +354,36 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
               </div>
             )}
 
+            {/* Example Prompts - Help users learn what the AI can do */}
+            {!hasMessages && (
+              <div className="mb-6 md:mb-8">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4 text-center">
+                  Try asking me something like...
+                </h3>
+                <ChatPromptSuggestions
+                  onSelectPrompt={(prompt) => {
+                    setInputValue(prompt);
+                  }}
+                  maxVisible={6}
+                  showCategories={true}
+                />
+              </div>
+            )}
+
             {/* Messages Area */}
             {hasMessages && (
               <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
                 {messages.map((message) => (
-                  <ChatMessage
-                    key={message.id}
-                    message={message}
-                    onRetry={handleRetry}
-                  />
+                  <div key={message.id} className="space-y-3">
+                    <ChatMessage
+                      message={message}
+                      onRetry={handleRetry}
+                    />
+                    {/* Show action result card if this message has one */}
+                    {message.metadata?.actionResult && (
+                      <ActionResultCard result={message.metadata.actionResult} />
+                    )}
+                  </div>
                 ))}
 
                 {/* Loading indicator */}
@@ -334,7 +421,12 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
         <div className="border-t bg-background">
           <div className="max-w-4xl mx-auto">
             <ChatInput
-              onSend={handleSendMessage}
+              onSend={(message) => {
+                handleSendMessage(message);
+                setInputValue('');
+              }}
+              value={inputValue}
+              onChange={setInputValue}
               disabled={isLoading}
               isLoading={isLoading}
               placeholder="Ask anything about your business..."
@@ -344,6 +436,15 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
           </div>
         </div>
       </div>
+
+      {/* Action Confirmation Dialog */}
+      <ActionConfirmationDialog
+        open={!!pendingAction}
+        action={pendingAction?.action || null}
+        isExecuting={isExecuting}
+        onConfirm={confirm}
+        onCancel={cancel}
+      />
     </div>
   );
 }

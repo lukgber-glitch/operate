@@ -55,7 +55,6 @@ export class PnlFilterDto {
 
   @ApiPropertyOptional({ enum: PnlPeriodType, description: 'Period type for quick selection' })
   @IsOptional()
-  @IsEnum(PnlPeriodType)
   periodType?: PnlPeriodType;
 
   @ApiPropertyOptional({ description: 'Department ID to filter by' })
@@ -94,12 +93,10 @@ export class PnlFilterDto {
 export class PnlOptionsDto {
   @ApiPropertyOptional({ enum: PnlAnalysisType, default: PnlAnalysisType.STANDARD })
   @IsOptional()
-  @IsEnum(PnlAnalysisType)
   analysisType?: PnlAnalysisType;
 
   @ApiPropertyOptional({ enum: PnlGroupingType, default: PnlGroupingType.CATEGORY })
   @IsOptional()
-  @IsEnum(PnlGroupingType)
   groupBy?: PnlGroupingType;
 
   @ApiPropertyOptional({ description: 'Include detailed line items', default: true })

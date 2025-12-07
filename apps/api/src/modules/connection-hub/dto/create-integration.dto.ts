@@ -48,17 +48,15 @@ export class CreateIntegrationDto {
   @ApiProperty({
     enum: IntegrationType,
     description: 'Type of integration',
-    example: IntegrationType.BANKING,
+    example: 'BANKING',
   })
-  @IsEnum(IntegrationType)
   type: IntegrationType;
 
   @ApiProperty({
     enum: IntegrationProvider,
     description: 'Provider for the integration',
-    example: IntegrationProvider.GOCARDLESS,
+    example: 'GOCARDLESS',
   })
-  @IsEnum(IntegrationProvider)
   provider: IntegrationProvider;
 
   @ApiProperty({

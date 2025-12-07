@@ -325,4 +325,5 @@ export enum TinkAuditAction {
   TRANSACTIONS_FETCH = 'transactions:fetch',
   CREDENTIALS_DELETE = 'credentials:delete',
   WEBHOOK_RECEIVED = 'webhook:received',
+  CREDENTIALS_REFRESH_FAILED = 'credentials:refresh_failed',
 }

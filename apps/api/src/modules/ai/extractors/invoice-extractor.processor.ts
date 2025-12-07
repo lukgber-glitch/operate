@@ -8,8 +8,10 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { InvoiceExtractorService } from './invoice-extractor.service';
 import { InvoiceExtractionResultDto } from './dto/invoice-extraction.dto';
+import { PrismaService } from '../../database/prisma.service';
 
 export interface InvoiceExtractionJob {
+  attachmentId?: string;
   organisationId: string;
   fileBuffer: Buffer;
   mimeType: string;
@@ -31,18 +33,33 @@ export interface InvoiceExtractionJobResult {
 export class InvoiceExtractorProcessor {
   private readonly logger = new Logger(InvoiceExtractorProcessor.name);
 
-  constructor(private readonly invoiceExtractorService: InvoiceExtractorService) {}
+  constructor(
+    private readonly invoiceExtractorService: InvoiceExtractorService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Process('extract')
   async handleExtraction(job: Job<InvoiceExtractionJob>): Promise<InvoiceExtractionJobResult> {
-    const { organisationId, fileBuffer, mimeType, fileName, userId, options } = job.data;
+    const { attachmentId, organisationId, fileBuffer, mimeType, fileName, userId, options } = job.data;
 
     this.logger.log(
-      `Processing invoice extraction job ${job.id} for org ${organisationId}, file ${fileName}`,
+      `Processing invoice extraction job ${job.id} for org ${organisationId}, file ${fileName}${attachmentId ? `, attachment ${attachmentId}` : ''}`,
     );
 
     // Update progress
     await job.progress(10);
+
+    // Update attachment status to EXTRACTING if attachmentId provided
+    if (attachmentId) {
+      await this.prisma.emailAttachment.update({
+        where: { id: attachmentId },
+        data: {
+          extractionStatus: 'PROCESSING',
+        },
+      }).catch(error => {
+        this.logger.warn(`Failed to update attachment status: ${error.message}`);
+      });
+    }
 
     try {
       // Convert Buffer-like object back to Buffer if needed
@@ -69,6 +86,20 @@ export class InvoiceExtractorProcessor {
       // Update progress
       await job.progress(100);
 
+      // Update EmailAttachment record if attachmentId provided
+      if (attachmentId) {
+        await this.prisma.emailAttachment.update({
+          where: { id: attachmentId },
+          data: {
+            extractionStatus: 'COMPLETED',
+            extractedDataId: result.id,
+            extractedAt: new Date(),
+          },
+        }).catch(error => {
+          this.logger.error(`Failed to update attachment with extraction result: ${error.message}`);
+        });
+      }
+
       this.logger.log(
         `Invoice extraction job ${job.id} completed: ${result.id} with confidence ${result.overallConfidence.toFixed(2)}`,
       );
@@ -79,6 +110,20 @@ export class InvoiceExtractorProcessor {
       };
     } catch (error) {
       this.logger.error(`Invoice extraction job ${job.id} failed:`, error);
+
+      // Update attachment status to FAILED if attachmentId provided
+      if (attachmentId) {
+        await this.prisma.emailAttachment.update({
+          where: { id: attachmentId },
+          data: {
+            extractionStatus: 'FAILED',
+            processingError: `Extraction failed: ${error.message}`,
+          },
+        }).catch(updateError => {
+          this.logger.error(`Failed to update attachment failure status: ${updateError.message}`);
+        });
+      }
+
       throw error;
     }
   }

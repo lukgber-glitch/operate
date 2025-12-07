@@ -35,7 +35,6 @@ export class KycReportQueryDto {
     enum: KycStatus,
   })
   @IsOptional()
-  @IsEnum(KycStatus)
   status?: KycStatus;
 }
 
@@ -156,7 +155,7 @@ export class PendingReviewItemDto {
   @ApiProperty({
     description: 'Verification level',
     enum: KycLevel,
-    example: KycLevel.ENHANCED,
+    example: 'ENHANCED',
   })
   level: KycLevel;
 
@@ -169,7 +168,7 @@ export class PendingReviewItemDto {
   @ApiPropertyOptional({
     description: 'Risk level',
     enum: KycRiskLevel,
-    example: KycRiskLevel.MEDIUM,
+    example: 'MEDIUM',
   })
   riskLevel?: KycRiskLevel;
 

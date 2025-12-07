@@ -1,37 +1,80 @@
-# Plaid Integration Module
+# Plaid Integration - Production Ready
 
 ## Overview
 
 This module provides secure bank account connection capabilities for the US market via Plaid Link. It implements OAuth2-compliant authorization flow with comprehensive security features including encrypted token storage, webhook signature verification, and audit logging.
 
+**Production Status**: ✅ Ready for production deployment with full error handling, rate limiting, and health monitoring.
+
 ## Features
 
+### Core Functionality
 - **Plaid Link Integration**: Complete implementation of Plaid Link SDK for secure bank connections
 - **OAuth2 Flow**: Standard OAuth2 authorization flow for bank account access
-- **Encrypted Storage**: AES-256-GCM encryption for access tokens
-- **Webhook Support**: Real-time notifications for transaction updates and account changes
-- **Rate Limiting**: Built-in rate limiting on all endpoints
-- **Audit Logging**: Comprehensive logging of all Plaid operations
+- **Transaction Sync**: Incremental sync with cursor-based pagination
+- **Balance Refresh**: Real-time account balance updates
+- **Account Management**: Multi-account support per user
+
+### Production Features (NEW)
+- **Environment Support**: Sandbox, Development, and Production modes
+- **Error Handling**: Comprehensive error mapping with user-friendly messages
+- **Rate Limiting**: Client-side rate limiting to prevent API quota issues
+- **Connection Health**: Proactive monitoring and health checks
+- **Re-authentication**: Automatic detection and user prompts for expired connections
+- **Webhook Processing**: Full webhook support for all event types (TRANSACTIONS, ITEM, AUTH)
+
+### Security
+- **AES-256-GCM Encryption**: Access tokens encrypted before database storage
+- **Webhook Verification**: Signature verification for all webhooks
+- **Audit Logging**: Comprehensive audit trail for all API calls
+- **Secure Storage**: No plaintext credentials in logs or database
 - **Mock Mode**: Development mode for testing without actual Plaid credentials
 
 ## Architecture
 
 ```
 plaid/
-├── dto/                          # Data Transfer Objects
+├── dto/                                      # Data Transfer Objects
 │   ├── create-link-token.dto.ts
 │   ├── exchange-token.dto.ts
 │   └── plaid-webhook.dto.ts
-├── utils/                        # Utility functions
-│   └── plaid-encryption.util.ts  # AES-256-GCM encryption
-├── plaid.config.ts              # Configuration loader
-├── plaid.types.ts               # TypeScript interfaces
-├── plaid.service.ts             # Core business logic
-├── plaid.controller.ts          # REST API endpoints
-└── plaid.module.ts              # NestJS module definition
+├── services/                                 # Additional services
+│   ├── plaid-bank.service.ts                # Bank account operations
+│   ├── plaid-transaction-matcher.service.ts # Transaction matching
+│   └── plaid-rate-limiter.service.ts        # Rate limiting (NEW)
+├── utils/                                    # Utility functions
+│   ├── plaid-encryption.util.ts             # AES-256-GCM encryption
+│   └── plaid-health-monitor.util.ts         # Connection health (NEW)
+├── jobs/                                     # Background jobs
+│   └── plaid-sync.job.ts                    # Sync processors
+├── plaid.config.ts                          # Configuration loader
+├── plaid.types.ts                           # TypeScript interfaces
+├── plaid.service.ts                         # Core business logic
+├── plaid.controller.ts                      # REST API endpoints
+├── plaid.module.ts                          # NestJS module definition
+└── README.md                                # This file
 ```
 
 ## API Endpoints
+
+### Authentication & Connection
+```
+POST /plaid/create-link-token              # Create link token
+POST /plaid/exchange-token                 # Exchange public token
+POST /plaid/connections/:itemId/reauth     # Create re-auth token (NEW)
+```
+
+### Data Retrieval
+```
+GET  /plaid/accounts/:itemId               # Get accounts
+GET  /plaid/transactions/:itemId/sync      # Sync transactions
+GET  /plaid/connections/:itemId/health     # Check health (NEW)
+```
+
+### Webhooks
+```
+POST /plaid/webhook                        # Webhook handler
+```
 
 ### POST /api/plaid/create-link-token
 Creates a link token for initializing Plaid Link.
@@ -126,26 +169,39 @@ Receives webhook notifications from Plaid.
 
 ## Environment Variables
 
+### Sandbox (Development/Testing)
 ```bash
-# Plaid Client Credentials
-PLAID_CLIENT_ID=your-client-id
-PLAID_SECRET=your-secret-key
-
-# Environment (sandbox, development, production)
 PLAID_ENV=sandbox
-
-# Webhook Configuration
-PLAID_WEBHOOK_URL=https://api.operate.com/plaid/webhook
-PLAID_WEBHOOK_SECRET=your-webhook-secret
-
-# OAuth Configuration
-PLAID_REDIRECT_URI=https://app.operate.com/integrations/plaid/callback
-
-# Encryption Key (32+ characters, different from JWT_SECRET recommended)
-PLAID_ENCRYPTION_KEY=your-encryption-key
-
-# Mock Mode (for development without Plaid credentials)
+PLAID_CLIENT_ID=your-sandbox-client-id
+PLAID_SECRET=your-sandbox-secret
+PLAID_WEBHOOK_URL=https://operate.guru/api/v1/integrations/plaid/webhook
+PLAID_ENCRYPTION_KEY=your-32-character-key
 PLAID_MOCK_MODE=false
+```
+
+### Development (Real Bank Testing)
+```bash
+PLAID_ENV=development
+PLAID_CLIENT_ID=your-dev-client-id
+PLAID_SECRET=your-dev-secret
+PLAID_WEBHOOK_URL=https://operate.guru/api/v1/integrations/plaid/webhook
+PLAID_ENCRYPTION_KEY=your-32-character-key
+```
+
+### Production (NEW)
+```bash
+PLAID_ENV=production
+PLAID_CLIENT_ID=your-production-client-id
+PLAID_SECRET=your-production-secret
+PLAID_WEBHOOK_URL=https://operate.guru/api/v1/integrations/plaid/webhook
+PLAID_WEBHOOK_SECRET=your-webhook-verification-key
+PLAID_REDIRECT_URI=https://operate.guru/integrations/plaid/callback
+PLAID_ENCRYPTION_KEY=your-production-32-character-key
+```
+
+**Generate encryption key:**
+```bash
+openssl rand -base64 32
 ```
 
 ## Security Features
@@ -350,13 +406,96 @@ Ensure `PLAID_WEBHOOK_SECRET` matches the secret configured in Plaid Dashboard.
 ### "Plaid connection not found or inactive"
 The user needs to reconnect their bank account via Plaid Link.
 
+## Production Features (NEW)
+
+### Error Handling
+User-friendly error messages for all Plaid error codes:
+```typescript
+// Automatically mapped errors:
+ITEM_LOGIN_REQUIRED → "Bank connection needs to be re-authenticated"
+INSTITUTION_NOT_RESPONDING → "Bank temporarily unavailable. Try again later"
+RATE_LIMIT_EXCEEDED → "Too many requests. Try again in a few minutes"
+```
+
+See `plaidService.handlePlaidError()` for full error mapping.
+
+### Rate Limiting
+Client-side rate limiting prevents exceeding Plaid API quotas:
+- Most endpoints: 100 req/min
+- Burst capacity: 200 req/min
+- Automatic throttling and retry
+
+See `PlaidRateLimiterService` for implementation.
+
+### Connection Health Monitoring
+```typescript
+const health = await plaidService.checkConnectionHealth(userId, itemId);
+// Returns: { healthy, lastSync, error, errorCode, needsReauth }
+```
+
+Health monitor features:
+- Proactive issue detection
+- Actionable recommendations
+- User notification triggers
+- Status levels: HEALTHY, WARNING, CRITICAL
+
+See `PlaidHealthMonitor` utility for analysis.
+
+### Re-authentication Flow
+Automatic detection and handling of expired connections:
+```typescript
+// Check health
+if (connection.needsReauth) {
+  // Get update token
+  const { linkToken } = await plaidService.createUpdateLinkToken(userId, itemId);
+  // Show Plaid Link in update mode
+}
+```
+
+### Enhanced Webhook Processing
+Full webhook support with automatic handling:
+- **TRANSACTIONS**: SYNC_UPDATES_AVAILABLE, INITIAL_UPDATE, HISTORICAL_UPDATE
+- **ITEM**: ERROR, PENDING_EXPIRATION, USER_PERMISSION_REVOKED
+- **AUTH**: AUTOMATICALLY_VERIFIED, VERIFICATION_EXPIRED
+
+See controller webhook handlers for implementation.
+
+## Production Deployment
+
+### Quick Start
+1. Complete Plaid production approval (1-2 weeks)
+2. Update environment: `PLAID_ENV=production`
+3. Configure production credentials
+4. Set up webhook URL (HTTPS required)
+5. Test in development environment first
+6. Deploy and monitor
+
+### Detailed Guides
+- **[Production Guide](../../docs/PLAID_PRODUCTION_GUIDE.md)** - Complete deployment guide
+- **[Production Checklist](../../docs/PLAID_PRODUCTION_CHECKLIST.md)** - Step-by-step checklist
+
+### Production Requirements
+- ✅ Plaid production approval received
+- ✅ HTTPS webhook endpoint
+- ✅ Valid SSL certificate
+- ✅ Webhook signature verification
+- ✅ 32+ character encryption key
+- ✅ Monitoring and alerting setup
+
 ## Resources
 
 - [Plaid Documentation](https://plaid.com/docs/)
 - [Plaid API Reference](https://plaid.com/docs/api/)
 - [Plaid Link Guide](https://plaid.com/docs/link/)
 - [Plaid Webhooks](https://plaid.com/docs/api/webhooks/)
+- [Plaid Dashboard](https://dashboard.plaid.com)
+- [Plaid Status](https://status.plaid.com)
 
 ## Support
 
 For issues or questions, contact the development team or refer to the main project documentation.
+
+**Internal Documentation:**
+- Production Guide: `apps/api/docs/PLAID_PRODUCTION_GUIDE.md`
+- Production Checklist: `apps/api/docs/PLAID_PRODUCTION_CHECKLIST.md`
+- Bank Service Guide: `apps/api/src/modules/integrations/plaid/PLAID_BANK_SERVICE.md`

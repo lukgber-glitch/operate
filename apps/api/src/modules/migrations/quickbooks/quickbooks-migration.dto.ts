@@ -27,17 +27,15 @@ export class StartMigrationDto {
     ],
   })
   @IsArray()
-  @IsEnum(MigrationEntityType, { each: true })
   entities: MigrationEntityType[];
 
   @ApiPropertyOptional({
     description: 'Conflict resolution strategy',
     enum: ConflictResolutionStrategy,
-    default: ConflictResolutionStrategy.SKIP,
+    default: 'SKIP',
   })
   @IsOptional()
-  @IsEnum(ConflictResolutionStrategy)
-  conflictResolution?: ConflictResolutionStrategy = ConflictResolutionStrategy.SKIP;
+  conflictResolution?: ConflictResolutionStrategy = 'SKIP' as ConflictResolutionStrategy;
 
   @ApiPropertyOptional({
     description: 'Batch size for processing',
@@ -210,7 +208,7 @@ export class StartMigrationResponseDto {
   @ApiProperty({
     description: 'Migration status',
     enum: MigrationStatus,
-    example: MigrationStatus.IN_PROGRESS,
+    example: 'IN_PROGRESS',
   })
   status: MigrationStatus;
 
@@ -240,7 +238,7 @@ export class PauseMigrationResponseDto {
   @ApiProperty({
     description: 'Migration status',
     enum: MigrationStatus,
-    example: MigrationStatus.PAUSED,
+    example: 'PAUSED',
   })
   status: MigrationStatus;
 
@@ -264,7 +262,7 @@ export class ResumeMigrationResponseDto {
   @ApiProperty({
     description: 'Migration status',
     enum: MigrationStatus,
-    example: MigrationStatus.IN_PROGRESS,
+    example: 'IN_PROGRESS',
   })
   status: MigrationStatus;
 
@@ -288,7 +286,7 @@ export class RollbackMigrationResponseDto {
   @ApiProperty({
     description: 'Migration status',
     enum: MigrationStatus,
-    example: MigrationStatus.ROLLED_BACK,
+    example: 'ROLLED_BACK',
   })
   status: MigrationStatus;
 
@@ -445,7 +443,6 @@ export class ListMigrationsQueryDto {
     enum: MigrationStatus,
   })
   @IsOptional()
-  @IsEnum(MigrationStatus)
   status?: MigrationStatus;
 
   @ApiPropertyOptional({

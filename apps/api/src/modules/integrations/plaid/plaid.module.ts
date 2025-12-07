@@ -9,6 +9,7 @@ import plaidConfig from './plaid.config';
 // Services
 import { PlaidBankService } from './services/plaid-bank.service';
 import { PlaidTransactionMatcherService } from './services/plaid-transaction-matcher.service';
+import { PlaidRateLimiterService } from './services/plaid-rate-limiter.service';
 
 // Job processors
 import {
@@ -67,6 +68,7 @@ import {
     // Bank services
     PlaidBankService,
     PlaidTransactionMatcherService,
+    PlaidRateLimiterService,
 
     // Job processors
     PlaidDailySyncProcessor,
@@ -78,6 +80,7 @@ import {
     PlaidService,
     PlaidBankService,
     PlaidTransactionMatcherService,
+    PlaidRateLimiterService,
   ],
 })
 export class PlaidModule {}

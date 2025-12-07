@@ -1,0 +1,39 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from '@/modules/database/database.module';
+import { InvoiceMatcherService } from './invoice-matcher.service';
+import { BillMatcherService } from './bill-matcher.service';
+import { EnhancedTransactionClassifierService } from './transaction-classifier.service';
+import { TaxDeductionAnalyzerService } from './tax-deduction-analyzer.service';
+import { RecurringDetectorService } from './recurring-detector.service';
+
+/**
+ * Bank Intelligence Module
+ * Provides AI-powered banking intelligence features including:
+ * - Enhanced transaction classification with German tax awareness
+ * - Tax deduction analysis and calculation
+ * - Invoice auto-matching and reconciliation
+ * - Bill auto-matching and reconciliation (AP automation)
+ * - Recurring transaction detection and prediction
+ * - Transaction classification
+ * - Anomaly detection
+ * - Cash flow predictions
+ */
+@Module({
+  imports: [ConfigModule, DatabaseModule],
+  providers: [
+    InvoiceMatcherService,
+    BillMatcherService,
+    EnhancedTransactionClassifierService,
+    TaxDeductionAnalyzerService,
+    RecurringDetectorService,
+  ],
+  exports: [
+    InvoiceMatcherService,
+    BillMatcherService,
+    EnhancedTransactionClassifierService,
+    TaxDeductionAnalyzerService,
+    RecurringDetectorService,
+  ],
+})
+export class BankIntelligenceModule {}

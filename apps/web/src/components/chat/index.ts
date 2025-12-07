@@ -17,7 +17,28 @@ export {
   type MessageAction,
 } from './MessageActions';
 export { TypingIndicator } from './TypingIndicator';
+export { VoiceInput } from './VoiceInput';
+
+// Chat prompt suggestions for user guidance
+export {
+  ChatPromptSuggestions,
+  ChatPromptPills,
+  CHAT_PROMPTS,
+  type ChatPrompt,
+  type PromptCategory,
+} from './ChatPromptSuggestions';
+
+// Invoice preview component
+export { InvoicePreview, InvoicePreviewCompact } from './InvoicePreview';
+
+// Action and insight cards
+export { ActionResultCard } from './ActionResultCard';
+export { TransactionInsight } from './TransactionInsight';
+export { CustomerCard } from './CustomerCard';
 
 // Legacy exports for backward compatibility
 export { ChatButton } from './ChatButton';
 export { ChatPanel } from './ChatPanel';
+
+// Document viewer
+export { DocumentViewer, type DocumentViewerProps } from './DocumentViewer';

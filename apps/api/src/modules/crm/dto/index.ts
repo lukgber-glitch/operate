@@ -27,7 +27,6 @@ import {
 // ============================================================================
 
 export class CreateClientDto {
-  @IsEnum(ClientType)
   type: ClientType;
 
   @IsString()
@@ -141,7 +140,6 @@ export class CreateClientDto {
 
 export class UpdateClientDto {
   @IsOptional()
-  @IsEnum(ClientStatus)
   status?: ClientStatus;
 
   @IsOptional()
@@ -234,7 +232,6 @@ export class UpdateClientDto {
   creditLimit?: number;
 
   @IsOptional()
-  @IsEnum(RiskLevel)
   riskLevel?: RiskLevel;
 
   @IsOptional()
@@ -260,15 +257,12 @@ export class UpdateClientDto {
 
 export class ClientFiltersDto {
   @IsOptional()
-  @IsEnum(ClientStatus)
   status?: ClientStatus;
 
   @IsOptional()
-  @IsEnum(ClientType)
   type?: ClientType;
 
   @IsOptional()
-  @IsEnum(RiskLevel)
   riskLevel?: RiskLevel;
 
   @IsOptional()
@@ -448,10 +442,8 @@ export class ContactResponseDto {
 // ============================================================================
 
 export class LogCommunicationDto {
-  @IsEnum(CommunicationType)
   type: CommunicationType;
 
-  @IsEnum(CommunicationDirection)
   direction: CommunicationDirection;
 
   @IsOptional()
@@ -531,11 +523,9 @@ export class CommunicationResponseDto {
 
 export class CommunicationFiltersDto {
   @IsOptional()
-  @IsEnum(CommunicationType)
   type?: CommunicationType;
 
   @IsOptional()
-  @IsEnum(CommunicationDirection)
   direction?: CommunicationDirection;
 
   @IsOptional()

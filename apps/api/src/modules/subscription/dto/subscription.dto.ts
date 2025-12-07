@@ -19,7 +19,6 @@ export class StartTrialDto {
 
   @ApiPropertyOptional({ description: 'Trial tier (default: PRO)', enum: SubscriptionTier })
   @IsOptional()
-  @IsEnum(SubscriptionTier)
   tier?: SubscriptionTier;
 }
 
@@ -33,7 +32,6 @@ export class UpgradeSubscriptionDto {
   orgId: string;
 
   @ApiProperty({ description: 'Target subscription tier', enum: SubscriptionTier })
-  @IsEnum(SubscriptionTier)
   targetTier: SubscriptionTier;
 
   @ApiPropertyOptional({ description: 'Stripe payment method ID' })
@@ -52,7 +50,6 @@ export class DowngradeSubscriptionDto {
   orgId: string;
 
   @ApiProperty({ description: 'Target subscription tier', enum: SubscriptionTier })
-  @IsEnum(SubscriptionTier)
   targetTier: SubscriptionTier;
 
   @ApiPropertyOptional({ description: 'Apply at period end', default: true })
@@ -91,7 +88,6 @@ export class CheckFeatureDto {
   orgId: string;
 
   @ApiProperty({ description: 'Feature to check', enum: PlatformFeature })
-  @IsEnum(PlatformFeature)
   feature: PlatformFeature;
 }
 

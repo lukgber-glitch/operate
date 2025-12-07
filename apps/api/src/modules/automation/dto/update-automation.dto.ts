@@ -17,10 +17,9 @@ export class UpdateAutomationDto {
   @ApiProperty({
     description: 'Automation mode',
     enum: AutomationMode,
-    example: AutomationMode.SEMI_AUTO,
+    example: 'SEMI_AUTO',
     required: false,
   })
-  @IsEnum(AutomationMode)
   @IsOptional()
   mode?: AutomationMode;
 

@@ -132,6 +132,7 @@ export class ActionParserService {
       ActionType.SEND_REMINDER,
       ActionType.SEND_EMAIL,
       ActionType.EXPORT_DATA,
+      ActionType.CREATE_CUSTOMER, // New customer creation should be confirmed
     ];
 
     return confirmationRequired.includes(actionType);
@@ -168,6 +169,18 @@ export class ActionParserService {
 
       case ActionType.SCHEDULE_TASK:
         return `Schedule task: ${parameters.taskName}`;
+
+      case ActionType.SEARCH_DOCUMENTS:
+        return `Search documents: ${parameters.query || parameters.searchTerm}${parameters.documentType ? ` (type: ${parameters.documentType})` : ''}`;
+
+      case ActionType.REDUCE_EXPENSES:
+        return `Analyze and reduce expenses${parameters.category ? ` in ${parameters.category}` : ''}`;
+
+      case ActionType.CONSULT_TAXES:
+        return `Tax consultation: ${parameters.question || parameters.query}`;
+
+      case ActionType.CREATE_CUSTOMER:
+        return `Create customer: ${parameters.name || parameters.customerName}${parameters.email ? ` (${parameters.email})` : ''}`;
 
       default:
         return `Execute ${actionType}`;

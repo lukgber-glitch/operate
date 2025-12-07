@@ -20,10 +20,9 @@ export class GetPayStubDto {
   @ApiPropertyOptional({
     description: 'Response format',
     enum: PayStubFormat,
-    default: PayStubFormat.JSON,
+    default: 'JSON',
   })
   @IsOptional()
-  @IsEnum(PayStubFormat)
   format?: PayStubFormat;
 }
 

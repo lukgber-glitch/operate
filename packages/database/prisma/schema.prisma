@@ -80,6 +80,9 @@ model Organisation {
   timezone String @default("Europe/Berlin")
   settings Json   @default("{}")
 
+  // Subscription
+  subscriptionTier String @default("free") // 'free' | 'starter' | 'pro' | 'business'
+
   // Company/Tenant specific fields
   companyType               CompanyType?
   vatScheme                 VatScheme?
@@ -119,6 +122,7 @@ model Organisation {
   spainCertificates     SpainCertificate[]
   zatcaCertificates     ZatcaCertificate[]
   elsterFilings         ElsterFiling[]
+  taxDocuments          TaxDocument[]
   processDocumentations ProcessDocumentation[]
   quickbooksConnections QuickBooksConnection[]
   xeroConnections       XeroConnection[]
@@ -161,6 +165,16 @@ model Organisation {
 
   // Receipt Scanning Relations
   receiptScans ReceiptScan[]
+
+  // Vendor Management Relations
+  vendors Vendor[]
+  bills   Bill[]
+
+  // Email Intelligence Relations
+  relationshipMetrics RelationshipMetrics[]
+
+  // Payment Allocation Relations
+  paymentAllocations PaymentAllocation[]
 }
 
 model User {
@@ -1805,6 +1819,22 @@ enum ExpenseCategory {
   OTHER
 }
 
+enum BillStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum BillSourceType {
+  MANUAL
+  EMAIL_EXTRACTION
+  UPLOAD
+  API_IMPORT
+}
+
 model Invoice {
   id     String        @id @default(uuid())
   orgId  String
@@ -1861,9 +1891,10 @@ model Invoice {
   updatedAt DateTime @updatedAt
 
   // Relations
-  client           Client?           @relation(fields: [clientId], references: [id])
+  client           Client?             @relation(fields: [clientId], references: [id])
   items            InvoiceItem[]
   paymentReminders PaymentReminder[]
+  allocations      PaymentAllocation[]
 
   @@unique([orgId, number])
   @@index([orgId])
@@ -1958,6 +1989,148 @@ model Expense {
   @@index([submittedBy])
 }
 
+// ============================================================================
+// BILLS & ACCOUNTS PAYABLE MODELS
+// ============================================================================
+
+model Bill {
+  id             String @id @default(uuid())
+  organisationId String
+
+  // Vendor info
+  vendorId   String?
+  vendorName String // Denormalized for quick access
+
+  // Bill identification
+  billNumber String? // Vendor's invoice number
+  reference  String? // Internal reference
+
+  // Core details
+  description String?
+
+  // Amounts
+  amount      Decimal @db.Decimal(12, 2) // Subtotal before tax
+  currency    String  @default("EUR")
+  taxAmount   Decimal @default(0) @db.Decimal(12, 2)
+  totalAmount Decimal @db.Decimal(12, 2) // Total including tax
+  paidAmount  Decimal @default(0) @db.Decimal(12, 2) // Amount paid so far
+
+  // Status
+  status        BillStatus    @default(DRAFT)
+  paymentStatus PaymentStatus @default(PENDING)
+
+  // Dates
+  issueDate DateTime  @db.Date
+  dueDate   DateTime  @db.Date
+  paidDate  DateTime? // When fully paid
+
+  // Source tracking
+  sourceType         BillSourceType @default(MANUAL)
+  sourceEmailId      String? // If extracted from email
+  sourceAttachmentId String? // If from email attachment
+  extractedDataId    String? // Link to AI extraction record
+
+  // Categorization & Tax
+  categoryId        String? // Expense category
+  taxDeductible     Boolean  @default(true)
+  deductionCategory String? // Tax deduction category
+  vatRate           Decimal? @db.Decimal(5, 2)
+
+  // Approval workflow
+  approvedBy     String?
+  approvedAt     DateTime?
+  rejectedBy     String?
+  rejectedAt     DateTime?
+  rejectionNotes String?
+
+  // Notes
+  notes         String?
+  internalNotes String?
+
+  // Attachments
+  attachmentUrls String[] @default([])
+
+  // Metadata
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  organisation Organisation   @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  vendor       Vendor?        @relation(fields: [vendorId], references: [id])
+  lineItems    BillLineItem[]
+  payments     BillPayment[]
+
+  @@unique([organisationId, billNumber, vendorId])
+  @@index([organisationId])
+  @@index([vendorId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([issueDate])
+  @@index([dueDate])
+  @@index([sourceType])
+  @@index([categoryId])
+}
+
+model BillLineItem {
+  id     String @id @default(uuid())
+  billId String
+
+  // Line item details
+  description String
+  quantity    Decimal @default(1) @db.Decimal(10, 2)
+  unitPrice   Decimal @db.Decimal(12, 2)
+  amount      Decimal @db.Decimal(12, 2) // quantity * unitPrice
+
+  // Tax
+  taxRate   Decimal? @db.Decimal(5, 2)
+  taxAmount Decimal? @db.Decimal(12, 2)
+
+  // Optional categorization
+  category    String?
+  productCode String?
+
+  sortOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bill Bill @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  @@index([billId])
+}
+
+model BillPayment {
+  id     String @id @default(uuid())
+  billId String
+
+  // Payment details
+  amount        Decimal  @db.Decimal(12, 2)
+  paymentDate   DateTime @db.Date
+  paymentMethod String? // bank_transfer, credit_card, check, etc.
+
+  // Bank transaction linking
+  transactionId     String? // Link to BankTransaction
+  bankTransactionId String? // External bank transaction ID
+
+  // Reference
+  reference String?
+  notes     String?
+
+  // Metadata
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bill Bill @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  @@index([billId])
+  @@index([transactionId])
+  @@index([paymentDate])
+}
+
 model BankAccount {
   id    String @id @default(uuid())
   orgId String
@@ -2029,12 +2202,49 @@ model BankTransaction {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  bankAccount BankAccount @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  bankAccount BankAccount         @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  allocations PaymentAllocation[]
 
   @@index([bankAccountId])
   @@index([date])
   @@index([isReconciled])
   @@index([externalId])
+}
+
+model PaymentAllocation {
+  id              String   @id @default(cuid())
+
+  // Link to invoice being paid
+  invoiceId       String
+  invoice         Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  // Link to bank transaction (payment)
+  transactionId   String
+  transaction     BankTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  // Allocation details
+  amount          Decimal  @db.Decimal(19, 4)
+  currency        String   @default("EUR")
+  allocatedAt     DateTime @default(now())
+  allocatedBy     String?  // User ID or 'SYSTEM' for auto
+
+  // Reconciliation status
+  status          AllocationStatus @default(MATCHED)
+  confidence      Float?   // For auto-matched: 0-1 confidence score
+  matchMethod     String?  // 'REFERENCE', 'AMOUNT', 'AI', 'MANUAL'
+
+  // Organization
+  orgId           String
+  organization    Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  // Audit
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([invoiceId, transactionId])
+  @@index([orgId])
+  @@index([invoiceId])
+  @@index([transactionId])
 }
 
 // ============================================================================
@@ -2092,6 +2302,14 @@ enum ReconciliationAction {
   AUTO_MATCH_EXPENSE
   CATEGORIZE
   IGNORE
+}
+
+enum AllocationStatus {
+  MATCHED
+  PARTIAL
+  OVERPAID
+  DISPUTED
+  REVERSED
 }
 
 model BankConnection {
@@ -2193,6 +2411,10 @@ model BankTransactionNew {
   matchedExpenseId        String? // Optional relation to Expense
   matchedInvoicePaymentId String? // Optional relation to Invoice payment
 
+  // AI Categorization
+  category ExpenseCategory? // Auto-categorized expense category
+  metadata Json? // Stores categorization results, tax deductions, etc.
+
   // Raw data
   rawData Json? // Original provider response
 
@@ -2207,6 +2429,7 @@ model BankTransactionNew {
   @@index([reconciliationStatus])
   @@index([transactionId])
   @@index([merchantName])
+  @@index([category])
 }
 
 model ReconciliationRule {
@@ -3305,6 +3528,110 @@ model ClientPayment {
   @@index([status])
   @@index([invoiceId])
   @@index([paidAt])
+}
+
+// ============================================================================
+// VENDOR MANAGEMENT (Accounts Payable)
+// ============================================================================
+
+enum VendorStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum TaxIdType {
+  VAT_EU // European VAT number
+  VAT_DE // German VAT (Umsatzsteuer-ID)
+  VAT_AT // Austrian VAT (UID)
+  EIN_US // US Employer Identification Number
+  OTHER // Other tax identification types
+}
+
+model Vendor {
+  id             String @id @default(uuid())
+  organisationId String
+
+  // Basic info
+  name        String
+  displayName String?
+  email       String?
+  phone       String?
+  website     String?
+
+  // Address
+  addressLine1 String?
+  addressLine2 String?
+  city         String?
+  state        String?
+  postalCode   String?
+  country      String?
+
+  // Tax identification
+  taxId     String?
+  taxIdType TaxIdType @default(OTHER)
+
+  // Payment terms
+  paymentTerms Int @default(30) // days until payment due
+
+  // Payment details (for future payment automation)
+  preferredPaymentMethod String? // bank_transfer, credit_card, etc.
+  bankAccountName        String?
+  bankIban               String?
+  bankBic                String?
+
+  // Default categorization for expenses
+  defaultCategoryId    String? // Category to auto-assign to bills from this vendor (FK - Category model TBD)
+  defaultTaxDeductible Boolean @default(true)
+
+  // Status
+  status VendorStatus @default(ACTIVE)
+
+  // Notes
+  notes String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  bills        Bill[] // Bills from this vendor (will be created by other VAULT agent)
+
+  @@unique([organisationId, taxId])
+  @@index([organisationId])
+  @@index([status])
+  @@index([name])
+  @@index([email])
+  @@index([taxId])
+}
+
+// ============================================================================
+// RELATIONSHIP TRACKING MODELS (Email Intelligence)
+// ============================================================================
+
+model RelationshipMetrics {
+  id             String @id @default(uuid())
+  entityId       String
+  entityType     String // CUSTOMER or VENDOR
+  organisationId String
+
+  // Metrics stored as JSON for flexibility
+  metrics      Json
+  healthScore  Int
+  healthStatus String
+
+  createdAt   DateTime @default(now())
+  lastUpdated DateTime @updatedAt
+
+  // Relations
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  @@unique([entityId, entityType, organisationId])
+  @@index([organisationId])
+  @@index([healthScore])
+  @@index([healthStatus])
+  @@index([lastUpdated])
 }
 
 // ============================================================================
@@ -4995,8 +5322,13 @@ enum UsageFeature {
   API_CALL // API requests
   STORAGE_GB // Storage in gigabytes
   AI_CLASSIFICATION // AI-powered transaction classification
+  AI_MESSAGES // AI chat messages per month
   EMAIL_SENT // Emails sent
+  EMAIL_SYNCS // Email inbox syncs per month
   BANK_SYNC // Bank account syncs
+  BANK_CONNECTIONS // Number of connected bank accounts
+  INVOICES // Invoices created per month
+  TAX_FILINGS // Tax filings submitted per month
   SMS_SENT // SMS notifications
   EXPORT_PDF // PDF exports
   WEBHOOK_CALL // Webhook calls
@@ -5172,6 +5504,50 @@ model StripeUsageRecord {
   @@index([status])
   @@index([stripeSubscriptionItemId])
   @@map("stripe_usage_records")
+}
+
+//
+// Subscription Tier
+// Defines subscription plans with usage limits
+//
+// Features:
+// - Tier-based pricing (Free, Starter, Pro, Business)
+// - Usage limits per feature
+// - Monthly/Annual pricing options
+//
+model SubscriptionTier {
+  id          String  @id @default(cuid())
+  name        String  @unique // 'free' | 'starter' | 'pro' | 'business'
+  displayName String // 'Free Plan', 'Starter Plan', etc.
+  description String?
+
+  // Pricing (in cents)
+  priceMonthly Int @default(0)
+  priceAnnual  Int @default(0)
+
+  // Usage limits (JSON structure)
+  // { "AI_MESSAGES": 50, "BANK_CONNECTIONS": 1, "INVOICES": 5, "EMAIL_SYNCS": 10, "TAX_FILINGS": 1 }
+  // -1 = unlimited
+  limits Json @default("{}")
+
+  // Features enabled
+  features Json @default("[]") // ["feature1", "feature2"]
+
+  // Status
+  isActive  Boolean @default(true)
+  isVisible Boolean @default(true) // Show in pricing page
+
+  // Stripe integration
+  stripePriceIdMonthly String?
+  stripePriceIdAnnual  String?
+  stripeProductId      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@index([isActive, isVisible])
+  @@map("subscription_tiers")
 }
 
 // ============================================================================
@@ -6315,11 +6691,23 @@ model SyncedEmail {
   attachmentSizes     Int[] // Sizes in bytes
   attachmentMimeTypes String[] // MIME types
 
-  // Classification
+  // Classification (attachment-based)
   isInvoice   Boolean @default(false)
   isReceipt   Boolean @default(false)
   isFinancial Boolean @default(false)
   confidence  Float? // AI classification confidence (0-1)
+
+  // Email classification fields
+  classification              String? // EmailClassification enum
+  classificationConfidence    Float? // 0-1 confidence score
+  classificationPriority      String? // EmailPriority enum
+  classificationReasoning     String?   @db.Text
+  classificationIntent        String?   @db.Text // Extracted intent
+  classificationEntities      Json? // Extracted entities (vendor, invoice #, etc.)
+  classificationAction        String? // SuggestedAction enum
+  classificationActionDetails String?   @db.Text
+  classificationFlags         String[] // Additional flags
+  classifiedAt                DateTime? // When classification was performed
 
   // Processing status
   processed       Boolean   @default(false)
@@ -6345,9 +6733,10 @@ model SyncedEmail {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  connection  EmailConnection   @relation(fields: [connectionId], references: [id], onDelete: Cascade)
-  syncJob     EmailSyncJob?     @relation(fields: [syncJobId], references: [id], onDelete: SetNull)
-  attachments EmailAttachment[] // Relation to attachments
+  connection        EmailConnection         @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  syncJob           EmailSyncJob?           @relation(fields: [syncJobId], references: [id], onDelete: SetNull)
+  attachments       EmailAttachment[] // Relation to attachments
+  extractedEntities EmailExtractedEntities? // Relation to extracted entities (one-to-one)
 
   @@unique([connectionId, externalId])
   @@index([connectionId])
@@ -6361,6 +6750,9 @@ model SyncedEmail {
   @@index([isReceipt])
   @@index([hasAttachments])
   @@index([lastSyncedAt])
+  @@index([classification])
+  @@index([classificationPriority])
+  @@index([classifiedAt])
   @@map("synced_emails")
 }
 
@@ -6528,6 +6920,50 @@ model EmailAttachment {
   @@index([contentHash])
   @@index([createdAt])
   @@map("email_attachments")
+}
+
+/// Email Extracted Entities - Stores extracted business entities from emails
+/// Uses AI to extract companies, contacts, amounts, dates, and other entities
+model EmailExtractedEntities {
+  id      String @id @default(cuid())
+  emailId String @unique // One-to-one with SyncedEmail
+  orgId   String
+  userId  String
+
+  // Extracted entities stored as JSON
+  entities Json // Full ExtractedEntities object
+
+  // Quick access fields (denormalized for querying)
+  companyNames   String[] // List of extracted company names
+  contactEmails  String[] // List of extracted contact emails
+  invoiceNumbers String[] // List of invoice numbers found
+  orderNumbers   String[] // List of order numbers found
+
+  // Confidence and metadata
+  overallConfidence Float    @default(0) // 0-1
+  extractedAt       DateTime @default(now())
+
+  // Processing status
+  status          String  @default("PENDING") // PENDING, COMPLETED, FAILED
+  processingError String? @db.Text
+  retryCount      Int     @default(0)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  email SyncedEmail @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  @@index([emailId])
+  @@index([orgId])
+  @@index([userId])
+  @@index([status])
+  @@index([companyNames])
+  @@index([contactEmails])
+  @@index([invoiceNumbers])
+  @@index([extractedAt])
+  @@map("email_extracted_entities")
 }
 
 /// Storage Quota - Tracks storage usage per organization
@@ -6740,4 +7176,212 @@ model ConversationMemory {
   @@index([conversationId])
   @@index([type])
   @@map("conversation_memories")
+}
+
+// ============================================================================
+// EMAIL INTELLIGENCE - Suggestions
+// ============================================================================
+
+enum EmailSuggestionType {
+  // Follow-ups
+  FOLLOW_UP_QUOTE
+  FOLLOW_UP_INVOICE
+  FOLLOW_UP_INQUIRY
+
+  // Re-engagement
+  REENGAGE_DORMANT
+  REENGAGE_PAST_CUSTOMER
+
+  // Opportunities
+  UPSELL_OPPORTUNITY
+  NEW_CONTACT_DETECTED
+
+  // Warnings
+  RELATIONSHIP_DECLINING
+  PAYMENT_PATTERN_CHANGE
+
+  // Actions
+  CREATE_INVOICE
+  CREATE_BILL
+  UPDATE_CONTACT
+}
+
+enum EmailSuggestionPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum EmailSuggestionStatus {
+  PENDING
+  VIEWED
+  COMPLETED
+  DISMISSED
+  SNOOZED
+  EXPIRED
+}
+
+enum EmailSuggestionEntityType {
+  CUSTOMER
+  VENDOR
+  CONTACT
+  INVOICE
+  BILL
+  EMAIL
+}
+
+enum EmailSuggestionActionType {
+  NAVIGATE
+  CHAT_ACTION
+  API_CALL
+  OPEN_MODAL
+}
+
+model EmailSuggestion {
+  id             String @id @default(uuid())
+  organisationId String
+
+  // Suggestion details
+  type     EmailSuggestionType
+  priority EmailSuggestionPriority @default(MEDIUM)
+  status   EmailSuggestionStatus   @default(PENDING)
+  title    String
+  message  String                  @db.Text
+
+  // Related entity
+  entityId   String?
+  entityType EmailSuggestionEntityType?
+  entityName String?
+
+  // Source email
+  sourceEmailId      String?
+  sourceEmailSubject String?
+
+  // Action
+  actionType    EmailSuggestionActionType?
+  actionPayload Json?
+  actionLabel   String?
+
+  // Metadata
+  confidence  Decimal? @db.Decimal(3, 2) // AI confidence (0.00-1.00)
+  contextData Json?    @default("{}")
+
+  // Lifecycle
+  createdAt    DateTime  @default(now())
+  expiresAt    DateTime?
+  dismissedAt  DateTime?
+  dismissedBy  String?
+  completedAt  DateTime?
+  completedBy  String?
+  snoozedUntil DateTime?
+
+  @@index([organisationId])
+  @@index([type])
+  @@index([priority])
+  @@index([status])
+  @@index([entityId])
+  @@index([entityType])
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@map("email_suggestions")
+}
+
+// ============================================================================
+// VAT RETURN MODELS
+// ============================================================================
+
+model VatReturn {
+  id             String @id @default(uuid())
+  organisationId String
+
+  // Period
+  period      String // "2025-Q1" or "2025-01" or "2025"
+  periodType  String // "monthly" | "quarterly" | "yearly"
+  periodStart DateTime
+  periodEnd   DateTime
+
+  // VAT amounts
+  outputVat Decimal @db.Decimal(12, 2) // Total VAT on sales
+  inputVat  Decimal @db.Decimal(12, 2) // Total VAT on purchases
+  netVat    Decimal @db.Decimal(12, 2) // outputVat - inputVat (negative = refund due)
+
+  // Status
+  status VatReturnStatus @default(DRAFT)
+
+  // ELSTER submission details
+  transferTicket String? // ELSTER transfer ticket number
+  receiptId      String? // ELSTER receipt ID
+  submittedAt    DateTime?
+  acceptedAt     DateTime?
+  rejectedAt     DateTime?
+
+  // Rejection details
+  rejectionReason String? @db.Text
+  errorCode       String?
+
+  // Approval workflow
+  approvedBy String?
+  approvedAt DateTime?
+
+  // Stored preview data (full snapshot for audit trail)
+  previewData Json
+
+  // Notes
+  notes String? @db.Text
+
+  // Metadata
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organisationId, period])
+  @@index([organisationId])
+  @@index([status])
+  @@index([periodStart])
+  @@index([periodEnd])
+  @@index([submittedAt])
+  @@map("vat_returns")
+}
+
+// ============================================================================
+// TAX DOCUMENT ARCHIVE
+// ============================================================================
+
+model TaxDocument {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // Document classification
+  type   String // vat_return, elster_receipt, annual_return, tax_assessment, supporting_doc
+  year   Int
+  period String? // Q1 2025, 2025-01, etc.
+
+  // Document metadata
+  title       String
+  description String?
+
+  // Storage & integrity
+  fileUrl  String // URL to stored file (S3, local storage, etc.)
+  fileSize Int // Size in bytes
+  mimeType String // application/json, application/pdf, etc.
+  hash     String // SHA-256 hash for integrity verification
+
+  // Retention management (German tax law: §147 AO - 10 years)
+  retentionUntil DateTime // Calculated: 10 years from end of tax year
+
+  // Additional metadata (flexible JSON for type-specific data)
+  metadata Json? // transferTicket, submissionId, etc.
+
+  // Audit trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId, year])
+  @@index([organisationId, type])
+  @@index([type])
+  @@index([year])
+  @@index([retentionUntil])
 }

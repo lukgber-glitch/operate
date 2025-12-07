@@ -1,14 +1,38 @@
 import { Logger } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { SubscriptionStatus } from './dto/subscription.dto';
+import { SubscriptionStatus, SubscriptionTier } from './dto/subscription.dto';
 import Stripe from 'stripe';
 
 /**
  * Stripe Billing Webhook Handlers
- * Separate handlers for subscription and invoice webhook events
+ * Handles subscription and invoice webhook events with full lifecycle management
  *
- * Add these methods to StripeWebhookController and call them from processEvent()
+ * Features:
+ * - Subscription creation, updates, and cancellation
+ * - Organization tier management based on price IDs
+ * - Invoice payment tracking and failure handling
+ * - Trial period notifications
+ * - Idempotency through event ID tracking
  */
+
+/**
+ * Price ID to Tier Mapping
+ * Map your Stripe price IDs to subscription tiers
+ * Update these with your actual Stripe price IDs
+ */
+const PRICE_TO_TIER: Record<string, SubscriptionTier> = {
+  // Monthly prices
+  'price_starter_monthly': SubscriptionTier.PRO,
+  'price_pro_monthly': SubscriptionTier.PRO,
+  'price_business_monthly': SubscriptionTier.ENTERPRISE,
+  'price_enterprise_monthly': SubscriptionTier.ENTERPRISE,
+
+  // Annual prices
+  'price_starter_annual': SubscriptionTier.PRO,
+  'price_pro_annual': SubscriptionTier.PRO,
+  'price_business_annual': SubscriptionTier.ENTERPRISE,
+  'price_enterprise_annual': SubscriptionTier.ENTERPRISE,
+};
 
 export class StripeBillingWebhookHandlers {
   private readonly logger = new Logger(StripeBillingWebhookHandlers.name);
@@ -26,10 +50,12 @@ export class StripeBillingWebhookHandlers {
     const status = this.mapSubscriptionStatus(subscription.status);
     const customerId = subscription.customer as string;
 
-    // Get user_id from customer
+    // Get user_id and org_id from customer
     const customer = await this.prisma.$queryRaw<any[]>`
-      SELECT user_id FROM stripe_customers
-      WHERE stripe_customer_id = ${customerId}
+      SELECT sc.user_id, uo.org_id
+      FROM stripe_customers sc
+      LEFT JOIN user_organizations uo ON uo.user_id = sc.user_id AND uo.role = 'OWNER'
+      WHERE sc.stripe_customer_id = ${customerId}
       LIMIT 1
     `;
 
@@ -39,13 +65,28 @@ export class StripeBillingWebhookHandlers {
     }
 
     const userId = customer[0].user_id;
+    const orgId = customer[0].org_id || subscription.metadata?.orgId;
 
-    // Store subscription
+    // Determine tier from price ID
+    const priceId = subscription.items.data[0]?.price.id;
+    const tier = this.getTierFromPriceId(priceId) || subscription.metadata?.tier || SubscriptionTier.FREE;
+
+    // Store subscription with tier in metadata
+    const metadata = {
+      ...subscription.metadata,
+      tier,
+      orgId,
+      seats: subscription.items.data[0]?.quantity?.toString() || '1',
+    };
+
+    const currentPeriodStart = subscription.current_period_start || Math.floor(Date.now() / 1000);
+    const currentPeriodEnd = subscription.current_period_end || Math.floor(Date.now() / 1000);
+
     await this.prisma.$executeRaw`
       INSERT INTO stripe_subscriptions
       (user_id, stripe_subscription_id, stripe_customer_id, status, current_period_start, current_period_end, trial_start, trial_end, cancel_at_period_end, metadata, created_at, updated_at)
       VALUES
-      (${userId}, ${subscription.id}, ${customerId}, ${status}, to_timestamp(${subscription.current_period_start}), to_timestamp(${subscription.current_period_end}), ${subscription.trial_start ? `to_timestamp(${subscription.trial_start})` : null}, ${subscription.trial_end ? `to_timestamp(${subscription.trial_end})` : null}, ${subscription.cancel_at_period_end}, ${JSON.stringify(subscription.metadata)}::jsonb, NOW(), NOW())
+      (${userId}, ${subscription.id}, ${customerId}, ${status}, to_timestamp(${currentPeriodStart}), to_timestamp(${currentPeriodEnd}), ${subscription.trial_start ? `to_timestamp(${subscription.trial_start})` : null}, ${subscription.trial_end ? `to_timestamp(${subscription.trial_end})` : null}, ${subscription.cancel_at_period_end}, ${JSON.stringify(metadata)}::jsonb, NOW(), NOW())
       ON CONFLICT (stripe_subscription_id) DO NOTHING
     `;
 
@@ -60,6 +101,12 @@ export class StripeBillingWebhookHandlers {
         ON CONFLICT (stripe_subscription_item_id) DO NOTHING
       `;
     }
+
+    // Update organization tier if orgId is available
+    if (orgId && typeof tier === 'string') {
+      await this.updateOrganizationTier(orgId, tier as SubscriptionTier, subscription.trial_end);
+      this.logger.log(`Updated organization ${orgId} to tier ${tier}`);
+    }
   }
 
   /**
@@ -72,18 +119,33 @@ export class StripeBillingWebhookHandlers {
 
     const status = this.mapSubscriptionStatus(subscription.status);
 
+    // Determine tier from price ID
+    const priceId = subscription.items.data[0]?.price.id;
+    const tier = this.getTierFromPriceId(priceId) || subscription.metadata?.tier || SubscriptionTier.FREE;
+    const orgId = subscription.metadata?.orgId;
+
+    // Update metadata with tier
+    const metadata = {
+      ...subscription.metadata,
+      tier,
+      seats: subscription.items.data[0]?.quantity?.toString() || '1',
+    };
+
+    const currentPeriodStart = subscription.current_period_start || Math.floor(Date.now() / 1000);
+    const currentPeriodEnd = subscription.current_period_end || Math.floor(Date.now() / 1000);
+
     await this.prisma.$executeRaw`
       UPDATE stripe_subscriptions
       SET
         status = ${status},
-        current_period_start = to_timestamp(${subscription.current_period_start}),
-        current_period_end = to_timestamp(${subscription.current_period_end}),
+        current_period_start = to_timestamp(${currentPeriodStart}),
+        current_period_end = to_timestamp(${currentPeriodEnd}),
         trial_start = ${subscription.trial_start ? `to_timestamp(${subscription.trial_start})` : null},
         trial_end = ${subscription.trial_end ? `to_timestamp(${subscription.trial_end})` : null},
         cancel_at_period_end = ${subscription.cancel_at_period_end},
         canceled_at = ${subscription.canceled_at ? `to_timestamp(${subscription.canceled_at})` : null},
         ended_at = ${subscription.ended_at ? `to_timestamp(${subscription.ended_at})` : null},
-        metadata = ${JSON.stringify(subscription.metadata)}::jsonb,
+        metadata = ${JSON.stringify(metadata)}::jsonb,
         updated_at = NOW()
       WHERE stripe_subscription_id = ${subscription.id}
     `;
@@ -103,6 +165,12 @@ export class StripeBillingWebhookHandlers {
           updated_at = NOW()
       `;
     }
+
+    // Update organization tier if plan changed or status changed
+    if (orgId && typeof tier === 'string') {
+      await this.updateOrganizationTier(orgId, tier as SubscriptionTier, subscription.trial_end);
+      this.logger.log(`Updated organization ${orgId} to tier ${tier} (status: ${status})`);
+    }
   }
 
   /**
@@ -113,6 +181,8 @@ export class StripeBillingWebhookHandlers {
   ): Promise<void> {
     this.logger.log(`Processing customer.subscription.deleted for ${subscription.id}`);
 
+    const orgId = subscription.metadata?.orgId;
+
     await this.prisma.$executeRaw`
       UPDATE stripe_subscriptions
       SET
@@ -122,6 +192,12 @@ export class StripeBillingWebhookHandlers {
         updated_at = NOW()
       WHERE stripe_subscription_id = ${subscription.id}
     `;
+
+    // Downgrade organization to FREE tier
+    if (orgId) {
+      await this.updateOrganizationTier(orgId, SubscriptionTier.FREE, null);
+      this.logger.log(`Downgraded organization ${orgId} to FREE tier after cancellation`);
+    }
 
     // TODO: Send notification to user about subscription cancellation
   }
@@ -144,7 +220,11 @@ export class StripeBillingWebhookHandlers {
   async handleInvoicePaid(invoice: Stripe.Invoice): Promise<void> {
     this.logger.log(`Processing invoice.paid for ${invoice.id}`);
 
-    const customerId = invoice.customer as string;
+    const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+    if (!customerId) {
+      this.logger.warn('Invoice has no customer ID');
+      return;
+    }
 
     // Get user_id from customer
     const customer = await this.prisma.$queryRaw<any[]>`
@@ -159,13 +239,14 @@ export class StripeBillingWebhookHandlers {
     }
 
     const userId = customer[0].user_id;
+    const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
 
     // Store billing history
     await this.prisma.$executeRaw`
       INSERT INTO stripe_billing_history
       (user_id, stripe_invoice_id, stripe_customer_id, stripe_subscription_id, invoice_number, amount, currency, status, invoice_url, invoice_pdf, period_start, period_end, paid_at, metadata, created_at, updated_at)
       VALUES
-      (${userId}, ${invoice.id}, ${customerId}, ${invoice.subscription as string || null}, ${invoice.number || null}, ${invoice.amount_paid}, ${invoice.currency}, 'paid', ${invoice.hosted_invoice_url || null}, ${invoice.invoice_pdf || null}, ${invoice.period_start ? `to_timestamp(${invoice.period_start})` : null}, ${invoice.period_end ? `to_timestamp(${invoice.period_end})` : null}, NOW(), ${JSON.stringify(invoice.metadata)}::jsonb, NOW(), NOW())
+      (${userId}, ${invoice.id}, ${customerId}, ${subscriptionId || null}, ${invoice.number || null}, ${invoice.amount_paid || 0}, ${invoice.currency || 'usd'}, 'paid', ${invoice.hosted_invoice_url || null}, ${invoice.invoice_pdf || null}, ${invoice.period_start ? `to_timestamp(${invoice.period_start})` : null}, ${invoice.period_end ? `to_timestamp(${invoice.period_end})` : null}, NOW(), ${JSON.stringify(invoice.metadata || {})}::jsonb, NOW(), NOW())
       ON CONFLICT (stripe_invoice_id)
       DO UPDATE SET
         status = 'paid',
@@ -184,11 +265,12 @@ export class StripeBillingWebhookHandlers {
     this.logger.log(`Processing invoice.payment_failed for ${invoice.id}`);
 
     // Update subscription status to PAST_DUE if applicable
-    if (invoice.subscription) {
+    const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+    if (subscriptionId) {
       await this.prisma.$executeRaw`
         UPDATE stripe_subscriptions
         SET status = ${SubscriptionStatus.PAST_DUE}, updated_at = NOW()
-        WHERE stripe_subscription_id = ${invoice.subscription as string}
+        WHERE stripe_subscription_id = ${subscriptionId}
       `;
     }
 
@@ -208,6 +290,9 @@ export class StripeBillingWebhookHandlers {
 
   // Helper Methods
 
+  /**
+   * Map Stripe subscription status to internal status
+   */
   private mapSubscriptionStatus(status: Stripe.Subscription.Status): SubscriptionStatus {
     const statusMap: Record<string, SubscriptionStatus> = {
       active: SubscriptionStatus.ACTIVE,
@@ -222,57 +307,43 @@ export class StripeBillingWebhookHandlers {
 
     return statusMap[status] || SubscriptionStatus.ACTIVE;
   }
-}
 
-/**
- * INSTRUCTIONS FOR INTEGRATION:
- *
- * 1. Add these case statements to the processEvent() switch statement in stripe-webhook.controller.ts:
- *
- *    // Subscription Events
- *    case 'customer.subscription.created':
- *      await this.billingHandlers.handleSubscriptionCreated(event.data.object as Stripe.Subscription);
- *      break;
- *
- *    case 'customer.subscription.updated':
- *      await this.billingHandlers.handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
- *      break;
- *
- *    case 'customer.subscription.deleted':
- *      await this.billingHandlers.handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
- *      break;
- *
- *    case 'customer.subscription.trial_will_end':
- *      await this.billingHandlers.handleSubscriptionTrialWillEnd(event.data.object as Stripe.Subscription);
- *      break;
- *
- *    // Invoice Events
- *    case 'invoice.paid':
- *      await this.billingHandlers.handleInvoicePaid(event.data.object as Stripe.Invoice);
- *      break;
- *
- *    case 'invoice.payment_failed':
- *      await this.billingHandlers.handleInvoicePaymentFailed(event.data.object as Stripe.Invoice);
- *      break;
- *
- *    case 'invoice.upcoming':
- *      await this.billingHandlers.handleInvoiceUpcoming(event.data.object as Stripe.Invoice);
- *      break;
- *
- * 2. Add to StripeWebhookController constructor:
- *
- *    private readonly billingHandlers: StripeBillingWebhookHandlers;
- *
- *    constructor(
- *      private readonly stripeService: StripeService,
- *      private readonly stripeConnectService: StripeConnectService,
- *      private readonly prisma: PrismaService,
- *    ) {
- *      this.billingHandlers = new StripeBillingWebhookHandlers(this.prisma);
- *    }
- *
- * 3. Add import at the top:
- *
- *    import { StripeBillingWebhookHandlers } from './stripe-webhook-billing-handlers';
- *    import { SubscriptionStatus } from './dto/subscription.dto';
- */
+  /**
+   * Get tier from Stripe price ID
+   */
+  private getTierFromPriceId(priceId: string): SubscriptionTier | null {
+    return PRICE_TO_TIER[priceId] || null;
+  }
+
+  /**
+   * Update organization tier and subscription status
+   */
+  private async updateOrganizationTier(
+    orgId: string,
+    tier: SubscriptionTier,
+    trialEndsAt: number | null,
+  ): Promise<void> {
+    try {
+      // Update organization settings with subscription tier
+      const settings = await this.prisma.$queryRaw<any[]>`
+        SELECT settings FROM organisations WHERE id = ${orgId} LIMIT 1
+      `;
+
+      const currentSettings = settings.length > 0 ? settings[0].settings : {};
+      const updatedSettings = {
+        ...currentSettings,
+        subscriptionTier: tier,
+        trialEndsAt: trialEndsAt ? new Date(trialEndsAt * 1000).toISOString() : null,
+      };
+
+      await this.prisma.$executeRaw`
+        UPDATE organisations
+        SET settings = ${JSON.stringify(updatedSettings)}::jsonb, updated_at = NOW()
+        WHERE id = ${orgId}
+      `;
+    } catch (error) {
+      this.logger.error(`Failed to update organization tier: ${error.message}`, error);
+      throw error;
+    }
+  }
+}

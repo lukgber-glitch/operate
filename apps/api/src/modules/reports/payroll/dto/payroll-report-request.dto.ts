@@ -80,20 +80,18 @@ export class PayrollReportRequestDto {
   @ApiProperty({
     description: 'Report format',
     enum: ReportFormat,
-    example: ReportFormat.PDF,
-    default: ReportFormat.PDF,
+    example: 'PDF',
+    default: 'PDF',
   })
-  @IsEnum(ReportFormat)
   format: ReportFormat;
 
   @ApiPropertyOptional({
     description: 'Report delivery method',
     enum: ReportDeliveryMethod,
-    example: ReportDeliveryMethod.DOWNLOAD,
-    default: ReportDeliveryMethod.DOWNLOAD,
+    example: 'DOWNLOAD',
+    default: 'DOWNLOAD',
   })
   @IsOptional()
-  @IsEnum(ReportDeliveryMethod)
   deliveryMethod?: ReportDeliveryMethod;
 
   @ApiPropertyOptional({
@@ -346,10 +344,9 @@ export class QuarterlyTaxRequestDto {
   @ApiProperty({
     description: 'Report format',
     enum: ReportFormat,
-    example: ReportFormat.PDF,
-    default: ReportFormat.PDF,
+    example: 'PDF',
+    default: 'PDF',
   })
-  @IsEnum(ReportFormat)
   format: ReportFormat;
 
   @ApiPropertyOptional({
@@ -397,10 +394,9 @@ export class AnnualW2SummaryRequestDto {
   @ApiProperty({
     description: 'Report format',
     enum: ReportFormat,
-    example: ReportFormat.PDF,
-    default: ReportFormat.PDF,
+    example: 'PDF',
+    default: 'PDF',
   })
-  @IsEnum(ReportFormat)
   format: ReportFormat;
 
   @ApiPropertyOptional({
@@ -429,9 +425,8 @@ export class CreateReportScheduleDto {
   @ApiProperty({
     description: 'Report type to schedule',
     enum: PayrollReportType,
-    example: PayrollReportType.PAYROLL_SUMMARY,
+    example: 'PAYROLL_SUMMARY',
   })
-  @IsEnum(PayrollReportType)
   reportType: PayrollReportType;
 
   @ApiProperty({
@@ -497,9 +492,8 @@ export class CreateReportScheduleDto {
   @ApiProperty({
     description: 'Report format',
     enum: ReportFormat,
-    example: ReportFormat.PDF,
+    example: 'PDF',
   })
-  @IsEnum(ReportFormat)
   format: ReportFormat;
 
   @ApiPropertyOptional({

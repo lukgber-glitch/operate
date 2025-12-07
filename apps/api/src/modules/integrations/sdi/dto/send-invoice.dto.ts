@@ -10,10 +10,8 @@ export class SendSDIInvoiceDto {
   @IsNotEmpty()
   organizationId: string;
 
-  @IsEnum(FatturaPAFormat)
   formatoTrasmissione: FatturaPAFormat;
 
-  @IsEnum(FatturaPADocumentType)
   tipoDocumento: FatturaPADocumentType;
 
   @IsString()
@@ -110,7 +108,6 @@ export class SupplierAnagraficaDto {
   @IsOptional()
   cognome?: string;
 
-  @IsEnum(RegimeFiscale)
   regimeFiscale: RegimeFiscale;
 }
 
@@ -232,7 +229,6 @@ export class InvoiceLineDto {
   @Max(100)
   aliquotaIVA: number;
 
-  @IsEnum(NaturaIVA)
   @IsOptional()
   natura?: NaturaIVA;
 }
@@ -246,7 +242,6 @@ export class TaxSummaryDto {
   @Max(100)
   aliquotaIVA: number;
 
-  @IsEnum(NaturaIVA)
   @IsOptional()
   natura?: NaturaIVA;
 
@@ -271,7 +266,6 @@ export class TaxSummaryDto {
  * Payment Data DTO
  */
 export class PaymentDataDto {
-  @IsEnum(CondizioniPagamento)
   condizioniPagamento: CondizioniPagamento;
 
   @IsArray()
@@ -284,7 +278,6 @@ export class PaymentDataDto {
  * Payment Detail DTO
  */
 export class PaymentDetailDto {
-  @IsEnum(ModalitaPagamento)
   modalitaPagamento: ModalitaPagamento;
 
   @IsDateString()

@@ -41,7 +41,7 @@ export class SvResponseDto {
   @ApiProperty({
     description: 'Response status',
     enum: SvResponseStatus,
-    example: SvResponseStatus.ACCEPTED,
+    example: 'ACCEPTED',
   })
   status!: SvResponseStatus;
 
@@ -153,7 +153,7 @@ export class BatchSvResponseDto {
   @ApiProperty({
     description: 'Overall batch status',
     enum: SvResponseStatus,
-    example: SvResponseStatus.PARTIAL,
+    example: 'PARTIAL',
   })
   overallStatus!: SvResponseStatus;
 }
@@ -242,7 +242,7 @@ export class CachedSubmissionDto {
   @ApiProperty({
     description: 'Response status',
     enum: SvResponseStatus,
-    example: SvResponseStatus.ACCEPTED,
+    example: 'ACCEPTED',
   })
   status!: SvResponseStatus;
 

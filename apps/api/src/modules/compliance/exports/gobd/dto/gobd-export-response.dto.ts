@@ -56,7 +56,7 @@ export class GobdExportResponseDto {
   @ApiProperty({
     description: 'Export status',
     enum: ExportStatus,
-    example: ExportStatus.COMPLETED,
+    example: 'COMPLETED',
   })
   status!: ExportStatus;
 
@@ -132,7 +132,7 @@ export class GobdExportListItemDto {
   @ApiProperty({
     description: 'Export status',
     enum: ExportStatus,
-    example: ExportStatus.COMPLETED,
+    example: 'COMPLETED',
   })
   status!: ExportStatus;
 

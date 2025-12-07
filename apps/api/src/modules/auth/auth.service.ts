@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
 import { UsersRepository } from '../users/users.repository';
 import { UsersService } from '../users/users.service';
 import { PrismaService } from '../database/prisma.service';
@@ -33,6 +34,16 @@ export class AuthService {
     private prisma: PrismaService,
     private mfaService: MfaService,
   ) {}
+
+  /**
+   * Hash a refresh token using SHA-256
+   * SECURITY: Tokens are hashed before storing to prevent token theft from database
+   * @param token - The plaintext refresh token
+   * @returns The SHA-256 hash (64 hex characters)
+   */
+  private hashRefreshToken(token: string): string {
+    return crypto.createHash('sha256').update(token).digest('hex');
+  }
 
   /**
    * Validate user credentials
@@ -166,24 +177,26 @@ export class AuthService {
       expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
     });
 
-    // Store refresh token in session table
+    // Store HASHED refresh token in session table
+    // SECURITY: Hash prevents token theft from database compromise
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+    const hashedRefreshToken = this.hashRefreshToken(refreshToken);
 
     await this.prisma.session.create({
       data: {
         userId: user.id,
-        token: refreshToken,
+        token: hashedRefreshToken, // Store hash, not plaintext
         expiresAt,
       },
     });
 
     this.logger.log(`User logged in: ${user.id}`);
 
-    // Return tokens (NEVER log tokens)
+    // Return plaintext tokens to user (NEVER log tokens)
     return new AuthResponseDto(
       accessToken,
-      refreshToken,
+      refreshToken, // User needs plaintext to refresh
       15 * 60, // 15 minutes in seconds
       false, // requiresMfa
       undefined,
@@ -196,14 +209,18 @@ export class AuthService {
    */
   async refresh(refreshToken: string): Promise<AuthResponseDto> {
     try {
-      // Verify refresh token
+      // Verify refresh token signature and expiration
       const payload = this.jwtService.verify<JwtPayload>(refreshToken, {
         secret: this.configService.get<string>('jwt.refreshSecret'),
       });
 
+      // Hash the incoming token to compare with stored hash
+      // SECURITY: Database stores hashes, not plaintext tokens
+      const hashedRefreshToken = this.hashRefreshToken(refreshToken);
+
       // Verify session exists and is not expired
       const session = await this.prisma.session.findUnique({
-        where: { token: refreshToken },
+        where: { token: hashedRefreshToken }, // Compare hashes
       });
 
       if (!session || session.expiresAt < new Date()) {
@@ -259,11 +276,15 @@ export class AuthService {
    * Logout user by invalidating session
    */
   async logout(userId: string, refreshToken: string): Promise<void> {
+    // Hash the token to find matching session
+    // SECURITY: Database stores hashes, not plaintext tokens
+    const hashedRefreshToken = this.hashRefreshToken(refreshToken);
+
     // Delete session
     await this.prisma.session.deleteMany({
       where: {
         userId,
-        token: refreshToken,
+        token: hashedRefreshToken, // Compare hashes
       },
     });
 
@@ -349,14 +370,16 @@ export class AuthService {
         expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
       });
 
-      // Store refresh token in session table
+      // Store HASHED refresh token in session table
+      // SECURITY: Hash prevents token theft from database compromise
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+      const hashedRefreshToken = this.hashRefreshToken(refreshToken);
 
       await this.prisma.session.create({
         data: {
           userId: user.id,
-          token: refreshToken,
+          token: hashedRefreshToken, // Store hash, not plaintext
           expiresAt,
         },
       });
@@ -365,7 +388,7 @@ export class AuthService {
 
       return new AuthResponseDto(
         accessToken,
-        refreshToken,
+        refreshToken, // User needs plaintext to refresh
         15 * 60, // 15 minutes in seconds
         false,
         undefined,

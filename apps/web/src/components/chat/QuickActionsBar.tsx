@@ -65,14 +65,19 @@ export function QuickActionsBar({
             const Icon = iconMap[action.icon] || FileText;
 
             return (
-              <Button
+              <button
                 key={action.id}
-                variant="outline"
-                size="sm"
                 className={cn(
-                  'gap-2 transition-all shrink-0',
-                  activeAction === action.id && 'scale-95 bg-accent'
+                  'inline-flex items-center gap-2 px-4 py-2 shrink-0',
+                  'transition-all cursor-pointer',
+                  activeAction === action.id && 'scale-95'
                 )}
+                style={{
+                  background: 'var(--color-accent-light)',
+                  color: 'var(--color-primary-dark)',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: 'var(--font-size-sm)',
+                }}
                 onClick={() => handleAction(action)}
                 title={action.label}
               >
@@ -86,7 +91,7 @@ export function QuickActionsBar({
                     {action.shortcut}
                   </kbd>
                 )}
-              </Button>
+              </button>
             );
           })}
         </div>

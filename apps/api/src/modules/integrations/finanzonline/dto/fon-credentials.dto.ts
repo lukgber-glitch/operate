@@ -55,9 +55,8 @@ export class FonCredentialsDto {
   @ApiPropertyOptional({
     description: 'Environment to use (defaults to production)',
     enum: FonEnvironment,
-    example: FonEnvironment.SANDBOX,
+    example: 'SANDBOX',
   })
-  @IsEnum(FonEnvironment)
   @IsOptional()
   environment?: FonEnvironment;
 }
@@ -141,7 +140,7 @@ export class FonSessionDto {
   @ApiProperty({
     description: 'Environment used',
     enum: FonEnvironment,
-    example: FonEnvironment.PRODUCTION,
+    example: 'PRODUCTION',
   })
   environment!: FonEnvironment;
 }

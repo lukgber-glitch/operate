@@ -25,6 +25,8 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { PrismaService } from '../../database/prisma.service';
+import { TrueLayerConnectionStatus } from './truelayer.types';
 
 /**
  * TrueLayer Integration Controller
@@ -39,6 +41,7 @@ export class TrueLayerController {
     private readonly trueLayerService: TrueLayerService,
     private readonly trueLayerBankingService: TrueLayerBankingService,
     private readonly trueLayerTransactionMatcherService: TrueLayerTransactionMatcherService,
+    private readonly prisma: PrismaService,
     @InjectQueue('truelayer-sync') private readonly syncQueue: Queue,
     @InjectQueue('truelayer-balance') private readonly balanceQueue: Queue,
   ) {}
@@ -405,29 +408,45 @@ export class TrueLayerController {
       switch (webhookDto.type) {
         case 'transaction.created':
           this.logger.log(`New transaction webhook for resource ${webhookDto.resource_id}`);
-          // TODO: Trigger background job to sync transactions
+          // Queue transaction sync job
+          await this.syncQueue.add('webhook-transaction-sync', {
+            resourceId: webhookDto.resource_id,
+            eventId: webhookDto.event_id,
+            eventTimestamp: webhookDto.event_timestamp,
+          });
           break;
 
         case 'account.updated':
           this.logger.log(`Account updated webhook for resource ${webhookDto.resource_id}`);
-          // TODO: Trigger background job to refresh account data
+          // Queue account sync job
+          await this.syncQueue.add('webhook-account-sync', {
+            resourceId: webhookDto.resource_id,
+            eventId: webhookDto.event_id,
+            eventTimestamp: webhookDto.event_timestamp,
+          });
           break;
 
         case 'balance.updated':
           this.logger.log(`Balance updated webhook for resource ${webhookDto.resource_id}`);
-          // TODO: Trigger background job to refresh balance
+          // Queue balance refresh job
+          await this.balanceQueue.add('webhook-balance-refresh', {
+            resourceId: webhookDto.resource_id,
+            eventId: webhookDto.event_id,
+            eventTimestamp: webhookDto.event_timestamp,
+          });
           break;
 
         case 'consent.revoked':
           this.logger.log(`Consent revoked webhook for resource ${webhookDto.resource_id}`);
-          // TODO: Update connection status to REVOKED
+          // Update connection status to REVOKED
+          await this.handleConsentRevoked(webhookDto.resource_id);
           break;
 
         default:
           this.logger.log(`Unhandled webhook type: ${webhookDto.type}`);
       }
 
-      return { success: true, message: 'Webhook processed' };
+      return { success: true, message: 'Webhook processed', eventId: webhookDto.event_id };
     } catch (error) {
       this.logger.error('Failed to process webhook', error);
       throw error;
@@ -593,6 +612,34 @@ export class TrueLayerController {
       };
     } catch (error) {
       this.logger.error('Failed to match transactions', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle consent revoked webhook
+   * Update connection status when user revokes consent
+   */
+  private async handleConsentRevoked(resourceId: string): Promise<void> {
+    try {
+      this.logger.log(`Handling consent revoked for resource ${resourceId}`);
+
+      // Update connection status to REVOKED
+      await this.prisma.$executeRaw`
+        UPDATE truelayer_connections
+        SET
+          status = ${TrueLayerConnectionStatus.REVOKED},
+          updated_at = NOW()
+        WHERE provider_id = ${resourceId}
+          OR id = ${resourceId}
+      `;
+
+      this.logger.log(`Connection ${resourceId} marked as revoked`);
+
+      // TODO: Trigger notification to user about revoked consent
+      // await this.notificationService.notifyConsentRevoked(resourceId);
+    } catch (error) {
+      this.logger.error(`Failed to handle consent revoked for ${resourceId}:`, error);
       throw error;
     }
   }

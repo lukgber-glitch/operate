@@ -136,8 +136,7 @@ export class FrenchVATInfoDto {
   @Max(100)
   rate: number;
 
-  @ApiProperty({ enum: FrenchVATCategory, example: FrenchVATCategory.STANDARD })
-  @IsEnum(FrenchVATCategory)
+  @ApiProperty({ enum: FrenchVATCategory, example: 'S' })
   category: FrenchVATCategory;
 
   @ApiProperty({ example: 100.0 })
@@ -196,7 +195,6 @@ export class FrenchVATBreakdownDto {
   rate: number;
 
   @ApiProperty({ enum: FrenchVATCategory })
-  @IsEnum(FrenchVATCategory)
   category: FrenchVATCategory;
 
   @ApiProperty({ example: 1000.0 })
@@ -280,8 +278,7 @@ export class GenerateFacturXDto {
   @IsOptional()
   deliveryDate?: string;
 
-  @ApiProperty({ enum: FrenchInvoiceType, example: FrenchInvoiceType.COMMERCIAL })
-  @IsEnum(FrenchInvoiceType)
+  @ApiProperty({ enum: FrenchInvoiceType, example: '380' })
   type: FrenchInvoiceType;
 
   @ApiProperty({ example: 'EUR' })
@@ -331,7 +328,6 @@ export class GenerateFacturXDto {
   paymentTerms?: string;
 
   @ApiPropertyOptional({ enum: FrenchPaymentMeans })
-  @IsEnum(FrenchPaymentMeans)
   @IsOptional()
   paymentMeans?: FrenchPaymentMeans;
 
@@ -368,7 +364,6 @@ export class GenerateFacturXDto {
   notes?: string;
 
   @ApiPropertyOptional({ enum: FacturXProfile, default: FacturXProfile.EN16931 })
-  @IsEnum(FacturXProfile)
   @IsOptional()
   profile?: FacturXProfile;
 

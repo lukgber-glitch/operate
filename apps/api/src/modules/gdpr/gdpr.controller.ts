@@ -13,9 +13,9 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/rbac/roles.guard';
-import { Roles } from '../auth/rbac/roles.decorator';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '@/modules/auth/guards/roles.guard';
+import { Roles } from '@/modules/auth/decorators/roles.decorator';
 import { GdprService } from './gdpr.service';
 import { ConsentManagerService } from './services/consent-manager.service';
 import { DataSubjectRequestService } from './services/data-subject-request.service';

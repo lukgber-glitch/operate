@@ -5,6 +5,7 @@ import { ConnectionHubService } from './connection-hub.service';
 import { GmailService } from './providers/gmail.service';
 import { OutlookService } from './providers/outlook.service';
 import { GoCardlessService } from './providers/gocardless.service';
+import { Public } from '../../common/decorators/public.decorator';
 
 export interface OAuthCallbackQuery {
   code?: string;
@@ -25,6 +26,7 @@ export class OAuthCallbackController {
     private readonly goCardlessService: GoCardlessService,
   ) {}
 
+  @Public()
   @Get(':provider')
   @ApiOperation({ summary: 'Handle OAuth callback from provider' })
   @ApiParam({ name: 'provider', enum: ['gmail', 'outlook', 'gocardless'] })

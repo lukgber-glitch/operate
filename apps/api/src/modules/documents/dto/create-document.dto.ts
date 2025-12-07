@@ -34,9 +34,8 @@ export class CreateDocumentDto {
   @ApiProperty({
     description: 'Document type',
     enum: DocumentType,
-    example: DocumentType.REPORT,
+    example: 'REPORT',
   })
-  @IsEnum(DocumentType)
   type: DocumentType;
 
   @ApiProperty({

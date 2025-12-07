@@ -39,7 +39,6 @@ export class RecordCorrectionDto {
   organisationId: string;
 
   @ApiProperty({ enum: EntityType, description: 'Type of entity being corrected' })
-  @IsEnum(EntityType)
   @IsNotEmpty()
   entityType: EntityType;
 
@@ -49,7 +48,6 @@ export class RecordCorrectionDto {
   entityId: string;
 
   @ApiProperty({ enum: CorrectionField, description: 'Field that was corrected' })
-  @IsEnum(CorrectionField)
   @IsNotEmpty()
   field: CorrectionField;
 
@@ -81,7 +79,6 @@ export class ApplyLearningDto {
   organisationId: string;
 
   @ApiProperty({ enum: EntityType, description: 'Type of entity to classify' })
-  @IsEnum(EntityType)
   @IsNotEmpty()
   entityType: EntityType;
 
@@ -168,7 +165,6 @@ export class AccuracyStatsDto {
 
 export class GetPatternsQueryDto {
   @ApiPropertyOptional({ enum: PatternType, description: 'Filter by pattern type' })
-  @IsEnum(PatternType)
   @IsOptional()
   patternType?: PatternType;
 

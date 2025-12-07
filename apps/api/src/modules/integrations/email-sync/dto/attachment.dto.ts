@@ -113,7 +113,6 @@ export class ListAttachmentsDto {
     enum: AttachmentProcessingStatus,
   })
   @IsOptional()
-  @IsEnum(AttachmentProcessingStatus)
   status?: AttachmentProcessingStatus;
 
   @ApiPropertyOptional({
@@ -121,7 +120,6 @@ export class ListAttachmentsDto {
     enum: AttachmentClassificationType,
   })
   @IsOptional()
-  @IsEnum(AttachmentClassificationType)
   classifiedType?: AttachmentClassificationType;
 
   @ApiPropertyOptional({
@@ -129,7 +127,6 @@ export class ListAttachmentsDto {
     enum: AttachmentStorageBackend,
   })
   @IsOptional()
-  @IsEnum(AttachmentStorageBackend)
   storageBackend?: AttachmentStorageBackend;
 
   @ApiPropertyOptional({

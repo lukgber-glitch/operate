@@ -17,9 +17,8 @@ export class CreateConnectAccountDto {
   @ApiProperty({
     description: 'Type of Connect account',
     enum: StripeAccountType,
-    example: StripeAccountType.EXPRESS,
+    example: 'EXPRESS',
   })
-  @IsEnum(StripeAccountType)
   type: StripeAccountType;
 
   @ApiProperty({

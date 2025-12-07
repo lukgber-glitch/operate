@@ -8,6 +8,8 @@ import { AttachmentClassifierService } from './attachment-classifier.service';
 import { PrismaModule } from '../../../database/prisma.module';
 import { GmailModule } from '../../gmail/gmail.module';
 import { OutlookModule } from '../../outlook/outlook.module';
+import { InvoiceExtractorModule } from '../../../ai/extractors/invoice-extractor.module';
+import { ReceiptExtractorModule } from '../../../ai/extractors/receipt-extractor.module';
 
 /**
  * Attachment Processor Module
@@ -40,6 +42,8 @@ import { OutlookModule } from '../../outlook/outlook.module';
     PrismaModule,
     GmailModule,
     OutlookModule,
+    InvoiceExtractorModule,
+    ReceiptExtractorModule,
     BullModule.registerQueue({
       name: ATTACHMENT_PROCESSING_QUEUE,
       defaultJobOptions: {
@@ -61,6 +65,12 @@ import { OutlookModule } from '../../outlook/outlook.module';
         max: 10, // Max 10 jobs
         duration: 1000, // Per second
       },
+    }),
+    BullModule.registerQueue({
+      name: 'invoice-extraction',
+    }),
+    BullModule.registerQueue({
+      name: 'receipt-extraction',
     }),
   ],
   providers: [

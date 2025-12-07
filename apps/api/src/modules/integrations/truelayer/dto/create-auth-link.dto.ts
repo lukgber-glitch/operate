@@ -21,7 +21,6 @@ export class CreateAuthLinkDto {
     default: ['info', 'accounts', 'balance', 'transactions', 'offline_access'],
   })
   @IsArray()
-  @IsEnum(TrueLayerScope, { each: true })
   @IsOptional()
   scopes?: TrueLayerScope[];
 

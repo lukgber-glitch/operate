@@ -27,17 +27,15 @@ export class ExportReportDto {
   @ApiProperty({
     description: 'Type of report to export',
     enum: ReportType,
-    example: ReportType.FINANCIAL,
+    example: 'FINANCIAL',
   })
-  @IsEnum(ReportType)
   reportType: ReportType;
 
   @ApiProperty({
     description: 'Export format',
     enum: ExportFormat,
-    example: ExportFormat.PDF,
+    example: 'PDF',
   })
-  @IsEnum(ExportFormat)
   format: ExportFormat;
 
   @ApiPropertyOptional({

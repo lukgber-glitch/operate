@@ -122,7 +122,6 @@ export class AnalysisStatusDto {
   userId: string;
 
   @ApiProperty({ description: 'Current status', enum: AnalysisStatus })
-  @IsEnum(AnalysisStatus)
   status: AnalysisStatus;
 
   @ApiPropertyOptional({ description: 'Bank analysis result' })

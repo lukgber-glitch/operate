@@ -43,8 +43,7 @@ export class ValidateAddressDto {
   @IsString()
   postalCode: string;
 
-  @ApiPropertyOptional({ example: TextCase.UPPER, enum: TextCase })
-  @IsEnum(TextCase)
+  @ApiPropertyOptional({ example: 'Upper', enum: TextCase })
   @IsOptional()
   textCase?: TextCase;
 }

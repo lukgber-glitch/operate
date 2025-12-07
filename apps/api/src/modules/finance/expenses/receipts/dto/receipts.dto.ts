@@ -151,7 +151,6 @@ export class ConfirmScanDto {
     enum: ExpenseCategory,
   })
   @IsOptional()
-  @IsEnum(ExpenseCategory)
   category?: ExpenseCategory;
 
   @ApiPropertyOptional({
@@ -225,7 +224,6 @@ export class ScanHistoryFiltersDto {
     enum: ScanStatus,
   })
   @IsOptional()
-  @IsEnum(ScanStatus)
   status?: ScanStatus;
 
   @ApiPropertyOptional({

@@ -35,17 +35,15 @@ export class AutomationLogDto {
   @ApiProperty({
     description: 'Automation feature',
     enum: AutomationFeature,
-    example: AutomationFeature.CLASSIFICATION,
+    example: 'CLASSIFICATION',
   })
-  @IsEnum(AutomationFeature)
   feature: AutomationFeature;
 
   @ApiProperty({
     description: 'Action taken by automation',
     enum: AutomationAction,
-    example: AutomationAction.AUTO_APPROVED,
+    example: 'AUTO_APPROVED',
   })
-  @IsEnum(AutomationAction)
   action: AutomationAction;
 
   @ApiProperty({
@@ -92,7 +90,6 @@ export class AuditFilterDto {
     enum: AutomationFeature,
     required: false,
   })
-  @IsEnum(AutomationFeature)
   @IsOptional()
   feature?: AutomationFeature;
 
@@ -101,7 +98,6 @@ export class AuditFilterDto {
     enum: AutomationAction,
     required: false,
   })
-  @IsEnum(AutomationAction)
   @IsOptional()
   action?: AutomationAction;
 

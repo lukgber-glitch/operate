@@ -21,35 +21,35 @@ export class AutomationSettingsResponseDto {
   @ApiProperty({
     description: 'Invoice creation automation mode',
     enum: AutomationMode,
-    example: AutomationMode.SEMI_AUTO,
+    example: 'SEMI_AUTO',
   })
   invoiceCreation: AutomationMode;
 
   @ApiProperty({
     description: 'Expense approval automation mode',
     enum: AutomationMode,
-    example: AutomationMode.SEMI_AUTO,
+    example: 'SEMI_AUTO',
   })
   expenseApproval: AutomationMode;
 
   @ApiProperty({
     description: 'Bank reconciliation automation mode',
     enum: AutomationMode,
-    example: AutomationMode.SEMI_AUTO,
+    example: 'SEMI_AUTO',
   })
   bankReconciliation: AutomationMode;
 
   @ApiProperty({
     description: 'Tax classification automation mode',
     enum: AutomationMode,
-    example: AutomationMode.SEMI_AUTO,
+    example: 'SEMI_AUTO',
   })
   taxClassification: AutomationMode;
 
   @ApiProperty({
     description: 'Payment reminders automation mode',
     enum: AutomationMode,
-    example: AutomationMode.SEMI_AUTO,
+    example: 'SEMI_AUTO',
   })
   paymentReminders: AutomationMode;
 
@@ -104,50 +104,45 @@ export class UpdateAutomationSettingsDto {
   @ApiProperty({
     description: 'Invoice creation automation mode',
     enum: AutomationMode,
-    example: AutomationMode.SEMI_AUTO,
+    example: 'SEMI_AUTO',
     required: false,
   })
-  @IsEnum(AutomationMode)
   @IsOptional()
   invoiceCreation?: AutomationMode;
 
   @ApiProperty({
     description: 'Expense approval automation mode',
     enum: AutomationMode,
-    example: AutomationMode.SEMI_AUTO,
+    example: 'SEMI_AUTO',
     required: false,
   })
-  @IsEnum(AutomationMode)
   @IsOptional()
   expenseApproval?: AutomationMode;
 
   @ApiProperty({
     description: 'Bank reconciliation automation mode',
     enum: AutomationMode,
-    example: AutomationMode.SEMI_AUTO,
+    example: 'SEMI_AUTO',
     required: false,
   })
-  @IsEnum(AutomationMode)
   @IsOptional()
   bankReconciliation?: AutomationMode;
 
   @ApiProperty({
     description: 'Tax classification automation mode',
     enum: AutomationMode,
-    example: AutomationMode.SEMI_AUTO,
+    example: 'SEMI_AUTO',
     required: false,
   })
-  @IsEnum(AutomationMode)
   @IsOptional()
   taxClassification?: AutomationMode;
 
   @ApiProperty({
     description: 'Payment reminders automation mode',
     enum: AutomationMode,
-    example: AutomationMode.SEMI_AUTO,
+    example: 'SEMI_AUTO',
     required: false,
   })
-  @IsEnum(AutomationMode)
   @IsOptional()
   paymentReminders?: AutomationMode;
 
@@ -209,7 +204,7 @@ export class FeatureModeDto {
   @ApiProperty({
     description: 'Automation mode for the feature',
     enum: AutomationMode,
-    example: AutomationMode.SEMI_AUTO,
+    example: 'SEMI_AUTO',
   })
   mode: AutomationMode;
 
@@ -229,10 +224,9 @@ export class UpdateFeatureModeDto {
   @ApiProperty({
     description: 'Automation mode for the feature',
     enum: AutomationMode,
-    example: AutomationMode.SEMI_AUTO,
+    example: 'SEMI_AUTO',
     required: false,
   })
-  @IsEnum(AutomationMode)
   @IsOptional()
   mode?: AutomationMode;
 

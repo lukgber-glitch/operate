@@ -17,6 +17,5 @@ export class UpdateTaxDeadlineDto extends PartialType(CreateTaxDeadlineDto) {
     required: false,
   })
   @IsOptional()
-  @IsEnum(TaxDeadlineStatusEnum)
   status?: TaxDeadlineStatusEnum;
 }

@@ -8,7 +8,6 @@ export class CreateSearchDto {
   @IsString()
   searchTerm: string;
 
-  @IsEnum(SearchType)
   searchType: SearchType;
 
   @IsOptional()
@@ -25,7 +24,6 @@ export class CreateSearchDto {
 
   @IsOptional()
   @IsArray()
-  @IsEnum(MatchType, { each: true })
   matchTypes?: MatchType[];
 
   @IsOptional()

@@ -18,6 +18,7 @@ import { seedHr } from './seeds/hr';
 import { seedCanadaTaxConfig } from './seed/canada-tax-seed';
 import { seedAustraliaTaxConfig } from './seed/australia-tax-seed';
 import { seedClients } from './seeds/clients.seed';
+import { seedSubscriptionTiers } from './seeds/subscription-tiers.seed';
 
 const prisma = new PrismaClient();
 
@@ -126,6 +127,12 @@ async function main() {
   console.log('='.repeat(60));
   await seedClients(prisma, organisation.id);
 
+  // Seed Subscription Tiers
+  console.log('\n' + '='.repeat(60));
+  console.log('STEP 5: Seeding Subscription Tiers');
+  console.log('='.repeat(60));
+  await seedSubscriptionTiers();
+
   // Summary
   console.log('\n' + '='.repeat(60));
   console.log('DATABASE SEEDED SUCCESSFULLY!');
@@ -141,8 +148,9 @@ async function main() {
   console.log('  EU:    France (FR), Italy (IT), Netherlands (NL),');
   console.log('         Belgium (BE), Sweden (SE), Ireland (IE)');
   console.log('  Spain: ES (with IVA, IGIC, and RE configurations)');
-  console.log('HR Data:       3 Employees, 3 Contracts, Payroll, Leave, Time');
-  console.log('CRM Data:      5 Clients, 6 Contacts, 6 Addresses');
+  console.log('HR Data:           3 Employees, 3 Contracts, Payroll, Leave, Time');
+  console.log('CRM Data:          5 Clients, 6 Contacts, 6 Addresses');
+  console.log('Subscription Tiers: Free, Starter, Pro, Business');
   console.log('='.repeat(60));
 }
 

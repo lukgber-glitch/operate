@@ -135,7 +135,6 @@ export class ExportPdfDto {
     description: 'PDF template to use',
     enum: PdfTemplate,
   })
-  @IsEnum(PdfTemplate)
   template: PdfTemplate;
 
   @ApiPropertyOptional({
@@ -148,19 +147,17 @@ export class ExportPdfDto {
   @ApiPropertyOptional({
     description: 'Page size',
     enum: PdfPageSize,
-    default: PdfPageSize.A4,
+    default: 'A4',
   })
   @IsOptional()
-  @IsEnum(PdfPageSize)
   pageSize?: PdfPageSize;
 
   @ApiPropertyOptional({
     description: 'Page orientation',
     enum: PdfOrientation,
-    default: PdfOrientation.PORTRAIT,
+    default: 'PORTRAIT',
   })
   @IsOptional()
-  @IsEnum(PdfOrientation)
   orientation?: PdfOrientation;
 
   @ApiPropertyOptional({

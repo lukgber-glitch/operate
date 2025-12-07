@@ -28,6 +28,9 @@ import { SetPasswordDto } from './dto/set-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { UsersService } from '../users/users.service';
+import { UserDto } from '../users/dto/user.dto';
+import { Public } from '../../common/decorators/public.decorator';
 
 /**
  * Authentication Controller
@@ -36,11 +39,15 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private usersService: UsersService,
+  ) {}
 
   /**
    * Register new user account
    */
+  @Public()
   @Post('register')
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.CREATED)
@@ -82,6 +89,7 @@ export class AuthController {
   /**
    * Login with email and password
    */
+  @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @Throttle({ default: { limit: 5, ttl: 60000 } })
@@ -126,6 +134,7 @@ export class AuthController {
   /**
    * Refresh access token
    */
+  @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -229,6 +238,7 @@ export class AuthController {
    * Complete MFA login
    * Verifies MFA code and issues final access/refresh tokens
    */
+  @Public()
   @Post('mfa/complete')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -358,5 +368,36 @@ export class AuthController {
     const userId = (req.user as any).userId;
     const hasPassword = await this.authService.hasPassword(userId);
     return { hasPassword };
+  }
+
+  /**
+   * Get current authenticated user profile
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get current user profile',
+    description: 'Returns the authenticated user\'s profile information',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile retrieved successfully',
+    type: UserDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  async getMe(@Req() req: Request): Promise<UserDto> {
+    const userId = (req.user as any).userId;
+    const user = await this.usersService.findById(userId);
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return user;
   }
 }

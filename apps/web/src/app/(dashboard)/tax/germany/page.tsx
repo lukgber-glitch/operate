@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 
-import { ELSTERWizard } from './components/ELSTERWizard';
+import { ELSTERWizard } from '@/components/tax/elster';
 
 export const metadata: Metadata = {
   title: 'German VAT Filing | Operate',
