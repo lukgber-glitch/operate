@@ -175,7 +175,7 @@ export function SuggestionCard({
     return (
       <Card
         className={cn(
-          'min-w-[280px] max-w-[280px] transition-all border-l-4',
+          'min-w-[280px] max-w-[280px] transition-all border-l-4 rounded-2xl',
           typeConfig.borderColor,
           isClickable && 'cursor-pointer hover:shadow-md hover:border-l-[6px]'
         )}
@@ -222,7 +222,7 @@ export function SuggestionCard({
   return (
     <Card
       className={cn(
-        'transition-all border-l-4',
+        'transition-all border-l-4 rounded-2xl',
         typeConfig.borderColor,
         isClickable && 'cursor-pointer hover:shadow-md hover:border-l-[6px]'
       )}
@@ -327,28 +327,28 @@ function getTypeConfig(type: SuggestionType) {
       return {
         icon: TrendingUp,
         label: 'Insight',
-        iconColor: 'text-blue-600 dark:text-blue-400',
-        iconBg: 'bg-blue-100 dark:bg-blue-950',
-        borderColor: 'border-l-blue-500',
-        buttonClass: 'bg-blue-600 hover:bg-blue-700',
+        iconColor: 'text-[#06BF9D]',
+        iconBg: 'bg-[#06BF9D]/10',
+        borderColor: 'border-l-[#06BF9D]',
+        buttonClass: 'bg-[#06BF9D] hover:bg-[#048A71]',
       };
     case 'QUICK_ACTION':
       return {
         icon: Zap,
         label: 'Quick Action',
-        iconColor: 'text-green-600 dark:text-green-400',
-        iconBg: 'bg-green-100 dark:bg-green-950',
-        borderColor: 'border-l-green-500',
-        buttonClass: 'bg-green-600 hover:bg-green-700',
+        iconColor: 'text-[#48D9BE]',
+        iconBg: 'bg-[#48D9BE]/10',
+        borderColor: 'border-l-[#48D9BE]',
+        buttonClass: 'bg-[#48D9BE] hover:bg-[#06BF9D]',
       };
     case 'TIP':
       return {
         icon: Lightbulb,
         label: 'Tip',
-        iconColor: 'text-purple-600 dark:text-purple-400',
-        iconBg: 'bg-purple-100 dark:bg-purple-950',
-        borderColor: 'border-l-purple-500',
-        buttonClass: 'bg-purple-600 hover:bg-purple-700',
+        iconColor: 'text-[#84D9C9]',
+        iconBg: 'bg-[#84D9C9]/10',
+        borderColor: 'border-l-[#84D9C9]',
+        buttonClass: 'bg-[#84D9C9] hover:bg-[#48D9BE]',
       };
   }
 }

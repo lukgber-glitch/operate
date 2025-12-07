@@ -1,0 +1,89 @@
+/**
+ * Gradient Background Styles
+ * Performant animated gradient mesh for Operate app
+ */
+
+.gradient-blob {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+  contain: layout style paint;
+  pointer-events: none;
+}
+
+/* GPU acceleration */
+.gradient-blob {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Fallback for browsers without blur support */
+@supports not (filter: blur(100px)) {
+  .gradient-blob {
+    display: none;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .gradient-blob {
+    /* Reduce complexity on mobile */
+    filter: blur(80px) !important;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .gradient-blob {
+    filter: blur(100px) !important;
+  }
+}
+
+/* High refresh rate screens - smoother animations */
+@media (min-resolution: 120dpi) {
+  .gradient-blob {
+    will-change: transform, opacity;
+  }
+}
+
+/* Accessibility - respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .gradient-blob {
+    animation: none !important;
+    transform: translate3d(0, 0, 0) !important;
+  }
+}
+
+/* Dark mode adjustments */
+.dark .gradient-blob {
+  /* Slightly reduce opacity in dark mode for better contrast */
+  opacity: 0.9;
+}
+
+/* Container styles */
+.gradient-background-container {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Prevent layout shift during load */
+.gradient-background-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: transparent;
+}
+
+/* Loading state - prevent FOUC */
+.gradient-background-loading {
+  opacity: 0;
+  transition: opacity 0.5s ease-in;
+}
+
+.gradient-background-loaded {
+  opacity: 1;
+}

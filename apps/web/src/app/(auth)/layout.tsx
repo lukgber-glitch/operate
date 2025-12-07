@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from 'next-intl'
 
 import '@/app/globals.css'
 import { locales, defaultLocale, type Locale, isRTL } from '@/i18n'
+import { AuthLayoutClient } from './AuthLayoutClient'
 
 async function getLocale(): Promise<Locale> {
   // First check for locale cookie
@@ -55,14 +56,9 @@ export default async function AuthLayout({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <div
-        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900"
-        dir={rtl ? 'rtl' : 'ltr'}
-      >
-        <div className="w-full max-w-md px-4">
-          {children}
-        </div>
-      </div>
+      <AuthLayoutClient rtl={rtl}>
+        {children}
+      </AuthLayoutClient>
     </NextIntlClientProvider>
   )
 }

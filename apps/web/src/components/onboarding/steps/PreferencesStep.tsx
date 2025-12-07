@@ -1,8 +1,11 @@
+'use client';
+
 import { Bell, Globe } from 'lucide-react'
 import * as React from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AnimatedCard } from '@/components/ui/animated-card'
+import { HeadlineOutside } from '@/components/ui/headline-outside'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -64,15 +67,12 @@ export function PreferencesStep() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>System Preferences</CardTitle>
-          <CardDescription>
-            Customize your experience with language, regional settings, and notification
-            preferences.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <HeadlineOutside subtitle="Customize your experience with language, regional settings, and notification preferences.">
+        System Preferences
+      </HeadlineOutside>
+
+      <AnimatedCard variant="elevated" padding="lg">
+        <div className="space-y-6">
           {/* Regional Settings */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
@@ -269,8 +269,8 @@ export function PreferencesStep() {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
     </div>
   )
 }

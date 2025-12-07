@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AnimatedCard } from '@/components/ui/animated-card'
 import { useGSAP } from '@gsap/react'
 import { gsap, staggerIn } from '@/lib/gsap'
 
@@ -207,8 +207,8 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
   return (
     <div className="space-y-6">
       {/* Success Message */}
-      <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
-        <CardHeader className="text-center space-y-4">
+      <AnimatedCard variant="elevated" padding="lg" className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
+        <div className="text-center space-y-4">
           <div
             ref={checkmarkRef}
             className="mx-auto w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center"
@@ -217,14 +217,14 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
             <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-500" />
           </div>
           <div>
-            <CardTitle
+            <h2
               ref={titleRef}
-              className="text-2xl text-green-900 dark:text-green-100"
+              className="text-2xl font-semibold text-green-900 dark:text-green-100"
               style={{ opacity: 0 }}
             >
               Setup Complete!
-            </CardTitle>
-            <CardDescription
+            </h2>
+            <p
               ref={descriptionRef}
               className="text-base mt-2 text-green-700 dark:text-green-300"
               style={{ opacity: 0 }}
@@ -232,10 +232,10 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
               {companyName
                 ? `Welcome aboard, ${companyName}! Your account is ready to use.`
                 : 'Your account is ready to use.'}
-            </CardDescription>
+            </p>
           </div>
-        </CardHeader>
-        <CardContent className="text-center space-y-4">
+        </div>
+        <div className="text-center space-y-4 mt-6">
           <div
             ref={badgeRef}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-900 text-sm"
@@ -251,48 +251,48 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
             You&apos;re all set! Your business is now connected to Operate and ready to streamline
             your operations.
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
 
       {/* Quick Actions */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-center">What Would You Like to Do First?</h3>
         <div ref={nextStepsRef} className="grid gap-4 md:grid-cols-2">
           {NEXT_STEPS.map((step) => (
-            <Card
+            <AnimatedCard
               key={step.title}
-              className="next-step-card border-muted hover:border-primary/50 transition-all cursor-pointer group"
+              variant="outlined"
+              padding="sm"
+              className="next-step-card hover:border-primary/50 transition-all cursor-pointer group"
               style={{ opacity: 0 }}
               onClick={(e) => handleNavigate(e, step.href)}
             >
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                    <step.icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-medium group-hover:text-primary transition-colors">
-                        {step.title}
-                      </h4>
-                      <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                    </div>
-                    <p className="text-xs text-muted-foreground">{step.description}</p>
-                  </div>
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 p-2 rounded-lg bg-[var(--color-primary)]/10 group-hover:bg-[var(--color-primary)]/20 transition-colors">
+                  <step.icon className="w-5 h-5 text-[var(--color-primary)]" />
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium group-hover:text-[var(--color-primary)] transition-colors">
+                      {step.title}
+                    </h4>
+                    <ArrowRight className="w-4 h-4 text-[var(--color-text-muted)] group-hover:text-[var(--color-primary)] group-hover:translate-x-1 transition-all" />
+                  </div>
+                  <p className="text-xs text-[var(--color-text-secondary)]">{step.description}</p>
+                </div>
+              </div>
+            </AnimatedCard>
           ))}
         </div>
       </div>
 
       {/* Resources */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Need Help Getting Started?</CardTitle>
-          <CardDescription>Check out these resources to make the most of Operate</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <AnimatedCard variant="default" padding="lg">
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold">Need Help Getting Started?</h3>
+            <p className="text-sm text-[var(--color-text-secondary)] mt-1">Check out these resources to make the most of Operate</p>
+          </div>
           <div className="grid gap-3 md:grid-cols-3">
             {RESOURCES.map((resource) => (
               <Button
@@ -310,12 +310,11 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
               </Button>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
 
       {/* Tips */}
-      <Card className="bg-muted/50">
-        <CardContent className="p-4">
+      <AnimatedCard variant="default" padding="lg" className="bg-muted/50">
           <div className="space-y-2">
             <h4 className="text-sm font-semibold">💡 Pro Tips</h4>
             <ul className="space-y-1.5 text-xs text-muted-foreground">
@@ -343,8 +342,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
               </li>
             </ul>
           </div>
-        </CardContent>
-      </Card>
+      </AnimatedCard>
 
       {/* Primary CTA */}
       <div className="flex justify-center pt-4">
@@ -354,7 +352,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
           size="lg"
           onClick={handleGoToDashboard}
           disabled={isNavigating}
-          className="w-full md:w-auto"
+          className="w-full md:w-auto rounded-[12px] bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)]"
           style={{ opacity: 0 }}
         >
           <LayoutDashboard className="w-4 h-4 mr-2" />

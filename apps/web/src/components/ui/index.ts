@@ -1,0 +1,51 @@
+// Minimal Design System Components
+export { AnimatedCard } from './animated-card'
+export type { AnimatedCardProps } from './animated-card'
+
+export { PrimaryButton } from './primary-button'
+export type { PrimaryButtonProps } from './primary-button'
+
+export { MinimalInput } from './minimal-input'
+export type { MinimalInputProps } from './minimal-input'
+
+export { HeadlineOutside } from './headline-outside'
+export type { HeadlineOutsideProps } from './headline-outside'
+
+export { IconButton } from './icon-button'
+export type { IconButtonProps } from './icon-button'
+
+// Legacy components (keep for backwards compatibility)
+export { AnimatedCard as AnimatedCardLegacy } from './AnimatedCard'
+export { AnimatedButton } from './AnimatedButton'
+export { AnimatedIcon } from './AnimatedIcon'
+
+// Shadcn UI components
+export { Alert } from './alert'
+export { AlertDialog } from './alert-dialog'
+export { Avatar } from './avatar'
+export { Badge } from './badge'
+export { Button } from './button'
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card'
+export { Checkbox } from './checkbox'
+export { Collapsible } from './collapsible'
+export { Command } from './command'
+export { Dialog } from './dialog'
+export { DropdownMenu } from './dropdown-menu'
+export { Form } from './form'
+export { Input } from './input'
+export { Label } from './label'
+export { Popover } from './popover'
+export { Progress } from './progress'
+export { RadioGroup } from './radio-group'
+export { ScrollArea } from './scroll-area'
+export { Select } from './select'
+export { Separator } from './separator'
+export { Sheet } from './sheet'
+export { Skeleton } from './skeleton'
+export { Slider } from './slider'
+export { Switch } from './switch'
+export { Table } from './table'
+export { Tabs } from './tabs'
+export { Textarea } from './textarea'
+export { Toast } from './toast'
+export { Tooltip } from './tooltip'

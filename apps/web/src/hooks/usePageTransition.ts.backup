@@ -1,0 +1,223 @@
+'use client';
+
+/**
+ * usePageTransition Hook
+ *
+ * Manages page transition animations using GSAP.
+ * Provides exit, enter, and morph animations with promise-based sequencing.
+ */
+
+import { useCallback, useRef, useState } from 'react';
+import gsap from 'gsap';
+import {
+  fadeIn,
+  fadeOut,
+  morphTo,
+  staggerIn,
+  staggerOut,
+  DURATIONS,
+  prefersReducedMotion,
+  killTweens,
+} from '@/lib/animations';
+
+export interface UsePageTransitionOptions {
+  onExitComplete?: () => void;
+  onEnterComplete?: () => void;
+}
+
+export interface UsePageTransitionReturn {
+  isTransitioning: boolean;
+  exitAnimation: (elements: string | Element | Element[]) => Promise<void>;
+  enterAnimation: (elements: string | Element | Element[]) => Promise<void>;
+  morphButton: (
+    buttonId: string | Element,
+    targetSize: { width: number; height: number; borderRadius?: number }
+  ) => Promise<void>;
+  cancelTransition: () => void;
+}
+
+export const usePageTransition = (
+  options: UsePageTransitionOptions = {}
+): UsePageTransitionReturn => {
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const contextRef = useRef<gsap.Context | null>(null);
+  const activeAnimationsRef = useRef<Set<gsap.core.Tween>>(new Set());
+
+  const { onExitComplete, onEnterComplete } = options;
+
+  /**
+   * Exit animation - fades out content
+   */
+  const exitAnimation = useCallback(
+    async (elements: string | Element | Element[]): Promise<void> => {
+      setIsTransitioning(true);
+
+      return new Promise((resolve) => {
+        if (prefersReducedMotion()) {
+          onExitComplete?.();
+          resolve();
+          return;
+        }
+
+        const ctx = gsap.context(() => {
+          const elementsArray = Array.isArray(elements) ? elements : [elements];
+          const isMultiple = elementsArray.length > 1;
+
+          const tween = isMultiple
+            ? staggerOut(elements as Element[] | string, DURATIONS.stagger, {
+                onComplete: () => {
+                  activeAnimationsRef.current.delete(tween);
+                  onExitComplete?.();
+                  resolve();
+                },
+              })
+            : fadeOut(elements as Element | string, {
+                onComplete: () => {
+                  activeAnimationsRef.current.delete(tween);
+                  onExitComplete?.();
+                  resolve();
+                },
+              });
+
+          activeAnimationsRef.current.add(tween);
+        });
+
+        contextRef.current = ctx;
+      });
+    },
+    [onExitComplete]
+  );
+
+  /**
+   * Enter animation - fades in content
+   */
+  const enterAnimation = useCallback(
+    async (elements: string | Element | Element[]): Promise<void> => {
+      return new Promise((resolve) => {
+        if (prefersReducedMotion()) {
+          setIsTransitioning(false);
+          onEnterComplete?.();
+          resolve();
+          return;
+        }
+
+        const ctx = gsap.context(() => {
+          const elementsArray = Array.isArray(elements) ? elements : [elements];
+          const isMultiple = elementsArray.length > 1;
+
+          // Set initial state
+          gsap.set(elements, { opacity: 0, y: isMultiple ? 20 : 0, scale: isMultiple ? 1 : 0.95 });
+
+          const tween = isMultiple
+            ? staggerIn(elements as Element[] | string, DURATIONS.stagger, {
+                onComplete: () => {
+                  activeAnimationsRef.current.delete(tween);
+                  setIsTransitioning(false);
+                  onEnterComplete?.();
+                  resolve();
+                },
+              })
+            : fadeIn(elements as Element | string, {
+                onComplete: () => {
+                  activeAnimationsRef.current.delete(tween);
+                  setIsTransitioning(false);
+                  onEnterComplete?.();
+                  resolve();
+                },
+              });
+
+          activeAnimationsRef.current.add(tween);
+        });
+
+        contextRef.current = ctx;
+      });
+    },
+    [onEnterComplete]
+  );
+
+  /**
+   * Morph button to target size
+   */
+  const morphButton = useCallback(
+    async (
+      buttonId: string | Element,
+      targetSize: { width: number; height: number; borderRadius?: number }
+    ): Promise<void> => {
+      return new Promise((resolve) => {
+        if (prefersReducedMotion()) {
+          resolve();
+          return;
+        }
+
+        const ctx = gsap.context(() => {
+          const button = typeof buttonId === 'string' ? document.getElementById(buttonId) : buttonId;
+
+          if (!button) {
+            console.warn(`Button not found: ${buttonId}`);
+            resolve();
+            return;
+          }
+
+          // Get button's current position for absolute positioning
+          const rect = button.getBoundingClientRect();
+
+          // Convert to absolute positioning
+          gsap.set(button, {
+            position: 'fixed',
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+            margin: 0,
+            zIndex: 9999,
+          });
+
+          // Create morph animation
+          const tween = morphTo(button, targetSize, {
+            onComplete: () => {
+              activeAnimationsRef.current.delete(tween);
+              resolve();
+            },
+          });
+
+          activeAnimationsRef.current.add(tween);
+        });
+
+        contextRef.current = ctx;
+      });
+    },
+    []
+  );
+
+  /**
+   * Cancel all active transitions
+   */
+  const cancelTransition = useCallback(() => {
+    activeAnimationsRef.current.forEach((tween) => {
+      tween.kill();
+    });
+    activeAnimationsRef.current.clear();
+
+    if (contextRef.current) {
+      contextRef.current.revert();
+      contextRef.current = null;
+    }
+
+    setIsTransitioning(false);
+  }, []);
+
+  // Cleanup on unmount
+  useCallback(() => {
+    return () => {
+      cancelTransition();
+    };
+  }, [cancelTransition]);
+
+  return {
+    isTransitioning,
+    exitAnimation,
+    enterAnimation,
+    morphButton,
+    cancelTransition,
+  };
+};

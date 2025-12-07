@@ -228,8 +228,8 @@ export function useOnboardingWizard({
         if (onComplete) {
           await onComplete(data)
         } else {
-          // Default: redirect to dashboard
-          router.push('/dashboard')
+          // Default: redirect to chat (main page)
+          router.push('/chat')
         }
       } catch (error) {
         console.error('Onboarding error:', error)

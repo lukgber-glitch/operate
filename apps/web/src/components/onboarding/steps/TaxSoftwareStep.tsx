@@ -1,3 +1,5 @@
+'use client';
+
 import { FileText, ShieldCheck, Globe, Upload, Key, CheckCircle2, XCircle } from 'lucide-react'
 import * as React from 'react'
 import { useFormContext } from 'react-hook-form'

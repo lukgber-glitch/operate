@@ -242,7 +242,7 @@ export function QuickActionPills({
                   'quick-action-pill',
                   'inline-flex items-center gap-2',
                   'px-4 py-2',
-                  'rounded-full',
+                  'rounded-lg',
                   'text-sm font-medium',
                   'whitespace-nowrap',
                   'cursor-pointer',
@@ -250,11 +250,11 @@ export function QuickActionPills({
                   'hover:scale-105',
                   'active:scale-95',
                   'focus:outline-none focus:ring-2',
+                  'bg-[#06BF9D]/10 text-[#048A71]',
+                  'hover:bg-[#06BF9D] hover:text-white',
                 )}
                 style={{
-                  background: 'var(--color-accent-light)',
-                  color: 'var(--color-primary-dark)',
-                  borderRadius: 'var(--radius-full)',
+                  borderRadius: '8px',
                   fontSize: 'var(--font-size-sm)',
                   padding: '8px 16px',
                   gap: 'var(--space-2)',
@@ -290,7 +290,7 @@ export function QuickActionPills({
                   'quick-action-pill',
                   'inline-flex items-center gap-2',
                   'px-4 py-2.5',
-                  'rounded-full',
+                  'rounded-lg',
                   'text-sm font-medium',
                   'whitespace-nowrap',
                   'cursor-pointer',
@@ -298,11 +298,11 @@ export function QuickActionPills({
                   'snap-start',
                   'active:scale-95',
                   'min-h-[44px]', // Touch-friendly
+                  'bg-[#06BF9D]/10 text-[#048A71]',
+                  'hover:bg-[#06BF9D] hover:text-white',
                 )}
                 style={{
-                  background: 'var(--color-accent-light)',
-                  color: 'var(--color-primary-dark)',
-                  borderRadius: 'var(--radius-full)',
+                  borderRadius: '8px',
                   fontSize: 'var(--font-size-sm)',
                   padding: '10px 16px',
                   gap: 'var(--space-2)',
@@ -337,14 +337,10 @@ export function QuickActionPills({
           background: var(--color-text-muted);
         }
 
-        /* Hover effect using CSS variables */
-        .quick-action-pill:hover {
-          background: var(--color-secondary-light);
-          box-shadow: var(--shadow-sm);
-        }
-
+        /* Focus effect */
         .quick-action-pill:focus-visible {
-          box-shadow: var(--shadow-focus);
+          outline: 2px solid #06BF9D;
+          outline-offset: 2px;
         }
 
         /* Hide scrollbar on mobile */

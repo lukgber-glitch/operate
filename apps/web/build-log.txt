@@ -1,0 +1,45 @@
+
+> @operate/web@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.33
+  - Experiments (use with caution):
+    · instrumentationHook
+
+   Creating an optimized production build ...
+ ✓ (pwa) Compiling for server...
+[@sentry/nextjs] It seems like you don't have a global error handler set up. It is recommended that you add a 'global-error.js' file with Sentry instrumentation so that React rendering errors are reported to Sentry. Read more: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#react-render-errors-in-app-router (you can suppress this warning by setting SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING=1 as environment variable)
+ ✓ (pwa) Compiling for server...
+ ✓ (pwa) Compiling for client (static)...
+ ○ (pwa) Service worker: C:\Users\grube\op\operate-fresh\apps\web\public\sw.js
+ ○ (pwa)   URL: /sw.js
+ ○ (pwa)   Scope: /
+ ○ (pwa) This app will fallback to these precached routes when fetching from the cache and the network fails:
+ ○ (pwa)   Documents (pages): /offline
+ ○ (pwa) Custom runtimeCaching array found, using it instead of the default one.
+[@sentry/nextjs] DEPRECATION WARNING: It is recommended renaming your `sentry.client.config.ts` file, or moving its content to `instrumentation-client.ts`. When using Turbopack `sentry.client.config.ts` will no longer work. Read more about the `instrumentation-client.ts` file: https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client
+ ✓ Compiled successfully
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+
+> Build error occurred
+Error: ENOENT: no such file or directory, open 'C:\Users\grube\op\operate-fresh\apps\web\.next\build-manifest.json'
+    at async open (node:internal/fs/promises:642:25)
+    at async Object.readFile (node:internal/fs/promises:1279:14)
+    at async readManifest (C:\Users\grube\op\operate-fresh\node_modules\.pnpm\next@14.2.33_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.57.0_react-dom@18.3.1_react@18.3.1\node_modules\next\dist\build\index.js:165:23)
+    at async C:\Users\grube\op\operate-fresh\node_modules\.pnpm\next@14.2.33_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.57.0_react-dom@18.3.1_react@18.3.1\node_modules\next\dist\build\index.js:1044:35
+    at async Span.traceAsyncFn (C:\Users\grube\op\operate-fresh\node_modules\.pnpm\next@14.2.33_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.57.0_react-dom@18.3.1_react@18.3.1\node_modules\next\dist\trace\trace.js:154:20)
+    at async build (C:\Users\grube\op\operate-fresh\node_modules\.pnpm\next@14.2.33_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.57.0_react-dom@18.3.1_react@18.3.1\node_modules\next\dist\build\index.js:368:9) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\.next\\build-manifest.json'
+}
+npm error Lifecycle script `build` failed with error:
+npm error code 1
+npm error path C:\Users\grube\op\operate-fresh\apps\web
+npm error workspace @operate/web@0.1.0
+npm error location C:\Users\grube\op\operate-fresh\apps\web
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c next build

@@ -10,6 +10,7 @@ export { ChatHeader } from './ChatHeader';
 export { ChatInput } from './ChatInput';
 export { ChatInterface } from './ChatInterface';
 export { ChatMessage, LoadingMessage } from './ChatMessage';
+export { GreetingHeader } from './GreetingHeader';
 export {
   MessageActions,
   detectContextualActions,

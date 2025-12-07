@@ -53,10 +53,10 @@ export function VoiceRecorder({
           {isRecording ? (
             <>
               <div className="relative flex items-center justify-center w-8 h-8">
-                <div className="absolute inset-0 animate-ping rounded-full bg-red-500/20" />
-                <Mic className="relative h-4 w-4 text-red-500" />
+                <div className="absolute inset-0 animate-ping rounded-full bg-[#06BF9D]/20" />
+                <Mic className="relative h-4 w-4 text-[#06BF9D]" />
               </div>
-              <span className="text-sm font-medium text-red-500">Recording...</span>
+              <span className="text-sm font-medium text-[#06BF9D]">Recording...</span>
             </>
           ) : error ? (
             <>
@@ -96,14 +96,14 @@ export function VoiceRecorder({
 
       {/* Waveform Visualization */}
       {isRecording && (
-        <div className="relative h-12 bg-muted/30 rounded-lg overflow-hidden">
+        <div className="relative h-12 bg-muted/30 rounded-2xl overflow-hidden">
           <VoiceWaveform audioData={audioData} isRecording={isRecording} variant="bars" />
         </div>
       )}
 
       {/* Transcript Display */}
       {hasContent && (
-        <div className="min-h-[60px] p-3 bg-muted/50 rounded-lg border">
+        <div className="min-h-[60px] p-3 bg-muted/50 rounded-2xl border">
           {/* Final transcript */}
           {transcript && (
             <p className="text-sm text-foreground whitespace-pre-wrap mb-1">{transcript}</p>
@@ -130,7 +130,7 @@ export function VoiceRecorder({
 
       {/* Error Display */}
       {error && (
-        <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+        <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-2xl">
           <div className="flex items-start gap-2">
             <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
             <div className="flex-1">
@@ -143,7 +143,7 @@ export function VoiceRecorder({
 
       {/* Instructions */}
       {!isRecording && !hasContent && !error && (
-        <div className="p-3 bg-muted/30 rounded-lg">
+        <div className="p-3 bg-muted/30 rounded-2xl">
           <p className="text-xs text-muted-foreground text-center">
             Click the microphone button to start recording
             <br />

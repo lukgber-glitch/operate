@@ -17,6 +17,7 @@ import { ChatMessage } from '@/components/chat/ChatMessage';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { SuggestionCard } from '@/components/chat/SuggestionCard';
 import { AIConsentDialog } from '@/components/consent/AIConsentDialog';
+import { GreetingHeader } from '@/components/chat/GreetingHeader';
 import { Mail, Building2, Calendar, Mic, History, Loader2, Brain, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,14 +71,6 @@ export default function ChatPage() {
   const [extractedInvoices, setExtractedInvoices] = useState<any[]>([]);
   const [extractedLoading, setExtractedLoading] = useState(false);
   const { formatWithSymbol } = useCurrencyFormat('EUR');
-
-  // Get time-based greeting
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
-  };
 
   // Load active conversation messages
   useEffect(() => {
@@ -315,25 +308,9 @@ export default function ChatPage() {
               flexDirection: 'column',
             }}
           >
-            {/* Welcome Section */}
-            <div className="text-center mb-6 md:mb-8">
-              <h1
-                className="font-semibold mb-2"
-                style={{
-                  fontSize: 'var(--font-size-3xl)',
-                  color: 'var(--color-text-primary)',
-                }}
-              >
-                {getGreeting()}, {user?.firstName || 'there'}!
-              </h1>
-              <p
-                style={{
-                  fontSize: 'var(--font-size-base)',
-                  color: 'var(--color-text-secondary)',
-                }}
-              >
-                How can I help you manage your business today?
-              </p>
+            {/* Greeting Header */}
+            <div className="mb-6">
+              <GreetingHeader />
             </div>
 
             {/* AI Consent Warning */}

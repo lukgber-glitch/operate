@@ -189,7 +189,7 @@ export function VoiceInputButton({
           size="icon"
           className={cn(
             'h-10 w-10 shrink-0 relative',
-            voiceInput.isRecording && 'text-red-500',
+            voiceInput.isRecording && 'text-[#06BF9D]',
             className
           )}
           disabled={disabled}
@@ -200,7 +200,7 @@ export function VoiceInputButton({
         >
           {voiceInput.isRecording ? (
             <>
-              <span className="absolute inset-0 animate-ping rounded-full bg-red-500/20" />
+              <span className="absolute inset-0 animate-ping rounded-full bg-[#06BF9D]/20" />
               <Mic className="h-4 w-4 relative" />
             </>
           ) : (
@@ -209,7 +209,7 @@ export function VoiceInputButton({
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-96" align="end">
+      <PopoverContent className="w-96 rounded-2xl" align="end">
         <div className="space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between">

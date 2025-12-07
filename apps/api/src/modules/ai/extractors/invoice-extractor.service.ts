@@ -43,7 +43,7 @@ interface GPTExtractionResponse extends ExtractedInvoiceDataDto {
 @Injectable()
 export class InvoiceExtractorService {
   private readonly logger = new Logger(InvoiceExtractorService.name);
-  private readonly openai: OpenAI;
+  private readonly openai: OpenAI | null = null;
   private readonly supportedMimeTypes = [
     'application/pdf',
     'image/png',

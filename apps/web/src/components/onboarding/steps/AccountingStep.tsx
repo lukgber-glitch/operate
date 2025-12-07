@@ -1,3 +1,5 @@
+'use client';
+
 import { Calculator, ShieldCheck, Globe } from 'lucide-react'
 import * as React from 'react'
 import { useFormContext } from 'react-hook-form'

@@ -10,6 +10,7 @@ interface VoiceWaveformProps {
   variant?: 'bars' | 'pulse' | 'wave';
   className?: string;
   color?: string;
+  gradientColors?: [string, string];
 }
 
 /**
@@ -23,7 +24,8 @@ export function VoiceWaveform({
   isRecording,
   variant = 'bars',
   className,
-  color = 'currentColor',
+  color = '#06BF9D',
+  gradientColors = ['#06BF9D', '#48D9BE'],
 }: VoiceWaveformProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -48,13 +50,13 @@ export function VoiceWaveform({
     const { volume } = audioData;
 
     if (variant === 'bars') {
-      drawBars(ctx, rect.width, rect.height, volume, color);
+      drawBars(ctx, rect.width, rect.height, volume, gradientColors);
     } else if (variant === 'pulse') {
       drawPulse(ctx, rect.width, rect.height, volume, color);
     } else if (variant === 'wave') {
       drawWave(ctx, rect.width, rect.height, volume, color);
     }
-  }, [audioData, isRecording, variant, color]);
+  }, [audioData, isRecording, variant, color, gradientColors]);
 
   if (!isRecording) return null;
 
@@ -67,13 +69,13 @@ export function VoiceWaveform({
   );
 }
 
-// Draw animated bars
+// Draw animated bars with gradient
 function drawBars(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
   volume: number,
-  color: string
+  gradientColors: [string, string]
 ) {
   const barCount = 5;
   const barWidth = 3;
@@ -82,7 +84,10 @@ function drawBars(
   const startX = (width - totalWidth) / 2;
   const centerY = height / 2;
 
-  ctx.fillStyle = color;
+  // Create vertical gradient using brand colors
+  const gradient = ctx.createLinearGradient(0, 0, 0, height);
+  gradient.addColorStop(0, gradientColors[0]);
+  gradient.addColorStop(1, gradientColors[1]);
 
   for (let i = 0; i < barCount; i++) {
     const x = startX + i * (barWidth + barGap);
@@ -98,6 +103,7 @@ function drawBars(
 
     const y = centerY - barHeight / 2;
 
+    ctx.fillStyle = gradient;
     ctx.beginPath();
     ctx.roundRect(x, y, barWidth, barHeight, barWidth / 2);
     ctx.fill();

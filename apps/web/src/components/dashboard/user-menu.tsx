@@ -10,7 +10,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 import { ThemeToggle } from '@/components/theme-toggle'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,13 +49,8 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 dark:focus:ring-slate-600">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="" alt={getDisplayName()} />
-            <AvatarFallback className="bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200">
-              {getInitials()}
-            </AvatarFallback>
-          </Avatar>
+        <button className="h-10 w-10 rounded-md flex items-center justify-center text-[#666666] hover:text-[#06BF9D] hover:bg-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-[#06BF9D] focus:ring-offset-2">
+          <User className="h-5 w-5" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
