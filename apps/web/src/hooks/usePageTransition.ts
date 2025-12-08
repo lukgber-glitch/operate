@@ -5,12 +5,20 @@
  *
  * Manages page transition state and provides functions for coordinating
  * button-to-container morph animations with page content transitions.
+ *
+ * DESIGN_OVERHAUL Phase 2: GSAP Motion Morph System
+ * GSAP Timeline sequence:
+ * 1. Phase 1 - Content Exit (0.2s): Fade out content except button
+ * 2. Phase 2 - Button Persist (0.1s pause): Empty button visible alone
+ * 3. Phase 3 - Morph (0.4s): Animate button position/size to target
+ * 4. Phase 4 - Content Enter (0.25s): Target content fades in
  */
 
 import { useCallback, type RefObject } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTransitionContext } from '@/components/animation/TransitionProvider';
 import { fadeOut, fadeIn, morphTo, TIMING } from '@/lib/animation/gsap-utils';
+import { gsap } from 'gsap';
 
 /**
  * Page transition hook return value
@@ -18,6 +26,13 @@ import { fadeOut, fadeIn, morphTo, TIMING } from '@/lib/animation/gsap-utils';
 interface UsePageTransitionReturn {
   /** Whether a transition is currently in progress */
   isTransitioning: boolean;
+  /** Trigger full button→rectangle morph transition */
+  triggerTransition: (
+    buttonRef: RefObject<HTMLButtonElement>,
+    sourceId: string,
+    targetId: string,
+    onComplete?: () => void
+  ) => void;
   /** Transition to a new page with button morph animation */
   transitionTo: (targetId: string, callback: () => void) => void;
   /** Register an element for morphing */
@@ -71,6 +86,86 @@ export function usePageTransition(): UsePageTransitionReturn {
     getElement,
     setCurrentMorphId,
   } = useTransitionContext();
+
+  /**
+   * Trigger full button→rectangle morph transition
+   * Implements 4-phase animation sequence as per spec
+   *
+   * @param buttonRef - Reference to the button element
+   * @param sourceId - ID of the source element (button)
+   * @param targetId - ID of the target container
+   * @param onComplete - Callback when transition completes
+   */
+  const triggerTransition = useCallback(
+    (
+      buttonRef: RefObject<HTMLButtonElement>,
+      sourceId: string,
+      targetId: string,
+      onComplete?: () => void
+    ) => {
+      if (isTransitioning || !buttonRef.current) return;
+
+      const sourceElement = buttonRef.current;
+      const targetElement = getElement(targetId);
+
+      if (!targetElement) {
+        console.warn(`Target element not found: ${targetId}`);
+        if (onComplete) onComplete();
+        return;
+      }
+
+      setTransitioning(true);
+      setCurrentMorphId(targetId);
+
+      // Get all page content except the button
+      const pageContent = document.querySelector('[data-page-content]') as HTMLElement;
+      const allContent = pageContent?.querySelectorAll('*:not([data-morph-preserve])') || [];
+
+      // Create master timeline
+      const masterTimeline = gsap.timeline({
+        onComplete: () => {
+          setTransitioning(false);
+          setCurrentMorphId(null);
+          if (onComplete) onComplete();
+        },
+      });
+
+      // PHASE 1: Content Exit (0.2s) - Fade out everything except button
+      if (pageContent) {
+        masterTimeline.to(
+          Array.from(allContent).filter((el) => !sourceElement.contains(el as Node)),
+          {
+            opacity: 0,
+            duration: 0.2,
+            ease: 'power1.out',
+          },
+          0
+        );
+      }
+
+      // PHASE 2: Button Persist (0.1s pause) - Already visible, just wait
+      masterTimeline.add(() => {}, '+=0.1');
+
+      // PHASE 3: Morph (0.4s) - Button expands to target
+      masterTimeline.add(
+        morphTo(sourceElement, targetElement, 0.4, 'power2.inOut'),
+        '-=0.05' // Slight overlap
+      );
+
+      // PHASE 4: Content Enter (0.25s) - Target content fades in
+      masterTimeline.to(
+        targetElement,
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.25,
+          ease: 'power1.out',
+        },
+        '-=0.1' // Overlap with morph end
+      );
+    },
+    [isTransitioning, getElement, setTransitioning, setCurrentMorphId]
+  );
 
   /**
    * Execute a page transition with button morph animation
@@ -181,6 +276,7 @@ export function usePageTransition(): UsePageTransitionReturn {
 
   return {
     isTransitioning,
+    triggerTransition,
     transitionTo,
     registerElement,
     unregisterElement,

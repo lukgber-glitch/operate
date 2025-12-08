@@ -5,20 +5,30 @@
  *
  * A special button that morphs into the next container when clicked.
  * Uses GSAP FLIP technique for smooth position/size transitions.
+ *
+ * DESIGN_OVERHAUL Phase 2: GSAP Motion Morph System
+ * Visual behavior:
+ * - On click: Text/icon fade out (opacity 0, 0.15s), button background remains
+ * - After brief pause, background morphs to target rect
  */
 
 import React, { useRef, useEffect, type ButtonHTMLAttributes } from 'react';
 import { usePageTransition } from '@/hooks/usePageTransition';
 import { cn } from '@/lib/utils';
+import { gsap } from 'gsap';
 
 /**
  * MorphButton component props
  */
 export interface MorphButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  /** ID used to identify this button for morphing (must be unique) */
+  /** morphId of target AnimatedContainer */
   targetId: string;
   /** Button content */
   children: React.ReactNode;
+  /** Callback when morph starts */
+  onMorphStart?: () => void;
+  /** Callback when morph completes */
+  onMorphComplete?: () => void;
   /** Click handler (optional - morphing happens automatically) */
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   /** Additional CSS classes */
@@ -86,6 +96,8 @@ export interface MorphButtonProps extends ButtonHTMLAttributes<HTMLButtonElement
 export function MorphButton({
   targetId,
   children,
+  onMorphStart,
+  onMorphComplete,
   onClick,
   className,
   disabled = false,
@@ -94,6 +106,7 @@ export function MorphButton({
   ...props
 }: MorphButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const contentRef = useRef<HTMLSpanElement>(null);
   const { registerElement, unregisterElement, isTransitioning } = usePageTransition();
 
   // Register this button for morphing
@@ -108,6 +121,33 @@ export function MorphButton({
       }
     };
   }, [targetId, registerElement, unregisterElement]);
+
+  // Handle click with content fade
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (disabled || isTransitioning) return;
+
+    // Fade out button content (text/icon) before morph
+    if (contentRef.current) {
+      gsap.to(contentRef.current, {
+        opacity: 0,
+        duration: 0.15,
+        ease: 'power1.out',
+        onStart: () => {
+          if (onMorphStart) onMorphStart();
+        },
+        onComplete: () => {
+          // Call onClick handler after content fades
+          if (onClick) onClick(e);
+          if (onMorphComplete) onMorphComplete();
+        },
+      });
+    } else {
+      // Fallback if no contentRef
+      if (onMorphStart) onMorphStart();
+      if (onClick) onClick(e);
+      if (onMorphComplete) onMorphComplete();
+    }
+  };
 
   // Variant styles
   const variantClasses = {
@@ -127,7 +167,7 @@ export function MorphButton({
     <button
       ref={buttonRef}
       id={targetId}
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled || isTransitioning}
       className={cn(
         // Base styles
@@ -159,7 +199,9 @@ export function MorphButton({
       )}
       {...props}
     >
-      {children}
+      <span ref={contentRef} className="flex items-center justify-center gap-2">
+        {children}
+      </span>
     </button>
   );
 }

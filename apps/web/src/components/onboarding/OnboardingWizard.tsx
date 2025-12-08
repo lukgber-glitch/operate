@@ -9,6 +9,7 @@ import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { MorphButton } from '@/components/animation/MorphButton'
+import { AnimatedContainer } from '@/components/ui/animated-container'
 
 import { OnboardingProgress, type OnboardingStep } from './OnboardingProgress'
 import { useOnboardingWizard } from './hooks/useOnboardingWizard'
@@ -230,36 +231,47 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
 
     const formData = methods.watch()
 
-    switch (step.id) {
-      case 'welcome':
-        return <WelcomeStep />
-      case 'company':
-        return <CompanyInfoStep />
-      case 'banking':
-        return <BankingStep />
-      case 'email':
-        return <EmailStep />
-      case 'tax':
-        return <TaxStep />
-      case 'accounting':
-        return <AccountingStep />
-      case 'preferences':
-        return <PreferencesStep />
-      case 'completion':
-        return (
-          <CompletionStep
-            companyName={formData.companyInfo?.name}
-            setupCompleted={{
-              banking: formData.banking?.connected,
-              email: formData.email?.connected,
-              tax: formData.tax?.connected,
-              accounting: formData.accounting?.connected,
-            }}
-          />
-        )
-      default:
-        return null
-    }
+    // Map step IDs to morphIds
+    const morphId = `onboarding-step-${step.id}`
+
+    const stepContent = (() => {
+      switch (step.id) {
+        case 'welcome':
+          return <WelcomeStep />
+        case 'company':
+          return <CompanyInfoStep />
+        case 'banking':
+          return <BankingStep />
+        case 'email':
+          return <EmailStep />
+        case 'tax':
+          return <TaxStep />
+        case 'accounting':
+          return <AccountingStep />
+        case 'preferences':
+          return <PreferencesStep />
+        case 'completion':
+          return (
+            <CompletionStep
+              companyName={formData.companyInfo?.name}
+              setupCompleted={{
+                banking: formData.banking?.connected,
+                email: formData.email?.connected,
+                tax: formData.tax?.connected,
+                accounting: formData.accounting?.connected,
+              }}
+            />
+          )
+        default:
+          return null
+      }
+    })()
+
+    return (
+      <AnimatedContainer morphId={morphId} key={morphId}>
+        {stepContent}
+      </AnimatedContainer>
+    )
   }
 
   const currentStepData = STEPS[currentStep]
@@ -356,7 +368,7 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
                     <MorphButton
                       type="submit"
                       disabled={isSubmitting}
-                      targetId={`onboarding-complete-step-${currentStep}`}
+                      targetId="main-chat-card"
                       variant="primary"
                       size="md"
                     >
@@ -373,7 +385,7 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
                     <MorphButton
                       type="button"
                       onClick={handleNext}
-                      targetId={`onboarding-next-step-${currentStep + 1}`}
+                      targetId={`onboarding-step-${STEPS[currentStep + 1]?.id}`}
                       variant="primary"
                       size="md"
                     >

@@ -21,6 +21,7 @@ import { GreetingHeader } from '@/components/chat/GreetingHeader';
 import { ChatHistoryDropdown } from '@/components/chat/ChatHistoryDropdown';
 import { Mail, Building2, Calendar, Mic, History, Loader2, Brain, AlertCircle } from 'lucide-react';
 import { AnimatedCard } from '@/components/ui/animated-card';
+import { AnimatedContainer } from '@/components/ui/animated-container';
 import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageTransition } from '@/components/animation/PageTransition';
 import { Button } from '@/components/ui/button';
@@ -317,18 +318,19 @@ export default function ChatPage() {
           <GreetingHeader />
         </div>
 
-        <div className="h-[calc(100vh-8rem)] flex flex-col overflow-hidden">
-        {/* Main Content Area */}
-        <ScrollArea className="flex-1">
-          <div
-            className="mx-auto px-4 py-6 md:py-8"
-            style={{
-              maxWidth: '800px',
-              minHeight: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
+        <AnimatedContainer morphId="main-chat-card">
+          <div className="h-[calc(100vh-8rem)] flex flex-col overflow-hidden">
+            {/* Main Content Area */}
+            <ScrollArea className="flex-1">
+              <div
+                className="mx-auto px-4 py-6 md:py-8"
+                style={{
+                  maxWidth: '800px',
+                  minHeight: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
 
             {/* Chat History Dropdown */}
             <div className="mb-4">
@@ -709,9 +711,11 @@ export default function ChatPage() {
             showAttachment={true}
             showVoice={true}
           />
+              </div>
+            </div>
+          </ScrollArea>
         </div>
-      </div>
-    </div>
+        </AnimatedContainer>
       </PageTransition>
     </>
   );

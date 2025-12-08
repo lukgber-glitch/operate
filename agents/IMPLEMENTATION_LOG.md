@@ -197,3 +197,160 @@ Phase 2 will focus on GSAP morphing animations (NOT implemented in Phase 1):
 - Logo morphing (already exists, refinement needed)
 
 **DO NOT START PHASE 2 UNTIL EXPLICITLY REQUESTED**
+
+---
+
+## Phase 2: GSAP Motion Morph System
+
+### Motion Core Components – MOTION-CORE
+
+**Date**: 2025-12-08
+**Agent**: Phase 2 Implementation
+
+**Files Created**:
+- `apps/web/src/components/ui/animated-container.tsx`
+
+**Files Modified**:
+- `apps/web/src/components/animation/MorphButton.tsx`
+- `apps/web/src/hooks/usePageTransition.ts`
+- `apps/web/src/app/(auth)/login/LoginPageWithAnimation.tsx`
+- `apps/web/src/components/onboarding/OnboardingWizard.tsx`
+- `apps/web/src/app/(dashboard)/chat/page.tsx`
+
+**What Changed**:
+
+1. **AnimatedContainer Component**
+   - New component at `src/components/ui/animated-container.tsx`
+   - Registers itself with TransitionProvider for morph targeting
+   - ENTER animation: opacity 0→1, scale 0.95→1, duration 0.25s, ease: 'power1.out'
+   - EXIT animation: opacity 1→0, scale 1→0.95, duration 0.2s, ease: 'power1.out'
+   - Exposes imperative API: triggerExit(), triggerEnter()
+   - Auto-animates on mount unless autoAnimate=false
+
+2. **MorphButton Enhancements**
+   - Added onMorphStart and onMorphComplete callbacks
+   - Button content (text/icon) fades out on click (0.15s)
+   - Button background remains visible during morph
+   - Uses contentRef to wrap children for fade animation
+   - Integrated with usePageTransition hook
+
+3. **usePageTransition Hook - 4-Phase Animation**
+   - New triggerTransition() function implements full sequence
+   - Phase 1: Content Exit (0.2s) - Fade out all except button
+   - Phase 2: Button Persist (0.1s pause) - Empty button visible
+   - Phase 3: Morph (0.4s) - Button expands to target using GSAP FLIP
+   - Phase 4: Content Enter (0.25s) - Target content fades in
+   - Handles reduced motion preference
+   - Uses GSAP timeline for coordination
+
+**Why It Changed**:
+- Creates fluid, delightful transitions between pages/steps
+- Button→rectangle morph provides visual continuity
+- GSAP FLIP technique ensures 60fps smooth animation
+- Reduced motion support ensures accessibility
+- Imperative API allows manual control when needed
+
+### Motion Application – MOTION-APPLY
+
+**Container ID Map Implementation**:
+
+| morphId | Component | Status |
+|---------|-----------|--------|
+| login-card | LoginPageWithAnimation | ✅ WIRED |
+| onboarding-step-welcome | WelcomeStep | ✅ WIRED |
+| onboarding-step-company | CompanyInfoStep | ✅ WIRED |
+| onboarding-step-banking | BankingStep | ✅ WIRED |
+| onboarding-step-email | EmailStep | ✅ WIRED |
+| onboarding-step-tax | TaxStep | ✅ WIRED |
+| onboarding-step-accounting | AccountingStep | ✅ WIRED |
+| onboarding-step-preferences | PreferencesStep | ✅ WIRED |
+| onboarding-step-completion | CompletionStep | ✅ WIRED |
+| main-chat-card | ChatPage main container | ✅ WIRED |
+
+**Login → Onboarding**:
+- Login card wrapped in AnimatedContainer with morphId="login-card"
+- Sign-in button can morph to onboarding-step-welcome (future)
+
+**Onboarding Steps**:
+- Each step wrapped in AnimatedContainer with morphId="onboarding-step-{stepId}"
+- Next buttons are MorphButtons targeting next step morphId
+- Final step button targets "main-chat-card"
+- Dynamic morphId generation based on step.id
+
+**Chat Page**:
+- Main chat container wrapped in AnimatedContainer with morphId="main-chat-card"
+- Allows completion step to morph into chat interface
+
+**Technical Implementation Details**:
+
+1. **GSAP Timeline Sequence**:
+   ```javascript
+   // Phase 1: Fade out content (0.2s)
+   masterTimeline.to(allContent, { opacity: 0, duration: 0.2, ease: 'power1.out' })
+   
+   // Phase 2: Button persist (0.1s pause)
+   masterTimeline.add(() => {}, '+=0.1')
+   
+   // Phase 3: Morph button to target (0.4s)
+   masterTimeline.add(morphTo(sourceElement, targetElement, 0.4, 'power2.inOut'))
+   
+   // Phase 4: Fade in new content (0.25s)
+   masterTimeline.to(targetElement, { opacity: 1, scale: 1, duration: 0.25, ease: 'power1.out' })
+   ```
+
+2. **Reduced Motion Support**:
+   - Checks window.matchMedia('(prefers-reduced-motion: reduce)')
+   - Falls back to instant transitions when preferred
+   - Accessibility-first approach
+
+3. **Animation Performance**:
+   - Uses transform and opacity only (GPU accelerated)
+   - FLIP technique calculates positions once, animates efficiently
+   - Animations killed on unmount to prevent memory leaks
+
+**Open TODOs**:
+- Test actual button→rectangle morph flow (requires navigation wiring)
+- Add page exit animations when navigating away
+- Consider View Transitions API for future enhancement
+- Add spring physics to morph animation for more natural feel
+- Test with various screen sizes and aspect ratios
+
+**Known Limitations**:
+- Exit animations currently deferred (needs View Transitions API integration)
+- Morph only works within same page context (cross-route needs router integration)
+- No support for back button animations yet
+
+---
+
+## Phase 2 Completion Checklist
+
+- [x] AnimatedContainer component created
+- [x] MorphButton enhanced with content fade
+- [x] usePageTransition implements 4-phase sequence
+- [x] Login page wired with AnimatedContainer
+- [x] Onboarding steps wrapped in AnimatedContainer
+- [x] Chat page wrapped in AnimatedContainer
+- [x] All morphIds mapped per specification
+- [x] Reduced motion support implemented
+- [x] Documentation updated
+- [ ] Visual testing of morph animations
+- [ ] Performance testing (60fps verification)
+- [ ] Cross-browser testing
+
+---
+
+## Next Steps (Phase 3+)
+
+**Phase 3: Route Integration**
+- Wire login button to morph into onboarding on successful auth
+- Wire onboarding completion to morph into chat page
+- Add router integration to usePageTransition
+
+**Phase 4: Polish & Refinement**
+- Add spring physics to morphs
+- Implement exit animations with View Transitions API
+- Add stagger animations for list items
+- Optimize performance for mobile devices
+
+**DO NOT START NEXT PHASE UNTIL EXPLICITLY REQUESTED**
+

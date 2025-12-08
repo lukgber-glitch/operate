@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { LanguageSelector } from '@/components/auth/language-selector';
 import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { LogoEntrance, LogoMorph } from '@/components/animation';
+import { AnimatedContainer } from '@/components/ui/animated-container';
 import { useLogoAnimation } from '@/hooks/useLogoAnimation';
 
 export function LoginPageWithAnimation() {
@@ -49,14 +50,16 @@ export function LoginPageWithAnimation() {
         {t('welcomeTitle') || 'Welcome to Operate'}
       </HeadlineOutside>
 
-      {/* Card with LogoMorph animation */}
-      <LogoMorph>
-        <Card className="w-full rounded-[24px]">
-          <CardContent className="p-6 lg:p-8">
-            <LoginForm />
-          </CardContent>
-        </Card>
-      </LogoMorph>
+      {/* Card with LogoMorph animation + AnimatedContainer for morph targeting */}
+      <AnimatedContainer morphId="login-card">
+        <LogoMorph>
+          <Card className="w-full rounded-[24px]">
+            <CardContent className="p-6 lg:p-8">
+              <LoginForm />
+            </CardContent>
+          </Card>
+        </LogoMorph>
+      </AnimatedContainer>
     </div>
   );
 }
