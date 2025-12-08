@@ -1,8 +1,11 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { ReceiptsController } from './receipts.controller';
+import { ReceiptsService } from './receipts.service';
 import { RbacModule } from '../../../auth/rbac/rbac.module';
 import { ExpensesModule } from '../expenses.module';
+import { MindeeModule } from '../../../integrations/mindee/mindee.module';
+import { PrismaModule } from '../../../../common/prisma/prisma.module';
 
 /**
  * Receipts Module
@@ -42,16 +45,12 @@ import { ExpensesModule } from '../expenses.module';
       },
     }),
     RbacModule,
+    PrismaModule,
+    MindeeModule,
     forwardRef(() => ExpensesModule), // Use forwardRef to resolve circular dependency
   ],
   controllers: [ReceiptsController],
-  providers: [
-    // TODO: Add ReceiptsService when implemented
-    // TODO: Add integration with BRIDGE (Mindee OCR)
-    // TODO: Add integration with ORACLE (receipt classification)
-  ],
-  exports: [
-    // TODO: Export ReceiptsService when implemented
-  ],
+  providers: [ReceiptsService],
+  exports: [ReceiptsService],
 })
 export class ReceiptsModule {}

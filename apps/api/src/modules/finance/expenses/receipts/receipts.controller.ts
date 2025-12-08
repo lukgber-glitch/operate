@@ -28,6 +28,7 @@ import { RbacGuard } from '../../../auth/rbac/rbac.guard';
 import { RequirePermissions } from '../../../../common/decorators/require-permissions.decorator';
 import { Permission } from '../../../auth/rbac/permissions';
 import { CurrentUser } from '../../../auth/decorators/current-user.decorator';
+import { ReceiptsService } from './receipts.service';
 import {
   UploadReceiptDto,
   ReceiptScanResult,
@@ -47,6 +48,7 @@ import {
 @UseGuards(JwtAuthGuard, RbacGuard)
 @ApiBearerAuth()
 export class ReceiptsController {
+  constructor(private readonly receiptsService: ReceiptsService) {}
   /**
    * Upload and scan a receipt
    * Uploads receipt file, performs OCR, and returns extracted data
@@ -119,12 +121,7 @@ export class ReceiptsController {
       );
     }
 
-    // TODO: Implement receipt upload and scan
-    // This will integrate with:
-    // - BRIDGE's Mindee integration for OCR
-    // - ORACLE's receipt scanner service for classification
-    // - File storage service for receipt URL
-    throw new Error('Not implemented - to be integrated with BRIDGE and ORACLE');
+    return this.receiptsService.uploadAndScan(orgId, userId, file, uploadDto);
   }
 
   /**
@@ -166,8 +163,7 @@ export class ReceiptsController {
   async getScanStatus(
     @Param('scanId') scanId: string,
   ): Promise<{ scanId: string; status: ScanStatus; progress?: number }> {
-    // TODO: Implement scan status check
-    throw new Error('Not implemented');
+    return this.receiptsService.getScanStatus(scanId);
   }
 
   /**
@@ -202,8 +198,7 @@ export class ReceiptsController {
   async getScanResult(
     @Param('scanId') scanId: string,
   ): Promise<ReceiptScanResult> {
-    // TODO: Implement scan result retrieval
-    throw new Error('Not implemented');
+    return this.receiptsService.getScanResult(scanId);
   }
 
   /**
@@ -258,13 +253,7 @@ export class ReceiptsController {
     @Body() corrections: ConfirmScanDto,
     @CurrentUser('id') userId: string,
   ): Promise<any> {
-    // TODO: Implement scan confirmation and expense creation
-    // This will:
-    // 1. Merge scan result with user corrections
-    // 2. Create expense via ExpensesService
-    // 3. Update scan status to CONFIRMED
-    // 4. Link scan to created expense
-    throw new Error('Not implemented');
+    return this.receiptsService.confirmScan(orgId, scanId, userId, corrections);
   }
 
   /**
@@ -315,8 +304,7 @@ export class ReceiptsController {
     @Param('scanId') scanId: string,
     @Body('reason') reason?: string,
   ): Promise<void> {
-    // TODO: Implement scan rejection
-    throw new Error('Not implemented');
+    return this.receiptsService.rejectScan(scanId, reason);
   }
 
   /**
@@ -343,8 +331,7 @@ export class ReceiptsController {
     @Param('orgId') orgId: string,
     @Query() filters: ScanHistoryFiltersDto,
   ): Promise<PaginatedResult<ReceiptScan>> {
-    // TODO: Implement scan history retrieval
-    throw new Error('Not implemented');
+    return this.receiptsService.getScanHistory(orgId, filters);
   }
 
   /**
@@ -384,7 +371,6 @@ export class ReceiptsController {
   async rescanReceipt(
     @Param('scanId') scanId: string,
   ): Promise<ReceiptScanResult> {
-    // TODO: Implement re-scan
-    throw new Error('Not implemented');
+    return this.receiptsService.rescanReceipt(scanId);
   }
 }
