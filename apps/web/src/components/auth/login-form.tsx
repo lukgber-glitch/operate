@@ -10,6 +10,7 @@ import * as z from 'zod';
 
 import { OAuthButtons } from '@/components/auth/oauth-buttons';
 import { Button } from '@/components/ui/button';
+import { MorphButton } from '@/components/animation/MorphButton';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -140,7 +141,14 @@ export function LoginForm() {
           </Label>
         </div>
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <MorphButton
+          type="submit"
+          targetId="dashboard-container"
+          variant="primary"
+          size="lg"
+          className="w-full"
+          disabled={isLoading}
+        >
           {isLoading ? (
             <>
               <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -149,7 +157,7 @@ export function LoginForm() {
           ) : (
             t('signIn')
           )}
-        </Button>
+        </MorphButton>
       </form>
 
       <div className="text-center text-sm">

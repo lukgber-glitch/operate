@@ -99,8 +99,8 @@ export function CompanyInfoStep() {
       <HeadlineOutside subtitle="Tell us about your business. This information will be used to set up your account and configure country-specific tax settings.">
         Company Information
       </HeadlineOutside>
-      <AnimatedCard variant="elevated" padding="lg">
-        <div className="space-y-4">
+      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
+        <div className="space-y-6">
           {/* Company Name */}
           <div className="space-y-2">
             <Label htmlFor="companyName">
@@ -227,7 +227,7 @@ export function CompanyInfoStep() {
           </div>
 
           {/* Address Section */}
-          <div className="space-y-4 pt-4 border-t">
+          <div className="space-y-4 pt-6 border-t">
             <h4 className="text-sm font-medium">Business Address</h4>
 
             {/* Street and Number */}
@@ -310,7 +310,7 @@ export function CompanyInfoStep() {
           </div>
 
           {/* Business Contact Section */}
-          <div className="space-y-4 pt-4 border-t">
+          <div className="space-y-4 pt-6 border-t">
             <h4 className="text-sm font-medium">Business Contact</h4>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -357,7 +357,7 @@ export function CompanyInfoStep() {
           </div>
 
           {/* Financial Settings Section */}
-          <div className="space-y-4 pt-4 border-t">
+          <div className="space-y-4 pt-6 border-t">
             <h4 className="text-sm font-medium">Financial Settings</h4>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

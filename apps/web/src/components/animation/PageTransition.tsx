@@ -7,9 +7,9 @@
  * Integrates with GSAP for smooth transitions and supports reduced motion.
  */
 
-import React, { useRef, useLayoutEffect } from 'react';
+import React, { useRef, useLayoutEffect, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { fadeIn, prefersReducedMotion } from '@/lib/animation/gsap-utils';
+import { fadeIn, fadeOut, prefersReducedMotion } from '@/lib/animation/gsap-utils';
 import { cn } from '@/lib/utils';
 
 /**
@@ -64,7 +64,30 @@ export function PageTransition({
 }: PageTransitionProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const previousPathnameRef = useRef<string>(pathname);
 
+  // Handle exit animation when pathname changes
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    // Only run exit animation if pathname actually changed
+    if (previousPathnameRef.current !== pathname) {
+      const shouldAnimate = !prefersReducedMotion();
+
+      if (shouldAnimate) {
+        // Animate page exit
+        fadeOut(containerRef.current, undefined, () => {
+          if (onExit) onExit();
+        });
+      } else {
+        if (onExit) onExit();
+      }
+
+      previousPathnameRef.current = pathname;
+    }
+  }, [pathname, onExit]);
+
+  // Handle enter animation after mount or pathname change
   useLayoutEffect(() => {
     if (!containerRef.current) return;
 
@@ -86,10 +109,9 @@ export function PageTransition({
 
     // Cleanup
     return () => {
-      if (onExit) onExit();
       tween.kill();
     };
-  }, [pathname, onEnter, onExit]);
+  }, [pathname, onEnter]);
 
   return (
     <div

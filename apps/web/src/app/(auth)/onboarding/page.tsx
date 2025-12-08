@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 
-import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { OnboardingPageClient } from './OnboardingPageClient';
 
 export const metadata: Metadata = {
   title: 'Welcome to Operate | Setup Your Account',
@@ -8,9 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function OnboardingPage() {
-  return (
-    <div className="container mx-auto px-4 py-8 relative z-10">
-      <OnboardingWizard />
-    </div>
-  );
+  return <OnboardingPageClient />;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard, CardContent, CardHeader, CardTitle } from '@/components/ui/AnimatedCard';
 import { ArrowUp, ArrowDown, Wallet } from 'lucide-react';
 import { useCashFlowForecast } from '@/hooks/useDashboard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,7 +10,7 @@ export function CashBalanceCard() {
 
   if (isLoading) {
     return (
-      <Card>
+      <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             Kontostand
@@ -21,13 +21,13 @@ export function CashBalanceCard() {
           <Skeleton className="h-8 w-32 mb-2" />
           <Skeleton className="h-4 w-24" />
         </CardContent>
-      </Card>
+      </AnimatedCard>
     );
   }
 
   if (error || !data) {
     return (
-      <Card>
+      <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             Kontostand
@@ -38,7 +38,7 @@ export function CashBalanceCard() {
           <div className="text-2xl font-bold">€0</div>
           <div className="text-xs text-muted-foreground">Keine Daten verfügbar</div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
     );
   }
 
@@ -47,7 +47,7 @@ export function CashBalanceCard() {
   const isPositive = change >= 0;
 
   return (
-    <Card>
+    <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           Kontostand
@@ -63,6 +63,6 @@ export function CashBalanceCard() {
           <span>{Math.abs(changePercent).toFixed(1)}% diese Woche</span>
         </div>
       </CardContent>
-    </Card>
+    </AnimatedCard>
   );
 }

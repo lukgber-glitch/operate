@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard, CardContent, CardHeader, CardTitle } from '@/components/ui/AnimatedCard';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { useRevenueData } from '@/hooks/useDashboard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,20 +10,20 @@ export function RevenueChart() {
 
   if (isLoading) {
     return (
-      <Card>
+      <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
         <CardHeader>
           <CardTitle>Umsatz (12 Monate)</CardTitle>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-[300px] w-full" />
         </CardContent>
-      </Card>
+      </AnimatedCard>
     );
   }
 
   if (error || !data || data.length === 0) {
     return (
-      <Card>
+      <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
         <CardHeader>
           <CardTitle>Umsatz (12 Monate)</CardTitle>
         </CardHeader>
@@ -32,12 +32,12 @@ export function RevenueChart() {
             <p>Keine Umsatzdaten verfügbar</p>
           </div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
     );
   }
 
   return (
-    <Card>
+    <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
       <CardHeader>
         <CardTitle>Umsatz (12 Monate)</CardTitle>
       </CardHeader>
@@ -81,6 +81,6 @@ export function RevenueChart() {
           </ResponsiveContainer>
         </div>
       </CardContent>
-    </Card>
+    </AnimatedCard>
   );
 }

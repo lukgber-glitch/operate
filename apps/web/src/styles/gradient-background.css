@@ -48,26 +48,26 @@
 }
 
 /* Accessibility - respect reduced motion */
+/* Note: GSAP handles this via JavaScript in gradient-background.tsx */
+/* Do NOT use !important on transform - it breaks GSAP animations */
 @media (prefers-reduced-motion: reduce) {
   .gradient-blob {
-    animation: none !important;
-    transform: translate3d(0, 0, 0) !important;
+    /* Static fallback handled by component */
   }
 }
 
-/* Dark mode adjustments */
+/* Dark mode adjustments - DO NOT override opacity (set by component) */
 .dark .gradient-blob {
-  /* Slightly reduce opacity in dark mode for better contrast */
-  opacity: 0.9;
+  /* Let component control opacity for proper visibility */
 }
 
-/* Container styles */
+/* Container styles - Must be visible behind content but above base bg */
 .gradient-background-container {
   position: fixed;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
-  z-index: -1;
+  z-index: 0; /* Changed from -1 to 0 to ensure visibility above base bg (-z-20) */
 }
 
 /* Prevent layout shift during load */

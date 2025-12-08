@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard, CardContent, CardHeader, CardTitle } from '@/components/ui/AnimatedCard';
 import { Button } from '@/components/ui/button';
 import { useOverdueInvoices, useUpcomingBills } from '@/hooks/useDashboard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,7 +21,7 @@ export function UpcomingItems({ type, title }: UpcomingItemsProps) {
 
   if (isLoading) {
     return (
-      <Card>
+      <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
         <CardHeader>
           <CardTitle className="text-lg">{title}</CardTitle>
         </CardHeader>
@@ -35,13 +35,13 @@ export function UpcomingItems({ type, title }: UpcomingItemsProps) {
             ))}
           </div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
     );
   }
 
   if (error || !data) {
     return (
-      <Card>
+      <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
         <CardHeader>
           <CardTitle className="text-lg">{title}</CardTitle>
         </CardHeader>
@@ -50,13 +50,13 @@ export function UpcomingItems({ type, title }: UpcomingItemsProps) {
             <p>Fehler beim Laden der Daten</p>
           </div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
     );
   }
 
   if (data.items.length === 0) {
     return (
-      <Card>
+      <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
         <CardHeader>
           <CardTitle className="text-lg">{title}</CardTitle>
         </CardHeader>
@@ -67,14 +67,14 @@ export function UpcomingItems({ type, title }: UpcomingItemsProps) {
             </p>
           </div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
     );
   }
 
   const linkHref = type === 'invoices' ? '/finance/invoices' : '/finance/bills';
 
   return (
-    <Card>
+    <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
       <CardHeader>
         <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
@@ -110,6 +110,6 @@ export function UpcomingItems({ type, title }: UpcomingItemsProps) {
           </Button>
         )}
       </CardContent>
-    </Card>
+    </AnimatedCard>
   );
 }

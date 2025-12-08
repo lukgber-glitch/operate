@@ -143,7 +143,7 @@ export function EmailStep() {
           Connect Your Email
         </span>
       </HeadlineOutside>
-      <AnimatedCard variant="elevated" padding="lg">
+      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
         <div className="space-y-6">
           {/* Security Notice */}
           <Alert>
@@ -207,7 +207,7 @@ export function EmailStep() {
           )}
 
           {/* Benefits Section */}
-          <div className="space-y-4 pt-4 border-t">
+          <div className="space-y-4 pt-6 border-t">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-primary" />
               What you get with email integration
@@ -290,7 +290,7 @@ export function EmailStep() {
 
       {/* Alternative: Manual Upload Reminder */}
       {!anyConnected && (
-        <AnimatedCard variant="outlined" padding="lg" className="border-dashed">
+        <AnimatedCard variant="outline" padding="lg" className="border-dashed rounded-[24px]">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
                 <FileText className="w-6 h-6 text-muted-foreground" />

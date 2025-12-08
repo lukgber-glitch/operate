@@ -4,7 +4,9 @@ import * as React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Upload, X, Info } from 'lucide-react'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AnimatedCard } from '@/components/ui/animated-card'
+import { Card, CardContent } from '@/components/ui/card'
+import { HeadlineOutside } from '@/components/ui/headline-outside'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -342,15 +344,11 @@ export function CompanyProfileStep() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Company Information</CardTitle>
-          <CardDescription>
-            Tell us about your business. This information will be used to set up your account and
-            configure country-specific tax settings.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <HeadlineOutside subtitle="Tell us about your business. This information will be used to set up your account and configure country-specific tax settings.">
+        Company Information
+      </HeadlineOutside>
+      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
+        <div className="space-y-6">
           {/* Company Name */}
           <div className="space-y-2">
             <Label htmlFor="companyName">
@@ -520,7 +518,7 @@ export function CompanyProfileStep() {
           </div>
 
           {/* Address Section */}
-          <div className="space-y-4 pt-4 border-t">
+          <div className="space-y-4 pt-6 border-t">
             <h4 className="text-sm font-medium">Business Address</h4>
 
             {/* Street and Number */}
@@ -635,7 +633,7 @@ export function CompanyProfileStep() {
           </div>
 
           {/* Contact Information Section */}
-          <div className="space-y-4 pt-4 border-t">
+          <div className="space-y-4 pt-6 border-t">
             <h4 className="text-sm font-medium">Contact Information</h4>
 
             {/* Business Email and Phone */}
@@ -706,7 +704,7 @@ export function CompanyProfileStep() {
           </div>
 
           {/* Fiscal Settings Section */}
-          <div className="space-y-4 pt-4 border-t">
+          <div className="space-y-4 pt-6 border-t">
             <h4 className="text-sm font-medium">Fiscal Settings</h4>
 
             <Alert>
@@ -793,7 +791,7 @@ export function CompanyProfileStep() {
           </div>
 
           {/* Company Logo Upload Section */}
-          <div className="space-y-4 pt-4 border-t">
+          <div className="space-y-4 pt-6 border-t">
             <h4 className="text-sm font-medium">Company Logo (Optional)</h4>
 
             <div className="space-y-4">
@@ -854,8 +852,8 @@ export function CompanyProfileStep() {
               Your logo will appear on invoices, quotes, and other documents
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </AnimatedCard>
     </div>
   )
 }

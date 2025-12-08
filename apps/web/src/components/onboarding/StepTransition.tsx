@@ -12,40 +12,71 @@ interface StepTransitionProps {
 
 /**
  * StepTransition Component
- * Animates transitions between onboarding steps
- * - Slides out current step (left for forward, right for backward)
- * - Slides in new step (from right for forward, from left for backward)
+ * Animates transitions between onboarding steps with EXIT→ENTER timing
+ * Following DESIGN_OVERHAUL_PLAN.md specifications:
+ * - EXIT: 300ms fade out + scale down (0.95) with power2.inOut
+ * - ENTER: 400ms fade in + scale up (1.0) with power2.inOut
+ * - Total duration: 700ms
  */
 export function StepTransition({ children, direction = 'forward', stepKey }: StepTransitionProps) {
   const containerRef = React.useRef<HTMLDivElement>(null)
   const prevKeyRef = React.useRef(stepKey)
+  const [currentChildren, setCurrentChildren] = React.useState(children)
 
   useGSAP(() => {
-    if (containerRef.current && prevKeyRef.current !== stepKey) {
-      const isForward = direction === 'forward'
+    if (!containerRef.current) return
 
-      // Entry animation
-      gsap.fromTo(
-        containerRef.current,
-        {
-          opacity: 0,
-          x: isForward ? 50 : -50,
-        },
-        {
-          opacity: 1,
-          x: 0,
-          duration: 0.35,
-          ease: 'power2.out',
-        }
-      )
-
-      prevKeyRef.current = stepKey
+    // Only animate when step actually changes
+    if (prevKeyRef.current === stepKey) {
+      return
     }
-  }, [stepKey, direction])
+
+    // Create timeline for EXIT → ENTER sequence
+    const timeline = gsap.timeline()
+
+    // EXIT phase: Fade out + scale down current content (300ms)
+    timeline.to(containerRef.current, {
+      opacity: 0,
+      scale: 0.95,
+      duration: 0.3,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        // Update content after exit completes
+        setCurrentChildren(children)
+        prevKeyRef.current = stepKey
+      }
+    })
+
+    // ENTER phase: Fade in + scale up new content (400ms)
+    timeline.fromTo(
+      containerRef.current,
+      {
+        opacity: 0,
+        scale: 0.95,
+      },
+      {
+        opacity: 1,
+        scale: 1,
+        duration: 0.4,
+        ease: 'power2.inOut',
+      }
+    )
+
+    return () => {
+      timeline.kill()
+    }
+  }, [stepKey, direction, children])
+
+  // Set initial state
+  React.useEffect(() => {
+    if (prevKeyRef.current === stepKey) {
+      setCurrentChildren(children)
+    }
+  }, [children, stepKey])
 
   return (
     <div ref={containerRef} className="w-full">
-      {children}
+      {currentChildren}
     </div>
   )
 }

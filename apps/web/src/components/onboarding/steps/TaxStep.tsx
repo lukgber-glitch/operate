@@ -79,7 +79,7 @@ export function TaxStep() {
       <HeadlineOutside subtitle="Connect to your country's tax authority portal to streamline tax filing and VAT returns. This step is optional.">
         Connect Tax Software
       </HeadlineOutside>
-      <AnimatedCard variant="elevated" padding="lg">
+      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
         <div className="space-y-6">
           {connectedTax ? (
             <div className="flex items-center justify-between p-4 bg-primary/10 border border-primary/20 rounded-lg">
@@ -167,7 +167,7 @@ export function TaxStep() {
               )}
 
               {/* Benefits */}
-              <div className="space-y-3 pt-4 border-t">
+              <div className="space-y-3 pt-6 border-t">
                 <h4 className="text-sm font-medium">Benefits of connecting tax software</h4>
                 <div className="space-y-2">
                   <div className="flex items-start gap-2">

@@ -18,6 +18,14 @@ module.exports = {
     },
     extend: {
       colors: {
+        // Design System Brand Colors (CSS Variables)
+        'brand-primary': 'var(--color-primary)',
+        'brand-accent-1': 'var(--color-accent-1)',
+        'brand-accent-2': 'var(--color-accent-2)',
+        'brand-accent-3': 'var(--color-accent-3)',
+        'brand-bg-light': 'var(--color-background-light)',
+
+        // Shadcn/UI compatibility (preserved)
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

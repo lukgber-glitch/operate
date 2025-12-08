@@ -26,15 +26,28 @@ export function LogoEntrance({ onComplete, skipEnabled = true }: LogoEntrancePro
 
     if (!logoRef.current || !containerRef.current) return;
 
+    let hasCompleted = false;
+    const completeOnce = () => {
+      if (!hasCompleted) {
+        hasCompleted = true;
+        onComplete();
+      }
+    };
+
     // Enable skip after 500ms (prevent accidental skips)
     const skipTimer = setTimeout(() => {
       setCanSkip(true);
     }, 500);
 
+    // Fallback timeout - ensure animation completes within 4 seconds
+    const fallbackTimer = setTimeout(() => {
+      completeOnce();
+    }, 4000);
+
     // Create GSAP timeline
     const tl = gsap.timeline({
       onComplete: () => {
-        onComplete();
+        completeOnce();
       },
     });
 
@@ -59,7 +72,7 @@ export function LogoEntrance({ onComplete, skipEnabled = true }: LogoEntrancePro
       })
       .to(logoRef.current, {
         // Hold position for brand recognition
-        duration: 0.3,
+        duration: 1.5,
       })
       .to(logoRef.current, {
         // Start fade out
@@ -71,6 +84,7 @@ export function LogoEntrance({ onComplete, skipEnabled = true }: LogoEntrancePro
 
     return () => {
       clearTimeout(skipTimer);
+      clearTimeout(fallbackTimer);
       tl.kill();
     };
   }, [onComplete]);

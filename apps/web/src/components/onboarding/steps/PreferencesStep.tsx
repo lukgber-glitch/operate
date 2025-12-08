@@ -71,7 +71,7 @@ export function PreferencesStep() {
         System Preferences
       </HeadlineOutside>
 
-      <AnimatedCard variant="elevated" padding="lg">
+      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
         <div className="space-y-6">
           {/* Regional Settings */}
           <div className="space-y-4">

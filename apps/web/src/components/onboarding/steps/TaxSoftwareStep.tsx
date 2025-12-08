@@ -295,7 +295,7 @@ export function TaxSoftwareStep() {
       <HeadlineOutside subtitle="Connect to your tax filing system to automate VAT returns, tax submissions, and compliance reporting. This step is optional but highly recommended for tax automation.">
         Connect Tax Software
       </HeadlineOutside>
-      <AnimatedCard variant="elevated" padding="lg">
+      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
         <div className="space-y-6">
           {connectedTax && connectedIntegration ? (
             // Connected State
@@ -387,7 +387,7 @@ export function TaxSoftwareStep() {
               )}
 
               {/* Why Connect Section */}
-              <div className="space-y-3 pt-4 border-t">
+              <div className="space-y-3 pt-6 border-t">
                 <h4 className="text-sm font-medium">Why connect tax software?</h4>
                 <div className="space-y-2">
                   <div className="flex items-start gap-2">
@@ -424,7 +424,7 @@ export function TaxSoftwareStep() {
               </div>
 
               {/* Auth Type Legend */}
-              <div className="space-y-3 pt-4 border-t">
+              <div className="space-y-3 pt-6 border-t">
                 <h4 className="text-sm font-medium">Connection types</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="flex items-start gap-2">

@@ -8,6 +8,7 @@ import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { MorphButton } from '@/components/animation/MorphButton'
 
 import { OnboardingProgress, type OnboardingStep } from './OnboardingProgress'
 import { useOnboardingWizard } from './hooks/useOnboardingWizard'
@@ -281,14 +282,16 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
+    <div className="w-full max-w-4xl mx-auto px-4 py-8 md:px-6 md:py-12">
       <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(submitOnboarding)}>
+        <form onSubmit={handleSubmit(submitOnboarding)} className="space-y-8">
           {/* Header - Only show on non-welcome and non-completion steps */}
           {currentStepData?.id !== 'welcome' && currentStepData?.id !== 'completion' && (
-            <div className="mb-8 text-center">
-              <h1 className="text-3xl font-bold mb-2">Welcome to Operate</h1>
-              <p className="text-muted-foreground">
+            <div className="text-center space-y-3">
+              <h1 className="text-4xl font-semibold text-[var(--color-text)]">
+                Welcome to Operate
+              </h1>
+              <p className="text-lg text-[var(--color-text-secondary)]">
                 Let&apos;s set up your account in just a few steps
               </p>
             </div>
@@ -296,15 +299,17 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
 
           {/* Progress Indicator - Hide on welcome and completion */}
           {currentStepData?.id !== 'welcome' && currentStepData?.id !== 'completion' && (
-            <OnboardingProgress
-              steps={STEPS}
-              currentStep={currentStep}
-              completedSteps={completedSteps}
-            />
+            <div className="mb-6">
+              <OnboardingProgress
+                steps={STEPS}
+                currentStep={currentStep}
+                completedSteps={completedSteps}
+              />
+            </div>
           )}
 
           {/* Step Content with Transition */}
-          <div className="my-8">
+          <div className="min-h-[400px] flex items-start justify-center">
             <StepTransition stepKey={currentStep} direction={direction}>
               {renderStep()}
             </StepTransition>
@@ -312,37 +317,49 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
 
           {/* Navigation - Hide on completion step */}
           {currentStepData?.id !== 'completion' && (
-            <Card className="p-6">
-              <div className="flex items-center justify-between">
+            <Card className="p-6 rounded-[24px] border-[var(--color-border)] bg-[var(--color-surface)]">
+              <div className="flex items-center justify-between gap-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handlePrevious}
                   disabled={isFirstStep}
+                  className="h-12 px-6 rounded-[12px]"
                 >
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Back
                 </Button>
 
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
+                <div className="flex items-center gap-3 text-center">
+                  <span className="text-sm text-[var(--color-text-secondary)] font-medium">
                     Step {currentStep + 1} of {STEPS.length}
                   </span>
                   {progress.estimatedTimeRemaining && (
-                    <span className="text-xs text-muted-foreground hidden md:inline">
+                    <span className="text-xs text-[var(--color-text-secondary)] hidden md:inline">
                       • {progress.estimatedTimeRemaining} remaining
                     </span>
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   {showSkipButton && (
-                    <Button type="button" variant="ghost" onClick={handleSkip}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={handleSkip}
+                      className="h-12 px-5 rounded-[12px]"
+                    >
                       Skip
                     </Button>
                   )}
                   {isLastStep ? (
-                    <Button type="submit" disabled={isSubmitting}>
+                    <MorphButton
+                      type="submit"
+                      disabled={isSubmitting}
+                      targetId={`onboarding-complete-step-${currentStep}`}
+                      variant="primary"
+                      size="md"
+                    >
                       {isSubmitting ? (
                         <>Processing...</>
                       ) : (
@@ -351,12 +368,18 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
                           Complete Setup
                         </>
                       )}
-                    </Button>
+                    </MorphButton>
                   ) : (
-                    <Button type="button" onClick={handleNext}>
+                    <MorphButton
+                      type="button"
+                      onClick={handleNext}
+                      targetId={`onboarding-next-step-${currentStep + 1}`}
+                      variant="primary"
+                      size="md"
+                    >
                       Next
                       <ChevronRight className="w-4 h-4 ml-2" />
-                    </Button>
+                    </MorphButton>
                   )}
                 </div>
               </div>

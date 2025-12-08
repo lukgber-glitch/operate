@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard, CardContent, CardHeader, CardTitle } from '@/components/ui/AnimatedCard';
 import { Calendar, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { useRunwayData } from '@/hooks/useDashboard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,7 +10,7 @@ export function RunwayCard() {
 
   if (isLoading) {
     return (
-      <Card>
+      <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             Runway
@@ -21,13 +21,13 @@ export function RunwayCard() {
           <Skeleton className="h-8 w-32 mb-2" />
           <Skeleton className="h-4 w-24" />
         </CardContent>
-      </Card>
+      </AnimatedCard>
     );
   }
 
   if (error || !data) {
     return (
-      <Card>
+      <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             Runway
@@ -38,7 +38,7 @@ export function RunwayCard() {
           <div className="text-2xl font-bold">N/A</div>
           <div className="text-xs text-muted-foreground">Keine Daten verfügbar</div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
     );
   }
 
@@ -76,7 +76,7 @@ export function RunwayCard() {
   };
 
   return (
-    <Card>
+    <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           Runway
@@ -92,6 +92,6 @@ export function RunwayCard() {
           <span>{getStatusText()}</span>
         </div>
       </CardContent>
-    </Card>
+    </AnimatedCard>
   );
 }

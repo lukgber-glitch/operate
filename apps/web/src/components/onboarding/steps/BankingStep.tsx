@@ -233,7 +233,8 @@ export function BankingStep() {
         <HeadlineOutside subtitle="Link your business bank account to automatically sync transactions and streamline your bookkeeping.">
           Connect Your Bank Account
         </HeadlineOutside>
-        <AnimatedCard variant="elevated" padding="lg">
+        <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
+          <div className="space-y-6">
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
@@ -246,6 +247,7 @@ export function BankingStep() {
                 Continue without connecting
               </Button>
             </div>
+          </div>
         </AnimatedCard>
       </div>
     )
@@ -256,7 +258,7 @@ export function BankingStep() {
       <HeadlineOutside subtitle="Link your business bank account to automatically sync transactions and streamline your bookkeeping. This step is optional but highly recommended.">
         Connect Your Bank Account
       </HeadlineOutside>
-      <AnimatedCard variant="elevated" padding="lg">
+      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
         <div className="space-y-6">
           {/* Security Notice */}
           <div className="flex items-start gap-3 p-4 bg-muted rounded-lg">
@@ -351,7 +353,7 @@ export function BankingStep() {
           </div>
 
           {/* Benefits */}
-          <div className="space-y-3 pt-4 border-t">
+          <div className="space-y-3 pt-6 border-t">
             <h4 className="text-sm font-medium">Why connect your bank?</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <BenefitItem icon="💰" text="Automatic transaction import and categorization" />

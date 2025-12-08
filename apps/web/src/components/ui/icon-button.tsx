@@ -47,11 +47,12 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
           // Ghost style - no background by default
           'bg-transparent text-[var(--color-text-secondary)]',
 
-          // Hover state - subtle background
+          // Hover state - subtle background with scale
           'hover:bg-[var(--color-background)] hover:text-[var(--color-text-primary)]',
+          'hover:scale-110',
 
           // Active state
-          'active:bg-[var(--color-border)]',
+          'active:bg-[var(--color-border)] active:scale-95',
 
           // Focus state - accessible
           'focus-visible:outline-none focus-visible:ring-2',
@@ -60,6 +61,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
           // Disabled state
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'disabled:hover:bg-transparent disabled:hover:text-[var(--color-text-secondary)]',
+          'disabled:hover:scale-100',
 
           // Size
           sizeMap[size],

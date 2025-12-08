@@ -117,7 +117,7 @@ export function WelcomeStep() {
       >
         <span ref={titleRef} style={{ opacity: 0 }}>Welcome to Operate</span>
       </HeadlineOutside>
-      <AnimatedCard variant="elevated" padding="lg">
+      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
         <div ref={contentRef} className="space-y-6" style={{ opacity: 0 }}>
           {/* Overview */}
           <div className="prose dark:prose-invert max-w-none">

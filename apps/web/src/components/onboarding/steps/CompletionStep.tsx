@@ -19,6 +19,7 @@ import {
 
 import { Button } from '@/components/ui/button'
 import { AnimatedCard } from '@/components/ui/animated-card'
+import { HeadlineOutside } from '@/components/ui/headline-outside'
 import { useGSAP } from '@gsap/react'
 import { gsap, staggerIn } from '@/lib/gsap'
 
@@ -87,9 +88,8 @@ interface CompletionStepProps {
 export function CompletionStep({ companyName, setupCompleted }: CompletionStepProps) {
   const router = useRouter()
   const [isNavigating, setIsNavigating] = React.useState(false)
+  const headlineRef = React.useRef<HTMLDivElement>(null)
   const checkmarkRef = React.useRef<HTMLDivElement>(null)
-  const titleRef = React.useRef<HTMLHeadingElement>(null)
-  const descriptionRef = React.useRef<HTMLParagraphElement>(null)
   const badgeRef = React.useRef<HTMLDivElement>(null)
   const nextStepsRef = React.useRef<HTMLDivElement>(null)
   const ctaButtonRef = React.useRef<HTMLButtonElement>(null)
@@ -98,12 +98,19 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
   useGSAP(() => {
     const tl = gsap.timeline({ delay: 0.2 })
 
-    // Checkmark bounces in with rotation
+    // Headline fades in first
     tl.fromTo(
-      checkmarkRef.current,
-      { scale: 0, rotation: -180, opacity: 0 },
-      { scale: 1, rotation: 0, opacity: 1, duration: 0.8, ease: 'back.out(2)' }
+      headlineRef.current,
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
     )
+      // Checkmark bounces in with rotation
+      .fromTo(
+        checkmarkRef.current,
+        { scale: 0, rotation: -180, opacity: 0 },
+        { scale: 1, rotation: 0, opacity: 1, duration: 0.8, ease: 'back.out(2)' },
+        '-=0.2'
+      )
       // Add a little bounce
       .to(checkmarkRef.current, {
         scale: 1.1,
@@ -115,20 +122,6 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
         duration: 0.15,
         ease: 'power2.in',
       })
-      // Title fades up
-      .fromTo(
-        titleRef.current,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-        '-=0.2'
-      )
-      // Description fades up
-      .fromTo(
-        descriptionRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' },
-        '-=0.2'
-      )
       // Badge pops in
       .fromTo(
         badgeRef.current,
@@ -206,8 +199,22 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
 
   return (
     <div className="space-y-6">
-      {/* Success Message */}
-      <AnimatedCard variant="elevated" padding="lg" className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
+      {/* Success Headline */}
+      <HeadlineOutside
+        ref={headlineRef}
+        align="center"
+        subtitle={
+          companyName
+            ? `Welcome aboard, ${companyName}! Your account is ready to use.`
+            : 'Your account is ready to use.'
+        }
+        style={{ opacity: 0 }}
+      >
+        Setup Complete!
+      </HeadlineOutside>
+
+      {/* Success Message Card */}
+      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px] border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
         <div className="text-center space-y-4">
           <div
             ref={checkmarkRef}
@@ -215,24 +222,6 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
             style={{ opacity: 0 }}
           >
             <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-500" />
-          </div>
-          <div>
-            <h2
-              ref={titleRef}
-              className="text-2xl font-semibold text-green-900 dark:text-green-100"
-              style={{ opacity: 0 }}
-            >
-              Setup Complete!
-            </h2>
-            <p
-              ref={descriptionRef}
-              className="text-base mt-2 text-green-700 dark:text-green-300"
-              style={{ opacity: 0 }}
-            >
-              {companyName
-                ? `Welcome aboard, ${companyName}! Your account is ready to use.`
-                : 'Your account is ready to use.'}
-            </p>
           </div>
         </div>
         <div className="text-center space-y-4 mt-6">
@@ -261,9 +250,9 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
           {NEXT_STEPS.map((step) => (
             <AnimatedCard
               key={step.title}
-              variant="outlined"
+              variant="outline"
               padding="sm"
-              className="next-step-card hover:border-primary/50 transition-all cursor-pointer group"
+              className="next-step-card rounded-[24px] hover:border-primary/50 transition-all cursor-pointer group"
               style={{ opacity: 0 }}
               onClick={(e) => handleNavigate(e, step.href)}
             >
@@ -287,7 +276,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       </div>
 
       {/* Resources */}
-      <AnimatedCard variant="default" padding="lg">
+      <AnimatedCard variant="default" padding="lg" className="rounded-[24px]">
         <div className="space-y-4">
           <div>
             <h3 className="text-lg font-semibold">Need Help Getting Started?</h3>
@@ -314,7 +303,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       </AnimatedCard>
 
       {/* Tips */}
-      <AnimatedCard variant="default" padding="lg" className="bg-muted/50">
+      <AnimatedCard variant="default" padding="lg" className="rounded-[24px] bg-muted/50">
           <div className="space-y-2">
             <h4 className="text-sm font-semibold">💡 Pro Tips</h4>
             <ul className="space-y-1.5 text-xs text-muted-foreground">

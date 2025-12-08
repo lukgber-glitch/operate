@@ -137,14 +137,14 @@ export function MorphButton({
         'focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2',
 
         // Hover effects
-        'hover:-translate-y-[1px] hover:shadow-[var(--shadow-md)]',
+        'hover:-translate-y-[1px] hover:scale-[1.02] hover:shadow-[var(--shadow-md)]',
 
         // Active state
-        'active:translate-y-0',
+        'active:translate-y-0 active:scale-[0.98]',
 
         // Disabled state
         'disabled:opacity-50 disabled:cursor-not-allowed',
-        'disabled:hover:translate-y-0 disabled:hover:shadow-none',
+        'disabled:hover:translate-y-0 disabled:hover:scale-100 disabled:hover:shadow-none',
 
         // Variant
         variantClasses[variant],

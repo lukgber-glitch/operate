@@ -66,10 +66,11 @@ export const PrimaryButton = React.forwardRef<HTMLButtonElement, PrimaryButtonPr
 
           // Hover state
           'hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px]',
-          'hover:shadow-[var(--shadow-md)]',
+          'hover:scale-[1.02] hover:shadow-[var(--shadow-md)]',
 
           // Active state
           'active:bg-[var(--color-primary-dark)] active:translate-y-0',
+          'active:scale-[0.98]',
 
           // Focus state - accessible
           'focus-visible:outline-none focus-visible:ring-2',
@@ -77,7 +78,7 @@ export const PrimaryButton = React.forwardRef<HTMLButtonElement, PrimaryButtonPr
 
           // Disabled state
           'disabled:opacity-50 disabled:cursor-not-allowed',
-          'disabled:hover:translate-y-0 disabled:hover:shadow-none',
+          'disabled:hover:translate-y-0 disabled:hover:scale-100 disabled:hover:shadow-none',
 
           // Size
           sizeMap[size],

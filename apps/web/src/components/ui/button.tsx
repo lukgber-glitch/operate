@@ -5,21 +5,21 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap font-medium transition-all disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center whitespace-nowrap font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
         // New design system variants
-        primary: 'bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-[var(--shadow-md)] active:bg-[var(--color-primary-dark)] active:translate-y-0 focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
-        secondary: 'bg-white text-[var(--color-primary)] border border-[var(--color-primary)] hover:bg-[var(--color-accent-light)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
-        ghost: 'bg-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-background)] hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
+        primary: 'bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:scale-[1.02] hover:shadow-[var(--shadow-md)] active:bg-[var(--color-primary-dark)] active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
+        secondary: 'bg-white text-[var(--color-primary)] border border-[var(--color-primary)] hover:bg-[var(--color-accent-light)] hover:scale-[1.01] active:scale-[0.99] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
+        ghost: 'bg-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-background)] hover:text-[var(--color-text-primary)] hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
 
-        // Keep legacy Shadcn variants for compatibility
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        // Keep legacy Shadcn variants for compatibility with scale effects
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]',
         destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:scale-[1.02] active:scale-[0.98]',
         outline:
-          'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+          'border border-input bg-background hover:bg-accent hover:text-accent-foreground hover:scale-[1.01] active:scale-[0.99]',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {

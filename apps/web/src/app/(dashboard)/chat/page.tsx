@@ -18,8 +18,11 @@ import { ChatInput } from '@/components/chat/ChatInput';
 import { SuggestionCard } from '@/components/chat/SuggestionCard';
 import { AIConsentDialog } from '@/components/consent/AIConsentDialog';
 import { GreetingHeader } from '@/components/chat/GreetingHeader';
+import { ChatHistoryDropdown } from '@/components/chat/ChatHistoryDropdown';
 import { Mail, Building2, Calendar, Mic, History, Loader2, Brain, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageTransition } from '@/components/animation/PageTransition';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { listExtractedInvoices } from '@/lib/api/extracted-invoices';
@@ -47,6 +50,7 @@ export default function ChatPage() {
     createConversation,
     addMessage,
     updateMessage,
+    setActiveConversationId,
   } = useConversationHistory();
 
   // AI Consent Management
@@ -251,6 +255,17 @@ export default function ChatPage() {
     setAttemptedMessage(null);
   };
 
+  // Handle session selection from dropdown
+  const handleSelectSession = (id: string) => {
+    setActiveConversationId(id);
+  };
+
+  // Handle new session from dropdown
+  const handleNewSession = () => {
+    createConversation();
+    setMessages([]);
+  };
+
   // Get top 3 suggestions for the suggestions bar
   const topSuggestions = suggestions.slice(0, 3);
   const hasMessages = messages.length > 0;
@@ -296,7 +311,13 @@ export default function ChatPage() {
         isLoading={consentLoading}
       />
 
-      <div className="h-[calc(100vh-4rem)] flex flex-col overflow-hidden">
+      <PageTransition>
+        {/* Greeting Header - OUTSIDE main container */}
+        <div className="mb-6 lg:mb-8">
+          <GreetingHeader />
+        </div>
+
+        <div className="h-[calc(100vh-8rem)] flex flex-col overflow-hidden">
         {/* Main Content Area */}
         <ScrollArea className="flex-1">
           <div
@@ -308,9 +329,14 @@ export default function ChatPage() {
               flexDirection: 'column',
             }}
           >
-            {/* Greeting Header */}
-            <div className="mb-6">
-              <GreetingHeader />
+
+            {/* Chat History Dropdown */}
+            <div className="mb-4">
+              <ChatHistoryDropdown
+                currentSessionId={activeConversationId || undefined}
+                onSelectSession={handleSelectSession}
+                onNewSession={handleNewSession}
+              />
             </div>
 
             {/* AI Consent Warning */}
@@ -411,15 +437,11 @@ export default function ChatPage() {
           </div>
 
           {/* Insight Cards - Three cards at bottom */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6">
             {/* Email Insights Card */}
-            <Card
-              className="transition-all hover:shadow-md"
-              style={{
-                borderRadius: 'var(--radius-lg)',
-                background: 'var(--color-surface)',
-                boxShadow: 'var(--shadow-sm)',
-              }}
+            <AnimatedCard
+              variant="elevated"
+              className="rounded-[24px]"
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-2 mb-2">
@@ -465,16 +487,12 @@ export default function ChatPage() {
                   </CardDescription>
                 )}
               </CardContent>
-            </Card>
+            </AnimatedCard>
 
             {/* Bank Summary Card */}
-            <Card
-              className="transition-all hover:shadow-md"
-              style={{
-                borderRadius: 'var(--radius-lg)',
-                background: 'var(--color-surface)',
-                boxShadow: 'var(--shadow-sm)',
-              }}
+            <AnimatedCard
+              variant="elevated"
+              className="rounded-[24px]"
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-2 mb-2">
@@ -530,16 +548,12 @@ export default function ChatPage() {
                   </CardDescription>
                 )}
               </CardContent>
-            </Card>
+            </AnimatedCard>
 
             {/* Upcoming Card */}
-            <Card
-              className="transition-all hover:shadow-md"
-              style={{
-                borderRadius: 'var(--radius-lg)',
-                background: 'var(--color-surface)',
-                boxShadow: 'var(--shadow-sm)',
-              }}
+            <AnimatedCard
+              variant="elevated"
+              className="rounded-[24px]"
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-2 mb-2">
@@ -610,7 +624,7 @@ export default function ChatPage() {
                   </CardDescription>
                 )}
               </CardContent>
-            </Card>
+            </AnimatedCard>
           </div>
         </div>
       </ScrollArea>
@@ -629,30 +643,55 @@ export default function ChatPage() {
             maxWidth: '800px',
           }}
         >
-          {/* Suggestions Bar above input */}
-          {topSuggestions.length > 0 && !hasMessages && (
+          {/* Suggestion Chips - Placeholder (inside chat container conceptually) */}
+          {!hasMessages && (
             <div
-              className="py-3 border-b overflow-x-auto"
+              className="py-4 border-b overflow-x-auto"
               style={{
                 borderColor: 'var(--color-border)',
               }}
             >
-              <div className="flex gap-3">
-                {topSuggestions.map((suggestion) => (
-                  <button
-                    key={suggestion.id}
-                    onClick={() => handleApplySuggestion(suggestion.id)}
-                    className="flex items-center gap-2 px-4 py-2 shrink-0 transition-all hover:scale-105"
-                    style={{
-                      background: 'var(--color-accent-light)',
-                      color: 'var(--color-primary-dark)',
-                      borderRadius: 'var(--radius-full)',
-                      fontSize: 'var(--font-size-sm)',
-                    }}
-                  >
-                    💡 {suggestion.title}
-                  </button>
-                ))}
+              <div className="flex gap-3 justify-center flex-wrap">
+                {/* Placeholder suggestion chips */}
+                <button
+                  onClick={() => handleSendMessage('Help me with taxes')}
+                  className="flex items-center gap-2 px-4 py-2 shrink-0 transition-all hover:scale-105"
+                  style={{
+                    background: 'var(--color-accent-3)',
+                    color: 'var(--color-primary)',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: 'var(--font-size-sm)',
+                    fontWeight: '500',
+                  }}
+                >
+                  📋 Taxes
+                </button>
+                <button
+                  onClick={() => handleSendMessage('Show me my invoices')}
+                  className="flex items-center gap-2 px-4 py-2 shrink-0 transition-all hover:scale-105"
+                  style={{
+                    background: 'var(--color-accent-3)',
+                    color: 'var(--color-primary)',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: 'var(--font-size-sm)',
+                    fontWeight: '500',
+                  }}
+                >
+                  💰 Invoices
+                </button>
+                <button
+                  onClick={() => handleSendMessage('Help with client bills')}
+                  className="flex items-center gap-2 px-4 py-2 shrink-0 transition-all hover:scale-105"
+                  style={{
+                    background: 'var(--color-accent-3)',
+                    color: 'var(--color-primary)',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: 'var(--font-size-sm)',
+                    fontWeight: '500',
+                  }}
+                >
+                  📊 Client bills
+                </button>
               </div>
             </div>
           )}
@@ -673,6 +712,7 @@ export default function ChatPage() {
         </div>
       </div>
     </div>
+      </PageTransition>
     </>
   );
 }

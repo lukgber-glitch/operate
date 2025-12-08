@@ -13,7 +13,7 @@
 
 .btn-press-soft {
   transition-property: transform;
-  transition-duration: 200ms;
+  transition-duration: 300ms;
 }
 .btn-press-soft:active {
   transform: scale(0.96);
@@ -22,7 +22,7 @@
 /* ============ Card Interactions ============ */
 .card-hover {
   transition-property: all;
-  transition-duration: 200ms;
+  transition-duration: 300ms;
 }
 .card-hover:hover {
   transform: translateY(-2px);
@@ -40,7 +40,7 @@
 
 .card-interactive {
   transition-property: all;
-  transition-duration: 200ms;
+  transition-duration: 300ms;
   cursor: pointer;
 }
 .card-interactive:hover {
@@ -63,7 +63,7 @@
 
 .icon-rotate-hover {
   transition-property: transform;
-  transition-duration: 200ms;
+  transition-duration: 300ms;
 }
 .icon-rotate-hover:hover {
   transform: rotate(12deg);
@@ -71,7 +71,7 @@
 
 .icon-scale-hover {
   transition-property: transform;
-  transition-duration: 200ms;
+  transition-duration: 300ms;
 }
 .icon-scale-hover:hover {
   transform: scale(1.1);
@@ -88,7 +88,7 @@
 /* ============ Input Interactions ============ */
 .input-focus {
   transition-property: all;
-  transition-duration: 200ms;
+  transition-duration: 300ms;
 }
 .input-focus:focus {
   --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
@@ -135,7 +135,7 @@
 
 .transition-bounce {
   transition-property: all;
-  transition-duration: 200ms;
+  transition-duration: 300ms;
   transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 

@@ -13,36 +13,36 @@ import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const buttonVariantsEnhanced = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]',
         destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:scale-[1.02] active:scale-[0.98]',
         success:
-          'bg-success text-success-foreground hover:bg-success/90',
+          'bg-success text-success-foreground hover:bg-success/90 hover:scale-[1.02] active:scale-[0.98]',
         warning:
-          'bg-warning text-warning-foreground hover:bg-warning/90',
+          'bg-warning text-warning-foreground hover:bg-warning/90 hover:scale-[1.02] active:scale-[0.98]',
         info:
-          'bg-info text-info-foreground hover:bg-info/90',
+          'bg-info text-info-foreground hover:bg-info/90 hover:scale-[1.02] active:scale-[0.98]',
         outline:
-          'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+          'border border-input bg-background hover:bg-accent hover:text-accent-foreground hover:scale-[1.01] active:scale-[0.99]',
         'outline-success':
-          'border border-success text-success bg-background hover:bg-success/10 dark:hover:bg-success/20',
+          'border border-success text-success bg-background hover:bg-success/10 dark:hover:bg-success/20 hover:scale-[1.01] active:scale-[0.99]',
         'outline-warning':
-          'border border-warning text-warning bg-background hover:bg-warning/10 dark:hover:bg-warning/20',
+          'border border-warning text-warning bg-background hover:bg-warning/10 dark:hover:bg-warning/20 hover:scale-[1.01] active:scale-[0.99]',
         'outline-info':
-          'border border-info text-info bg-background hover:bg-info/10 dark:hover:bg-info/20',
+          'border border-info text-info bg-background hover:bg-info/10 dark:hover:bg-info/20 hover:scale-[1.01] active:scale-[0.99]',
         secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
+          'bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:scale-[1.02] active:scale-[0.98]',
+        ghost: 'hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] active:scale-[0.98]',
         'ghost-success':
-          'text-success hover:bg-success/10 dark:hover:bg-success/20',
+          'text-success hover:bg-success/10 dark:hover:bg-success/20 hover:scale-[1.02] active:scale-[0.98]',
         'ghost-warning':
-          'text-warning hover:bg-warning/10 dark:hover:bg-warning/20',
+          'text-warning hover:bg-warning/10 dark:hover:bg-warning/20 hover:scale-[1.02] active:scale-[0.98]',
         'ghost-info':
-          'text-info hover:bg-info/10 dark:hover:bg-info/20',
+          'text-info hover:bg-info/10 dark:hover:bg-info/20 hover:scale-[1.02] active:scale-[0.98]',
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {

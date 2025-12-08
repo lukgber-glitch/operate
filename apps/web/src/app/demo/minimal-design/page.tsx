@@ -123,7 +123,7 @@ export default function MinimalDesignDemo() {
               </p>
             </AnimatedCard>
 
-            <AnimatedCard variant="outlined" padding="lg">
+            <AnimatedCard variant="outline" padding="lg">
               <h3 className="text-lg font-semibold mb-2 text-[var(--color-text-primary)]">
                 Outlined Card
               </h3>
