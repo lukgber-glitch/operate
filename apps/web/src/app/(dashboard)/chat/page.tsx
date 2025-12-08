@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { ChatMessage } from '@/components/chat/ChatMessage';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { SuggestionCard } from '@/components/chat/SuggestionCard';
+import { SuggestionChips } from '@/components/chat/SuggestionChips';
 import { AIConsentDialog } from '@/components/consent/AIConsentDialog';
 import { GreetingHeader } from '@/components/chat/GreetingHeader';
 import { ChatHistoryDropdown } from '@/components/chat/ChatHistoryDropdown';
@@ -645,7 +646,7 @@ export default function ChatPage() {
             maxWidth: '800px',
           }}
         >
-          {/* Suggestion Chips - Placeholder (inside chat container conceptually) */}
+          {/* Suggestion Chips - Shown when no messages */}
           {!hasMessages && (
             <div
               className="py-4 border-b overflow-x-auto"
@@ -653,48 +654,7 @@ export default function ChatPage() {
                 borderColor: 'var(--color-border)',
               }}
             >
-              <div className="flex gap-3 justify-center flex-wrap">
-                {/* Placeholder suggestion chips */}
-                <button
-                  onClick={() => handleSendMessage('Help me with taxes')}
-                  className="flex items-center gap-2 px-4 py-2 shrink-0 transition-all hover:scale-105"
-                  style={{
-                    background: 'var(--color-accent-3)',
-                    color: 'var(--color-primary)',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: 'var(--font-size-sm)',
-                    fontWeight: '500',
-                  }}
-                >
-                  📋 Taxes
-                </button>
-                <button
-                  onClick={() => handleSendMessage('Show me my invoices')}
-                  className="flex items-center gap-2 px-4 py-2 shrink-0 transition-all hover:scale-105"
-                  style={{
-                    background: 'var(--color-accent-3)',
-                    color: 'var(--color-primary)',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: 'var(--font-size-sm)',
-                    fontWeight: '500',
-                  }}
-                >
-                  💰 Invoices
-                </button>
-                <button
-                  onClick={() => handleSendMessage('Help with client bills')}
-                  className="flex items-center gap-2 px-4 py-2 shrink-0 transition-all hover:scale-105"
-                  style={{
-                    background: 'var(--color-accent-3)',
-                    color: 'var(--color-primary)',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: 'var(--font-size-sm)',
-                    fontWeight: '500',
-                  }}
-                >
-                  📊 Client bills
-                </button>
-              </div>
+              <SuggestionChips onSelect={handleSendMessage} />
             </div>
           )}
 
@@ -711,12 +671,11 @@ export default function ChatPage() {
             showAttachment={true}
             showVoice={true}
           />
-              </div>
-            </div>
-          </ScrollArea>
         </div>
-        </AnimatedContainer>
-      </PageTransition>
-    </>
-  );
+      </div>
+    </div>
+    </AnimatedContainer>
+  </PageTransition>
+</>
+);
 }
