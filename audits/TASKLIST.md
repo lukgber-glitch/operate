@@ -28,10 +28,10 @@
 | C-001 | ~~Generate npm lockfiles~~ | FLUX | ✅ DONE | Uses pnpm - audit complete |
 | C-002 | ~~Receipt scanning~~ | BRIDGE | ✅ DONE | All 7 endpoints working |
 | C-003 | ~~JWT secrets hardcoding~~ | SENTINEL | ✅ DONE | Validation added |
-| QA-001 | Fix Prisma schema (942 type errors) | VAULT | 🔴 TODO | GoCardless/QB models missing |
-| DB-004 | Fix AuditLogSequence multi-tenancy | VAULT | 🔴 TODO | Security: tenant isolation |
-| UX-001 | Fix suggestion lock-in broken | PRISM | 🔴 TODO | Clicks navigate away |
-| UX-002 | Backend conversation sync | PRISM+FORGE | 🔴 TODO | localStorage only |
+| QA-001 | ~~Fix Prisma schema (942 type errors)~~ | VAULT | ✅ DONE | 9 GoCardless models + 7 enums added |
+| DB-004 | ~~Fix AuditLogSequence multi-tenancy~~ | VAULT | ✅ DONE | Organisation relation added |
+| UX-001 | ~~Fix suggestion lock-in broken~~ | PRISM | ✅ DONE | onApply callback prioritized |
+| UX-002 | ~~Backend conversation sync~~ | PRISM+FORGE | ✅ DONE | API routes fixed |
 
 ---
 
@@ -102,6 +102,10 @@
 | C-001 | NPM security audit (via pnpm) | FLUX | 2025-12-08 | c69fe40 |
 | C-002 | Receipt scanning (7 endpoints) | BRIDGE | 2025-12-08 | ecde053 |
 | C-003 | JWT secrets hardcoding fix | SENTINEL | 2025-12-08 | c69fe40 |
+| QA-001 | Prisma schema (9 GoCardless models) | VAULT | 2025-12-08 | 4c0b161 |
+| DB-004 | AuditLogSequence multi-tenancy | VAULT | 2025-12-08 | 4c0b161 |
+| UX-001 | Suggestion lock-in fix | PRISM | 2025-12-08 | 4c0b161 |
+| UX-002 | Backend conversation sync | PRISM+FORGE | 2025-12-08 | 4c0b161 |
 
 ---
 
@@ -156,12 +160,12 @@
 ## Statistics
 
 - **Total Issues:** 48 (34 discovered + 14 original)
-- **P0 Critical:** 4 remaining (3 completed)
+- **P0 Critical:** 0 remaining (7 completed) ✅
 - **P1 High:** 18
 - **P2 Medium:** 16
 - **P3 Low:** 5
-- **Completed:** 3
-- **Remaining:** 43
+- **Completed:** 7
+- **Remaining:** 39
 
 ---
 
@@ -182,13 +186,10 @@
 
 ## Recommended Next Wave
 
-**Launch immediately (P0 remaining):**
-1. VAULT: QA-001 (Prisma schema) - unblocks 72% of type errors
-2. VAULT: DB-004 (AuditLogSequence) - security
-3. PRISM: UX-001 (Lock-in fix) - critical UX
-4. PRISM+FORGE: UX-002 (Conversation sync) - core feature
+**✅ ALL P0 ISSUES COMPLETE!**
 
-**After P0 complete:**
+**Next priority - P1 High (Security & API):**
 - SENTINEL: SEC-002, SEC-004, H-003 (security hardening)
 - FORGE: API-001, API-003, H-004 (API completion)
 - ORACLE: API-002, UX-005 (proactive features)
+- VAULT: DB-001, DB-002, DB-003, DB-006, DB-007 (database optimization)
