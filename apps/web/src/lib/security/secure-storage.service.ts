@@ -40,9 +40,7 @@ export async function setSecureCredentials(
         server,
       });
       return true;
-    } catch (error) {
-      console.error('Failed to store credentials:', error);
-      return false;
+    } catch (error) {      return false;
     }
   }
 

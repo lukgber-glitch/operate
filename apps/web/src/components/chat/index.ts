@@ -43,3 +43,12 @@ export { ChatPanel } from './ChatPanel';
 
 // Document viewer
 export { DocumentViewer, type DocumentViewerProps } from './DocumentViewer';
+
+// Entity preview sidebar
+export {
+  EntityPreviewSidebar,
+  useEntityPreview,
+  type EntityPreviewData,
+  type EntityAction,
+  type EntityType,
+} from './EntityPreviewSidebar';

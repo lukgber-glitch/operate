@@ -48,9 +48,7 @@ export function useEmployeeOnboarding(): UseEmployeeOnboardingReturn {
     try {
       const draft = localStorage.getItem(STORAGE_KEY);
       return draft ? JSON.parse(draft) : {};
-    } catch (error) {
-      console.error('Failed to load draft:', error);
-      return {};
+    } catch (error) {      return {};
     }
   };
 
@@ -113,9 +111,7 @@ export function useEmployeeOnboarding(): UseEmployeeOnboardingReturn {
 
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch (error) {
-      console.error('Failed to save draft:', error);
-      throw error;
+    } catch (error) {      throw error;
     }
   }, [data]);
 

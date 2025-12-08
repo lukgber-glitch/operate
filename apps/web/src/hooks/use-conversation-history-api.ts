@@ -72,9 +72,7 @@ export function useConversationHistoryAPI(options: UseConversationHistoryOptions
 
       // Sync to localStorage for offline access
       localStorage.setItem(STORAGE_KEY, JSON.stringify(apiConversations));
-    } catch (err) {
-      console.error('Error fetching conversations:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load conversations');
+    } catch (err) {      setError(err instanceof Error ? err.message : 'Failed to load conversations');
 
       // Fall back to localStorage
       loadFromLocalStorage();
@@ -100,9 +98,7 @@ export function useConversationHistoryAPI(options: UseConversationHistoryOptions
         }));
         setConversations(conversations);
       }
-    } catch (error) {
-      console.error('Error loading from localStorage:', error);
-    }
+    } catch (error) {    }
   }, []);
 
   // Initial load
@@ -162,9 +158,7 @@ export function useConversationHistoryAPI(options: UseConversationHistoryOptions
             setActiveConversationId(apiConversation.id);
             return { ...newConversation, id: apiConversation.id };
           }
-        } catch (error) {
-          console.error('Error creating conversation on server:', error);
-        }
+        } catch (error) {        }
       }
 
       return newConversation;
@@ -241,9 +235,7 @@ export function useConversationHistoryAPI(options: UseConversationHistoryOptions
           await fetch(`/api/v1/chatbot/conversations/${conversationId}`, {
             method: 'DELETE',
           });
-        } catch (error) {
-          console.error('Error deleting conversation on server:', error);
-        }
+        } catch (error) {        }
       }
 
       // Update localStorage

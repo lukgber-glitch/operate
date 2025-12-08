@@ -100,7 +100,7 @@ export function OfflineProvider({
 
       setPendingSyncCount(queueStats.pending);
     } catch (err) {
-      console.error('Failed to refresh stats:', err);
+      // Silent error - stats will retry on next sync
     }
   }, [isSupported]);
 
@@ -119,7 +119,6 @@ export function OfflineProvider({
     async (item: SyncQueueItem) => {
       // This is a placeholder - actual implementation should be provided
       // by integrating with your API client
-      console.log('Syncing item:', item);
 
       // Example of how conflict resolution would work:
       // 1. Fetch server version
@@ -138,7 +137,6 @@ export function OfflineProvider({
    */
   const syncNow = useCallback(async () => {
     if (!isOnline || !isSupported || isSyncing) {
-      console.log('Cannot sync:', { isOnline, isSupported, isSyncing });
       return;
     }
 
@@ -157,11 +155,10 @@ export function OfflineProvider({
         },
       });
 
-      console.log('Sync completed:', result);
       setLastSyncTime(new Date());
       await refreshStats();
     } catch (err) {
-      console.error('Sync failed:', err);
+      // Sync will retry automatically
     } finally {
       setIsSyncing(false);
       setSyncProgress(0);
@@ -188,7 +185,6 @@ export function OfflineProvider({
 
     const handleOnline = () => {
       setIsOnline(true);
-      console.log('Connection restored - syncing...');
       if (autoSync) {
         syncNow();
       }
@@ -196,7 +192,6 @@ export function OfflineProvider({
 
     const handleOffline = () => {
       setIsOnline(false);
-      console.log('Connection lost - entering offline mode');
     };
 
     window.addEventListener('online', handleOnline);
@@ -240,7 +235,6 @@ export function OfflineProvider({
 
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === 'SYNC_REQUESTED') {
-        console.log('Service worker requested sync');
         syncNow();
       }
     };

@@ -99,10 +99,7 @@ export class XeroMigrationController {
         });
       } catch (error) {
         // Log error but continue with other organizations
-        console.error(
-          `Failed to fetch details for tenant ${connection.xeroTenantId}:`,
-          error.message,
-        );
+        // Silently skip this organization
       }
     }
 

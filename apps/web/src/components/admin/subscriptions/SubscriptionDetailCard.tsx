@@ -400,9 +400,7 @@ export function SubscriptionDetailCard({
               variant="outline"
               className="w-full"
               onClick={() => {
-                // This would open a modal in a real implementation
-                console.log('Upgrade/Downgrade tier');
-              }}
+                // This would open a modal in a real implementation              }}
             >
               <TrendingUp className="mr-2 h-4 w-4" />
               Change Subscription Tier

@@ -8,3 +8,4 @@ export * from './public.decorator';
 export * from './require-permissions.decorator';
 export * from './require-role.decorator';
 export * from './skip-tenant.decorator';
+export * from './rate-limit.decorator';

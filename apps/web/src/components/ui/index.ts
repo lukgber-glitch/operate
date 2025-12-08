@@ -5,6 +5,9 @@ export type { MinimalInputProps } from './minimal-input'
 // Loading indicators
 export { GuruLoader } from './guru-loader'
 
+// Branding
+export { GuruLogo } from './guru-logo'
+
 // Shadcn UI components
 export { Alert } from './alert'
 export { AlertDialog } from './alert-dialog'
@@ -15,6 +18,10 @@ export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
 export { Checkbox } from './checkbox'
 export { Collapsible } from './collapsible'
 export { Command } from './command'
+export { ConfirmDialog, useConfirmDialog } from './confirm-dialog'
+export type { ConfirmDialogProps, ConfirmDialogVariant } from './confirm-dialog'
+export { ConfirmationDialog, useConfirmation } from './ConfirmationDialog'
+export type { ConfirmationDialogProps, ConfirmationDialogVariant } from './ConfirmationDialog'
 export { Dialog } from './dialog'
 export { DropdownMenu } from './dropdown-menu'
 export { Form } from './form'

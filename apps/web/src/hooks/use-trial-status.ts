@@ -79,9 +79,7 @@ export function useTrialStatus(): TrialStatus {
           isUrgent,
           tier: subscription.tier || null,
         });
-      } catch (error) {
-        console.error('Error fetching trial status:', error);
-        // On error, assume no trial
+      } catch (error) {        // On error, assume no trial
         setStatus({
           isOnTrial: false,
           daysRemaining: null,

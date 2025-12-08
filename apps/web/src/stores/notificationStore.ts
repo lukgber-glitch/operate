@@ -149,10 +149,7 @@ export const useNotificationStore = create<NotificationStore>()(
             state.lastSyncedAt = new Date();
             state.isSyncing = false;
           });
-        } catch (error) {
-          console.error('Failed to sync notification preferences:', error);
-
-          set((state) => {
+        } catch (error) {          set((state) => {
             state.error = error instanceof Error
               ? error.message
               : 'Failed to sync notification preferences';
@@ -186,10 +183,7 @@ export const useNotificationStore = create<NotificationStore>()(
             state.lastSyncedAt = new Date();
             state.isLoading = false;
           });
-        } catch (error) {
-          console.error('Failed to load notification preferences:', error);
-
-          set((state) => {
+        } catch (error) {          set((state) => {
             state.error = error instanceof Error
               ? error.message
               : 'Failed to load notification preferences';
@@ -211,10 +205,7 @@ export const useNotificationStore = create<NotificationStore>()(
        */
       requestPushPermission: async () => {
         // Check if Notification API is supported
-        if (!('Notification' in window)) {
-          console.warn('Push notifications not supported in this browser');
-
-          set((state) => {
+        if (!('Notification' in window)) {          set((state) => {
             state.pushPermission = 'denied';
             state.pushEnabled = false;
           });
@@ -257,10 +248,7 @@ export const useNotificationStore = create<NotificationStore>()(
           debouncedSync(() => get().syncWithAPI());
 
           return permission === 'granted';
-        } catch (error) {
-          console.error('Failed to request push notification permission:', error);
-
-          set((state) => {
+        } catch (error) {          set((state) => {
             state.pushPermission = 'denied';
             state.pushEnabled = false;
           });

@@ -49,7 +49,7 @@ export class AuthController {
    */
   @Public()
   @Post('register')
-  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Throttle({ auth: { limit: 5, ttl: 60000 } }) // SEC-008: Use auth rate limit
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Register new user',
@@ -92,7 +92,7 @@ export class AuthController {
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Throttle({ auth: { limit: 5, ttl: 60000 } }) // SEC-008: Use auth rate limit
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Login user',
@@ -133,13 +133,14 @@ export class AuthController {
 
   /**
    * Refresh access token
+   * SEC-005: Implements refresh token rotation
    */
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Refresh access token',
-    description: 'Generate new access token using valid refresh token',
+    description: 'Generate new access token using valid refresh token (with token rotation)',
   })
   @ApiResponse({
     status: 200,
@@ -161,9 +162,13 @@ export class AuthController {
       throw new UnauthorizedException('Refresh token not found');
     }
 
-    const result = await this.authService.refresh(refreshToken);
+    // Extract IP address and user agent for audit trail
+    const ipAddress = req.ip || req.socket.remoteAddress;
+    const userAgent = req.get('user-agent');
 
-    // Update cookies with new tokens
+    const result = await this.authService.refresh(refreshToken, ipAddress, userAgent);
+
+    // Update cookies with new tokens (including new refresh token from rotation)
     if (result.accessToken && result.refreshToken) {
       this.authService.setAuthCookies(res, result.accessToken, result.refreshToken);
     }
@@ -240,6 +245,7 @@ export class AuthController {
    */
   @Public()
   @Post('mfa/complete')
+  @Throttle({ auth: { limit: 5, ttl: 60000 } }) // SEC-008: Use auth rate limit
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Complete MFA login',
@@ -277,6 +283,7 @@ export class AuthController {
    */
   @UseGuards(JwtAuthGuard)
   @Post('password/set')
+  @Throttle({ sensitive: { limit: 10, ttl: 60000 } }) // SEC-008: Use sensitive rate limit
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   @ApiOperation({
@@ -309,6 +316,7 @@ export class AuthController {
    */
   @UseGuards(JwtAuthGuard)
   @Post('password/change')
+  @Throttle({ sensitive: { limit: 10, ttl: 60000 } }) // SEC-008: Use sensitive rate limit
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   @ApiOperation({

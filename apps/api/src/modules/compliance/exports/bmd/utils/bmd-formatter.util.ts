@@ -80,7 +80,6 @@ export function formatBmdVatId(vatId: string | null | undefined): string {
 
   // Validate format: ATU followed by 8 digits
   if (!/^ATU\d{8}$/.test(cleaned)) {
-    console.warn(`Invalid Austrian VAT ID format: ${vatId}`);
     return '';
   }
 

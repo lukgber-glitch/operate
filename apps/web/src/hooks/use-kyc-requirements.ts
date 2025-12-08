@@ -31,9 +31,7 @@ export function useKycRequirements(level?: VerificationLevel): UseKycRequirement
       setRequirements(response.data.requirements);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to fetch requirements';
-      setError(message);
-      console.error('Error fetching requirements:', err);
-    } finally {
+      setError(message);    } finally {
       setIsLoading(false);
     }
   }, []);

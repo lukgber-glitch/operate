@@ -27,9 +27,7 @@ export function useVerification(): UseVerificationResult {
       setVerification(response.data);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to fetch verification status';
-      setError(message);
-      console.error('Error fetching verification:', err);
-    } finally {
+      setError(message);    } finally {
       setIsLoading(false);
     }
   }, []);

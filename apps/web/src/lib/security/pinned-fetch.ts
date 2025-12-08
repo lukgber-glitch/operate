@@ -187,12 +187,7 @@ async function pinnedFetchCapacitor(
       },
     ];
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Pinned Fetch] Using certificate pinning', {
-        hostname: pinningConfig.hostname,
-        pinCount: pinningConfig.pins.length,
-      });
-    }
+    if (process.env.NODE_ENV === 'development') {    }
   }
 
   try {
@@ -203,9 +198,7 @@ async function pinnedFetchCapacitor(
     return convertToFetchResponse(response);
   } catch (error) {
     // Certificate pinning failure or network error
-    if (process.env.NODE_ENV === 'development') {
-      console.error('[Pinned Fetch] Request failed:', error);
-    }
+    if (process.env.NODE_ENV === 'development') {    }
 
     // Re-throw as fetch error
     throw new TypeError('Network request failed: ' + (error as Error).message);

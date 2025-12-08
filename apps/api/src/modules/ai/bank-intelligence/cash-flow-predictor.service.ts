@@ -43,12 +43,15 @@ export class CashFlowPredictorService {
 
   /**
    * Predict cash flow for the next N days
+   * Supports multi-month forecasting (up to 180 days / 6 months)
    */
   async predictCashFlow(
     organizationId: string,
     days: number = 30,
   ): Promise<CashFlowForecast> {
-    this.logger.log(`Predicting cash flow for org ${organizationId} for ${days} days`);
+    // Ensure we don't exceed 6 months (180 days)
+    const forecastDays = Math.min(days, 180);
+    this.logger.log(`Predicting cash flow for org ${organizationId} for ${forecastDays} days`);
 
     try {
       // 1. Get current bank balance
@@ -63,52 +66,65 @@ export class CashFlowPredictorService {
       const pendingBills = await this.getPendingBills(organizationId);
       this.logger.log(`Found ${pendingBills.length} pending bills`);
 
-      // 4. Get recurring patterns
-      const recurringPayments = await this.detectRecurringPayments(organizationId, days);
+      // 4. Get recurring patterns (extended for multi-month)
+      const recurringPayments = await this.detectRecurringPayments(organizationId, forecastDays);
       this.logger.log(`Detected ${recurringPayments.length} recurring payments`);
 
-      // 5. Predict based on historical patterns
-      const historicalPredictions = await this.predictFromHistory(organizationId, days);
+      // 5. Get recurring income patterns
+      const recurringIncome = await this.detectRecurringIncome(organizationId, forecastDays);
+      this.logger.log(`Detected ${recurringIncome.length} recurring income patterns`);
 
-      // 6. Build daily projections
+      // 6. Predict based on historical patterns
+      const historicalPredictions = await this.predictFromHistory(organizationId, forecastDays);
+
+      // 7. Detect seasonal patterns (for multi-month forecasts)
+      const seasonalPatterns = forecastDays > 60
+        ? await this.detectSeasonalPatterns(organizationId)
+        : [];
+
+      // 8. Build daily projections
       const dailyProjections = this.buildDailyProjections(
         currentBalance,
         pendingInvoices,
         pendingBills,
         recurringPayments,
+        recurringIncome,
         historicalPredictions,
-        days,
+        seasonalPatterns,
+        forecastDays,
       );
 
-      // 7. Find lowest point
+      // 9. Find lowest point
       const lowestPoint = this.findLowestPoint(dailyProjections);
 
-      // 8. Generate alerts
+      // 10. Generate alerts
       const alerts = this.generateAlerts(dailyProjections, lowestPoint, currentBalance);
 
-      // 9. Calculate summary
-      const summary = this.calculateSummary(pendingInvoices, pendingBills, recurringPayments);
+      // 11. Calculate summary
+      const summary = this.calculateSummary(pendingInvoices, pendingBills, recurringPayments, recurringIncome);
 
       const projectedBalance =
         dailyProjections.length > 0
           ? dailyProjections[dailyProjections.length - 1].closingBalance
           : currentBalance;
 
+      const recurringIncomeTotal = recurringIncome.reduce((sum, item) => sum + item.amount, 0);
+
       const forecast: CashFlowForecast = {
         organizationId,
         generatedAt: new Date(),
-        forecastDays: days,
+        forecastDays,
         currentBalance,
         projectedBalance,
         summary,
         inflows: {
           pendingInvoices: pendingInvoices.reduce((sum, item) => sum + item.amount, 0),
-          expectedRecurringIncome: 0, // Could be implemented if you have recurring income
+          expectedRecurringIncome: recurringIncomeTotal,
           predictedIncome: historicalPredictions
             .filter((p) => p.averageInflow > 0)
             .reduce((sum, p) => sum + p.averageInflow, 0),
-          total: pendingInvoices.reduce((sum, item) => sum + item.amount, 0),
-          breakdown: pendingInvoices,
+          total: pendingInvoices.reduce((sum, item) => sum + item.amount, 0) + recurringIncomeTotal,
+          breakdown: [...pendingInvoices, ...this.convertRecurringIncomeToItems(recurringIncome)],
         },
         outflows: {
           pendingBills: pendingBills.reduce((sum, item) => sum + item.amount, 0),
@@ -571,14 +587,16 @@ export class CashFlowPredictorService {
   }
 
   /**
-   * Build daily projections
+   * Build daily projections with support for recurring income and seasonal patterns
    */
   private buildDailyProjections(
     currentBalance: number,
     pendingInvoices: CashFlowItem[],
     pendingBills: CashFlowItem[],
     recurringPayments: RecurringPayment[],
+    recurringIncome: RecurringPayment[],
     historicalPatterns: HistoricalPattern[],
+    seasonalPatterns: any[],
     days: number,
   ): DailyProjection[] {
     const projections: DailyProjection[] = [];
@@ -611,14 +629,14 @@ export class CashFlowPredictorService {
         dailyOutflows += bill.amount;
       }
 
-      // Add recurring payments due on this day
-      const dueRecurring = recurringPayments.filter(
+      // Add recurring payments (expenses) due on this day
+      const dueRecurringPayments = recurringPayments.filter(
         (rec) =>
           startOfDay(rec.nextExpectedDate).getTime() === startOfDay(date).getTime(),
       );
-      for (const recurring of dueRecurring) {
+      for (const recurring of dueRecurringPayments) {
         const item: CashFlowItem = {
-          description: `Recurring: ${recurring.vendorName}`,
+          description: `Recurring Payment: ${recurring.vendorName}`,
           amount: recurring.amount,
           expectedDate: date,
           type: 'recurring',
@@ -627,6 +645,24 @@ export class CashFlowPredictorService {
         };
         items.push(item);
         dailyOutflows += recurring.amount;
+      }
+
+      // Add recurring income due on this day
+      const dueRecurringIncome = recurringIncome.filter(
+        (rec) =>
+          startOfDay(rec.nextExpectedDate).getTime() === startOfDay(date).getTime(),
+      );
+      for (const recurring of dueRecurringIncome) {
+        const item: CashFlowItem = {
+          description: `Recurring Income: ${recurring.vendorName}`,
+          amount: recurring.amount,
+          expectedDate: date,
+          type: 'recurring',
+          confidence: recurring.confidence,
+          source: recurring.vendorName,
+        };
+        items.push(item);
+        dailyInflows += recurring.amount * (recurring.confidence / 100);
       }
 
       // Add historical predictions (with low weight if no specific transactions)
@@ -785,11 +821,15 @@ export class CashFlowPredictorService {
     pendingInvoices: CashFlowItem[],
     pendingBills: CashFlowItem[],
     recurringPayments: RecurringPayment[],
+    recurringIncome: RecurringPayment[],
   ) {
-    const totalInflows = pendingInvoices.reduce(
-      (sum, item) => sum + item.amount * (item.confidence / 100),
-      0,
-    );
+    const totalInflows =
+      pendingInvoices.reduce(
+        (sum, item) => sum + item.amount * (item.confidence / 100),
+        0,
+      ) +
+      recurringIncome.reduce((sum, item) => sum + item.amount, 0);
+
     const totalOutflows =
       pendingBills.reduce((sum, item) => sum + item.amount, 0) +
       recurringPayments.reduce((sum, item) => sum + item.amount, 0);
@@ -970,5 +1010,149 @@ export class CashFlowPredictorService {
     }
 
     return recommendations;
+  }
+
+  /**
+   * Detect recurring income patterns (NEW for multi-month forecasting)
+   * Analyzes credit transactions to identify recurring revenue streams
+   */
+  private async detectRecurringIncome(
+    organizationId: string,
+    forecastDays: number,
+  ): Promise<RecurringPayment[]> {
+    const sixMonthsAgo = subMonths(new Date(), 6);
+
+    const transactions = await this.prisma.bankTransaction.findMany({
+      where: {
+        bankAccount: { orgId: organizationId },
+        date: { gte: sixMonthsAgo },
+        type: 'credit', // Income transactions
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    // Group by counterparty/customer
+    const groupedByCustomer = new Map<string, typeof transactions>();
+
+    for (const txn of transactions) {
+      const customer = txn.counterpartyName || 'Unknown';
+      if (!groupedByCustomer.has(customer)) {
+        groupedByCustomer.set(customer, []);
+      }
+      groupedByCustomer.get(customer)!.push(txn);
+    }
+
+    const recurringIncome: RecurringPayment[] = [];
+
+    // Analyze each customer's transactions
+    for (const [customer, txns] of groupedByCustomer.entries()) {
+      if (txns.length < 2) continue; // Need at least 2 occurrences
+
+      // Check for regular intervals
+      const intervals: number[] = [];
+      for (let i = 1; i < txns.length; i++) {
+        const daysBetween = differenceInDays(txns[i].date, txns[i - 1].date);
+        intervals.push(daysBetween);
+      }
+
+      // Calculate average interval
+      const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+      const intervalStdDev = Math.sqrt(
+        intervals.reduce((sq, n) => sq + Math.pow(n - avgInterval, 2), 0) / intervals.length,
+      );
+
+      // If interval is consistent (low std dev), it's likely recurring
+      const isRecurring = intervalStdDev < avgInterval * 0.2; // Within 20% variation
+
+      if (isRecurring) {
+        const avgAmount = txns.reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0) / txns.length;
+        const lastTxn = txns[txns.length - 1];
+        const nextExpectedDate = addDays(lastTxn.date, avgInterval);
+
+        // Determine frequency
+        let frequency: RecurringPayment['frequency'] = 'monthly';
+        if (avgInterval <= 1) frequency = 'daily';
+        else if (avgInterval <= 7) frequency = 'weekly';
+        else if (avgInterval <= 16) frequency = 'biweekly';
+        else if (avgInterval <= 35) frequency = 'monthly';
+        else if (avgInterval <= 100) frequency = 'quarterly';
+        else frequency = 'yearly';
+
+        // Only include if next payment is within forecast period
+        if (differenceInDays(nextExpectedDate, new Date()) <= forecastDays) {
+          recurringIncome.push({
+            vendorName: customer, // Customer name in this case
+            amount: avgAmount,
+            frequency,
+            nextExpectedDate,
+            confidence: Math.round(Math.max(0, 100 - intervalStdDev)),
+            lastOccurrence: lastTxn.date,
+            category: lastTxn.category || undefined,
+          });
+        }
+      }
+    }
+
+    return recurringIncome;
+  }
+
+  /**
+   * Detect seasonal patterns (NEW for multi-month forecasting)
+   * Analyzes historical data to identify seasonal trends
+   */
+  private async detectSeasonalPatterns(organizationId: string): Promise<any[]> {
+    const oneYearAgo = subMonths(new Date(), 12);
+
+    const transactions = await this.prisma.bankTransaction.findMany({
+      where: {
+        bankAccount: { orgId: organizationId },
+        date: { gte: oneYearAgo },
+      },
+    });
+
+    // Group by month
+    const byMonth = new Map<number, { inflows: number; outflows: number }>();
+
+    for (const txn of transactions) {
+      const month = txn.date.getMonth(); // 0-11
+      if (!byMonth.has(month)) {
+        byMonth.set(month, { inflows: 0, outflows: 0 });
+      }
+
+      const amount = Number(txn.amount);
+      if (txn.type === 'credit' || amount > 0) {
+        byMonth.get(month)!.inflows += Math.abs(amount);
+      } else {
+        byMonth.get(month)!.outflows += Math.abs(amount);
+      }
+    }
+
+    const patterns: any[] = [];
+
+    for (const [month, data] of byMonth.entries()) {
+      patterns.push({
+        month,
+        monthName: format(new Date(2024, month, 1), 'MMMM'),
+        avgInflow: data.inflows,
+        avgOutflow: data.outflows,
+        netChange: data.inflows - data.outflows,
+      });
+    }
+
+    return patterns;
+  }
+
+  /**
+   * Convert recurring income to cash flow items
+   */
+  private convertRecurringIncomeToItems(recurringIncome: RecurringPayment[]): CashFlowItem[] {
+    return recurringIncome.map((recurring) => ({
+      description: `Recurring Income: ${recurring.vendorName} (${recurring.frequency})`,
+      amount: recurring.amount,
+      expectedDate: recurring.nextExpectedDate,
+      type: 'recurring' as const,
+      confidence: recurring.confidence,
+      source: recurring.vendorName,
+    }));
   }
 }

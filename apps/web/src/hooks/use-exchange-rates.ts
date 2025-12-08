@@ -65,9 +65,7 @@ export function useExchangeRates(baseCurrency?: CurrencyCode) {
         const rate = await currencyApi.getExchangeRate(from, to);
         setCache((prev) => ({ ...prev, [cacheKey]: rate }));
         return rate;
-      } catch (err) {
-        console.error('Failed to fetch exchange rate:', err);
-        return null;
+      } catch (err) {        return null;
       }
     },
     [cache]

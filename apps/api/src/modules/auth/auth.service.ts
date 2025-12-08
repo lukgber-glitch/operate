@@ -19,12 +19,18 @@ import { plainToInstance } from 'class-transformer';
 import { MfaService } from './mfa/mfa.service';
 
 /**
- * Authentication Service
+ * Authentication Service (Enhanced with SEC-005 and SEC-006)
  * Handles user authentication, JWT token generation, and session management
+ *
+ * SECURITY FEATURES:
+ * - SEC-005: Refresh token rotation - tokens are invalidated after use
+ * - SEC-006: Session limits - max 5 concurrent sessions per user
+ * - SEC-007: Strong password policy with special characters
  */
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private readonly MAX_SESSIONS_PER_USER = 5; // SEC-006
 
   constructor(
     private configService: ConfigService,
@@ -43,6 +49,47 @@ export class AuthService {
    */
   private hashRefreshToken(token: string): string {
     return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
+  /**
+   * SEC-006: Enforce session limit per user (max 5 concurrent sessions)
+   * When user reaches limit, delete oldest session to make room for new one
+   */
+  private async enforceSessionLimit(userId: string): Promise<void> {
+    // Count active sessions for user
+    const sessionCount = await this.prisma.session.count({
+      where: {
+        userId,
+        expiresAt: { gt: new Date() }, // Only count non-expired sessions
+      },
+    });
+
+    // If at or over limit, delete oldest session(s)
+    if (sessionCount >= this.MAX_SESSIONS_PER_USER) {
+      // Get oldest sessions to delete (delete enough to get below limit)
+      const sessionsToDelete = await this.prisma.session.findMany({
+        where: {
+          userId,
+          expiresAt: { gt: new Date() },
+        },
+        orderBy: {
+          createdAt: 'asc', // Oldest first
+        },
+        take: sessionCount - this.MAX_SESSIONS_PER_USER + 1, // Delete enough to make room
+        select: { id: true },
+      });
+
+      // Delete oldest sessions
+      await this.prisma.session.deleteMany({
+        where: {
+          id: { in: sessionsToDelete.map((s) => s.id) },
+        },
+      });
+
+      this.logger.warn(
+        `Session limit enforced for user ${userId}: deleted ${sessionsToDelete.length} old session(s)`,
+      );
+    }
   }
 
   /**
@@ -183,6 +230,9 @@ export class AuthService {
     expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
     const hashedRefreshToken = this.hashRefreshToken(refreshToken);
 
+    // SEC-006: Enforce session limit per user (max 5 concurrent sessions)
+    await this.enforceSessionLimit(user.id);
+
     await this.prisma.session.create({
       data: {
         userId: user.id,
@@ -205,9 +255,10 @@ export class AuthService {
   }
 
   /**
-   * Refresh access token using refresh token
+   * SEC-005: Refresh access token using refresh token with token rotation
+   * Old refresh token is invalidated and a new one is issued
    */
-  async refresh(refreshToken: string): Promise<AuthResponseDto> {
+  async refresh(refreshToken: string, ipAddress?: string, userAgent?: string): Promise<AuthResponseDto> {
     try {
       // Verify refresh token signature and expiration
       const payload = this.jwtService.verify<JwtPayload>(refreshToken, {
@@ -218,13 +269,26 @@ export class AuthService {
       // SECURITY: Database stores hashes, not plaintext tokens
       const hashedRefreshToken = this.hashRefreshToken(refreshToken);
 
-      // Verify session exists and is not expired
+      // Verify session exists and is not expired or already used
       const session = await this.prisma.session.findUnique({
         where: { token: hashedRefreshToken }, // Compare hashes
       });
 
       if (!session || session.expiresAt < new Date()) {
         throw new UnauthorizedException('Invalid or expired refresh token');
+      }
+
+      // SEC-005: Check if token has already been used (rotation security)
+      if (session.isUsed) {
+        // Token reuse detected - possible security breach
+        // Invalidate all sessions for this user as a security measure
+        this.logger.warn(
+          `Refresh token reuse detected for user ${payload.sub} - invalidating all sessions`,
+        );
+        await this.logoutAll(payload.sub);
+        throw new UnauthorizedException(
+          'Refresh token already used - all sessions invalidated for security',
+        );
       }
 
       // Verify user still exists
@@ -252,18 +316,56 @@ export class AuthService {
         role: membership?.role || undefined,
       };
 
-      // Generate new access token
+      // Generate new access token AND new refresh token
       const accessToken = this.jwtService.sign(newPayload, {
         secret: this.configService.get<string>('jwt.accessSecret'),
         expiresIn: this.configService.get<string>('jwt.accessExpiresIn'),
       });
 
+      const newRefreshToken = this.jwtService.sign(newPayload, {
+        secret: this.configService.get<string>('jwt.refreshSecret'),
+        expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
+      });
+
+      const newHashedRefreshToken = this.hashRefreshToken(newRefreshToken);
+
+      // SEC-005: Mark old token as used
+      await this.prisma.session.update({
+        where: { token: hashedRefreshToken },
+        data: { isUsed: true },
+      });
+
+      // SEC-005: Create new session with new refresh token
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+
+      await this.prisma.session.create({
+        data: {
+          userId: user.id,
+          token: newHashedRefreshToken,
+          expiresAt,
+          ipAddress,
+          userAgent,
+        },
+      });
+
+      // SEC-005: Record token refresh in audit trail
+      await this.prisma.tokenRefreshHistory.create({
+        data: {
+          userId: user.id,
+          oldTokenHash: hashedRefreshToken,
+          newTokenHash: newHashedRefreshToken,
+          ipAddress,
+          userAgent,
+        },
+      });
+
       this.logger.log(`Token refreshed for user: ${user.id}`);
 
-      // Return new access token with same refresh token
+      // Return new access token with NEW refresh token
       return new AuthResponseDto(
         accessToken,
-        refreshToken,
+        newRefreshToken, // Return new refresh token (rotation)
         15 * 60, // 15 minutes in seconds
       );
     } catch (error) {
@@ -375,6 +477,9 @@ export class AuthService {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
       const hashedRefreshToken = this.hashRefreshToken(refreshToken);
+
+      // SEC-006: Enforce session limit per user (max 5 concurrent sessions)
+      await this.enforceSessionLimit(user.id);
 
       await this.prisma.session.create({
         data: {

@@ -94,7 +94,6 @@ export function useAutomationSettings() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
-      console.error('Failed to load automation settings:', err);
       // Use default settings on error
       setSettings(defaultSettings);
     } finally {
@@ -113,7 +112,6 @@ export function useAutomationSettings() {
         setAccuracyStats(data.data);
       }
     } catch (err) {
-      console.error('Failed to load accuracy stats:', err);
       // Stats are optional, don't show error
     }
   }, []);

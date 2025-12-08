@@ -46,14 +46,10 @@ import { OnboardingModule } from './modules/onboarding/onboarding.module';
 import { UserOnboardingModule } from './modules/user-onboarding/user-onboarding.module';
 import { CostsModule } from './modules/costs/costs.module';
 import { EventsModule } from './websocket/events.module';
-// QueueModule temporarily disabled - causes startup hang with Redis ACL
-// import { QueueModule } from './modules/queue/queue.module';
 import { PerformanceModule } from './modules/performance/performance.module';
 import { BulkModule } from './modules/bulk/bulk.module';
-// import { QueueBoardAuthMiddleware } from './modules/queue/queue-board.middleware';
-// JobsModule temporarily disabled - causes startup hang with Redis ACL
-// import { JobsModule } from './modules/jobs/jobs.module';
 import { FinancialAuditModule } from './modules/audit/financial-audit.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -69,8 +65,28 @@ import configuration from './config/configuration';
     // Event emitter for domain events
     EventEmitterModule.forRoot(),
 
-    // Rate limiting
+    // SEC-008: Expanded rate limiting configuration
     ThrottlerModule.forRoot([
+      {
+        name: 'auth', // Authentication endpoints (most restrictive)
+        ttl: 60000, // 1 minute
+        limit: 5, // 5 requests per minute
+      },
+      {
+        name: 'sensitive', // Sensitive operations (password change, MFA, etc.)
+        ttl: 60000, // 1 minute
+        limit: 10, // 10 requests per minute
+      },
+      {
+        name: 'file-upload', // File uploads
+        ttl: 60000, // 1 minute
+        limit: 20, // 20 requests per minute
+      },
+      {
+        name: 'default', // General API endpoints
+        ttl: 60000, // 1 minute
+        limit: 100, // 100 requests per minute
+      },
       {
         name: 'short',
         ttl: 1000, // 1 second
@@ -152,6 +168,9 @@ import configuration from './config/configuration';
 
     // Global audit module for financial data access logging
     FinancialAuditModule,
+    // Analytics module (cash flow forecasting, financial insights)
+    AnalyticsModule,
+
 
     // Feature modules
     HealthModule,

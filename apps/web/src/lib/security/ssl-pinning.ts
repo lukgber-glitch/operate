@@ -106,9 +106,7 @@ export function extractHostname(url: string): string | null {
 
     const urlObject = new URL(url);
     return urlObject.hostname;
-  } catch (error) {
-    console.error('[SSL Pinning] Failed to extract hostname:', error);
-    return null;
+  } catch (error) {    return null;
   }
 }
 
@@ -194,21 +192,7 @@ export function logPinningStatus(url: string): void {
   if (process.env.NODE_ENV === 'development') {
     const config = getPinningConfig(url);
 
-    if (config) {
-      console.log('[SSL Pinning] ACTIVE', {
-        url,
-        hostname: config.hostname,
-        platform: config.platform,
-        pinCount: config.pins.length,
-      });
-    } else {
-      console.log('[SSL Pinning] DISABLED', {
-        url,
-        enabled: PINNING_ENABLED,
-        isMobile: isMobileApp(),
-        platform: getPlatform(),
-      });
-    }
+    if (config) {    } else {    }
   }
 }
 
@@ -260,16 +244,7 @@ export function validatePins(): string[] {
  * Call this during app initialization to verify configuration
  */
 export function initializeSSLPinning(): void {
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[SSL Pinning] Initializing...', {
-      enabled: PINNING_ENABLED,
-      isMobile: isMobileApp(),
-      platform: getPlatform(),
-    });
-
-    const errors = validatePins();
-    if (errors.length > 0) {
-      console.warn('[SSL Pinning] Configuration warnings:', errors);
-    }
+  if (process.env.NODE_ENV === 'development') {    const errors = validatePins();
+    if (errors.length > 0) {    }
   }
 }

@@ -286,12 +286,27 @@ model Session {
   expiresAt DateTime
   ipAddress String?
   userAgent String?
+  isUsed    Boolean  @default(false) // SEC-005: Track if refresh token has been used for rotation
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+// SEC-005: Token Refresh History for security audit trail
+model TokenRefreshHistory {
+  id           String   @id @default(uuid())
+  userId       String
+  oldTokenHash String // Hash of the old refresh token that was rotated
+  newTokenHash String // Hash of the new refresh token issued
+  ipAddress    String?
+  userAgent    String?
+  refreshedAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([refreshedAt])
 }
 
 // ============================================================================
@@ -1055,9 +1070,12 @@ model Employee {
   terminationDate DateTime?
 
   // Timestamps
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime? // Soft delete
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
 
   // Relations
   organisation       Organisation                 @relation(fields: [orgId], references: [id], onDelete: Cascade)
@@ -1080,6 +1098,7 @@ model Employee {
   @@index([email])
   @@index([status])
   @@index([taxId])
+  @@index([deletedAt])
   // Compound indexes for performance
   @@index([orgId, status])
   @@index([createdAt, orgId])
@@ -1664,12 +1683,16 @@ model Transaction {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Soft delete (compliance)
+  deletedAt DateTime?
+
   organisation         Organisation          @relation(fields: [orgId], references: [id], onDelete: Cascade)
   deductionSuggestions DeductionSuggestion[]
 
   @@index([orgId])
   @@index([date])
   @@index([category])
+  @@index([deletedAt])
   // Compound indexes for performance
   @@index([date, orgId])
   @@index([createdAt, orgId])
@@ -1903,17 +1926,21 @@ enum ExpenseStatus {
 }
 
 enum ExpenseCategory {
-  TRAVEL
-  OFFICE
-  SOFTWARE
-  EQUIPMENT
-  MEALS
-  ENTERTAINMENT
-  UTILITIES
-  RENT
-  INSURANCE
-  PROFESSIONAL_SERVICES
-  OTHER
+  TRAVEL // Travel expenses (flights, hotels, transport)
+  OFFICE // Office supplies and materials
+  SOFTWARE // Software licenses and subscriptions
+  EQUIPMENT // Hardware and equipment purchases
+  MEALS // Business meals and catering
+  ENTERTAINMENT // Client entertainment
+  UTILITIES // Utilities (electricity, water, internet)
+  RENT // Office rent and lease payments
+  INSURANCE // Business insurance
+  PROFESSIONAL_SERVICES // Legal, accounting, consulting
+  MARKETING // Marketing and advertising
+  SHIPPING // Shipping and delivery costs
+  TAXES_FEES // Taxes and government fees
+  BANK_FEES // Bank charges and fees
+  OTHER // Other miscellaneous expenses
 }
 
 enum BillStatus {
@@ -1995,6 +2022,10 @@ model Invoice {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
   // Relations
   client           Client?             @relation(fields: [clientId], references: [id], onDelete: Restrict)
   items            InvoiceItem[]
@@ -2010,6 +2041,7 @@ model Invoice {
   @@index([clientId])
   @@index([recurringInvoiceId])
   @@index([customerVatId])
+  @@index([deletedAt])
   // Compound indexes for performance
   @@index([orgId, status])
   @@index([issueDate, orgId])
@@ -2090,6 +2122,10 @@ model Expense {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
   // Relations
   receiptScan ReceiptScan?
 
@@ -2099,6 +2135,7 @@ model Expense {
   @@index([status])
   @@index([submittedBy])
   @@index([vendorVatId])
+  @@index([deletedAt])
   // Compound indexes for performance
   @@index([orgId, status])
   @@index([date, orgId])
@@ -2173,6 +2210,10 @@ model Bill {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
   // Relations
   organisation     Organisation       @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   vendor           Vendor?            @relation(fields: [vendorId], references: [id], onDelete: Restrict)
@@ -2192,6 +2233,7 @@ model Bill {
   @@index([sourceEmailId])
   @@index([sourceAttachmentId])
   @@index([extractedDataId])
+  @@index([deletedAt])
   // Compound indexes for performance
   @@index([organisationId, status])
   @@index([issueDate, organisationId])
@@ -2334,6 +2376,10 @@ model BankAccount {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
   transactions     BankTransaction[]
   ScheduledPayment ScheduledPayment[]
 
@@ -2341,6 +2387,7 @@ model BankAccount {
   @@index([orgId])
   @@index([isActive])
   @@index([externalId])
+  @@index([deletedAt])
   // Compound indexes for performance
   @@index([createdAt, orgId])
   @@index([orgId, provider])
@@ -2378,6 +2425,10 @@ model BankTransaction {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
   bankAccount BankAccount         @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
   allocations PaymentAllocation[]
 
@@ -2386,6 +2437,7 @@ model BankTransaction {
   @@index([isReconciled])
   @@index([externalId])
   @@index([transactionId])
+  @@index([deletedAt])
   // Compound indexes for performance
   @@index([bankAccountId, date])
   @@index([bankAccountId, isReconciled])
@@ -2709,6 +2761,10 @@ model Document {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
   folder DocumentFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
 
   @@index([orgId])
@@ -2717,6 +2773,7 @@ model Document {
   @@index([folderId])
   @@index([uploadedBy])
   @@index([parentId])
+  @@index([deletedAt])
   // Compound indexes for performance
   @@index([orgId, status])
   @@index([createdAt, orgId])
@@ -3840,6 +3897,10 @@ model Vendor {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
   // Relations
   organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   bills        Bill[] // Bills from this vendor (will be created by other VAULT agent)
@@ -3851,6 +3912,7 @@ model Vendor {
   @@index([email])
   @@index([taxId])
   @@index([defaultCategoryId])
+  @@index([deletedAt])
   // Compound indexes for performance
   @@index([organisationId, status])
 }

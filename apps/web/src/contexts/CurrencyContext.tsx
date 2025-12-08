@@ -88,7 +88,7 @@ export function CurrencyProvider({
         };
       }
     } catch (error) {
-      console.error('Failed to load currency preferences:', error);
+      // Use defaults if loading fails
     }
 
     return {
@@ -108,7 +108,7 @@ export function CurrencyProvider({
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
     } catch (error) {
-      console.error('Failed to save currency preferences:', error);
+      // Silent fail on storage error
     }
   }, [preferences]);
 

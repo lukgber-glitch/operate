@@ -1469,10 +1469,7 @@ export class ClientInsightsService {
         await this.getClientInsights(client.id, orgId);
         processed++;
       } catch (error) {
-        console.error(
-          `Failed to calculate insights for client ${client.id}:`,
-          error,
-        );
+        // Continue processing other clients even if one fails
       }
     }
 

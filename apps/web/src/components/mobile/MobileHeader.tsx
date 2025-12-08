@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { NotificationBell } from '@/components/notifications'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { GuruLogo } from '@/components/ui/guru-logo'
 import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
@@ -55,11 +56,7 @@ export function MobileHeader({
             </h1>
           ) : (
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-900 dark:bg-slate-100">
-                <span className="text-xs font-bold text-white dark:text-slate-900">
-                  OP
-                </span>
-              </div>
+              <GuruLogo size={32} />
               <span className="text-base font-bold text-slate-900 dark:text-white">
                 Operate
               </span>

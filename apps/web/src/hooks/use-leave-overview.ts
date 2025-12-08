@@ -41,9 +41,7 @@ export function useLeaveOverview(employeeId?: string) {
 
           // Fetch recent requests for this employee
           recentRequests = await employeeApi.getEmployeeLeaveRequests(employeeId);
-        } catch (err) {
-          console.warn('Could not fetch employee leave data:', err);
-        }
+        } catch (err) {        }
       }
 
       // Fetch org-wide stats
@@ -57,9 +55,7 @@ export function useLeaveOverview(employeeId?: string) {
         teamOnLeave = employeesResponse.data.filter(e => e.status === 'ON_LEAVE').length;
         // pendingRequests would need a dedicated endpoint - stub for now
         pendingRequests = 0;
-      } catch (err) {
-        console.warn('Could not fetch pending leave requests:', err);
-      }
+      } catch (err) {      }
 
       setStats({
         myLeaveBalance,

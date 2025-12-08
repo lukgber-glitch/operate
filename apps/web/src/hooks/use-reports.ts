@@ -286,9 +286,7 @@ const fetchFinancialReport = async (filters: ReportFilters): Promise<FinancialRe
 
     const apiData = await reportsApi.getFinancialReport(params);
     return transformFinancialReport(apiData);
-  } catch (error) {
-    console.error('Failed to fetch financial report:', error);
-    // Fallback to mock data on error
+  } catch (error) {    // Fallback to mock data on error
     return generateMockFinancialData();
   }
 };
@@ -303,9 +301,7 @@ const fetchTaxReport = async (filters: ReportFilters): Promise<TaxReportData> =>
 
     const apiData = await reportsApi.getTaxReport(params);
     return transformTaxReport(apiData);
-  } catch (error) {
-    console.error('Failed to fetch tax report:', error);
-    // Fallback to mock data on error
+  } catch (error) {    // Fallback to mock data on error
     return generateMockTaxData();
   }
 };
@@ -325,9 +321,7 @@ const fetchClientMetrics = async (filters: ReportFilters): Promise<ClientMetrics
     // Transform invoice report to client metrics (temporary)
     // This is a placeholder - will be replaced when client metrics endpoint is available
     return generateMockClientMetrics(); // Using mock for now
-  } catch (error) {
-    console.error('Failed to fetch client metrics:', error);
-    return generateMockClientMetrics();
+  } catch (error) {    return generateMockClientMetrics();
   }
 };
 
@@ -337,9 +331,7 @@ const fetchDocumentStats = async (_filters: ReportFilters): Promise<DocumentStat
     // This will be implemented when the document processing module is ready
     // For now, return mock data
     return generateMockDocumentStats();
-  } catch (error) {
-    console.error('Failed to fetch document stats:', error);
-    return generateMockDocumentStats();
+  } catch (error) {    return generateMockDocumentStats();
   }
 };
 
@@ -410,9 +402,7 @@ export function useExportReport() {
       });
 
       return response;
-    } catch (error) {
-      console.error('Failed to export report:', error);
-      throw error;
+    } catch (error) {      throw error;
     }
   };
 

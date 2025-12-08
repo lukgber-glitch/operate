@@ -59,9 +59,7 @@ export function NativeProvider({ children }: NativeProviderProps) {
         await setupBackButton();
 
         setIsNativeReady(true);
-      } catch (error) {
-        console.error('Failed to initialize native plugins:', error);
-        setIsNativeReady(true); // Continue anyway
+      } catch (error) {        setIsNativeReady(true); // Continue anyway
       }
     };
 
@@ -77,9 +75,7 @@ export function NativeProvider({ children }: NativeProviderProps) {
         await StatusBar.setStyle({
           style: theme === 'dark' ? Style.Dark : Style.Light,
         });
-      } catch (error) {
-        console.warn('Failed to update status bar:', error);
-      }
+      } catch (error) {      }
     };
 
     updateStatusBar();
@@ -95,9 +91,7 @@ export function NativeProvider({ children }: NativeProviderProps) {
 
       // Show status bar (in case it was hidden)
       await StatusBar.show();
-    } catch (error) {
-      console.warn('Failed to initialize status bar:', error);
-    }
+    } catch (error) {    }
   };
 
   const setupDeepLinks = async () => {
@@ -112,9 +106,7 @@ export function NativeProvider({ children }: NativeProviderProps) {
           router.push(pathname);
         }
       });
-    } catch (error) {
-      console.warn('Failed to setup deep links:', error);
-    }
+    } catch (error) {    }
   };
 
   const setupBackButton = async () => {
@@ -128,15 +120,11 @@ export function NativeProvider({ children }: NativeProviderProps) {
           window.history.back();
         }
       });
-    } catch (error) {
-      console.warn('Failed to setup back button:', error);
-    }
+    } catch (error) {    }
   };
 
   const registerPushNotifications = async () => {
-    if (!isNative) {
-      console.warn('Push notifications are only available on native platforms');
-      return;
+    if (!isNative) {      return;
     }
 
     try {
@@ -148,9 +136,7 @@ export function NativeProvider({ children }: NativeProviderProps) {
         await PushNotifications.register();
 
         // Add listeners
-        PushNotifications.addListener('registration', (token: Token) => {
-          console.log('Push registration success, token:', token.value);
-          setPushToken(token.value);
+        PushNotifications.addListener('registration', (token: Token) => {          setPushToken(token.value);
 
           // TODO: Send token to backend
           // await fetch('/api/user/push-token', {
@@ -160,29 +146,19 @@ export function NativeProvider({ children }: NativeProviderProps) {
           // });
         });
 
-        PushNotifications.addListener('registrationError', (error: any) => {
-          console.error('Error on registration:', error);
+        PushNotifications.addListener('registrationError', (error: any) => {        });
+
+        PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {          // Handle notification when app is in foreground
         });
 
-        PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
-          console.log('Push notification received:', notification);
-          // Handle notification when app is in foreground
-        });
-
-        PushNotifications.addListener('pushNotificationActionPerformed', (notification: ActionPerformed) => {
-          console.log('Push notification action performed:', notification);
-          // Handle notification tap
+        PushNotifications.addListener('pushNotificationActionPerformed', (notification: ActionPerformed) => {          // Handle notification tap
           const data = notification.notification.data;
           if (data?.route) {
             router.push(data.route);
           }
         });
-      } else {
-        console.warn('Push notification permission not granted');
-      }
-    } catch (error) {
-      console.error('Failed to register push notifications:', error);
-    }
+      } else {      }
+    } catch (error) {    }
   };
 
   const contextValue: NativeContextValue = {

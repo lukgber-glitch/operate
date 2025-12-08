@@ -49,8 +49,7 @@ interface BiometricPromptProps {
  *   open={showPrompt}
  *   onClose={() => setShowPrompt(false)}
  *   onSuccess={() => {
- *     console.log('Authenticated!');
- *     setShowPrompt(false);
+ * *     setShowPrompt(false);
  *   }}
  *   message="Unlock to access your account"
  *   allowSkip={true}

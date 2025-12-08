@@ -64,8 +64,7 @@ export function useConversationHistory() {
         loadFromLocalStorage();
       }
     } catch (error) {
-      console.error('Error loading conversations from backend:', error);
-      // Fallback to localStorage
+      // Fallback to localStorage on API error
       loadFromLocalStorage();
     } finally {
       setIsLoading(false);
@@ -89,7 +88,7 @@ export function useConversationHistory() {
         setConversations(conversations);
       }
     } catch (error) {
-      console.error('Error loading conversations from localStorage:', error);
+      // Start with empty conversations if loading fails
     }
   };
 
@@ -98,7 +97,7 @@ export function useConversationHistory() {
       // Keep localStorage sync as fallback
       localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
     } catch (error) {
-      console.error('Error saving conversations:', error);
+      // Silent fail on storage error
     }
   };
 
@@ -134,7 +133,7 @@ export function useConversationHistory() {
         return newConversation;
       }
     } catch (error) {
-      console.error('Error creating conversation on backend:', error);
+      // Fallback to local-only conversation
     }
 
     // Fallback to local-only conversation
@@ -205,7 +204,7 @@ export function useConversationHistory() {
         credentials: 'include',
       });
     } catch (error) {
-      console.error('Error deleting conversation on backend:', error);
+      // Continue with local deletion
     }
 
     // Update local state regardless

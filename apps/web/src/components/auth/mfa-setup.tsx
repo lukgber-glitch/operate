@@ -26,9 +26,7 @@ export function MfaSetup() {
         setSecret(data.secret);
         setBackupCodes(data.backupCodes);
         setStep('setup');
-      } catch (err) {
-        console.error('Failed to initialize MFA setup:', err);
-        setStep('setup');
+      } catch (err) {        setStep('setup');
       }
     };
 

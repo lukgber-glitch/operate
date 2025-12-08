@@ -13,7 +13,6 @@ import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
         // Only initialize if DSN is provided
         if (!dsn) {
-          console.warn('Sentry DSN not configured. Error tracking disabled.');
           return null;
         }
 
@@ -56,7 +55,6 @@ import { nodeProfilingIntegration } from '@sentry/profiling-node';
           },
         });
 
-        console.log(`Sentry initialized for environment: ${configService.get<string>('nodeEnv')}`);
         return Sentry;
       },
       inject: [ConfigService],

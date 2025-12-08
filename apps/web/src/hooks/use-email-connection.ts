@@ -71,9 +71,7 @@ export function useEmailConnection({
           status: outlookStatus,
         },
       }));
-    } catch (error) {
-      console.error('Failed to load email connection statuses:', error);
-    } finally {
+    } catch (error) {    } finally {
       setIsLoading(false);
     }
   }, [userId, orgId]);

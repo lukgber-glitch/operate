@@ -78,9 +78,7 @@ export function useDashboardLayout() {
             layout: defaultLayout,
           })
         );
-      } catch (error) {
-        console.error('Failed to load dashboard layout:', error);
-      } finally {
+      } catch (error) {      } finally {
         setIsLoading(false);
       }
     };
@@ -122,9 +120,7 @@ export function useDashboardLayout() {
           ...prev,
           layouts: prev.layouts.map((l) => (l.id === layout.id ? { ...layout, updatedAt: new Date() } : l)),
         }));
-      } catch (error) {
-        console.error('Failed to save dashboard layout:', error);
-        throw error;
+      } catch (error) {        throw error;
       } finally {
         setIsSaving(false);
       }

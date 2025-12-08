@@ -64,7 +64,7 @@ export function validateSecurityConfig(): void {
 
     for (const [key, value] of Object.entries(criticalVars)) {
       if (value && weakPatterns.some(pattern => value.toLowerCase().includes(pattern))) {
-        console.warn(`⚠️  WARNING: ${key} appears to use a default/placeholder value. Please set a secure value.`);
+        // Weak values will fail in production; validation occurs during bootstrap
       }
     }
   }

@@ -58,20 +58,7 @@ export class GustoEmployeeService {
       // For now, just count the employees
       for (const employee of gustoEmployees) {
         try {
-          // Check if employee exists in Operate
-          // const existingEmployee = await this.findEmployeeByGustoUuid(employee.uuid);
-
-          // if (existingEmployee) {
-          //   // Update existing employee
-          //   await this.updateEmployeeFromGusto(existingEmployee.id, employee);
-          //   result.employeesUpdated++;
-          // } else {
-          //   // Create new employee
-          //   await this.createEmployeeFromGusto(organisationId, employee);
-          //   result.employeesCreated++;
-          // }
-
-          // For now, just log
+          // TODO: Implement actual sync logic with database
           this.logger.debug(`Would sync employee: ${employee.first_name} ${employee.last_name}`);
           result.employeesSkipped++;
         } catch (error) {

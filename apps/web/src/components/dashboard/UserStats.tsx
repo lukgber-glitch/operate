@@ -131,11 +131,7 @@ export function UserStats({ className }: UserStatsProps) {
   useEffect(() => {
     async function fetchStats() {
       try {
-        // TODO: Replace with actual API call
-        // const response = await fetch('/api/v1/stats/user');
-        // const data = await response.json();
-
-        // Simulated data - replace with real API
+        // Simulated data - replace with real API when available
         const simulatedData: UserStatsData = {
           transactionCount: 0,
           documentsProcessed: 0,
@@ -145,9 +141,7 @@ export function UserStats({ className }: UserStatsProps) {
         };
 
         setStats(simulatedData);
-      } catch (error) {
-        console.error('Failed to fetch user stats:', error);
-        setStats({
+      } catch (error) {        setStats({
           transactionCount: 0,
           documentsProcessed: 0,
           automationsRun: 0,

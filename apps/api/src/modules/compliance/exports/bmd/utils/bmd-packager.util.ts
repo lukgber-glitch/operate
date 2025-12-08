@@ -150,7 +150,7 @@ export class BmdPackagerUtil {
 
       await rmdir(dirPath);
     } catch (error) {
-      console.error(`Failed to cleanup directory ${dirPath}:`, error);
+      // Ignore errors during cleanup
     }
   }
 

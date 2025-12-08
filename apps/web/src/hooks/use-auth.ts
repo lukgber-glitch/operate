@@ -196,7 +196,7 @@ export function useAuth() {
     try {
       await authApi.logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      // Continue with local logout even if API fails
     } finally {
       // Clear auth cookies
       clearAuthCookies();

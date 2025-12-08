@@ -218,7 +218,6 @@ export class GobdPackagerUtil {
       await rmdir(dirPath);
     } catch (error) {
       // Ignore errors during cleanup
-      console.error(`Failed to cleanup directory ${dirPath}:`, error.message);
     }
   }
 

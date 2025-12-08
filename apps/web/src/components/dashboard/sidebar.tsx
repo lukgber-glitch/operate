@@ -15,6 +15,7 @@ import Link from 'next/link'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { GuruLogo } from '@/components/ui/guru-logo'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
 
@@ -57,22 +58,14 @@ export function Sidebar() {
       <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4 dark:border-slate-800">
         {isOpen ? (
           <Link href="/" className="flex items-center gap-2" aria-label="Go to dashboard home">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-900 dark:bg-slate-100">
-              <span className="text-sm font-bold text-white dark:text-slate-900">
-                OP
-              </span>
-            </div>
+            <GuruLogo size={32} />
             <span className="text-lg font-bold text-slate-900 dark:text-white">
               Operate
             </span>
           </Link>
         ) : (
           <Link href="/" className="flex items-center" aria-label="Go to dashboard home">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-900 dark:bg-slate-100">
-              <span className="text-sm font-bold text-white dark:text-slate-900">
-                OP
-              </span>
-            </div>
+            <GuruLogo size={32} />
           </Link>
         )}
         <Button
