@@ -1,6 +1,6 @@
 /**
  * AI Module
- * Handles AI/ML features including transaction classification, receipt scanning, invoice extraction, and email intelligence
+ * Handles AI/ML features including transaction classification, receipt scanning, invoice extraction, email intelligence, and daily briefings
  */
 
 import { Module } from '@nestjs/common';
@@ -14,6 +14,7 @@ import { TransactionCategorizationModule } from './transaction-categorization/tr
 import { InvoiceExtractorModule } from './extractors/invoice-extractor.module';
 import { EmailIntelligenceModule } from './email-intelligence/email-intelligence.module';
 import { BankIntelligenceModule } from './bank-intelligence/bank-intelligence.module';
+import { BriefingModule } from './briefing/briefing.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { BankIntelligenceModule } from './bank-intelligence/bank-intelligence.mo
     InvoiceExtractorModule,
     EmailIntelligenceModule,
     BankIntelligenceModule,
+    BriefingModule,
   ],
   exports: [
     ClassificationModule,
@@ -36,6 +38,7 @@ import { BankIntelligenceModule } from './bank-intelligence/bank-intelligence.mo
     InvoiceExtractorModule,
     EmailIntelligenceModule,
     BankIntelligenceModule,
+    BriefingModule,
   ],
 })
 export class AiModule {}

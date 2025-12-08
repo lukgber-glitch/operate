@@ -177,6 +177,7 @@ model Organisation {
 
   // Payment Allocation Relations
   paymentAllocations PaymentAllocation[]
+  ScheduledPayment   ScheduledPayment[]
 }
 
 model User {
@@ -263,6 +264,10 @@ model Membership {
 
   @@unique([userId, orgId])
   @@index([orgId])
+  @@index([userId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
 }
 
 model Session {
@@ -387,6 +392,8 @@ model AuditLogSequence {
   // Relations - CRITICAL for multi-tenancy security
   organisation Organisation @relation("AuditLogSequence", fields: [tenantId], references: [id], onDelete: Cascade)
 
+  @@index([tenantId])
+  @@index([lastEntryId])
   @@map("audit_log_sequences")
 }
 
@@ -405,6 +412,7 @@ model OAuthAccount {
 
   @@unique([provider, providerId])
   @@index([userId])
+  @@index([providerId])
 }
 
 // ============================================================================
@@ -585,6 +593,8 @@ model OrganisationCountry {
   @@unique([orgId, countryId])
   @@index([orgId])
   @@index([countryId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 enum TaxCredentialType {
@@ -614,6 +624,8 @@ model TaxCredential {
   @@index([countryCode])
   @@index([type])
   @@index([isActive])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -692,6 +704,8 @@ model CountryTaxConfig {
   // Relations
   country  Country         @relation(fields: [countryId], references: [id], onDelete: Cascade)
   vatRates VatRateConfig[]
+
+  @@index([countryId])
 }
 
 model VatRateConfig {
@@ -828,6 +842,10 @@ model TaxDeadlineReminder {
   @@index([dueDate])
   @@index([status])
   @@index([taxType])
+  @@index([confirmationId])
+  // Compound indexes for performance
+  @@index([organizationId, status])
+  @@index([dueDate, organizationId])
 }
 
 // Log of reminders sent for tax deadlines
@@ -1051,6 +1069,11 @@ model Employee {
   @@index([userId])
   @@index([email])
   @@index([status])
+  @@index([taxId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
 }
 
 model EmploymentContract {
@@ -1084,6 +1107,8 @@ model EmploymentContract {
 
   @@index([employeeId])
   @@index([isActive])
+  // Compound indexes for performance
+  @@index([employeeId, startDate])
 }
 
 model LeaveEntitlement {
@@ -1131,6 +1156,9 @@ model LeaveRequest {
   @@index([employeeId])
   @@index([status])
   @@index([startDate, endDate])
+  // Compound indexes for performance
+  @@index([employeeId, status])
+  @@index([employeeId, startDate])
 }
 
 model TimeEntry {
@@ -1160,6 +1188,8 @@ model TimeEntry {
 
   @@index([employeeId, date])
   @@index([status])
+  // Compound indexes for performance
+  @@index([employeeId, status])
 }
 
 model PayrollPeriod {
@@ -1183,6 +1213,9 @@ model PayrollPeriod {
   @@unique([orgId, year, month])
   @@index([orgId])
   @@index([status])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 model Payslip {
@@ -1235,6 +1268,10 @@ model SocialSecurityRegistration {
   @@index([employeeId])
   @@index([countryCode])
   @@index([status])
+  @@index([registrationId])
+  // Compound indexes for performance
+  @@index([employeeId, status])
+  @@index([employeeId, startDate])
 }
 
 // ============================================================================
@@ -1288,6 +1325,12 @@ model EmployeeDocument {
   @@index([documentType])
   @@index([status])
   @@index([expirationDate])
+  @@index([encryptionKeyId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([issueDate, orgId])
+  @@index([createdAt, orgId])
+  @@index([employeeId, status])
 }
 
 model EmployeeDocumentVersion {
@@ -1371,6 +1414,8 @@ model W4Form {
   @@index([orgId])
   @@index([taxYear])
   @@index([isActive])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 model I9Form {
@@ -1480,6 +1525,8 @@ model I9Form {
   @@index([section2CompletedAt])
   @@index([workAuthorizationExpiry])
   @@index([isActive])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 model HrAuditLog {
@@ -1505,6 +1552,9 @@ model HrAuditLog {
   @@index([userId])
   @@index([createdAt])
   @@index([entityType, entityId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
 }
 
 // ============================================================================
@@ -1552,6 +1602,10 @@ model TransactionClassificationReview {
   @@index([priority])
   @@index([createdAt])
   @@index([orgId, status, priority])
+  @@index([transactionId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -1594,6 +1648,10 @@ model Transaction {
   @@index([orgId])
   @@index([date])
   @@index([category])
+  // Compound indexes for performance
+  @@index([date, orgId])
+  @@index([createdAt, orgId])
+  @@index([category, orgId])
 }
 
 model DeductionSuggestion {
@@ -1647,6 +1705,10 @@ model DeductionSuggestion {
   @@index([status])
   @@index([categoryCode])
   @@index([createdAt])
+  @@index([ruleId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 model TaxDeductionSummary {
@@ -1731,6 +1793,9 @@ model FraudAlert {
   @@index([status])
   @@index([severity])
   @@index([createdAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 model FraudAuditLog {
@@ -1752,6 +1817,8 @@ model FraudAuditLog {
   @@index([alertId])
   @@index([transactionId])
   @@index([createdAt])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -1785,6 +1852,9 @@ model Customer {
   @@index([orgId])
   @@index([name])
   @@index([isActive])
+  @@index([vatId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 enum InvoiceStatus {
@@ -1838,6 +1908,14 @@ enum BillSourceType {
   EMAIL_EXTRACTION
   UPLOAD
   API_IMPORT
+}
+
+enum ScheduledPaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
 }
 
 model Invoice {
@@ -1909,6 +1987,12 @@ model Invoice {
   @@index([customerId])
   @@index([clientId])
   @@index([recurringInvoiceId])
+  @@index([customerVatId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([issueDate, orgId])
+  @@index([dueDate, orgId])
+  @@index([createdAt, orgId])
 }
 
 model InvoiceItem {
@@ -1992,6 +2076,12 @@ model Expense {
   @@index([category])
   @@index([status])
   @@index([submittedBy])
+  @@index([vendorVatId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([date, orgId])
+  @@index([createdAt, orgId])
+  @@index([category, orgId])
 }
 
 // ============================================================================
@@ -2062,10 +2152,11 @@ model Bill {
   updatedAt DateTime @updatedAt
 
   // Relations
-  organisation Organisation   @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  vendor       Vendor?        @relation(fields: [vendorId], references: [id])
-  lineItems    BillLineItem[]
-  payments     BillPayment[]
+  organisation     Organisation       @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  vendor           Vendor?            @relation(fields: [vendorId], references: [id])
+  lineItems        BillLineItem[]
+  payments         BillPayment[]
+  ScheduledPayment ScheduledPayment[]
 
   @@unique([organisationId, billNumber, vendorId])
   @@index([organisationId])
@@ -2076,6 +2167,13 @@ model Bill {
   @@index([dueDate])
   @@index([sourceType])
   @@index([categoryId])
+  @@index([sourceEmailId])
+  @@index([sourceAttachmentId])
+  @@index([extractedDataId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
+  @@index([issueDate, organisationId])
+  @@index([dueDate, organisationId])
 }
 
 model BillLineItem {
@@ -2134,6 +2232,52 @@ model BillPayment {
   @@index([billId])
   @@index([transactionId])
   @@index([paymentDate])
+  @@index([bankTransactionId])
+}
+
+model ScheduledPayment {
+  id             String  @id @default(uuid())
+  organisationId String
+  billId         String?
+  invoiceId      String?
+
+  // Payment details
+  amount        Decimal                @db.Decimal(12, 2)
+  currency      String                 @default("EUR")
+  scheduledDate DateTime               @db.Date
+  status        ScheduledPaymentStatus @default(PENDING)
+
+  // Payment method
+  paymentMethod String? // bank_transfer, card, direct_debit, check
+  bankAccountId String? // Link to BankAccount if applicable
+
+  // Execution details
+  executedAt    DateTime?
+  failureReason String?
+
+  // Reference
+  reference String?
+  notes     String?
+
+  // Metadata
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  bill         Bill?        @relation(fields: [billId], references: [id], onDelete: Cascade)
+  bankAccount  BankAccount? @relation(fields: [bankAccountId], references: [id])
+
+  @@index([organisationId])
+  @@index([billId])
+  @@index([invoiceId])
+  @@index([scheduledDate])
+  @@index([status])
+  @@index([bankAccountId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
 }
 
 model BankAccount {
@@ -2168,11 +2312,16 @@ model BankAccount {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  transactions BankTransaction[]
+  transactions     BankTransaction[]
+  ScheduledPayment ScheduledPayment[]
 
   @@unique([orgId, iban])
   @@index([orgId])
   @@index([isActive])
+  @@index([externalId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
 }
 
 model BankTransaction {
@@ -2214,6 +2363,10 @@ model BankTransaction {
   @@index([date])
   @@index([isReconciled])
   @@index([externalId])
+  @@index([transactionId])
+  // Compound indexes for performance
+  @@index([bankAccountId, date])
+  @@index([bankAccountId, isReconciled])
 }
 
 model PaymentAllocation {
@@ -2250,6 +2403,9 @@ model PaymentAllocation {
   @@index([orgId])
   @@index([invoiceId])
   @@index([transactionId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -2353,6 +2509,10 @@ model BankConnection {
 
   @@index([orgId, status])
   @@index([providerConnectionId])
+  @@index([institutionId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
 }
 
 model BankAccountNew {
@@ -2387,6 +2547,8 @@ model BankAccountNew {
   @@index([bankConnectionId])
   @@index([accountId])
   @@index([isActive])
+  // Compound indexes for performance
+  @@index([bankConnectionId, isActive])
 }
 
 model BankTransactionNew {
@@ -2435,6 +2597,10 @@ model BankTransactionNew {
   @@index([transactionId])
   @@index([merchantName])
   @@index([category])
+  @@index([matchedExpenseId])
+  @@index([matchedInvoicePaymentId])
+  // Compound indexes for performance
+  @@index([bankAccountId, reconciliationStatus])
 }
 
 model ReconciliationRule {
@@ -2462,6 +2628,10 @@ model ReconciliationRule {
 
   @@index([orgId, isActive])
   @@index([priority])
+  @@index([categoryId])
+  @@index([vendorId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -2524,6 +2694,10 @@ model Document {
   @@index([status])
   @@index([folderId])
   @@index([uploadedBy])
+  @@index([parentId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 model DocumentFolder {
@@ -2546,6 +2720,8 @@ model DocumentFolder {
   @@unique([orgId, path])
   @@index([orgId])
   @@index([parentId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -2570,6 +2746,9 @@ model GobdExport {
   errorMessage String?
 
   @@index([orgId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 model SaftExport {
@@ -2591,6 +2770,9 @@ model SaftExport {
   errorMessage String?
 
   @@index([orgId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -2621,6 +2803,11 @@ model ElsterAuditLog {
   @@index([status])
   @@index([submittedAt])
   @@index([orgId, submittedAt])
+  @@index([userId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
 }
 
 // ============================================================================
@@ -2686,6 +2873,7 @@ model AutomationAuditLog {
   @@index([organisationId, createdAt])
   @@index([entityType, entityId])
   @@index([feature, action])
+  @@index([userId])
 }
 
 model Notification {
@@ -2704,6 +2892,10 @@ model Notification {
   @@index([userId, status])
   @@index([orgId, type])
   @@index([createdAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
 }
 
 // ============================================================================
@@ -2802,6 +2994,10 @@ model Integration {
   @@index([type])
   @@index([provider])
   @@index([status])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
 }
 
 model IntegrationAccount {
@@ -2856,6 +3052,7 @@ model IntegrationAccount {
   @@index([integrationId])
   @@index([isActive])
   @@index([accountType])
+  @@index([externalId])
 }
 
 enum OnboardingStepStatus {
@@ -2911,6 +3108,8 @@ model OnboardingProgress {
   @@index([orgId])
   @@index([userId])
   @@index([isCompleted])
+  // Compound indexes for performance
+  @@index([orgId, userId])
 }
 
 // User Onboarding Progress - Tracks individual user onboarding journey
@@ -2988,6 +3187,8 @@ model CostEntry {
   @@index([orgId, createdAt])
   @@index([category])
   @@index([automationId])
+  // Compound indexes for performance
+  @@index([category, orgId])
   @@map("cost_entries")
 }
 
@@ -3036,6 +3237,11 @@ model Conversation {
   @@index([userId])
   @@index([status])
   @@index([lastMessageAt])
+  @@index([contextId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
   @@map("conversations")
 }
 
@@ -3233,6 +3439,11 @@ model Suggestion {
   @@index([priority])
   @@index([showAfter])
   @@index([expiresAt])
+  @@index([entityId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
 }
 
 // ============================================================================
@@ -3368,6 +3579,9 @@ model Client {
   @@index([isActive])
   @@index([isVip])
   @@index([deletedAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 model ClientAddress {
@@ -3486,6 +3700,10 @@ model ClientCommunication {
   @@index([clientId])
   @@index([type])
   @@index([occurredAt])
+  @@index([userId])
+  @@index([relatedEntityId])
+  @@index([emailMessageId])
+  @@index([emailThreadId])
 }
 
 enum PaymentStatus {
@@ -3533,6 +3751,7 @@ model ClientPayment {
   @@index([status])
   @@index([invoiceId])
   @@index([paidAt])
+  @@index([transactionId])
 }
 
 // ============================================================================
@@ -3609,6 +3828,9 @@ model Vendor {
   @@index([name])
   @@index([email])
   @@index([taxId])
+  @@index([defaultCategoryId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
 }
 
 // ============================================================================
@@ -3637,6 +3859,7 @@ model RelationshipMetrics {
   @@index([healthScore])
   @@index([healthStatus])
   @@index([lastUpdated])
+  @@index([entityId])
 }
 
 // ============================================================================
@@ -3691,6 +3914,8 @@ model ReportSchedule {
   @@index([orgId])
   @@index([isActive])
   @@index([nextRunAt])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -3734,6 +3959,9 @@ model Budget {
   @@index([orgId])
   @@index([category])
   @@index([periodStart, periodEnd])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([category, orgId])
   @@map("budgets")
 }
 
@@ -3811,6 +4039,8 @@ model RecurringInvoice {
 
   @@index([organisationId, isActive])
   @@index([nextRunDate])
+  @@index([customerId])
+  @@index([createdById])
 }
 
 enum PaymentReminderType {
@@ -3881,6 +4111,8 @@ model ReminderSettings {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
 }
 
 // ============================================================================
@@ -3913,6 +4145,7 @@ model CorrectionRecord {
   @@index([organisationId, entityType, field])
   @@index([organisationId, createdAt])
   @@index([userId])
+  @@index([entityId])
 }
 
 model LearningPattern {
@@ -4055,6 +4288,8 @@ model ElsterFiling {
   @@index([year, period])
   @@index([organisationId, status])
   @@index([submittedAt])
+  @@index([submissionId])
+  @@index([certificateId])
 }
 
 model ElsterFilingStatusEvent {
@@ -4128,6 +4363,8 @@ model ScheduledExport {
   @@index([orgId])
   @@index([nextRunAt])
   @@index([isActive])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
   @@map("scheduled_exports")
 }
 
@@ -4145,6 +4382,7 @@ model ScheduledExportRun {
   @@index([scheduledExportId])
   @@index([status])
   @@index([startedAt])
+  @@index([exportId])
   @@map("scheduled_export_runs")
 }
 
@@ -4217,6 +4455,8 @@ model ArchivedDocument {
   @@index([entityType, entityId])
   @@index([uploadedBy])
   @@index([archivedAt])
+  // Compound indexes for performance
+  @@index([organisationId, status])
   @@map("archived_documents")
 }
 
@@ -4332,6 +4572,9 @@ model QuickBooksConnection {
   @@index([status])
   @@index([isConnected])
   @@index([tokenExpiresAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("quickbooks_connections")
 }
 
@@ -4373,6 +4616,7 @@ model QuickBooksAuditLog {
   @@index([action])
   @@index([createdAt])
   @@index([success])
+  @@index([requestId])
   @@map("quickbooks_audit_logs")
 }
 
@@ -4430,6 +4674,9 @@ model XeroConnection {
   @@index([status])
   @@index([isConnected])
   @@index([tokenExpiresAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("xero_connections")
 }
 
@@ -4471,6 +4718,7 @@ model XeroAuditLog {
   @@index([action])
   @@index([createdAt])
   @@index([success])
+  @@index([requestId])
   @@map("xero_audit_logs")
 }
 
@@ -4530,6 +4778,10 @@ model EmailConnection {
   @@index([provider])
   @@index([syncStatus])
   @@index([lastSyncAt])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
+  @@index([orgId, userId])
   @@map("email_connections")
 }
 
@@ -4572,6 +4824,7 @@ model EmailAuditLog {
   @@index([action])
   @@index([createdAt])
   @@index([success])
+  @@index([requestId])
   @@map("email_audit_logs")
 }
 
@@ -4654,6 +4907,9 @@ model PlaidBankAccount {
   @@index([plaidItemId])
   @@index([institutionId])
   @@index([isActive])
+  @@index([plaidAccountId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
   @@map("plaid_bank_accounts")
 }
 
@@ -4758,6 +5014,15 @@ model PlaidTransaction {
   @@index([pending])
   @@index([orgId, date])
   @@index([orgId, isReconciled])
+  @@index([plaidTransactionId])
+  @@index([plaidItemId])
+  @@index([categoryId])
+  @@index([matchedExpenseId])
+  @@index([matchedInvoiceId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([category, orgId])
   @@map("plaid_transactions")
 }
 
@@ -4845,6 +5110,9 @@ model TrueLayerBankAccount {
   @@index([trueLayerConnectionId])
   @@index([providerId])
   @@index([isActive])
+  @@index([trueLayerAccountId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
   @@map("truelayer_bank_accounts")
 }
 
@@ -4926,6 +5194,13 @@ model TrueLayerTransaction {
   @@index([pending])
   @@index([orgId, timestamp])
   @@index([orgId, isReconciled])
+  @@index([trueLayerTransactionId])
+  @@index([trueLayerConnectionId])
+  @@index([matchedExpenseId])
+  @@index([matchedInvoiceId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("truelayer_transactions")
 }
 
@@ -5035,6 +5310,9 @@ model GoCardlessConnection {
   @@index([creditorId])
   @@index([status])
   @@index([isConnected])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("gocardless_connections")
 }
 
@@ -5056,6 +5334,8 @@ model GoCardlessCustomer {
   @@index([customerId])
   @@index([orgId])
   @@index([gcCustomerId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
   @@map("gocardless_customers")
 }
 
@@ -5087,6 +5367,10 @@ model GoCardlessRedirectFlow {
   @@index([customerId])
   @@index([status])
   @@index([expiresAt])
+  @@index([mandateId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("gocardless_redirect_flows")
 }
 
@@ -5124,6 +5408,11 @@ model GoCardlessMandate {
   @@index([customerId])
   @@index([status])
   @@index([nextPossibleChargeDate])
+  @@index([customerBankAccountId])
+  @@index([creditorId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("gocardless_mandates")
 }
 
@@ -5163,6 +5452,9 @@ model GoCardlessPayment {
   @@index([mandateId])
   @@index([status])
   @@index([chargeDate])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("gocardless_payments")
 }
 
@@ -5242,6 +5534,9 @@ model GoCardlessSubscription {
   @@index([mandateId])
   @@index([status])
   @@index([startDate])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("gocardless_subscriptions")
 }
 
@@ -5324,6 +5619,12 @@ model TaxNexus {
   @@index([state])
   @@index([status])
   @@index([effectiveDate])
+  @@index([nexusTypeId])
+  @@index([localNexusTypeId])
+  @@index([taxRegistrationId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("tax_nexus")
 }
 
@@ -5390,6 +5691,10 @@ model TaxExemptionCertificate {
   @@index([status])
   @@index([expirationDate])
   @@index([exemptionType])
+  @@index([avalaraId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("tax_exemption_certificates")
 }
 
@@ -5465,6 +5770,10 @@ model TaxTransaction {
   @@index([transactionDate])
   @@index([taxDate])
   @@index([avalaraCode])
+  @@index([avalaraId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("tax_transactions")
 }
 
@@ -5525,6 +5834,9 @@ model HmrcConnection {
   @@index([vrn])
   @@index([status])
   @@index([isConnected])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("hmrc_connections")
 }
 
@@ -5556,6 +5868,7 @@ model HmrcAuditLog {
   @@index([connectionId])
   @@index([action])
   @@index([createdAt])
+  @@index([requestId])
   @@map("hmrc_audit_logs")
 }
 
@@ -5618,6 +5931,12 @@ model HmrcVatReturn {
   @@index([status])
   @@index([periodFrom, periodTo])
   @@index([dueDate])
+  @@index([connectionId])
+  @@index([hmrcReceiptId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([dueDate, orgId])
+  @@index([createdAt, orgId])
   @@map("hmrc_vat_returns")
 }
 
@@ -5723,6 +6042,7 @@ model UsageEvent {
   @@index([reportedToStripe])
   @@index([timestamp])
   @@index([userId])
+  @@index([stripeUsageRecordId])
   @@map("usage_events")
 }
 
@@ -5807,6 +6127,7 @@ model UsageSummary {
   @@unique([organisationId, feature, periodStart, periodEnd])
   @@index([organisationId, periodStart, periodEnd])
   @@index([reportedToStripe])
+  @@index([stripeInvoiceItemId])
   @@map("usage_summaries")
 }
 
@@ -5848,6 +6169,7 @@ model StripeUsageRecord {
   @@index([organisationId, status])
   @@index([status])
   @@index([stripeSubscriptionItemId])
+  @@index([stripeUsageRecordId])
   @@map("stripe_usage_records")
 }
 
@@ -5892,6 +6214,7 @@ model SubscriptionTier {
 
   @@index([name])
   @@index([isActive, isVisible])
+  @@index([stripeProductId])
   @@map("subscription_tiers")
 }
 
@@ -5934,6 +6257,7 @@ model RevenueRecognition {
   @@index([organisationId, recognitionMonth])
   @@index([periodStart, periodEnd])
   @@index([subscriptionId])
+  @@index([invoiceId])
   @@map("revenue_recognitions")
 }
 
@@ -6192,6 +6516,10 @@ model DataSubjectRequest {
   @@index([status])
   @@index([dueDate])
   @@index([requestType])
+  @@index([requestId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
+  @@index([dueDate, organisationId])
   @@map("data_subject_requests")
 }
 
@@ -6245,6 +6573,7 @@ model GdprAuditLog {
   @@index([eventType])
   @@index([createdAt])
   @@index([actorId])
+  @@index([resourceId])
   @@map("gdpr_audit_logs")
 }
 
@@ -6315,6 +6644,10 @@ model PersonaInquiry {
   @@index([status])
   @@index([createdAt])
   @@index([templateId])
+  @@index([inquiryId])
+  @@index([referenceId])
+  // Compound indexes for performance
+  @@index([organizationId, status])
   @@map("persona_inquiries")
 }
 
@@ -6409,6 +6742,8 @@ model AmlScreening {
   @@index([status])
   @@index([riskLevel])
   @@index([searchId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
   @@map("aml_screenings")
 }
 
@@ -6459,6 +6794,7 @@ model AmlMonitoring {
   @@index([screeningId])
   @@index([isActive])
   @@index([nextCheckAt])
+  @@index([monitoringId])
   @@map("aml_monitoring")
 }
 
@@ -6495,6 +6831,9 @@ model KycVerification {
   @@index([status])
   @@index([riskLevel])
   @@index([expiresAt])
+  @@index([providerRefId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
   @@map("kyc_verifications")
 }
 
@@ -6717,6 +7056,9 @@ model ZatcaCertificate {
   @@index([validTo])
   @@index([environment])
   @@index([certificateType])
+  @@index([encryptionKeyId])
+  @@index([csidRequestId])
+  @@index([previousCertificateId])
   @@map("zatca_certificates")
 }
 
@@ -6755,6 +7097,8 @@ model ZatcaCertificateAuditLog {
   @@index([performedBy])
   @@index([createdAt])
   @@index([success])
+  @@index([zatcaRequestId])
+  @@index([zatcaResponseId])
   @@map("zatca_certificate_audit_logs")
 }
 
@@ -6785,6 +7129,7 @@ model ZatcaCertificateRotation {
   @@index([organisationId])
   @@index([rotationStatus])
   @@index([createdAt])
+  @@index([oldCertificateId])
   @@map("zatca_certificate_rotations")
 }
 
@@ -7098,6 +7443,12 @@ model SyncedEmail {
   @@index([classification])
   @@index([classificationPriority])
   @@index([classifiedAt])
+  @@index([externalId])
+  @@index([threadId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
+  @@index([orgId, userId])
   @@map("synced_emails")
 }
 
@@ -7168,6 +7519,12 @@ model EmailSyncJob {
   @@index([provider])
   @@index([createdAt])
   @@index([startedAt])
+  @@index([lastMessageId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
+  @@index([orgId, userId])
   @@map("email_sync_jobs")
 }
 
@@ -7264,6 +7621,14 @@ model EmailAttachment {
   @@index([storageBackend])
   @@index([contentHash])
   @@index([createdAt])
+  @@index([externalId])
+  @@index([extractedDataId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
+  @@index([orgId, userId])
+  @@index([emailId, status])
   @@map("email_attachments")
 }
 
@@ -7308,6 +7673,11 @@ model EmailExtractedEntities {
   @@index([contactEmails])
   @@index([invoiceNumbers])
   @@index([extractedAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
+  @@index([emailId, status])
   @@map("email_extracted_entities")
 }
 
@@ -7346,6 +7716,8 @@ model StorageQuota {
 
   @@index([orgId])
   @@index([usedSpace])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
   @@map("storage_quotas")
 }
 
@@ -7434,6 +7806,8 @@ model ExtractedInvoice {
   @@index([status])
   @@index([createdAt])
   @@index([userId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
   @@map("extracted_invoices")
 }
 
@@ -7483,6 +7857,11 @@ model ReceiptScan {
   @@index([orgId])
   @@index([status])
   @@index([expenseId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([date, orgId])
+  @@index([createdAt, orgId])
+  @@index([category, orgId])
   @@map("receipt_scans")
 }
 
@@ -7629,6 +8008,9 @@ model EmailSuggestion {
   @@index([entityType])
   @@index([createdAt])
   @@index([expiresAt])
+  @@index([sourceEmailId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
   @@map("email_suggestions")
 }
 
@@ -7687,6 +8069,9 @@ model VatReturn {
   @@index([periodStart])
   @@index([periodEnd])
   @@index([submittedAt])
+  @@index([receiptId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
   @@map("vat_returns")
 }
 

@@ -110,7 +110,7 @@ export class OAuthController {
       res.cookie('op_auth', authData, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: 'strict', // CSRF Protection: blocks cross-site requests
         maxAge: 604800 * 1000, // 7 days (matches refresh token expiry)
         path: '/',
       });
@@ -203,7 +203,7 @@ export class OAuthController {
       res.cookie('op_auth', authData, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: 'strict', // CSRF Protection: blocks cross-site requests
         maxAge: 604800 * 1000, // 7 days (matches refresh token expiry)
         path: '/',
       });

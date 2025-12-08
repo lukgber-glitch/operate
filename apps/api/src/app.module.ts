@@ -6,6 +6,8 @@ import { BullModule } from '@nestjs/bull';
 import { BullModule as BullMQModule } from '@nestjs/bullmq';
 import { APP_GUARD } from '@nestjs/core';
 import { TenantGuard } from './common/guards/tenant.guard';
+import { CsrfGuard } from './common/guards/csrf.guard';
+import { CsrfTokenMiddleware } from './common/middleware/csrf-token.middleware';
 import { HealthModule } from './modules/health/health.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { CacheModule } from './modules/cache/cache.module';
@@ -226,8 +228,13 @@ import configuration from './config/configuration';
   controllers: [],
   providers: [
     // Global guards
-    // Note: TenantGuard enforces tenant isolation for all authenticated routes
-    // It runs after JwtAuthGuard and validates organizationId in requests
+    // Note: Guards run in order of registration
+    // 1. CsrfGuard: CSRF protection for state-changing requests
+    // 2. TenantGuard: Tenant isolation enforcement
+    {
+      provide: APP_GUARD,
+      useClass: CsrfGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: TenantGuard,
@@ -236,6 +243,10 @@ import configuration from './config/configuration';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    // Apply CSRF token middleware to all routes
+    // This generates and sets CSRF tokens for the double-submit pattern
+    consumer.apply(CsrfTokenMiddleware).forRoutes('*');
+
     // Queue board temporarily disabled
   }
 }
