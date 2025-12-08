@@ -9,8 +9,9 @@ build/
 
 # Environment files
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.*.example
 
 # IDE
 .idea/
@@ -53,3 +54,30 @@ web-deploy.tar.gz
 api-src-complete.tar.gz
 api-update.tar.gz
 web-build.tar.gz
+
+# Planning backups (contains secrets)
+.planning/backups/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Test artifacts (screenshots, test scripts)
+screenshot-*.png
+test-*.png
+test-*.js
+*-TEST-REPORT.md
+*-REPORT.md
+*-VERIFICATION.md
+
+# Windows artifacts
+nul
+
+# Security - keys and credentials
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account*.json
+secrets/
+keys/
