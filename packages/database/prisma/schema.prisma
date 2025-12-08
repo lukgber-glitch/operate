@@ -2212,34 +2212,34 @@ model BankTransaction {
 }
 
 model PaymentAllocation {
-  id              String   @id @default(cuid())
+  id String @id @default(cuid())
 
   // Link to invoice being paid
-  invoiceId       String
-  invoice         Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   // Link to bank transaction (payment)
-  transactionId   String
-  transaction     BankTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  transactionId String
+  transaction   BankTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
 
   // Allocation details
-  amount          Decimal  @db.Decimal(19, 4)
-  currency        String   @default("EUR")
-  allocatedAt     DateTime @default(now())
-  allocatedBy     String?  // User ID or 'SYSTEM' for auto
+  amount      Decimal  @db.Decimal(19, 4)
+  currency    String   @default("EUR")
+  allocatedAt DateTime @default(now())
+  allocatedBy String? // User ID or 'SYSTEM' for auto
 
   // Reconciliation status
-  status          AllocationStatus @default(MATCHED)
-  confidence      Float?   // For auto-matched: 0-1 confidence score
-  matchMethod     String?  // 'REFERENCE', 'AMOUNT', 'AI', 'MANUAL'
+  status      AllocationStatus @default(MATCHED)
+  confidence  Float? // For auto-matched: 0-1 confidence score
+  matchMethod String? // 'REFERENCE', 'AMOUNT', 'AI', 'MANUAL'
 
   // Organization
-  orgId           String
-  organization    Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId        String
+  organization Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   // Audit
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([invoiceId, transactionId])
   @@index([orgId])
@@ -7384,4 +7384,39 @@ model TaxDocument {
   @@index([type])
   @@index([year])
   @@index([retentionUntil])
+}
+
+// ============================================================================
+// TRUST & MARKETING MODELS
+// ============================================================================
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  authorName  String
+  authorRole  String?
+  company     String?
+  content     String
+  timeSaved   String?  // e.g., "200 receipts: <1h vs 8h"
+  isVerified  Boolean  @default(false)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished])
+  @@index([isVerified])
+  @@index([createdAt])
+}
+
+model ComplianceBadge {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  label         String
+  description   String
+  justification String   // Why this badge is legitimate
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([slug])
 }
