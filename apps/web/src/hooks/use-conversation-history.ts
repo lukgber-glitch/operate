@@ -7,7 +7,7 @@ import { ChatConversation, ChatMessage } from '@/types/chat';
  * useConversationHistory - Hook for managing conversation history
  *
  * Manages conversation persistence, CRUD operations, and grouping by date.
- * Uses localStorage for client-side persistence (can be replaced with API calls).
+ * Now uses backend API for persistence with localStorage fallback.
  */
 
 const STORAGE_KEY = 'operate_conversations';
@@ -24,24 +24,59 @@ export function useConversationHistory() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load conversations from localStorage on mount
+  // Load conversations from backend on mount
   useEffect(() => {
     loadConversations();
   }, []);
 
-  // Save conversations to localStorage whenever they change
-  useEffect(() => {
-    if (!isLoading) {
-      saveConversations();
-    }
-  }, [conversations, isLoading]);
+  const loadConversations = async () => {
+    try {
+      // Try to fetch from backend first
+      const response = await fetch('/api/v1/chatbot/conversations?limit=100', {
+        credentials: 'include',
+      });
 
-  const loadConversations = () => {
+      if (response.ok) {
+        const data = await response.json();
+        const backendConversations = data.conversations.map((conv: any) => ({
+          id: conv.id,
+          title: conv.title || 'New Conversation',
+          messages: conv.messages?.map((msg: any) => ({
+            id: msg.id,
+            conversationId: msg.conversationId,
+            role: msg.role.toLowerCase() as 'user' | 'assistant' | 'system',
+            content: msg.content,
+            timestamp: new Date(msg.createdAt),
+            status: 'sent' as const,
+            metadata: {
+              actionType: msg.actionType,
+              actionParams: msg.actionParams,
+              actionResult: msg.actionResult,
+              actionStatus: msg.actionStatus,
+            },
+          })) || [],
+          createdAt: new Date(conv.createdAt),
+          updatedAt: new Date(conv.updatedAt),
+        }));
+        setConversations(backendConversations);
+      } else {
+        // Fallback to localStorage if backend fails
+        loadFromLocalStorage();
+      }
+    } catch (error) {
+      console.error('Error loading conversations from backend:', error);
+      // Fallback to localStorage
+      loadFromLocalStorage();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadFromLocalStorage = () => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        // Convert date strings back to Date objects
         const conversations = parsed.map((conv: any) => ({
           ...conv,
           createdAt: new Date(conv.createdAt),
@@ -54,14 +89,13 @@ export function useConversationHistory() {
         setConversations(conversations);
       }
     } catch (error) {
-      console.error('Error loading conversations:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Error loading conversations from localStorage:', error);
     }
   };
 
   const saveConversations = () => {
     try {
+      // Keep localStorage sync as fallback
       localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
     } catch (error) {
       console.error('Error saving conversations:', error);
@@ -69,10 +103,44 @@ export function useConversationHistory() {
   };
 
   // Create a new conversation
-  const createConversation = useCallback((firstMessage?: ChatMessage): ChatConversation => {
+  const createConversation = useCallback(async (firstMessage?: ChatMessage): Promise<ChatConversation> => {
+    const title = firstMessage ? generateTitle(firstMessage.content) : 'New Conversation';
+
+    try {
+      // Try to create on backend first
+      const response = await fetch('/api/v1/chatbot/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ title }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const newConversation: ChatConversation = {
+          id: data.id,
+          title: data.title || title,
+          messages: firstMessage ? [firstMessage] : [],
+          createdAt: new Date(data.createdAt),
+          updatedAt: new Date(data.updatedAt),
+        };
+
+        setConversations((prev) => {
+          const updated = [newConversation, ...prev].slice(0, MAX_CONVERSATIONS);
+          return updated;
+        });
+
+        setActiveConversationId(newConversation.id);
+        return newConversation;
+      }
+    } catch (error) {
+      console.error('Error creating conversation on backend:', error);
+    }
+
+    // Fallback to local-only conversation
     const newConversation: ChatConversation = {
       id: crypto.randomUUID(),
-      title: firstMessage ? generateTitle(firstMessage.content) : 'New Conversation',
+      title,
       messages: firstMessage ? [firstMessage] : [],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -129,7 +197,18 @@ export function useConversationHistory() {
   }, []);
 
   // Delete a conversation
-  const deleteConversation = useCallback((conversationId: string) => {
+  const deleteConversation = useCallback(async (conversationId: string) => {
+    try {
+      // Try to delete on backend
+      await fetch(`/api/v1/chatbot/conversations/${conversationId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Error deleting conversation on backend:', error);
+    }
+
+    // Update local state regardless
     setConversations((prev) => prev.filter((conv) => conv.id !== conversationId));
     if (activeConversationId === conversationId) {
       setActiveConversationId(null);

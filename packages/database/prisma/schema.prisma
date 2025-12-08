@@ -100,6 +100,7 @@ model Organisation {
 
   memberships           Membership[]
   auditLogs             AuditLog[]
+  auditLogSequences     AuditLogSequence[]     @relation("AuditLogSequence")
   organisationCountries OrganisationCountry[]
   taxCredentials        TaxCredential[]
   employees             Employee[]
@@ -131,6 +132,7 @@ model Organisation {
   plaidTransactions     PlaidTransaction[]
   storageQuota          StorageQuota?
   extractedInvoices     ExtractedInvoice[]
+  gocardlessConnections GoCardlessConnection[]
 
   // Usage-based billing relations
   usageEvents        UsageEvent[]
@@ -381,6 +383,9 @@ model AuditLogSequence {
 
   // Timestamps
   updatedAt DateTime @updatedAt
+
+  // Relations - CRITICAL for multi-tenancy security
+  organisation Organisation @relation("AuditLogSequence", fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("audit_log_sequences")
 }
@@ -4925,6 +4930,346 @@ model TrueLayerTransaction {
 }
 
 // ============================================================================
+// GOCARDLESS INTEGRATION MODELS (UK/EU Direct Debit)
+// ============================================================================
+
+enum GoCardlessConnectionStatus {
+  ACTIVE
+  INACTIVE
+  ERROR
+  EXPIRED
+}
+
+enum GoCardlessMandateStatus {
+  PENDING_CUSTOMER_APPROVAL
+  PENDING_SUBMISSION
+  SUBMITTED
+  ACTIVE
+  FAILED
+  CANCELLED
+  EXPIRED
+}
+
+enum GoCardlessPaymentStatus {
+  PENDING_CUSTOMER_APPROVAL
+  PENDING_SUBMISSION
+  SUBMITTED
+  CONFIRMED
+  PAID_OUT
+  CANCELLED
+  CUSTOMER_APPROVAL_DENIED
+  FAILED
+  CHARGED_BACK
+}
+
+enum GoCardlessPayoutStatus {
+  PENDING
+  PAID
+}
+
+enum GoCardlessRefundStatus {
+  CREATED
+  PENDING_SUBMISSION
+  SUBMITTED
+  PAID
+  FAILED
+  CANCELLED
+}
+
+enum GoCardlessSubscriptionStatus {
+  PENDING_CUSTOMER_APPROVAL
+  CUSTOMER_APPROVAL_DENIED
+  ACTIVE
+  FINISHED
+  CANCELLED
+  PAUSED
+}
+
+enum GoCardlessRedirectFlowStatus {
+  PENDING
+  COMPLETED
+  EXPIRED
+  FAILED
+}
+
+model GoCardlessConnection {
+  id    String @id @default(uuid())
+  orgId String
+
+  // GoCardless creditor details
+  creditorId   String // GoCardless creditor ID
+  creditorName String?
+
+  // OAuth2 Tokens (encrypted)
+  accessToken  String  @db.Text // AES-256-GCM encrypted
+  refreshToken String? @db.Text // AES-256-GCM encrypted (if applicable)
+
+  // Encryption metadata
+  encryptionIv  Bytes // AES-256-GCM initialization vector
+  encryptionTag Bytes // AES-256-GCM authentication tag
+
+  // Connection status
+  status      GoCardlessConnectionStatus @default(ACTIVE)
+  isConnected Boolean                    @default(true)
+  lastSyncAt  DateTime?
+  lastError   String?                    @db.Text
+  lastErrorAt DateTime?
+
+  // Environment
+  environment String @default("sandbox") // sandbox or live
+
+  // Webhook configuration
+  webhookSecret String? @db.Text
+
+  // Audit trail
+  connectedAt    DateTime  @default(now())
+  disconnectedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, creditorId])
+  @@index([orgId])
+  @@index([creditorId])
+  @@index([status])
+  @@index([isConnected])
+  @@map("gocardless_connections")
+}
+
+model GoCardlessCustomer {
+  id String @id @default(uuid())
+
+  // Operate customer reference
+  customerId String @unique
+  orgId      String
+
+  // GoCardless customer ID
+  gcCustomerId String
+
+  // Audit trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String // User ID who created
+
+  @@index([customerId])
+  @@index([orgId])
+  @@index([gcCustomerId])
+  @@map("gocardless_customers")
+}
+
+model GoCardlessRedirectFlow {
+  id String @id @default(uuid())
+
+  // Redirect flow details
+  redirectFlowId String @unique
+  orgId          String
+  customerId     String
+
+  // Session details
+  sessionToken String
+  scheme       String // bacs, sepa_core, etc.
+
+  // Status
+  status    GoCardlessRedirectFlowStatus @default(PENDING)
+  mandateId String? // Set after completion
+
+  // Expiry
+  expiresAt DateTime
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([redirectFlowId])
+  @@index([orgId])
+  @@index([customerId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("gocardless_redirect_flows")
+}
+
+model GoCardlessMandate {
+  id String @id @default(uuid())
+
+  // GoCardless mandate details
+  mandateId  String @unique
+  orgId      String
+  customerId String
+
+  // Mandate details
+  scheme                 String // bacs, sepa_core, sepa_cor1, etc.
+  status                 GoCardlessMandateStatus
+  reference              String
+  nextPossibleChargeDate DateTime
+
+  // Links to GoCardless entities
+  customerBankAccountId String
+  creditorId            String
+
+  // Failure tracking
+  failureReason String? @db.Text
+
+  // Cancellation tracking
+  cancelledAt DateTime?
+  cancelledBy String? // User ID who cancelled
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([mandateId])
+  @@index([orgId])
+  @@index([customerId])
+  @@index([status])
+  @@index([nextPossibleChargeDate])
+  @@map("gocardless_mandates")
+}
+
+model GoCardlessPayment {
+  id String @id @default(uuid())
+
+  // GoCardless payment details
+  paymentId String @unique
+  orgId     String
+  mandateId String
+
+  // Payment details
+  amount      Decimal                 @db.Decimal(12, 2)
+  currency    String
+  status      GoCardlessPaymentStatus
+  chargeDate  DateTime
+  reference   String
+  description String                  @db.Text
+
+  // Refund tracking
+  amountRefunded Decimal @default(0) @db.Decimal(12, 2)
+
+  // Failure tracking
+  failureReason String? @db.Text
+
+  // Cancellation tracking
+  cancelledAt DateTime?
+  cancelledBy String? // User ID who cancelled
+
+  // Audit trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String // User ID who created
+
+  @@index([paymentId])
+  @@index([orgId])
+  @@index([mandateId])
+  @@index([status])
+  @@index([chargeDate])
+  @@map("gocardless_payments")
+}
+
+model GoCardlessPayout {
+  id String @id @default(uuid())
+
+  // GoCardless payout details
+  payoutId String @unique
+
+  // Payout details
+  status GoCardlessPayoutStatus
+
+  // Paid date
+  paidAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([payoutId])
+  @@index([status])
+  @@index([paidAt])
+  @@map("gocardless_payouts")
+}
+
+model GoCardlessRefund {
+  id String @id @default(uuid())
+
+  // GoCardless refund details
+  refundId  String @unique
+  paymentId String
+
+  // Refund details
+  status GoCardlessRefundStatus
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([refundId])
+  @@index([paymentId])
+  @@index([status])
+  @@map("gocardless_refunds")
+}
+
+model GoCardlessSubscription {
+  id String @id @default(uuid())
+
+  // GoCardless subscription details
+  subscriptionId String @unique
+  orgId          String
+  mandateId      String
+
+  // Subscription details
+  amount       Decimal                      @db.Decimal(12, 2)
+  currency     String
+  name         String
+  intervalUnit String // weekly, monthly, yearly
+  interval     Int                          @default(1)
+  status       GoCardlessSubscriptionStatus
+
+  // Schedule
+  startDate DateTime
+  endDate   DateTime?
+
+  // Cancellation tracking
+  cancelledAt DateTime?
+  cancelledBy String? // User ID who cancelled
+
+  // Audit trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String // User ID who created
+
+  @@index([subscriptionId])
+  @@index([orgId])
+  @@index([mandateId])
+  @@index([status])
+  @@index([startDate])
+  @@map("gocardless_subscriptions")
+}
+
+model GoCardlessWebhookEvent {
+  id String @id @default(uuid())
+
+  // Webhook event details
+  eventId      String @unique
+  resourceType String // mandates, payments, payouts, subscriptions, refunds
+  action       String // created, submitted, confirmed, paid_out, etc.
+
+  // Payload
+  payload Json
+
+  // Processing
+  processedAt DateTime
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([eventId])
+  @@index([resourceType])
+  @@index([action])
+  @@index([processedAt])
+  @@map("gocardless_webhook_events")
+}
+
+// ============================================================================
 // US SALES TAX MODELS (Avalara Integration)
 // ============================================================================
 
@@ -7396,7 +7741,7 @@ model Testimonial {
   authorRole  String?
   company     String?
   content     String
-  timeSaved   String?  // e.g., "200 receipts: <1h vs 8h"
+  timeSaved   String? // e.g., "200 receipts: <1h vs 8h"
   isVerified  Boolean  @default(false)
   isPublished Boolean  @default(false)
   createdAt   DateTime @default(now())
@@ -7412,7 +7757,7 @@ model ComplianceBadge {
   slug          String   @unique
   label         String
   description   String
-  justification String   // Why this badge is legitimate
+  justification String // Why this badge is legitimate
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

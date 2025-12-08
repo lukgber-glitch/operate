@@ -21,10 +21,7 @@ import { AIConsentDialog } from '@/components/consent/AIConsentDialog';
 import { GreetingHeader } from '@/components/chat/GreetingHeader';
 import { ChatHistoryDropdown } from '@/components/chat/ChatHistoryDropdown';
 import { Mail, Building2, Calendar, Mic, History, Loader2, Brain, AlertCircle } from 'lucide-react';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { AnimatedContainer } from '@/components/ui/animated-container';
-import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PageTransition } from '@/components/animation/PageTransition';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { listExtractedInvoices } from '@/lib/api/extracted-invoices';
@@ -137,7 +134,7 @@ export default function ChatPage() {
     // Create or get conversation
     let conversationId = activeConversationId;
     if (!conversationId) {
-      const newConversation = createConversation();
+      const newConversation = await createConversation();
       conversationId = newConversation.id;
     }
 
@@ -157,11 +154,12 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
-      // Send message to API
-      const response = await fetch('/api/v1/chat/messages', {
+      // Send message to API using correct backend endpoint
+      const response = await fetch(`/api/v1/chatbot/conversations/${conversationId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, conversationId }),
+        credentials: 'include',
+        body: JSON.stringify({ content }),
       });
 
       if (!response.ok) {
@@ -169,9 +167,11 @@ export default function ChatPage() {
       }
 
       const data = await response.json();
+      // Backend returns array of [userMessage, assistantMessage]
+      const [userResp, assistantResp] = data;
 
       // Update user message status
-      const sentUserMessage = { ...userMessage, status: 'sent' as const };
+      const sentUserMessage = { ...userMessage, status: 'sent' as const, id: userResp.id };
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === userMessage.id ? sentUserMessage : msg
@@ -181,13 +181,18 @@ export default function ChatPage() {
 
       // Add assistant response
       const assistantMessage: ChatMessageType = {
-        id: data.id,
+        id: assistantResp.id,
         conversationId,
         role: 'assistant',
-        content: data.content,
-        timestamp: new Date(data.timestamp),
+        content: assistantResp.content,
+        timestamp: new Date(assistantResp.createdAt),
         status: 'sent',
-        metadata: data.metadata,
+        metadata: {
+          actionType: assistantResp.actionType,
+          actionParams: assistantResp.actionParams,
+          actionResult: assistantResp.actionResult,
+          actionStatus: assistantResp.actionStatus,
+        },
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -313,13 +318,13 @@ export default function ChatPage() {
         isLoading={consentLoading}
       />
 
-      <PageTransition>
+      <>
         {/* Greeting Header - OUTSIDE main container */}
         <div className="mb-6 lg:mb-8">
           <GreetingHeader />
         </div>
 
-        <AnimatedContainer morphId="main-chat-card">
+        <div>
           <div className="h-[calc(100vh-8rem)] flex flex-col overflow-hidden">
             {/* Main Content Area */}
             <ScrollArea className="flex-1">
@@ -442,10 +447,7 @@ export default function ChatPage() {
           {/* Insight Cards - Three cards at bottom */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6">
             {/* Email Insights Card */}
-            <AnimatedCard
-              variant="elevated"
-              className="rounded-[24px]"
-            >
+            <Card className="rounded-[24px]">
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-2 mb-2">
                   <div
@@ -490,13 +492,10 @@ export default function ChatPage() {
                   </CardDescription>
                 )}
               </CardContent>
-            </AnimatedCard>
+            </Card>
 
             {/* Bank Summary Card */}
-            <AnimatedCard
-              variant="elevated"
-              className="rounded-[24px]"
-            >
+            <Card className="rounded-[24px]">
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-2 mb-2">
                   <div
@@ -551,13 +550,10 @@ export default function ChatPage() {
                   </CardDescription>
                 )}
               </CardContent>
-            </AnimatedCard>
+            </Card>
 
             {/* Upcoming Card */}
-            <AnimatedCard
-              variant="elevated"
-              className="rounded-[24px]"
-            >
+            <Card className="rounded-[24px]">
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-2 mb-2">
                   <div
@@ -627,7 +623,7 @@ export default function ChatPage() {
                   </CardDescription>
                 )}
               </CardContent>
-            </AnimatedCard>
+            </Card>
           </div>
         </div>
       </ScrollArea>
@@ -674,8 +670,8 @@ export default function ChatPage() {
         </div>
       </div>
     </div>
-    </AnimatedContainer>
-  </PageTransition>
+    </div>
+  </>
 </>
 );
 }

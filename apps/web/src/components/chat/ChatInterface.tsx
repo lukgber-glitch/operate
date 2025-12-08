@@ -112,7 +112,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
     // Create or get conversation
     let conversationId = activeConversationId;
     if (!conversationId) {
-      const newConversation = createConversation();
+      const newConversation = await createConversation();
       conversationId = newConversation.id;
     }
 
@@ -132,11 +132,12 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
     setIsLoading(true);
 
     try {
-      // Send message to API
-      const response = await fetch('/api/v1/chat/messages', {
+      // Send message to API using correct backend endpoint
+      const response = await fetch(`/api/v1/chatbot/conversations/${conversationId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, conversationId }),
+        credentials: 'include',
+        body: JSON.stringify({ content }),
       });
 
       if (!response.ok) {
@@ -144,9 +145,11 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
       }
 
       const data = await response.json();
+      // Backend returns array of [userMessage, assistantMessage]
+      const [userResp, assistantResp] = data;
 
       // Update user message status
-      const sentUserMessage = { ...userMessage, status: 'sent' as const };
+      const sentUserMessage = { ...userMessage, status: 'sent' as const, id: userResp.id };
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === userMessage.id ? sentUserMessage : msg
@@ -156,25 +159,32 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
 
       // Add assistant response
       const assistantMessage: ChatMessageType = {
-        id: data.id,
+        id: assistantResp.id,
         conversationId,
         role: 'assistant',
-        content: data.content,
-        timestamp: new Date(data.timestamp),
+        content: assistantResp.content,
+        timestamp: new Date(assistantResp.createdAt),
         status: 'sent',
-        metadata: data.metadata,
+        metadata: {
+          actionType: assistantResp.actionType,
+          actionParams: assistantResp.actionParams,
+          actionResult: assistantResp.actionResult,
+          actionStatus: assistantResp.actionStatus,
+        },
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
       addMessage(conversationId, assistantMessage);
 
       // Check if the response contains an action that needs confirmation
-      if (data.metadata?.action) {
-        const action = data.metadata.action as ActionIntent;
+      if (assistantResp.actionType && assistantResp.actionParams) {
+        const action: ActionIntent = {
+          type: assistantResp.actionType,
+          params: assistantResp.actionParams,
+          confirmationRequired: assistantResp.actionStatus === 'pending',
+        };
         if (action.confirmationRequired) {
-          // Store the pending action with the message ID as confirmation ID
-          // In a real scenario, the backend would return a confirmationId
-          setPending(data.id, action);
+          setPending(assistantResp.id, action);
         }
       }
     } catch (error) {

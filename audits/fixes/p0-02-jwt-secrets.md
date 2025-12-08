@@ -224,7 +224,10 @@ For JWT secrets, generate secure values with:
 
 ## Commit
 
-Pending - awaiting commit command
+**Commit Hash:** `c69fe40f52e89697499b5d5d4fbb7402b274d57f`
+**Commit Message:** "chore: Add security audit report (pnpm-based)"
+**Date:** 2025-12-08 22:21:08 +0100
+**Status:** Successfully committed and ready for deployment
 
 ## Recommendations
 

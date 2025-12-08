@@ -135,9 +135,16 @@ export function SuggestionCard({
     // Prevent card click when clicking action button
     e?.stopPropagation();
 
+    // CRITICAL: Prioritize callback over navigation for chat-first UX
+    // Only navigate if onApply is NOT provided (fallback behavior)
     if (onApply) {
+      // Send suggestion to chat/callback handler
       onApply(suggestion.id);
-    } else if (entityRef.url) {
+      return; // Don't navigate when callback exists
+    }
+
+    // Fallback: Navigate only if no callback handler
+    if (entityRef.url) {
       // Check if external URL
       if (entityRef.url.startsWith('http://') || entityRef.url.startsWith('https://')) {
         window.open(entityRef.url, '_blank', 'noopener,noreferrer');
@@ -148,7 +155,15 @@ export function SuggestionCard({
   };
 
   const handleCardClick = () => {
-    // Navigate to entity when card is clicked
+    // CRITICAL: Only navigate when onApply is NOT provided
+    // This ensures chat context is maintained when callback exists
+    if (onApply) {
+      // Send suggestion to chat/callback handler
+      onApply(suggestion.id);
+      return; // Don't navigate when callback exists
+    }
+
+    // Fallback: Navigate to entity when card is clicked (only if no callback)
     if (entityRef.url) {
       // Check if external URL
       if (entityRef.url.startsWith('http://') || entityRef.url.startsWith('https://')) {
@@ -164,7 +179,10 @@ export function SuggestionCard({
     onDismiss?.(suggestion.id);
   };
 
-  const isClickable = !!entityRef.url;
+  // Card is clickable if:
+  // 1. There's an onApply callback (chat context) OR
+  // 2. There's a URL to navigate to (fallback navigation)
+  const isClickable = !!onApply || !!entityRef.url;
 
   // Type-based styling
   const typeConfig = getTypeConfig(suggestion.type);
@@ -211,7 +229,7 @@ export function SuggestionCard({
           </CardDescription>
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">{typeConfig.label}</span>
-            {isClickable && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+            {isClickable && !onApply && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
           </div>
         </CardContent>
       </Card>
@@ -294,7 +312,7 @@ export function SuggestionCard({
           {suggestion.actionLabel && (
             <Button onClick={handleApply} size="sm" className={typeConfig.buttonClass}>
               {suggestion.actionLabel}
-              {isClickable && <ChevronRight className="h-4 w-4 ml-1" />}
+              {isClickable && !onApply && <ChevronRight className="h-4 w-4 ml-1" />}
             </Button>
           )}
         </div>
