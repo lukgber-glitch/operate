@@ -8,6 +8,22 @@ export { GuruLoader } from './guru-loader'
 // Branding
 export { GuruLogo } from './guru-logo'
 
+// Phase 4: Glassmorphism Components
+export {
+  GlassCard,
+  GlassCardHeader,
+  GlassCardTitle,
+  GlassCardDescription,
+  GlassCardContent,
+  GlassCardFooter,
+} from './glass-card'
+export type { GlassCardProps } from './glass-card'
+
+export {
+  AnimatedGradientBackground,
+  MeshGradientBackground,
+} from './animated-gradient-background'
+
 // Shadcn UI components
 export { Alert } from './alert'
 export { AlertDialog } from './alert-dialog'

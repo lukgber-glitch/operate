@@ -3,6 +3,11 @@
  * Comprehensive AI assistant chat interface
  */
 
+// Phase 3: Chat-Centric Landing Components
+export { ChatLanding } from './ChatLanding';
+export { ChatCentralPanel } from './ChatCentralPanel';
+export { SuggestionPills } from './SuggestionPills';
+
 // New enhanced components
 export { ChatBubble } from './ChatBubble';
 export { ChatContainer } from './ChatContainer';

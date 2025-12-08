@@ -4,55 +4,72 @@
 
 /* Minimal imports - keeping for structure */
 @import '../styles/design-tokens.css';
+@import '../styles/glassmorphism.css';
 @import '../styles/responsive.css';
 @import '../styles/rtl.css';
 @import '../styles/accessibility.css';
 
 @layer base {
   :root {
-    /* shadcn/ui required variables */
+    /* Operate Blue Palette (Material Blue Scale) */
+    --blue-100: 210 100% 94%; /* #E3F2FD - backgrounds */
+    --blue-200: 207 89% 86%;  /* #BBDEFB - secondary bg */
+    --blue-300: 207 90% 77%;  /* #90CAF9 - disabled */
+    --blue-400: 207 89% 68%;  /* #64B5F6 - accents */
+    --blue-500: 210 79% 51%;  /* #1E88E5 - brand */
+    --blue-600: 210 79% 46%;  /* #1565C0 - buttons */
+    --blue-700: 216 85% 34%;  /* #0D47A1 - emphasis */
+
+    /* shadcn/ui variables mapped to blue palette */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 216 85% 34%;  /* blue-700 for text */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 216 85% 34%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 216 85% 34%;
+    --primary: 210 79% 46%;     /* blue-600 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 100% 94%;  /* blue-100 */
+    --secondary-foreground: 216 85% 34%;
+    --muted: 207 89% 86%;       /* blue-200 */
+    --muted-foreground: 216 50% 50%;
+    --accent: 207 89% 68%;      /* blue-400 */
+    --accent-foreground: 216 85% 34%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    --destructive-foreground: 0 0% 100%;
+    --border: 207 89% 86%;      /* blue-200 */
+    --input: 207 60% 90%;
+    --ring: 210 79% 46%;        /* blue-600 */
+    --radius: 0.75rem;
+
+    /* Animation timing */
+    --duration-micro: 200ms;
+    --duration-short: 300ms;
+    --duration-morph: 500ms;
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    /* Dark mode - inverted blue palette */
+    --background: 216 85% 8%;
+    --foreground: 210 100% 94%;
+    --card: 216 85% 12%;
+    --card-foreground: 210 100% 94%;
+    --popover: 216 85% 12%;
+    --popover-foreground: 210 100% 94%;
+    --primary: 207 89% 68%;     /* blue-400 */
+    --primary-foreground: 216 85% 8%;
+    --secondary: 216 85% 16%;
+    --secondary-foreground: 210 100% 94%;
+    --muted: 216 85% 16%;
+    --muted-foreground: 207 90% 77%;
+    --accent: 210 79% 51%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --destructive-foreground: 210 100% 94%;
+    --border: 216 85% 20%;
+    --input: 216 85% 20%;
+    --ring: 207 89% 68%;
   }
 }
 

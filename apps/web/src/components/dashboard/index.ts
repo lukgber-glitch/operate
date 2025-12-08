@@ -17,6 +17,7 @@ export {
 // Existing Dashboard Components
 export { Breadcrumbs } from './breadcrumbs';
 export { Header } from './header';
+export { MinimalHeader } from './MinimalHeader'; // Phase 3: Chat-centric minimal header
 export { MobileNav } from './mobile-nav';
 export { NavItem } from './nav-item';
 export { OrgSwitcher } from './org-switcher';

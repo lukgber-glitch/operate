@@ -18,7 +18,17 @@ module.exports = {
     },
     extend: {
       colors: {
-        // shadcn/ui compatibility only
+        // Operate Blue Palette (Material Blue Scale)
+        blue: {
+          100: '#E3F2FD', // backgrounds, hover states
+          200: '#BBDEFB', // secondary backgrounds, dividers
+          300: '#90CAF9', // disabled states, subtle borders
+          400: '#64B5F6', // secondary actions, accents
+          500: '#1E88E5', // main UI/brand color
+          600: '#1565C0', // buttons, highlights, links
+          700: '#0D47A1', // strong emphasis, text on light
+        },
+        // shadcn/ui compatibility
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -59,7 +69,7 @@ module.exports = {
         sm: 'calc(var(--radius) - 4px)',
       },
       keyframes: {
-        // Keep only accordion for shadcn
+        // shadcn accordion
         'accordion-down': {
           from: { height: 0 },
           to: { height: 'var(--radix-accordion-content-height)' },
@@ -68,10 +78,45 @@ module.exports = {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: 0 },
         },
+        // Operate micro-interactions
+        'breathe': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.05)' },
+        },
+        'shake': {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '25%': { transform: 'translateX(-4px)' },
+          '75%': { transform: 'translateX(4px)' },
+        },
+        'pulse-glow': {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(30, 136, 229, 0)' },
+          '50%': { boxShadow: '0 0 20px 4px rgba(30, 136, 229, 0.3)' },
+        },
+        'fade-in': {
+          from: { opacity: 0 },
+          to: { opacity: 1 },
+        },
+        'slide-up': {
+          from: { opacity: 0, transform: 'translateY(10px)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'breathe': 'breathe 4s ease-in-out infinite',
+        'shake': 'shake 0.3s ease-in-out',
+        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+        'fade-in': 'fade-in 0.2s ease-out',
+        'slide-up': 'slide-up 0.3s ease-out',
+      },
+      transitionDuration: {
+        'micro': '200ms',
+        'short': '300ms',
+        'morph': '500ms',
+      },
+      transitionTimingFunction: {
+        'spring': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
       },
     },
   },
