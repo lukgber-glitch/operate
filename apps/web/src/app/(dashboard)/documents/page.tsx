@@ -23,8 +23,7 @@ import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -263,9 +262,10 @@ export default function DocumentsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <HeadlineOutside subtitle="Manage and organize your business documents">
-          Documents
-        </HeadlineOutside>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Documents</h1>
+          <p className="text-muted-foreground">Manage and organize your business documents</p>
+        </div>
 
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setCreateFolderDialogOpen(true)}>
@@ -282,7 +282,8 @@ export default function DocumentsPage() {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Folders Sidebar */}
         <aside className="lg:w-64 flex-shrink-0">
-          <AnimatedCard variant="elevated" padding="md">
+          <Card className="rounded-[24px]">
+            <CardContent className="p-4">
               <div className="space-y-2">
                 <button
                   onClick={() => setSelectedFolder(null)}
@@ -299,7 +300,8 @@ export default function DocumentsPage() {
                 <div className="border-t dark:border-slate-700 my-2" />
                 {renderFolderTree(mockFolders)}
               </div>
-          </AnimatedCard>
+            </CardContent>
+          </Card>
         </aside>
 
         {/* Main Content */}
@@ -381,7 +383,8 @@ export default function DocumentsPage() {
                   const TypeIcon = typeConfig.icon;
 
                   return (
-                    <AnimatedCard key={doc.id} variant="elevated" padding="md" className="group hover:shadow-md transition-shadow">
+                    <Card key={doc.id} className="rounded-[24px] group hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
                         <div className="space-y-3">
                           <div className="flex items-start justify-between">
                             <div className={`p-3 rounded-lg ${typeConfig.color.split(' ')[0]} ${typeConfig.color.split(' ')[1]}`}>
@@ -424,7 +427,8 @@ export default function DocumentsPage() {
                             <span className="text-xs text-muted-foreground">{doc.uploadedAt}</span>
                           </div>
                         </div>
-                    </AnimatedCard>
+                      </CardContent>
+                    </Card>
                   );
                 })
               )}
@@ -433,7 +437,8 @@ export default function DocumentsPage() {
 
           {/* List View */}
           {viewMode === 'list' && (
-            <AnimatedCard variant="elevated" padding="md">
+            <Card className="rounded-[24px]">
+              <CardContent className="p-4">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -508,7 +513,8 @@ export default function DocumentsPage() {
                   )}
                 </TableBody>
               </Table>
-            </AnimatedCard>
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>

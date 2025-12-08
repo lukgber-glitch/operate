@@ -109,7 +109,7 @@ export interface MigrationProgress {
   totalEntitiesSkipped: number;
   errors: MigrationError[];
   warnings: string[];
-  metadata: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**

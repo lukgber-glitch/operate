@@ -330,7 +330,7 @@ export interface TransactionMatch {
   matchedId: string;
   matchedRef: string;
   confidence: number;
-  metadata: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**

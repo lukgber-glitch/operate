@@ -100,7 +100,7 @@ export class PersonaVerificationService {
 
       return {
         inquiryId,
-        status: inquiry.data.attributes.status as any,
+        status: inquiry.data.attributes.status as Prisma.InputJsonValue,
         referenceId: reference_id,
         userId: user_id,
         organizationId: organization_id,

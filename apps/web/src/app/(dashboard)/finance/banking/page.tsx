@@ -6,8 +6,7 @@ import { useEffect } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import { useBankAccounts } from '@/hooks/use-banking';
 
 export default function BankingPage() {
@@ -29,9 +28,10 @@ export default function BankingPage() {
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside subtitle="Manage your bank accounts and transactions">
-        Banking
-      </HeadlineOutside>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Banking</h1>
+        <p className="text-muted-foreground">Manage your bank accounts and transactions</p>
+      </div>
 
       <Button asChild>
         <Link href="/finance/banking/connect">
@@ -62,7 +62,8 @@ export default function BankingPage() {
           </div>
         </div>
       ) : accounts.length === 0 ? (
-        <AnimatedCard variant="elevated" padding="lg">
+        <Card className="rounded-[24px]">
+          <CardContent className="p-6">
           <div className="flex flex-col items-center justify-center h-64">
             <p className="text-sm text-muted-foreground mb-4">No bank accounts found</p>
             <Button asChild>
@@ -72,11 +73,13 @@ export default function BankingPage() {
               </Link>
             </Button>
           </div>
-        </AnimatedCard>
+          </CardContent>
+        </Card>
       ) : (
         <>
           {/* Total Balance Card */}
-          <AnimatedCard variant="elevated" padding="lg" className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+          <Card className="rounded-[24px] bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+            <CardContent className="p-6">
             <div className="space-y-2">
               <p className="text-sm opacity-90">Total Balance</p>
               <p className="text-4xl font-bold">{formatCurrency(totalBalance)}</p>
@@ -84,12 +87,14 @@ export default function BankingPage() {
                 Across {accounts.length} accounts
               </p>
             </div>
-          </AnimatedCard>
+            </CardContent>
+          </Card>
 
           {/* Bank Accounts Grid */}
           <div className="grid gap-6 md:grid-cols-2">
             {accounts.map((account) => (
-          <AnimatedCard key={account.id} variant="elevated" padding="lg" className="relative hover:shadow-lg transition-shadow">
+          <Card key={account.id} className="rounded-[24px] relative hover:shadow-lg transition-shadow">
+            <CardContent className="p-6">
             {account.isPrimary && (
               <div className="absolute top-4 right-4">
                 <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
@@ -143,38 +148,45 @@ export default function BankingPage() {
                 </div>
               </div>
             </div>
-          </AnimatedCard>
+            </CardContent>
+          </Card>
             ))}
           </div>
 
           {/* Quick Stats */}
           <div className="grid gap-4 sm:grid-cols-3">
-            <AnimatedCard variant="elevated" padding="md">
+            <Card className="rounded-[24px]">
+              <CardContent className="p-4">
               <div className="text-sm font-medium text-muted-foreground pb-3">
                 Total Balance
               </div>
               <p className="text-2xl font-bold">
                 {formatCurrency(totalBalance)}
               </p>
-            </AnimatedCard>
+              </CardContent>
+            </Card>
 
-            <AnimatedCard variant="elevated" padding="md">
+            <Card className="rounded-[24px]">
+              <CardContent className="p-4">
               <div className="text-sm font-medium text-muted-foreground pb-3">
                 Active Accounts
               </div>
               <p className="text-2xl font-bold">
                 {accounts.filter((acc) => acc.isActive).length}
               </p>
-            </AnimatedCard>
+              </CardContent>
+            </Card>
 
-            <AnimatedCard variant="elevated" padding="md">
+            <Card className="rounded-[24px]">
+              <CardContent className="p-4">
               <div className="text-sm font-medium text-muted-foreground pb-3">
                 Total Accounts
               </div>
               <p className="text-2xl font-bold">
                 {accounts.length}
               </p>
-            </AnimatedCard>
+              </CardContent>
+            </Card>
           </div>
         </>
       )}

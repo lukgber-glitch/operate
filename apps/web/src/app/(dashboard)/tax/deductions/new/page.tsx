@@ -5,10 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -98,20 +96,20 @@ export default function NewDeductionPage() {
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside
-        subtitle="Create a new tax-deductible expense claim"
-        actions={
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/tax/deductions">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-        }
-      >
-        Add Tax Deduction
-      </HeadlineOutside>
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/tax/deductions">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Add Tax Deduction</h1>
+          <p className="text-muted-foreground">Create a new tax-deductible expense claim</p>
+        </div>
+      </div>
 
-      <AnimatedCard variant="elevated" padding="lg">
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
         <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Form */}
         <div className="lg:col-span-2 space-y-6">
@@ -339,7 +337,8 @@ export default function NewDeductionPage() {
           </Card>
         </div>
         </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
     </div>
   );
 }

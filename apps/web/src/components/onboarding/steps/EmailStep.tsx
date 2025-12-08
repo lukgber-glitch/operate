@@ -12,10 +12,8 @@ import {
 import * as React from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/use-auth';
 import {
@@ -137,13 +135,15 @@ export function EmailStep() {
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside subtitle="Connect your business email to automatically extract invoices, receipts, and important documents. Connect one or both email providers.">
-        <span className="flex items-center gap-2">
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
           <Mail className="w-5 h-5" />
           Connect Your Email
-        </span>
-      </HeadlineOutside>
-      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
+        </h2>
+        <p className="text-muted-foreground">Connect your business email to automatically extract invoices, receipts, and important documents. Connect one or both email providers.</p>
+      </div>
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
         <div className="space-y-6">
           {/* Security Notice */}
           <Alert>
@@ -286,11 +286,13 @@ export function EmailStep() {
             </div>
           )}
         </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
 
       {/* Alternative: Manual Upload Reminder */}
       {!anyConnected && (
-        <AnimatedCard variant="outline" padding="lg" className="border-dashed rounded-[24px]">
+        <Card className="border-dashed rounded-[24px]">
+          <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
                 <FileText className="w-6 h-6 text-muted-foreground" />
@@ -306,7 +308,8 @@ export function EmailStep() {
                 </p>
               </div>
             </div>
-        </AnimatedCard>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

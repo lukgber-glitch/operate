@@ -425,7 +425,7 @@ export class MindeeService {
       if (axiosError.response) {
         const status = axiosError.response.status;
         const message =
-          (axiosError.response.data as any)?.error?.message ||
+          (axiosError.response.data as Prisma.InputJsonValue)?.error?.message ||
           'Mindee API error';
 
         if (status === 400) {

@@ -207,21 +207,21 @@ export class UAETaxService {
    * Determine if supply is zero-rated
    */
   isZeroRated(category: string): boolean {
-    return ZERO_RATED_CATEGORIES.includes(category as any);
+    return ZERO_RATED_CATEGORIES.includes(category as Prisma.InputJsonValue);
   }
 
   /**
    * Determine if supply is exempt
    */
   isExempt(category: string): boolean {
-    return EXEMPT_CATEGORIES.includes(category as any);
+    return EXEMPT_CATEGORIES.includes(category as Prisma.InputJsonValue);
   }
 
   /**
    * Check if reverse charge applies
    */
   isReverseCharge(scenario: string): boolean {
-    return REVERSE_CHARGE_SCENARIOS.includes(scenario as any);
+    return REVERSE_CHARGE_SCENARIOS.includes(scenario as Prisma.InputJsonValue);
   }
 
   /**

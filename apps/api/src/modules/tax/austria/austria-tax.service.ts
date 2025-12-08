@@ -240,7 +240,7 @@ export class AustriaTaxService {
           periodType: dto.periodType.toUpperCase(),
           status: 'SUBMITTED',
           submittedAt: new Date(),
-          data: dto.uva as any,
+          data: dto.uva as Prisma.InputJsonValue,
           referenceNumber: this.generateReferenceNumber(),
         },
       });

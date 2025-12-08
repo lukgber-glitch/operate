@@ -828,7 +828,7 @@ export class ExportService {
       worksheet.eachRow((row, rowNumber) => {
         if (rowNumber > 1 && rowNumber % 2 === 0) {
           row.eachCell((cell) => {
-            if (!cell.fill || (cell.fill as any).type !== 'pattern') {
+            if (!cell.fill || (cell.fill as Prisma.InputJsonValue).type !== 'pattern') {
               cell.fill = {
                 type: 'pattern',
                 pattern: 'solid',
@@ -924,7 +924,7 @@ export class ExportService {
       const range = `${this.getColumnLetter(columnIndex)}2:${this.getColumnLetter(columnIndex)}${worksheet.rowCount}`;
 
       worksheet.dataValidations.add(range, {
-        type: validation.type as any,
+        type: validation.type as Prisma.InputJsonValue,
         formulae: validation.values ? [validation.values] : undefined,
         showErrorMessage: !!validation.errorMessage,
         errorTitle: 'Invalid Value',

@@ -102,7 +102,7 @@ export class QuickBooksMigrationService {
         orgId,
         connectionId: connection.id,
         status: MigrationStatus.PENDING,
-        config: config as any,
+        config: config as Prisma.InputJsonValue,
         progress: [],
         totalItems: 0,
         processedItems: 0,
@@ -160,7 +160,7 @@ export class QuickBooksMigrationService {
         throw new Error('Migration not found');
       }
 
-      const config = migration.config as any as MigrationConfig;
+      const config = migration.config as Prisma.InputJsonValue as MigrationConfig;
       const progress: EntityMigrationProgress[] = [];
       const errors: MigrationError[] = [];
       const rollbackPoints: RollbackPoint[] = [];
@@ -203,7 +203,7 @@ export class QuickBooksMigrationService {
         where: { id: migrationId },
         data: {
           status: MigrationStatus.COMPLETED,
-          progress: progress as any,
+          progress: progress as Prisma.InputJsonValue,
           totalItems: totals.total,
           processedItems: totals.processed,
           successfulItems: totals.successful,
@@ -211,7 +211,7 @@ export class QuickBooksMigrationService {
           skippedItems: totals.skipped,
           completedAt: new Date(),
           metadata: {
-            ...(migration.metadata as any),
+            ...(migration.metadata as Prisma.InputJsonValue),
             duration,
             rollbackPoints,
           },
@@ -467,7 +467,7 @@ export class QuickBooksMigrationService {
       throw new NotFoundException('Migration not found');
     }
 
-    const progress = (migration.progress as any) || [];
+    const progress = (migration.progress as Prisma.InputJsonValue) || [];
     const percentComplete = this.calculatePercentComplete(progress);
     const estimatedTimeRemaining = this.estimateTimeRemaining(migration, percentComplete);
 
@@ -475,7 +475,7 @@ export class QuickBooksMigrationService {
       id: migration.id,
       orgId: migration.orgId,
       status: migration.status as MigrationStatus,
-      config: migration.config as any,
+      config: migration.config as Prisma.InputJsonValue,
       progress,
       totalItems: migration.totalItems,
       processedItems: migration.processedItems,
@@ -490,7 +490,7 @@ export class QuickBooksMigrationService {
         ? new Date(Date.now() + estimatedTimeRemaining)
         : undefined,
       createdBy: migration.createdBy,
-      metadata: migration.metadata as any,
+      metadata: migration.metadata as Prisma.InputJsonValue,
     };
   }
 
@@ -578,7 +578,7 @@ export class QuickBooksMigrationService {
       data: { status: MigrationStatus.ROLLING_BACK },
     });
 
-    const rollbackPoints = (migration.metadata as any)?.rollbackPoints || [];
+    const rollbackPoints = (migration.metadata as Prisma.InputJsonValue)?.rollbackPoints || [];
     let totalRolledBack = 0;
 
     // Rollback in reverse order
@@ -610,7 +610,7 @@ export class QuickBooksMigrationService {
       data: {
         status: MigrationStatus.ROLLED_BACK,
         metadata: {
-          ...(migration.metadata as any),
+          ...(migration.metadata as Prisma.InputJsonValue),
           rolledBackAt: new Date(),
           entitiesRolledBack: totalRolledBack,
         },
@@ -725,7 +725,7 @@ export class QuickBooksMigrationService {
       where: { id: migrationId },
     });
 
-    const progress = (migration.progress as any[]) || [];
+    const progress = (migration.progress as Prisma.InputJsonValue[]) || [];
     const index = progress.findIndex((p) => p.entityType === entityProgress.entityType);
 
     if (index >= 0) {
@@ -739,7 +739,7 @@ export class QuickBooksMigrationService {
     await this.prisma.quickBooksMigration.update({
       where: { id: migrationId },
       data: {
-        progress: progress as any,
+        progress: progress as Prisma.InputJsonValue,
         processedItems: totals.processed,
         successfulItems: totals.successful,
         failedItems: totals.failed,

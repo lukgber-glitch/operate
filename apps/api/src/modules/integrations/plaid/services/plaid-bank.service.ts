@@ -212,7 +212,7 @@ export class PlaidBankService {
             lastBalanceUpdate: new Date(),
             balanceAsOf: new Date(),
             isActive: true,
-            metadata: account as any,
+            metadata: account as Prisma.InputJsonValue,
           },
           update: {
             name: account.name,
@@ -534,7 +534,7 @@ export class PlaidBankService {
     orgId: string;
     userId: string;
     action: string;
-    metadata: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await this.prisma.$executeRaw`

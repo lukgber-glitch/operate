@@ -215,6 +215,6 @@ export interface AuditLogEntry {
   action: 'search_created' | 'monitoring_started' | 'alert_reviewed' | 'webhook_received';
   userId?: string;
   organizationId: string;
-  metadata: Record<string, any>;
+  metadata?: Record<string, unknown>;
   timestamp: Date;
 }

@@ -159,7 +159,7 @@ export class ElsterVatService {
           submissionId: result.transferTicket,
           transferTicket: result.transferTicket,
           submittedAt: result.success ? new Date() : null,
-          data: data as any,
+          data: data as Prisma.InputJsonValue,
           response: result.rawResponse,
           errors: result.errors ? { errors: result.errors } : null,
           certificateId: certificate.id,
@@ -220,8 +220,8 @@ export class ElsterVatService {
       submittedAt: filing.submittedAt,
       responseAt: filing.responseAt,
       transferTicket: filing.transferTicket,
-      errors: filing.errors ? (filing.errors as any).errors : undefined,
-      response: filing.response as any,
+      errors: filing.errors ? (filing.errors as Prisma.InputJsonValue).errors : undefined,
+      response: filing.response as Prisma.InputJsonValue,
     };
   }
 
@@ -501,9 +501,9 @@ export class ElsterVatService {
       submissionId: f.submissionId,
       submittedAt: f.submittedAt,
       responseAt: f.responseAt,
-      data: f.data as any,
-      response: f.response as any,
-      errors: f.errors as any,
+      data: f.data as Prisma.InputJsonValue,
+      response: f.response as Prisma.InputJsonValue,
+      errors: f.errors as Prisma.InputJsonValue,
       certificateId: f.certificateId,
       createdAt: f.createdAt,
       updatedAt: f.updatedAt,
@@ -543,7 +543,7 @@ export class ElsterVatService {
         period: data.period.month || data.period.quarter || 12,
         periodType: this.determinePeriodType(data.period),
         status: ElsterFilingStatus.DRAFT,
-        data: data as any,
+        data: data as Prisma.InputJsonValue,
         createdBy: 'system', // TODO: Get from request context
       },
     });
@@ -556,7 +556,7 @@ export class ElsterVatService {
       period: filing.period,
       periodType: filing.periodType as VATFilingPeriod,
       status: filing.status as ElsterFilingStatus,
-      data: filing.data as any,
+      data: filing.data as Prisma.InputJsonValue,
       createdAt: filing.createdAt,
       updatedAt: filing.updatedAt,
       createdBy: filing.createdBy,

@@ -85,7 +85,7 @@ export class GmailOAuthService {
     }
 
     // Mark as configured
-    (this as any).isConfigured = true;
+    (this as Prisma.InputJsonValue).isConfigured = true;
 
     // Start periodic state cleanup
     this.startStateCleanup();

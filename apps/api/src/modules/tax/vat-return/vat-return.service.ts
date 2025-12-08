@@ -59,7 +59,7 @@ export class VatReturnService {
         inputVat: preview.inputVat.totalVat,
         netVat: preview.netVat,
         status: 'DRAFT',
-        previewData: preview as any,
+        previewData: preview as Prisma.InputJsonValue,
       },
     });
   }
@@ -243,7 +243,7 @@ export class VatReturnService {
         outputVat: preview.outputVat.totalVat,
         inputVat: preview.inputVat.totalVat,
         netVat: preview.netVat,
-        previewData: preview as any,
+        previewData: preview as Prisma.InputJsonValue,
         updatedAt: new Date(),
       },
     });

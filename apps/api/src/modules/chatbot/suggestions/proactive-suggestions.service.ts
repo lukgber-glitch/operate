@@ -22,6 +22,8 @@ import { InvoiceSuggestionsGenerator } from './generators/invoice-suggestions.ge
 import { ExpenseSuggestionsGenerator } from './generators/expense-suggestions.generator';
 import { TaxSuggestionsGenerator } from './generators/tax-suggestions.generator';
 import { HRSuggestionsGenerator } from './generators/hr-suggestions.generator';
+import { BillsSuggestionsGenerator } from './generators/bills-suggestions.generator';
+import { BankReconciliationSuggestionsGenerator } from './generators/bank-reconciliation-suggestions.generator';
 import { SuggestionGenerator } from './generators/base.generator';
 
 @Injectable()
@@ -38,6 +40,8 @@ export class ProactiveSuggestionsService {
     private readonly expenseGenerator: ExpenseSuggestionsGenerator,
     private readonly taxGenerator: TaxSuggestionsGenerator,
     private readonly hrGenerator: HRSuggestionsGenerator,
+    private readonly billsGenerator: BillsSuggestionsGenerator,
+    private readonly bankReconciliationGenerator: BankReconciliationSuggestionsGenerator,
   ) {
     // Register all generators
     this.generators = [
@@ -45,6 +49,8 @@ export class ProactiveSuggestionsService {
       this.expenseGenerator,
       this.taxGenerator,
       this.hrGenerator,
+      this.billsGenerator,
+      this.bankReconciliationGenerator,
     ];
 
     this.logger.log(

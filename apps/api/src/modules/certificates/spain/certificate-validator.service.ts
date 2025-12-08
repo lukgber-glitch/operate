@@ -306,7 +306,7 @@ export class CertificateValidatorService {
       }
 
       const usage: string[] = [];
-      const keyUsage = keyUsageExt as any;
+      const keyUsage = keyUsageExt as Prisma.InputJsonValue;
 
       if (keyUsage.digitalSignature) usage.push('digitalSignature');
       if (keyUsage.nonRepudiation) usage.push('nonRepudiation');
@@ -333,7 +333,7 @@ export class CertificateValidatorService {
         return [];
       }
 
-      const extKeyUsage = extKeyUsageExt as any;
+      const extKeyUsage = extKeyUsageExt as Prisma.InputJsonValue;
       return extKeyUsage.value || [];
     } catch (error) {
       this.logger.warn(

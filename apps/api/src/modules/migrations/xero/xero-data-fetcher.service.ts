@@ -52,7 +52,7 @@ export class XeroDataFetcherService {
     client.setTokenSet({
       access_token: tokens.accessToken,
       refresh_token: tokens.refreshToken,
-    } as any);
+    } as Prisma.InputJsonValue);
 
     return { client, tenantId: tokens.tenantId };
   }
@@ -132,7 +132,7 @@ export class XeroDataFetcherService {
     return this.rateLimitedCall(tenantId, async () => {
       this.logger.log(`Fetching organization details for tenant ${tenantId}`);
       const response = await client.accountingApi.getOrganisations(tenantId);
-      return response.body.organisations[0] as any;
+      return response.body.organisations[0] as Prisma.InputJsonValue;
     });
   }
 
@@ -159,7 +159,7 @@ export class XeroDataFetcherService {
           page,
           100,
         );
-        return response.body.contacts as any[];
+        return response.body.contacts as Prisma.InputJsonValue[];
       },
       'Contacts',
       onProgress,
@@ -188,7 +188,7 @@ export class XeroDataFetcherService {
           page,
           100,
         );
-        return response.body.items as any[];
+        return response.body.items as Prisma.InputJsonValue[];
       },
       'Items',
       onProgress,
@@ -222,7 +222,7 @@ export class XeroDataFetcherService {
           page,
           100,
         );
-        return response.body.invoices as any[];
+        return response.body.invoices as Prisma.InputJsonValue[];
       },
       'Invoices',
       onProgress,
@@ -252,7 +252,7 @@ export class XeroDataFetcherService {
           page,
           100,
         );
-        return response.body.creditNotes as any[];
+        return response.body.creditNotes as Prisma.InputJsonValue[];
       },
       'CreditNotes',
       onProgress,
@@ -280,7 +280,7 @@ export class XeroDataFetcherService {
           page,
           100,
         );
-        return response.body.payments as any[];
+        return response.body.payments as Prisma.InputJsonValue[];
       },
       'Payments',
       onProgress,
@@ -310,7 +310,7 @@ export class XeroDataFetcherService {
           page,
           100,
         );
-        return response.body.bankTransactions as any[];
+        return response.body.bankTransactions as Prisma.InputJsonValue[];
       },
       'BankTransactions',
       onProgress,
@@ -334,7 +334,7 @@ export class XeroDataFetcherService {
         tenantId,
         modifiedAfter,
       );
-      const accounts = (response.body.accounts as any[]) || [];
+      const accounts = (response.body.accounts as Prisma.InputJsonValue[]) || [];
       if (onProgress) {
         onProgress(accounts.length, accounts.length);
       }
@@ -355,7 +355,7 @@ export class XeroDataFetcherService {
     return this.rateLimitedCall(tenantId, async () => {
       this.logger.log(`Fetching tax rates for tenant ${tenantId}`);
       const response = await client.accountingApi.getTaxRates(tenantId);
-      const taxRates = (response.body.taxRates as any[]) || [];
+      const taxRates = (response.body.taxRates as Prisma.InputJsonValue[]) || [];
       if (onProgress) {
         onProgress(taxRates.length, taxRates.length);
       }
@@ -377,7 +377,7 @@ export class XeroDataFetcherService {
       this.logger.log(`Fetching tracking categories for tenant ${tenantId}`);
       const response =
         await client.accountingApi.getTrackingCategories(tenantId);
-      const categories = (response.body.trackingCategories as any[]) || [];
+      const categories = (response.body.trackingCategories as Prisma.InputJsonValue[]) || [];
       if (onProgress) {
         onProgress(categories.length, categories.length);
       }

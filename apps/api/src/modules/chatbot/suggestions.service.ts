@@ -9,6 +9,64 @@ import {
   SuggestionType,
 } from './dto/suggestions.dto';
 
+/**
+ * Template for creating suggestions from analysis
+ */
+interface SuggestionTemplate {
+  type: string;
+  priority: SuggestionPriority;
+  title: string;
+  description: string;
+  actionLabel: string;
+  entityType?: string;
+  entityId?: string;
+  data?: Record<string, unknown>;
+  actionType: string;
+  actionParams?: Record<string, unknown>;
+}
+
+/**
+ * Prisma suggestion model
+ */
+interface PrismaSuggestion {
+  id: string;
+  title: string;
+  description: string;
+  actionLabel: string;
+  type: string;
+  priority: string;
+  entityType: string | null;
+  entityId: string | null;
+  actionType: string | null;
+  actionParams: unknown;
+  data: unknown;
+  createdAt: Date;
+  expiresAt: Date | null;
+  confidence: unknown;
+}
+
+/**
+ * Action execution result
+ */
+interface ActionResult {
+  action: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Where clause for suggestion queries
+ */
+interface SuggestionWhereClause {
+  orgId: string;
+  status: { in: string[] };
+  showAfter: { lte: Date };
+  OR: Array<{ userId: string } | { userId: null }>;
+  AND: Array<{
+    OR: Array<{ expiresAt: null } | { expiresAt: { gt: Date } }>;
+  }>;
+  priority?: { in: SuggestionPriority[] };
+}
+
 @Injectable()
 export class SuggestionsService {
   private readonly logger = new Logger(SuggestionsService.name);
@@ -104,8 +162,8 @@ export class SuggestionsService {
     suggestionId: string,
     orgId: string,
     userId: string,
-    params?: Record<string, any>,
-  ): Promise<{ success: boolean; result?: any }> {
+    params?: Record<string, unknown>,
+  ): Promise<{ success: boolean; result?: unknown }> {
     this.logger.debug(`Applying suggestion ${suggestionId}`);
 
     const suggestion = await this.prisma.suggestion.findFirst({
@@ -134,7 +192,7 @@ export class SuggestionsService {
     // Execute action based on actionType
     const result = await this.executeAction(
       suggestion.actionType,
-      suggestion.actionParams as Record<string, any>,
+      suggestion.actionParams as Record<string, unknown>,
       params,
       orgId,
       userId,
@@ -205,7 +263,7 @@ export class SuggestionsService {
   ): Promise<SuggestionDto[]> {
     const now = new Date();
 
-    const where: any = {
+    const where: SuggestionWhereClause = {
       orgId,
       status: { in: ['PENDING', 'VIEWED'] },
       showAfter: { lte: now },
@@ -245,7 +303,7 @@ export class SuggestionsService {
   private async createSuggestionsFromAnalysis(
     orgId: string,
     userId: string,
-    templates: any[],
+    templates: SuggestionTemplate[],
   ): Promise<void> {
     const now = new Date();
 
@@ -297,11 +355,11 @@ export class SuggestionsService {
    */
   private async executeAction(
     actionType: string | null,
-    actionParams: Record<string, any> | null,
-    customParams?: Record<string, any>,
+    actionParams: Record<string, unknown> | null,
+    customParams?: Record<string, unknown>,
     orgId?: string,
     userId?: string,
-  ): Promise<any> {
+  ): Promise<ActionResult> {
     const params = { ...actionParams, ...customParams };
 
     switch (actionType) {
@@ -411,7 +469,7 @@ export class SuggestionsService {
   /**
    * Map Prisma model to DTO
    */
-  private mapToDto(suggestion: any): SuggestionDto {
+  private mapToDto(suggestion: PrismaSuggestion): SuggestionDto {
     return {
       id: suggestion.id,
       title: suggestion.title,

@@ -403,7 +403,7 @@ export class StripePaymentsService {
 
   private validateCurrency(currency: string): void {
     const upperCurrency = currency.toUpperCase();
-    if (!SUPPORTED_CURRENCIES.includes(upperCurrency as any)) {
+    if (!SUPPORTED_CURRENCIES.includes(upperCurrency as Prisma.InputJsonValue)) {
       throw new BadRequestException(
         `Currency ${currency} is not supported. Supported currencies: ${SUPPORTED_CURRENCIES.join(', ')}`,
       );
@@ -464,7 +464,7 @@ export class StripePaymentsService {
   private async logAuditEvent(event: {
     userId: string;
     action: string;
-    metadata: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await this.prisma.$executeRaw`

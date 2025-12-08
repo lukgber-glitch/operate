@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatedCard, CardContent } from '@/components/ui/AnimatedCard';
+import { Card, CardContent } from '@/components/ui/card';
 import { Quote, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -74,15 +74,15 @@ export function TestimonialsCarousel({ className }: TestimonialsCarouselProps) {
   // Empty state - no fake testimonials
   if (testimonials.length === 0) {
     return (
-      <AnimatedCard hoverEffect="none" className={cn('rounded-[24px]', className)}>
+      <Card className={cn('rounded-[24px]', className)}>
         <CardContent className="p-6 text-center">
-          <div className="inline-flex p-3 rounded-full bg-[var(--color-surface)] mb-4">
-            <Quote className="h-6 w-6 text-[var(--color-text-secondary)]" />
+          <div className="inline-flex p-3 rounded-full bg-muted mb-4">
+            <Quote className="h-6 w-6 text-muted-foreground" />
           </div>
-          <h3 className="text-base font-semibold text-[var(--color-text-primary)] mb-2">
+          <h3 className="text-base font-semibold mb-2">
             Be the First to Share
           </h3>
-          <p className="text-sm text-[var(--color-text-secondary)] max-w-sm mx-auto mb-4">
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-4">
             Help others discover how Operate can transform their business. Share your experience!
           </p>
           <Button
@@ -97,7 +97,7 @@ export function TestimonialsCarousel({ className }: TestimonialsCarouselProps) {
             Share Your Experience
           </Button>
         </CardContent>
-      </AnimatedCard>
+      </Card>
     );
   }
 
@@ -109,10 +109,10 @@ export function TestimonialsCarousel({ className }: TestimonialsCarouselProps) {
   }
 
   return (
-    <AnimatedCard hoverEffect="none" className={cn('rounded-[24px]', className)}>
+    <Card className={cn('rounded-[24px]', className)}>
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
-          <Quote className="h-8 w-8 text-[var(--color-primary)]/20 shrink-0" />
+          <Quote className="h-8 w-8 text-primary/20 shrink-0" />
           <div className="flex items-center gap-2">
             {testimonials.length > 1 && (
               <>
@@ -125,7 +125,7 @@ export function TestimonialsCarousel({ className }: TestimonialsCarouselProps) {
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="text-xs text-[var(--color-text-secondary)]">
+                <span className="text-xs text-muted-foreground">
                   {currentIndex + 1} / {testimonials.length}
                 </span>
                 <Button
@@ -142,24 +142,24 @@ export function TestimonialsCarousel({ className }: TestimonialsCarouselProps) {
           </div>
         </div>
 
-        <blockquote className="text-sm text-[var(--color-text-primary)] mb-4 leading-relaxed">
+        <blockquote className="text-sm mb-4 leading-relaxed">
           "{current.content}"
         </blockquote>
 
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-[var(--color-text-primary)]">
+              <p className="text-sm font-semibold">
                 {current.authorName}
               </p>
               {current.isVerified && (
-                <div className="px-2 py-0.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-xs font-medium">
+                <div className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
                   Verified
                 </div>
               )}
             </div>
             {(current.authorRole || current.company) && (
-              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {current.authorRole}
                 {current.authorRole && current.company && ' at '}
                 {current.company}
@@ -177,6 +177,6 @@ export function TestimonialsCarousel({ className }: TestimonialsCarouselProps) {
           )}
         </div>
       </CardContent>
-    </AnimatedCard>
+    </Card>
   );
 }

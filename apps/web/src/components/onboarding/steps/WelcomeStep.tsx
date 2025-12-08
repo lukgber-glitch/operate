@@ -8,12 +8,8 @@
 import * as React from 'react'
 import { Building2, FileText, Mail, CreditCard, Settings, Sparkles } from 'lucide-react'
 
-import { AnimatedCard } from '@/components/ui/animated-card'
-import { HeadlineOutside } from '@/components/ui/headline-outside'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { useGSAP } from '@gsap/react'
-import { gsap, staggerIn } from '@/lib/gsap'
 
 const FEATURES = [
   {
@@ -52,73 +48,22 @@ const FEATURES = [
 ]
 
 export function WelcomeStep() {
-  const logoRef = React.useRef<HTMLDivElement>(null)
-  const titleRef = React.useRef<HTMLHeadingElement>(null)
-  const subtitleRef = React.useRef<HTMLParagraphElement>(null)
-  const contentRef = React.useRef<HTMLDivElement>(null)
-  const featuresRef = React.useRef<HTMLDivElement>(null)
-
-  // Welcome animation sequence
-  useGSAP(() => {
-    const tl = gsap.timeline({ delay: 0.3 })
-
-    // Logo bounces in with rotation
-    tl.fromTo(
-      logoRef.current,
-      { scale: 0, rotation: -180, opacity: 0 },
-      { scale: 1, rotation: 0, opacity: 1, duration: 0.8, ease: 'back.out(1.7)' }
-    )
-      // Title fades up
-      .fromTo(
-        titleRef.current,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-        '-=0.3'
-      )
-      // Subtitle fades up with delay
-      .fromTo(
-        subtitleRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' },
-        '-=0.2'
-      )
-      // Content fades in
-      .fromTo(
-        contentRef.current,
-        { opacity: 0, y: 15 },
-        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' },
-        '-=0.1'
-      )
-
-    // Stagger feature cards
-    if (featuresRef.current) {
-      const featureCards = featuresRef.current.querySelectorAll('.feature-card')
-      staggerIn(featureCards, {
-        delay: 1.2,
-        stagger: 0.08,
-        duration: 0.4,
-      })
-    }
-  }, [])
-
   return (
     <div className="space-y-6">
-      <div
-        ref={logoRef}
-        className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center"
-        style={{ opacity: 0 }}
-      >
+      <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
         <Sparkles className="w-8 h-8 text-primary" />
       </div>
-      <HeadlineOutside
-        subtitle="Your all-in-one platform for business operations, tax automation, and HR management"
-        ref={subtitleRef}
-        style={{ opacity: 0 }}
-      >
-        <span ref={titleRef} style={{ opacity: 0 }}>Welcome to Operate</span>
-      </HeadlineOutside>
-      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
-        <div ref={contentRef} className="space-y-6" style={{ opacity: 0 }}>
+
+      {/* Headline */}
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">Welcome to Operate</h1>
+        <p className="text-muted-foreground">
+          Your all-in-one platform for business operations, tax automation, and HR management
+        </p>
+      </div>
+
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6 space-y-6">
           {/* Overview */}
           <div className="prose dark:prose-invert max-w-none">
             <p className="text-sm text-muted-foreground text-center">
@@ -131,9 +76,9 @@ export function WelcomeStep() {
           {/* What to Expect */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-center">What to Expect</h3>
-            <div ref={featuresRef} className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               {FEATURES.map((feature) => (
-                <Card key={feature.title} className="border-muted feature-card" style={{ opacity: 0 }}>
+                <Card key={feature.title} className="border-muted">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <div className="mt-0.5 p-2 rounded-lg bg-primary/10">
@@ -201,8 +146,8 @@ export function WelcomeStep() {
               You can modify any settings later from your dashboard.
             </p>
           </div>
-        </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
     </div>
   )
 }

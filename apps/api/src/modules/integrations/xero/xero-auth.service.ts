@@ -101,7 +101,7 @@ export class XeroAuthService {
     this.startStateCleanup();
 
     // Mark as configured
-    (this as any).isConfigured = true;
+    (this as Prisma.InputJsonValue).isConfigured = true;
     this.logger.log('Xero Auth Service initialized');
   }
 
@@ -416,7 +416,7 @@ export class XeroAuthService {
       // Set refresh token and refresh
       this.xeroClient.setTokenSet({
         refresh_token: refreshToken,
-      } as any);
+      } as Prisma.InputJsonValue);
 
       const tokenSet = await this.xeroClient.refreshToken();
 
@@ -532,7 +532,7 @@ export class XeroAuthService {
       // Set token in Xero client
       this.xeroClient.setTokenSet({
         access_token: accessToken,
-      } as any);
+      } as Prisma.InputJsonValue);
 
       // Revoke tokens (best effort - don't fail if revocation fails)
       try {

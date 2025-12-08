@@ -157,7 +157,7 @@ export class ElsterResponseParserService {
       fieldLabel: this.getFieldLabel(warning.field),
       message: warning.message,
       localizedMessage: translateMessages ? warning.message : warning.message,
-      category: warning.severity === 'info' ? 'informational' as any : 'recommendation' as any,
+      category: warning.severity === 'info' ? 'informational' as Prisma.InputJsonValue : 'recommendation' as Prisma.InputJsonValue,
     }));
   }
 

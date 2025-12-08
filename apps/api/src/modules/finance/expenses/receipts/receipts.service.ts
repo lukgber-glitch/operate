@@ -88,7 +88,7 @@ export class ReceiptsService {
           confidence: ocrResult.confidence
             ? new Decimal(ocrResult.confidence * 100)
             : null,
-          ocrData: ocrResult.rawResponse as any,
+          ocrData: ocrResult.rawResponse as Prisma.InputJsonValue,
           aiResponse: {
             merchant: ocrResult.merchant,
             date: ocrResult.date,
@@ -219,7 +219,7 @@ export class ReceiptsService {
     const expense = await this.expensesService.create(
       orgId,
       userId,
-      expenseData as any,
+      expenseData as Prisma.InputJsonValue,
     );
 
     // Link scan to expense
@@ -261,7 +261,7 @@ export class ReceiptsService {
       data: {
         status: ReceiptScanStatus.FAILED,
         aiResponse: {
-          ...(scan.aiResponse as any),
+          ...(scan.aiResponse as Prisma.InputJsonValue),
           rejectionReason: reason,
           rejectedAt: new Date().toISOString(),
         },
@@ -381,7 +381,7 @@ export class ReceiptsService {
    * Helper: Convert Prisma scan to DTO result
    */
   private convertStoredScanToResult(scan: any): ReceiptScanResult {
-    const aiResponse = scan.aiResponse as any;
+    const aiResponse = scan.aiResponse as Prisma.InputJsonValue;
 
     return {
       scanId: scan.id,

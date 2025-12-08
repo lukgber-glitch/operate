@@ -316,7 +316,7 @@ export class FacturXService {
       return {
         success: true,
         peppolMessageId: peppolResult.messageId,
-        status: peppolResult.status as any,
+        status: peppolResult.status as Prisma.InputJsonValue,
         timestamp: new Date(),
       };
     } catch (error) {

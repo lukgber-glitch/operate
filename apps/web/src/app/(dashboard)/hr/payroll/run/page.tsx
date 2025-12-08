@@ -6,10 +6,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PayRunWizard } from '@/components/hr/payroll/PayRunWizard';
 import { useCreatePayroll } from '@/hooks/use-payroll';
@@ -44,9 +42,10 @@ export default function PayRunPage() {
     return (
       <div className="container mx-auto py-8 max-w-4xl">
         <div className="space-y-6">
-          <HeadlineOutside subtitle="Process payroll for your employees with our step-by-step wizard">
-            Run Payroll
-          </HeadlineOutside>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Run Payroll</h1>
+            <p className="text-muted-foreground">Process payroll for your employees with our step-by-step wizard</p>
+          </div>
 
           <Alert>
             <AlertCircle className="h-4 w-4" />
@@ -56,7 +55,8 @@ export default function PayRunPage() {
             </AlertDescription>
           </Alert>
 
-          <AnimatedCard variant="elevated" padding="lg">
+          <Card className="rounded-[24px]">
+            <CardContent className="p-6">
             <div className="space-y-6">
               <div>
                 <h2 className="text-2xl font-bold flex items-center gap-2 mb-2">
@@ -122,7 +122,8 @@ export default function PayRunPage() {
                 </Alert>
               )}
             </div>
-          </AnimatedCard>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -131,9 +132,10 @@ export default function PayRunPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="mb-6">
-        <HeadlineOutside subtitle="Complete each step to process payroll for your employees">
-          Run Payroll
-        </HeadlineOutside>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Run Payroll</h1>
+          <p className="text-muted-foreground">Complete each step to process payroll for your employees</p>
+        </div>
       </div>
 
       <PayRunWizard companyUuid={companyUuid} />

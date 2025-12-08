@@ -5,11 +5,9 @@ import { useFormContext } from 'react-hook-form'
 import { AlertCircle, Building2, CheckCircle2, ChevronRight, Loader2, Search, ShieldCheck, X } from 'lucide-react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AnimatedCard } from '@/components/ui/animated-card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { HeadlineOutside } from '@/components/ui/headline-outside'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -230,10 +228,12 @@ export function BankingStep() {
   if (!provider) {
     return (
       <div className="space-y-6">
-        <HeadlineOutside subtitle="Link your business bank account to automatically sync transactions and streamline your bookkeeping.">
-          Connect Your Bank Account
-        </HeadlineOutside>
-        <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-semibold tracking-tight">Connect Your Bank Account</h2>
+          <p className="text-muted-foreground">Link your business bank account to automatically sync transactions and streamline your bookkeeping.</p>
+        </div>
+        <Card className="rounded-[24px]">
+          <CardContent className="p-6">
           <div className="space-y-6">
             <Alert>
               <AlertCircle className="h-4 w-4" />
@@ -248,17 +248,20 @@ export function BankingStep() {
               </Button>
             </div>
           </div>
-        </AnimatedCard>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside subtitle="Link your business bank account to automatically sync transactions and streamline your bookkeeping. This step is optional but highly recommended.">
-        Connect Your Bank Account
-      </HeadlineOutside>
-      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-semibold tracking-tight">Connect Your Bank Account</h2>
+        <p className="text-muted-foreground">Link your business bank account to automatically sync transactions and streamline your bookkeeping. This step is optional but highly recommended.</p>
+      </div>
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
         <div className="space-y-6">
           {/* Security Notice */}
           <div className="flex items-start gap-3 p-4 bg-muted rounded-lg">
@@ -372,7 +375,8 @@ export function BankingStep() {
             </div>
           )}
         </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
     </div>
   )
 }

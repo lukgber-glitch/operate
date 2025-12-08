@@ -3,11 +3,9 @@
 import { Download, FileText, Calendar, TrendingUp, TrendingDown, Calculator } from 'lucide-react';
 import { useState } from 'react';
 
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -49,26 +47,25 @@ export default function TaxReportsPage() {
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside
-        subtitle="Generate and view comprehensive tax reports"
-        actions={
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleGenerateReport}>
-              <Download className="mr-2 h-4 w-4" />
-              Export PDF
-            </Button>
-            <Button onClick={handleGenerateReport}>
-              <FileText className="mr-2 h-4 w-4" />
-              Generate Report
-            </Button>
-          </div>
-        }
-      >
-        Tax Reports
-      </HeadlineOutside>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Tax Reports</h1>
+          <p className="text-muted-foreground">Generate and view comprehensive tax reports</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleGenerateReport}>
+            <Download className="mr-2 h-4 w-4" />
+            Export PDF
+          </Button>
+          <Button onClick={handleGenerateReport}>
+            <FileText className="mr-2 h-4 w-4" />
+            Generate Report
+          </Button>
+        </div>
+      </div>
 
-      <AnimatedCard variant="elevated" padding="lg">
-        <div className="space-y-6">
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6 space-y-6">
 
       {/* Report Filters */}
       <Card>
@@ -447,8 +444,8 @@ export default function TaxReportsPage() {
           </Table>
         </CardContent>
       </Card>
-        </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
     </div>
   );
 }

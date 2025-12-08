@@ -674,7 +674,7 @@ export class BankSyncService {
           transactionType: tx.amount.value >= 0 ? BankTransactionType.CREDIT : BankTransactionType.DEBIT,
           status: tx.status === 'BOOKED' ? BankTransactionStatus.BOOKED : BankTransactionStatus.PENDING,
           reconciliationStatus: ReconciliationStatus.UNMATCHED,
-          rawData: tx as any,
+          rawData: tx as Prisma.InputJsonValue,
         },
       });
       created++;

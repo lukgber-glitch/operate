@@ -126,7 +126,7 @@ export class FirstAnalysisService {
     return {
       id: analysis.id,
       userId: analysis.userId,
-      status: analysis.status as any,
+      status: analysis.status as Prisma.InputJsonValue,
       bankAnalysis: analysis.bankAnalysis as BankAnalysisResultDto | undefined,
       emailAnalysis: analysis.emailAnalysis as EmailAnalysisResultDto | undefined,
       insights: analysis.insights as InsightsResultDto | undefined,
@@ -188,7 +188,7 @@ export class FirstAnalysisService {
 
       await this.prisma.onboardingAnalysis.update({
         where: { id: analysisId },
-        data: { bankAnalysis: bankAnalysis as any },
+        data: { bankAnalysis: bankAnalysis as Prisma.InputJsonValue },
       });
 
       this.logger.log(
@@ -203,7 +203,7 @@ export class FirstAnalysisService {
 
       await this.prisma.onboardingAnalysis.update({
         where: { id: analysisId },
-        data: { emailAnalysis: emailAnalysis as any },
+        data: { emailAnalysis: emailAnalysis as Prisma.InputJsonValue },
       });
 
       this.logger.log(
@@ -225,7 +225,7 @@ export class FirstAnalysisService {
       await this.prisma.onboardingAnalysis.update({
         where: { id: analysisId },
         data: {
-          insights: insights as any,
+          insights: insights as Prisma.InputJsonValue,
           status: AnalysisStatus.COMPLETED,
           completedAt: new Date(),
         },

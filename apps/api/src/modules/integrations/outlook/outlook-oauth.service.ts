@@ -94,7 +94,7 @@ export class OutlookOAuthService {
     }
 
     // Mark as configured
-    (this as any).isConfigured = true;
+    (this as Prisma.InputJsonValue).isConfigured = true;
 
     // Start periodic state cleanup
     this.startStateCleanup();
@@ -670,7 +670,7 @@ export class OutlookOAuthService {
       await this.prisma.emailAuditLog.create({
         data: {
           connectionId,
-          action: log.action as any,
+          action: log.action as Prisma.InputJsonValue,
           endpoint: log.endpoint,
           statusCode: log.statusCode,
           success: log.success,

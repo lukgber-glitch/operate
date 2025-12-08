@@ -7,7 +7,7 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../database/prisma.service';
 import OpenAI from 'openai';
-import * as sharp from 'sharp';
+import sharp from 'sharp';
 import * as pdf from 'pdf-lib';
 import {
   ExtractReceiptRequestDto,
@@ -548,9 +548,9 @@ export class ReceiptExtractorService {
       where: { id: params.extractionId },
       data: {
         status: params.status,
-        extractedData: params.extractedData as any,
+        extractedData: params.extractedData as Prisma.InputJsonValue,
         overallConfidence: params.extractedData.overallConfidence,
-        fieldConfidences: params.extractedData.fieldConfidences as any,
+        fieldConfidences: params.extractedData.fieldConfidences as Prisma.InputJsonValue,
         receiptType: params.extractedData.receiptType,
         suggestedCategory: params.categorization?.category,
         suggestedSubcategory: params.categorization?.subcategory,

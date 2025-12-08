@@ -122,7 +122,7 @@ export class XeroMappingService {
     connectionId: string,
     entityType: XeroSyncEntityType,
     operateId: string,
-    metadata: Record<string, any>,
+    metadata?: Record<string, unknown>,
   ): Promise<void> {
     // TODO: Implement after Prisma model is created
     this.logger.debug(`Updating metadata for ${entityType}: Operate(${operateId})`);

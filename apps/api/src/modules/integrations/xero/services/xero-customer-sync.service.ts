@@ -236,7 +236,7 @@ export class XeroCustomerSyncService {
     if (customer.phone) {
       contact.phones = [
         {
-          phoneType: 'DEFAULT' as any,
+          phoneType: 'DEFAULT' as Prisma.InputJsonValue,
           phoneNumber: customer.phone,
         },
       ];
@@ -246,7 +246,7 @@ export class XeroCustomerSyncService {
     if (customer.street || customer.city || customer.postalCode) {
       contact.addresses = [
         {
-          addressType: 'STREET' as any,
+          addressType: 'STREET' as Prisma.InputJsonValue,
           addressLine1: customer.street || undefined,
           city: customer.city || undefined,
           postalCode: customer.postalCode || undefined,

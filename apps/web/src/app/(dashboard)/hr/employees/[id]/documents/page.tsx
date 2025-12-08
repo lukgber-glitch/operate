@@ -16,9 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -145,12 +144,14 @@ export default function EmployeeDocumentsPage() {
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <HeadlineOutside subtitle="Upload and manage employee documents">
-            Documents
-          </HeadlineOutside>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Documents</h1>
+            <p className="text-muted-foreground">Upload and manage employee documents</p>
+          </div>
         </div>
 
-        <AnimatedCard variant="elevated" padding="lg">
+        <Card className="rounded-[24px]">
+          <CardContent className="p-6">
           <div className="space-y-6">
             <div>
               <h2 className="mb-4 text-lg font-semibold">Upload Document</h2>
@@ -231,7 +232,8 @@ export default function EmployeeDocumentsPage() {
               )}
             </div>
           </div>
-        </AnimatedCard>
+          </CardContent>
+        </Card>
       </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>

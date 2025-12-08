@@ -41,7 +41,7 @@ export class TaxCalendarService {
     const deadlines: TaxDeadline[] = [];
 
     // Parse tax settings from org.settings JSON
-    const settings = (org.settings as any) || {};
+    const settings = (org.settings as Prisma.InputJsonValue) || {};
     const taxSettings: OrganizationTaxSettings = {
       country: org.country,
       taxFilingFrequency: settings.taxFilingFrequency || 'quarterly',

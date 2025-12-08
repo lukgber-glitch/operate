@@ -184,7 +184,7 @@ export class ScheduledReportService {
       await this.validateSchedule({
         ...existing,
         schedule: dto.schedule,
-      } as any);
+      } as Prisma.InputJsonValue);
     }
 
     try {

@@ -118,7 +118,7 @@ export class XeroSyncService {
     const xeroClient = new XeroClient();
     xeroClient.setTokenSet({
       access_token: accessToken,
-    } as any);
+    } as Prisma.InputJsonValue);
 
     // Sync contacts first (dependencies)
     const contactsResult = await this.syncContactsFromXero(
@@ -195,7 +195,7 @@ export class XeroSyncService {
     const xeroClient = new XeroClient();
     xeroClient.setTokenSet({
       access_token: accessToken,
-    } as any);
+    } as Prisma.InputJsonValue);
 
     // Sync only modified entities
     const contactsResult = await this.syncContactsFromXero(
@@ -604,7 +604,7 @@ export class XeroSyncService {
     const xeroClient = new XeroClient();
     xeroClient.setTokenSet({
       access_token: accessToken,
-    } as any);
+    } as Prisma.InputJsonValue);
 
     switch (entityType) {
       case XeroSyncEntityType.CONTACT:

@@ -111,7 +111,7 @@ export class DataToolsService {
     // Placeholder implementation
     return {
       jobId,
-      status: 'completed' as any,
+      status: 'completed' as Prisma.InputJsonValue,
       categoriesExported: [DataCategory.PROFILE],
     };
   }
@@ -155,7 +155,7 @@ export class DataToolsService {
 
         return {
           jobId: crypto.randomUUID(),
-          status: 'pending' as any,
+          status: 'pending' as Prisma.InputJsonValue,
           recordsDeleted: 0,
           tablesAffected: [],
           categories: dto.categories,
@@ -220,7 +220,7 @@ export class DataToolsService {
     // Placeholder implementation
     return {
       jobId,
-      status: 'completed' as any,
+      status: 'completed' as Prisma.InputJsonValue,
       recordsDeleted: 0,
       tablesAffected: [],
       categories: [DataCategory.PROFILE],

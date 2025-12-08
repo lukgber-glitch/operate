@@ -79,8 +79,8 @@ export class ConnectionHubService {
 
     const integration = await this.repository.createIntegration({
       orgId,
-      type: dto.type as any,
-      provider: dto.provider as any,
+      type: dto.type as Prisma.InputJsonValue,
+      provider: dto.provider as Prisma.InputJsonValue,
       name: dto.name,
       config: dto.config,
       metadata: dto.metadata,
@@ -514,8 +514,8 @@ export class ConnectionHubService {
     if (!integration) {
       integration = await this.repository.createIntegration({
         orgId: data.orgId,
-        type: this.getTypeForProvider(data.provider as any),
-        provider: data.provider as any,
+        type: this.getTypeForProvider(data.provider as Prisma.InputJsonValue),
+        provider: data.provider as Prisma.InputJsonValue,
         name: `${data.provider} Connection`,
         status: IntegrationStatus.CONNECTED,
         connectedAt: new Date(),

@@ -145,8 +145,8 @@ export class GoCardlessMandateService {
           mandateId: mandate.id,
           orgId: redirectFlow.orgId,
           customerId: redirectFlow.customerId,
-          scheme: mandate.scheme as any,
-          status: mandate.status as any,
+          scheme: mandate.scheme as Prisma.InputJsonValue,
+          status: mandate.status as Prisma.InputJsonValue,
           reference: mandate.reference,
           nextPossibleChargeDate: new Date(mandate.next_possible_charge_date),
           customerBankAccountId: mandate.links.customer_bank_account,
@@ -196,7 +196,7 @@ export class GoCardlessMandateService {
       await this.prisma.goCardlessMandate.update({
         where: { mandateId },
         data: {
-          status: gcMandate.status as any,
+          status: gcMandate.status as Prisma.InputJsonValue,
           nextPossibleChargeDate: new Date(gcMandate.next_possible_charge_date),
         },
       });
@@ -231,7 +231,7 @@ export class GoCardlessMandateService {
           await this.prisma.goCardlessMandate.update({
             where: { mandateId: mandate.mandateId },
             data: {
-              status: gcMandate.status as any,
+              status: gcMandate.status as Prisma.InputJsonValue,
               nextPossibleChargeDate: new Date(gcMandate.next_possible_charge_date),
             },
           });
@@ -296,7 +296,7 @@ export class GoCardlessMandateService {
       await this.prisma.goCardlessMandate.update({
         where: { mandateId },
         data: {
-          status: mandate.status as any,
+          status: mandate.status as Prisma.InputJsonValue,
           cancelledAt: null,
           cancelledBy: null,
         },

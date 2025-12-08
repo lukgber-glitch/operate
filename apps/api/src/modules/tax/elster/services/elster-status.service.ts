@@ -410,7 +410,7 @@ export class ElsterStatusService {
       filingId: e.filingId,
       fromStatus: e.fromStatus as ElsterFilingStatus | null,
       toStatus: e.toStatus as ElsterFilingStatus,
-      details: e.details as any,
+      details: e.details as Prisma.InputJsonValue,
       createdAt: e.createdAt,
     }));
   }
@@ -481,8 +481,8 @@ export class ElsterStatusService {
         period: `${filing.year}/${filing.period}`,
         status: filing.status as ElsterFilingStatus,
         timestamp: new Date(),
-        message: (filing.errors as any)?.message,
-        errors: (filing.errors as any)?.errors,
+        message: (filing.errors as Prisma.InputJsonValue)?.message,
+        errors: (filing.errors as Prisma.InputJsonValue)?.errors,
         transferTicket: filing.transferTicket,
       };
 
@@ -496,7 +496,7 @@ export class ElsterStatusService {
           type: 'elster_status_change',
           title: `ELSTER Filing Status: ${filing.status}`,
           message: this.buildNotificationMessage(templateData),
-          data: templateData as any,
+          data: templateData as Prisma.InputJsonValue,
           priority,
           status: 'UNREAD',
         },
@@ -557,7 +557,7 @@ export class ElsterStatusService {
         filingId,
         fromStatus,
         toStatus,
-        details: details as any,
+        details: details as Prisma.InputJsonValue,
       },
     });
   }

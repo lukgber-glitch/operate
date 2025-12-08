@@ -3,11 +3,9 @@
 import { FileText, Download, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Progress } from '@/components/ui/progress';
 import {
   Select,
@@ -60,26 +58,25 @@ export default function VATPage() {
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside
-        subtitle="Track and manage your VAT returns and payments"
-        actions={
-          <div className="flex gap-2">
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" />
-              Export VAT Report
-            </Button>
-            <Button>
-              <FileText className="mr-2 h-4 w-4" />
-              File Return
-            </Button>
-          </div>
-        }
-      >
-        VAT Management
-      </HeadlineOutside>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">VAT Management</h1>
+          <p className="text-muted-foreground">Track and manage your VAT returns and payments</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Download className="mr-2 h-4 w-4" />
+            Export VAT Report
+          </Button>
+          <Button>
+            <FileText className="mr-2 h-4 w-4" />
+            File Return
+          </Button>
+        </div>
+      </div>
 
-      <AnimatedCard variant="elevated" padding="lg">
-        <div className="space-y-6">
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6 space-y-6">
 
       {/* Current Period Overview */}
       <Card>
@@ -404,8 +401,8 @@ export default function VATPage() {
           </Table>
         </CardContent>
       </Card>
-        </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
     </div>
   );
 }

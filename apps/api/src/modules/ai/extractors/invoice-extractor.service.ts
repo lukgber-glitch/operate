@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../database/prisma.service';
 import OpenAI from 'openai';
 import * as pdfParse from 'pdf-parse';
-import * as sharp from 'sharp';
+import sharp from 'sharp';
 import {
   ExtractedInvoiceDataDto,
   InvoiceExtractionResultDto,
@@ -513,7 +513,7 @@ export class InvoiceExtractorService {
   /**
    * Validate extraction response structure
    */
-  private validateExtractionResponse(data: any): void {
+  private validateExtractionResponse(data: unknown): void {
     if (!data || typeof data !== 'object') {
       throw new Error('Invalid extraction response: not an object');
     }
@@ -658,17 +658,17 @@ export class InvoiceExtractorService {
       where: { id },
       data: {
         status: result.status,
-        extractedData: result.data as any,
+        extractedData: result.data as Prisma.InputJsonValue,
         overallConfidence: result.overallConfidence,
-        fieldConfidences: result.fieldConfidences as any,
+        fieldConfidences: result.fieldConfidences as Prisma.InputJsonValue,
         pageCount: result.pageCount,
         processingTime: result.processingTime,
-        rawResponse: rawData as any,
+        rawResponse: rawData as Prisma.InputJsonValue,
       },
     });
   }
 
-  private mapPrismaToDto(extraction: any): InvoiceExtractionResultDto {
+  private mapPrismaToDto(extraction: { id: string; organisationId: string; status: string; extractedData: Prisma.JsonValue; overallConfidence: number; fieldConfidences: Prisma.JsonValue; pageCount: number | null; processingTime: number | null; errorMessage: string | null; createdAt: Date; updatedAt: Date }): InvoiceExtractionResultDto {
     return {
       id: extraction.id,
       organisationId: extraction.organisationId,

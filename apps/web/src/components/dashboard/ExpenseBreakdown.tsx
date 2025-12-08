@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatedCard, CardContent, CardHeader, CardTitle } from '@/components/ui/AnimatedCard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useExpenseCategories } from '@/hooks/useDashboard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,20 +12,20 @@ export function ExpenseBreakdown() {
 
   if (isLoading) {
     return (
-      <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
+      <Card className="rounded-[24px]">
         <CardHeader>
           <CardTitle>Ausgaben nach Kategorie</CardTitle>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-[300px] w-full" />
         </CardContent>
-      </AnimatedCard>
+      </Card>
     );
   }
 
   if (error || !data || data.length === 0) {
     return (
-      <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
+      <Card className="rounded-[24px]">
         <CardHeader>
           <CardTitle>Ausgaben nach Kategorie</CardTitle>
         </CardHeader>
@@ -34,12 +34,12 @@ export function ExpenseBreakdown() {
             <p>Keine Ausgabendaten verfügbar</p>
           </div>
         </CardContent>
-      </AnimatedCard>
+      </Card>
     );
   }
 
   return (
-    <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
+    <Card className="rounded-[24px]">
       <CardHeader>
         <CardTitle>Ausgaben nach Kategorie</CardTitle>
       </CardHeader>
@@ -79,6 +79,6 @@ export function ExpenseBreakdown() {
           </ResponsiveContainer>
         </div>
       </CardContent>
-    </AnimatedCard>
+    </Card>
   );
 }

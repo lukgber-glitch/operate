@@ -205,7 +205,7 @@ export class TrueLayerBankingService {
             accountNumber: account.account_number?.number || null,
             swiftBic: account.account_number?.swift_bic || null,
             isActive: true,
-            metadata: account as any,
+            metadata: account as Prisma.InputJsonValue,
           },
           update: {
             displayName: account.display_name,
@@ -469,7 +469,7 @@ export class TrueLayerBankingService {
         status: 'POSTED',
         pending: false,
         isIncome,
-        rawData: txn as any,
+        rawData: txn as Prisma.InputJsonValue,
         syncedAt: new Date(),
         updatedFromTrueLayer: new Date(),
       },
@@ -508,7 +508,7 @@ export class TrueLayerBankingService {
     orgId: string;
     userId: string;
     action: string;
-    metadata: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await this.prisma.$executeRaw`

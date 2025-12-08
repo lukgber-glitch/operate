@@ -11,50 +11,47 @@ import { TrustBadges } from '@/components/dashboard/TrustBadges';
 import { UserStats } from '@/components/dashboard/UserStats';
 import { AutopilotIndicator } from '@/components/dashboard/AutopilotIndicator';
 import { TestimonialsCarousel } from '@/components/dashboard/TestimonialsCarousel';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
-import { PageTransition } from '@/components/animation/PageTransition';
 
 export default function DashboardPage() {
   return (
-    <PageTransition>
-      <div className="space-y-6 lg:space-y-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <HeadlineOutside subtitle="Overview of your business metrics and activities">
-            Dashboard
-          </HeadlineOutside>
-          <TrustBadges variant="compact" className="lg:ml-auto" />
+    <div className="space-y-6 lg:space-y-8">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Overview of your business metrics and activities</p>
         </div>
-
-        {/* Autopilot indicator */}
-        <AutopilotIndicator />
-
-        {/* Top row: Key metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-          <CashBalanceCard />
-          <ArApSummaryCard type="receivables" />
-          <ArApSummaryCard type="payables" />
-          <RunwayCard />
-        </div>
-
-        {/* Charts row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-          <RevenueChart />
-          <ExpenseBreakdown />
-        </div>
-
-        {/* Bottom row: Action items */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-          <UpcomingItems type="invoices" title="Überfällige Rechnungen" />
-          <UpcomingItems type="bills" title="Anstehende Zahlungen" />
-          <QuickActions />
-        </div>
-
-        {/* Trust elements row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-          <UserStats />
-          <TestimonialsCarousel />
-        </div>
+        <TrustBadges variant="compact" className="lg:ml-auto" />
       </div>
-    </PageTransition>
+
+      {/* Autopilot indicator */}
+      <AutopilotIndicator />
+
+      {/* Top row: Key metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <CashBalanceCard />
+        <ArApSummaryCard type="receivables" />
+        <ArApSummaryCard type="payables" />
+        <RunwayCard />
+      </div>
+
+      {/* Charts row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+        <RevenueChart />
+        <ExpenseBreakdown />
+      </div>
+
+      {/* Bottom row: Action items */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+        <UpcomingItems type="invoices" title="Überfällige Rechnungen" />
+        <UpcomingItems type="bills" title="Anstehende Zahlungen" />
+        <QuickActions />
+      </div>
+
+      {/* Trust elements row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+        <UserStats />
+        <TestimonialsCarousel />
+      </div>
+    </div>
   );
 }

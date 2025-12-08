@@ -2,8 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Helper to store tokens in cookies (secure, httpOnly should be set by API ideally)
 // WAF/proxy only allows ONE Set-Cookie, so we combine both tokens into a JSON cookie
@@ -153,10 +152,12 @@ export default function CallbackClient() {
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside subtitle={getSubtitle()}>
-        {getTitle()}
-      </HeadlineOutside>
-      <AnimatedCard variant="elevated" padding="lg">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">{getTitle()}</h1>
+        <p className="text-muted-foreground">{getSubtitle()}</p>
+      </div>
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
         <div className="flex justify-center py-8">
           {status === 'processing' && (
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -184,7 +185,8 @@ export default function CallbackClient() {
             </div>
           )}
         </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
     </div>
   );
 }

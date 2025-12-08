@@ -225,7 +225,7 @@ export class EmailAggregatorService {
     const domainMap = new Map<string, DomainGroup>();
 
     for (const entity of entities) {
-      const data = entity.entities as any; // Full ExtractedEntities object
+      const data = entity.entities as Prisma.InputJsonValue; // Full ExtractedEntities object
 
       // Extract all email addresses from contacts
       const contactEmails = entity.contactEmails || [];
@@ -310,7 +310,7 @@ export class EmailAggregatorService {
       let address: string | null = null;
 
       for (const entity of group.entities) {
-        const data = entity.entities as any;
+        const data = entity.entities as Prisma.InputJsonValue;
         if (data.companies && Array.isArray(data.companies)) {
           for (const company of data.companies) {
             if (company.vatId && !vatId) {

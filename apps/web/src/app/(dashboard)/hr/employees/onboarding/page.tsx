@@ -2,9 +2,8 @@
 
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import { OnboardingWizard } from '@/components/hr/onboarding/OnboardingWizard';
 
 export default function EmployeeOnboardingPage() {
@@ -16,14 +15,17 @@ export default function EmployeeOnboardingPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <HeadlineOutside subtitle="Add a new employee to your organization with Gusto payroll integration">
-          Employee Onboarding
-        </HeadlineOutside>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Employee Onboarding</h1>
+          <p className="text-muted-foreground">Add a new employee to your organization with Gusto payroll integration</p>
+        </div>
       </div>
 
-      <AnimatedCard variant="elevated" padding="lg">
-        <OnboardingWizard />
-      </AnimatedCard>
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
+          <OnboardingWizard />
+        </CardContent>
+      </Card>
     </div>
   );
 }

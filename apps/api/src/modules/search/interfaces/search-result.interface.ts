@@ -28,7 +28,7 @@ export interface IndexedEntity {
   entityType: SearchableEntityType;
   entityId: string;
   searchableText: string;
-  metadata: Record<string, any>;
+  metadata?: Record<string, unknown>;
   timestamp: number;
 }
 

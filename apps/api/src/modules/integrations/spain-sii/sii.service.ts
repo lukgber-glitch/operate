@@ -210,7 +210,7 @@ export class SiiService {
         invoiceId: {
           invoiceNumber: dto.invoiceNumber,
           issueDate: dto.issueDate,
-          invoiceType: 'F1' as any, // Default to standard invoice
+          invoiceType: 'F1' as Prisma.InputJsonValue, // Default to standard invoice
         },
         holder: dto.holder,
         paymentDate: dto.paymentDate,

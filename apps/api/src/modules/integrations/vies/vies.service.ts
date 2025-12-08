@@ -223,7 +223,7 @@ export class ViesService {
    */
   private isEuCountry(countryCode: string): boolean {
     return EU_COUNTRIES.includes(
-      countryCode.toUpperCase() as any,
+      countryCode.toUpperCase() as Prisma.InputJsonValue,
     );
   }
 

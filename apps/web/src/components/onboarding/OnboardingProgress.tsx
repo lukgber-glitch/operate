@@ -2,8 +2,6 @@ import { Check } from 'lucide-react'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
-import { useGSAP } from '@gsap/react'
-import { gsap } from '@/lib/gsap'
 
 export interface OnboardingStep {
   id: string
@@ -23,51 +21,7 @@ export function OnboardingProgress({
   currentStep,
   completedSteps,
 }: OnboardingProgressProps) {
-  const mobileBarRef = React.useRef<HTMLDivElement>(null)
-  const stepDotsRef = React.useRef<HTMLDivElement>(null)
-  const prevStepRef = React.useRef(currentStep)
-
-  // Animate progress bar on mobile
-  useGSAP(() => {
-    if (mobileBarRef.current) {
-      gsap.to(mobileBarRef.current, {
-        width: `${((currentStep + 1) / steps.length) * 100}%`,
-        duration: 0.5,
-        ease: 'power2.out',
-      })
-    }
-  }, [currentStep, steps.length])
-
-  // Animate step dots on desktop
-  useGSAP(() => {
-    if (stepDotsRef.current && prevStepRef.current !== currentStep) {
-      const dots = stepDotsRef.current.querySelectorAll('.step-dot')
-      const currentDot = dots[currentStep]
-
-      if (currentDot) {
-        // Scale up the current step dot
-        gsap.fromTo(
-          currentDot,
-          { scale: 0.9 },
-          { scale: 1, duration: 0.3, ease: 'back.out(1.7)' }
-        )
-      }
-
-      // Animate connector lines for completed steps
-      const lines = stepDotsRef.current.querySelectorAll('.connector-line-fill')
-      lines.forEach((line, index) => {
-        if (completedSteps.has(index)) {
-          gsap.to(line, {
-            scaleX: 1,
-            duration: 0.4,
-            ease: 'power2.out',
-          })
-        }
-      })
-
-      prevStepRef.current = currentStep
-    }
-  }, [currentStep, completedSteps])
+  const progressPercent = ((currentStep + 1) / steps.length) * 100
 
   return (
     <div className="w-full py-6">
@@ -77,21 +31,18 @@ export function OnboardingProgress({
           <span>
             Step {currentStep + 1} of {steps.length}
           </span>
-          <span>{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
+          <span>{Math.round(progressPercent)}%</span>
         </div>
         <div className="h-2 bg-secondary rounded-full overflow-hidden">
           <div
-            ref={mobileBarRef}
-            className="h-full bg-primary"
-            style={{
-              width: '0%',
-            }}
+            className="h-full bg-primary transition-all duration-500"
+            style={{ width: `${progressPercent}%` }}
           />
         </div>
       </div>
 
       {/* Desktop: Step indicator */}
-      <div ref={stepDotsRef} className="hidden md:block">
+      <div className="hidden md:block">
         <div className="flex items-center justify-between">
           {steps.map((step, index) => {
             const isCompleted = completedSteps.has(index)
@@ -104,7 +55,7 @@ export function OnboardingProgress({
                   {/* Step circle */}
                   <div
                     className={cn(
-                      'step-dot w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-200',
+                      'w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-200',
                       isCompleted &&
                         'bg-primary border-primary text-primary-foreground',
                       isCurrent &&
@@ -144,7 +95,7 @@ export function OnboardingProgress({
                 {!isLast && (
                   <div className="flex-1 h-0.5 mx-2 bg-muted relative -mt-12 overflow-hidden">
                     <div
-                      className="connector-line-fill h-full bg-primary origin-left"
+                      className="h-full bg-primary transition-transform duration-400 origin-left"
                       style={{
                         transform: isCompleted ? 'scaleX(1)' : 'scaleX(0)',
                       }}

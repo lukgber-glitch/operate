@@ -88,7 +88,7 @@ export class GoCardlessPaymentService {
         app_fee: request.appFee ? Math.round(request.appFee * 100) : undefined,
       }, {
         'Idempotency-Key': idempotencyKey,
-      } as any);
+      } as Prisma.InputJsonValue);
 
       // Store payment in database
       await this.prisma.goCardlessPayment.create({
@@ -98,7 +98,7 @@ export class GoCardlessPaymentService {
           mandateId: request.mandateId,
           amount: request.amount,
           currency: request.currency,
-          status: payment.status as any,
+          status: payment.status as Prisma.InputJsonValue,
           chargeDate: new Date(payment.charge_date),
           reference: payment.reference || '',
           description: payment.description || '',
@@ -140,7 +140,7 @@ export class GoCardlessPaymentService {
       await this.prisma.goCardlessPayment.update({
         where: { paymentId },
         data: {
-          status: gcPayment.status as any,
+          status: gcPayment.status as Prisma.InputJsonValue,
           amountRefunded: gcPayment.amount_refunded ? gcPayment.amount_refunded / 100 : 0,
         },
       });
@@ -202,7 +202,7 @@ export class GoCardlessPaymentService {
           await this.prisma.goCardlessPayment.update({
             where: { paymentId: payment.paymentId },
             data: {
-              status: gcPayment.status as any,
+              status: gcPayment.status as Prisma.InputJsonValue,
               amountRefunded: gcPayment.amount_refunded ? gcPayment.amount_refunded / 100 : 0,
             },
           });
@@ -276,7 +276,7 @@ export class GoCardlessPaymentService {
       await this.prisma.goCardlessPayment.update({
         where: { paymentId },
         data: {
-          status: retriedPayment.status as any,
+          status: retriedPayment.status as Prisma.InputJsonValue,
         },
       });
 
@@ -341,7 +341,7 @@ export class GoCardlessPaymentService {
           name: request.name,
           intervalUnit: request.intervalUnit,
           interval: request.interval || 1,
-          status: subscription.status as any,
+          status: subscription.status as Prisma.InputJsonValue,
           startDate: new Date(subscription.start_date),
           endDate: subscription.end_date ? new Date(subscription.end_date) : null,
           createdBy: userId,

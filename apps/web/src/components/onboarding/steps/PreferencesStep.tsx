@@ -4,8 +4,7 @@ import { Bell, Globe } from 'lucide-react'
 import * as React from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { AnimatedCard } from '@/components/ui/animated-card'
-import { HeadlineOutside } from '@/components/ui/headline-outside'
+import { Card, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -67,11 +66,13 @@ export function PreferencesStep() {
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside subtitle="Customize your experience with language, regional settings, and notification preferences.">
-        System Preferences
-      </HeadlineOutside>
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-semibold tracking-tight">System Preferences</h2>
+        <p className="text-muted-foreground">Customize your experience with language, regional settings, and notification preferences.</p>
+      </div>
 
-      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
         <div className="space-y-6">
           {/* Regional Settings */}
           <div className="space-y-4">
@@ -270,7 +271,8 @@ export function PreferencesStep() {
             </div>
           </div>
         </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
     </div>
   )
 }

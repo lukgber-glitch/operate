@@ -278,7 +278,7 @@ export class SvMeldungService {
     // Validate Beitragsgruppen
     ['kv', 'rv', 'av', 'pv'].forEach((type) => {
       const result = SvValidator.validateBeitragsgruppe(
-        type.toUpperCase() as any,
+        type.toUpperCase() as Prisma.InputJsonValue,
         data.beitragsgruppen[type],
       );
       if (!result.isValid) {

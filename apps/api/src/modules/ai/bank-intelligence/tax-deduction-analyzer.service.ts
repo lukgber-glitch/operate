@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 /**
  * Tax Deduction Analyzer Service
  * Calculates tax deductions correctly per German tax law
@@ -327,7 +328,7 @@ export class TaxDeductionAnalyzerService {
     `;
 
     // Aggregate by category
-    const byCategory: QuarterlyDeductions['byCategory'] = {} as any;
+    const byCategory: QuarterlyDeductions['byCategory'] = {} as Prisma.InputJsonValue;
     const eurSummary: Record<number, number> = {};
     let totalExpenses = 0;
     let totalDeductible = 0;
@@ -552,7 +553,7 @@ export class TaxDeductionAnalyzerService {
       GROUP BY metadata->>'taxCategory'
     `;
 
-    const byCategoryAllTime: Record<TaxCategory, any> = {} as any;
+    const byCategoryAllTime: Record<TaxCategory, any> = {} as Prisma.InputJsonValue;
     let totalExpenses = 0;
     let totalDeductible = 0;
     let totalVatReclaimable = 0;

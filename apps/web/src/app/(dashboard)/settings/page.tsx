@@ -12,8 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {

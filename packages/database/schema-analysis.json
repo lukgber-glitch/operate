@@ -1,0 +1,521 @@
+{
+  "orgFieldInconsistencies": [
+    {
+      "model": "Membership",
+      "field": "orgId",
+      "lineNumber": 255
+    },
+    {
+      "model": "OrganisationCountry",
+      "field": "orgId",
+      "lineNumber": 584
+    },
+    {
+      "model": "TaxCredential",
+      "field": "orgId",
+      "lineNumber": 610
+    },
+    {
+      "model": "TaxDeadlineReminder",
+      "field": "organizationId",
+      "lineNumber": 805
+    },
+    {
+      "model": "Employee",
+      "field": "orgId",
+      "lineNumber": 1014
+    },
+    {
+      "model": "PayrollPeriod",
+      "field": "orgId",
+      "lineNumber": 1197
+    },
+    {
+      "model": "EmployeeDocument",
+      "field": "orgId",
+      "lineNumber": 1284
+    },
+    {
+      "model": "W4Form",
+      "field": "orgId",
+      "lineNumber": 1358
+    },
+    {
+      "model": "I9Form",
+      "field": "orgId",
+      "lineNumber": 1424
+    },
+    {
+      "model": "HrAuditLog",
+      "field": "orgId",
+      "lineNumber": 1534
+    },
+    {
+      "model": "TransactionClassificationReview",
+      "field": "orgId",
+      "lineNumber": 1573
+    },
+    {
+      "model": "Transaction",
+      "field": "orgId",
+      "lineNumber": 1624
+    },
+    {
+      "model": "DeductionSuggestion",
+      "field": "orgId",
+      "lineNumber": 1660
+    },
+    {
+      "model": "TaxDeductionSummary",
+      "field": "orgId",
+      "lineNumber": 1716
+    },
+    {
+      "model": "FraudAlert",
+      "field": "orgId",
+      "lineNumber": 1767
+    },
+    {
+      "model": "FraudAuditLog",
+      "field": "orgId",
+      "lineNumber": 1803
+    },
+    {
+      "model": "Customer",
+      "field": "orgId",
+      "lineNumber": 1830
+    },
+    {
+      "model": "Invoice",
+      "field": "orgId",
+      "lineNumber": 1923
+    },
+    {
+      "model": "Expense",
+      "field": "orgId",
+      "lineNumber": 2026
+    },
+    {
+      "model": "Bill",
+      "field": "organisationId",
+      "lineNumber": 2093
+    },
+    {
+      "model": "ScheduledPayment",
+      "field": "organisationId",
+      "lineNumber": 2240
+    },
+    {
+      "model": "BankAccount",
+      "field": "orgId",
+      "lineNumber": 2285
+    },
+    {
+      "model": "PaymentAllocation",
+      "field": "orgId",
+      "lineNumber": 2395
+    },
+    {
+      "model": "BankConnection",
+      "field": "orgId",
+      "lineNumber": 2478
+    },
+    {
+      "model": "ReconciliationRule",
+      "field": "orgId",
+      "lineNumber": 2608
+    },
+    {
+      "model": "Document",
+      "field": "orgId",
+      "lineNumber": 2661
+    },
+    {
+      "model": "DocumentFolder",
+      "field": "orgId",
+      "lineNumber": 2705
+    },
+    {
+      "model": "GobdExport",
+      "field": "orgId",
+      "lineNumber": 2733
+    },
+    {
+      "model": "SaftExport",
+      "field": "orgId",
+      "lineNumber": 2756
+    },
+    {
+      "model": "ElsterAuditLog",
+      "field": "orgId",
+      "lineNumber": 2784
+    },
+    {
+      "model": "AutomationSettings",
+      "field": "organisationId",
+      "lineNumber": 2825
+    },
+    {
+      "model": "AutomationAuditLog",
+      "field": "organisationId",
+      "lineNumber": 2852
+    },
+    {
+      "model": "Notification",
+      "field": "orgId",
+      "lineNumber": 2882
+    },
+    {
+      "model": "Integration",
+      "field": "orgId",
+      "lineNumber": 2959
+    },
+    {
+      "model": "OnboardingProgress",
+      "field": "orgId",
+      "lineNumber": 3067
+    },
+    {
+      "model": "CostEntry",
+      "field": "orgId",
+      "lineNumber": 3176
+    },
+    {
+      "model": "Conversation",
+      "field": "orgId",
+      "lineNumber": 3207
+    },
+    {
+      "model": "Suggestion",
+      "field": "orgId",
+      "lineNumber": 3397
+    },
+    {
+      "model": "Client",
+      "field": "orgId",
+      "lineNumber": 3481
+    },
+    {
+      "model": "Vendor",
+      "field": "organisationId",
+      "lineNumber": 3777
+    },
+    {
+      "model": "RelationshipMetrics",
+      "field": "organisationId",
+      "lineNumber": 3844
+    },
+    {
+      "model": "ReportSchedule",
+      "field": "orgId",
+      "lineNumber": 3880
+    },
+    {
+      "model": "Budget",
+      "field": "orgId",
+      "lineNumber": 3940
+    },
+    {
+      "model": "RecurringInvoice",
+      "field": "organisationId",
+      "lineNumber": 4002
+    },
+    {
+      "model": "PaymentReminder",
+      "field": "organisationId",
+      "lineNumber": 4062
+    },
+    {
+      "model": "ReminderSettings",
+      "field": "organisationId",
+      "lineNumber": 4093
+    },
+    {
+      "model": "CorrectionRecord",
+      "field": "organisationId",
+      "lineNumber": 4124
+    },
+    {
+      "model": "LearningPattern",
+      "field": "organisationId",
+      "lineNumber": 4153
+    },
+    {
+      "model": "ElsterCertificate",
+      "field": "organisationId",
+      "lineNumber": 4182
+    },
+    {
+      "model": "ElsterCertificateAuditLog",
+      "field": "organisationId",
+      "lineNumber": 4223
+    },
+    {
+      "model": "ElsterFiling",
+      "field": "organisationId",
+      "lineNumber": 4253
+    },
+    {
+      "model": "ScheduledExport",
+      "field": "orgId",
+      "lineNumber": 4347
+    },
+    {
+      "model": "ArchivedDocument",
+      "field": "organisationId",
+      "lineNumber": 4411
+    },
+    {
+      "model": "QuickBooksConnection",
+      "field": "orgId",
+      "lineNumber": 4531
+    },
+    {
+      "model": "XeroConnection",
+      "field": "orgId",
+      "lineNumber": 4636
+    },
+    {
+      "model": "EmailConnection",
+      "field": "orgId",
+      "lineNumber": 4738
+    },
+    {
+      "model": "PlaidBankAccount",
+      "field": "orgId",
+      "lineNumber": 4861
+    },
+    {
+      "model": "PlaidTransaction",
+      "field": "orgId",
+      "lineNumber": 4919
+    },
+    {
+      "model": "TrueLayerBankAccount",
+      "field": "orgId",
+      "lineNumber": 5060
+    },
+    {
+      "model": "TrueLayerTransaction",
+      "field": "orgId",
+      "lineNumber": 5122
+    },
+    {
+      "model": "GoCardlessConnection",
+      "field": "orgId",
+      "lineNumber": 5272
+    },
+    {
+      "model": "GoCardlessCustomer",
+      "field": "orgId",
+      "lineNumber": 5324
+    },
+    {
+      "model": "GoCardlessRedirectFlow",
+      "field": "orgId",
+      "lineNumber": 5347
+    },
+    {
+      "model": "GoCardlessMandate",
+      "field": "orgId",
+      "lineNumber": 5382
+    },
+    {
+      "model": "GoCardlessPayment",
+      "field": "orgId",
+      "lineNumber": 5424
+    },
+    {
+      "model": "GoCardlessSubscription",
+      "field": "orgId",
+      "lineNumber": 5508
+    },
+    {
+      "model": "TaxNexus",
+      "field": "orgId",
+      "lineNumber": 5580
+    },
+    {
+      "model": "TaxExemptionCertificate",
+      "field": "orgId",
+      "lineNumber": 5650
+    },
+    {
+      "model": "TaxTransaction",
+      "field": "orgId",
+      "lineNumber": 5711
+    },
+    {
+      "model": "HmrcConnection",
+      "field": "orgId",
+      "lineNumber": 5793
+    },
+    {
+      "model": "HmrcVatReturn",
+      "field": "orgId",
+      "lineNumber": 5884
+    },
+    {
+      "model": "UsageEvent",
+      "field": "organisationId",
+      "lineNumber": 6014
+    },
+    {
+      "model": "UsageQuota",
+      "field": "organisationId",
+      "lineNumber": 6061
+    },
+    {
+      "model": "UsageSummary",
+      "field": "organisationId",
+      "lineNumber": 6100
+    },
+    {
+      "model": "StripeUsageRecord",
+      "field": "organisationId",
+      "lineNumber": 6145
+    },
+    {
+      "model": "RevenueRecognition",
+      "field": "organisationId",
+      "lineNumber": 6233
+    },
+    {
+      "model": "DeferredRevenueSchedule",
+      "field": "organisationId",
+      "lineNumber": 6334
+    },
+    {
+      "model": "DataSubjectRequest",
+      "field": "organisationId",
+      "lineNumber": 6495
+    },
+    {
+      "model": "DataRetentionPolicy",
+      "field": "organisationId",
+      "lineNumber": 6533
+    },
+    {
+      "model": "GdprAuditLog",
+      "field": "organisationId",
+      "lineNumber": 6561
+    },
+    {
+      "model": "DataProcessingRecord",
+      "field": "organisationId",
+      "lineNumber": 6586
+    },
+    {
+      "model": "PersonaInquiry",
+      "field": "organizationId",
+      "lineNumber": 6629
+    },
+    {
+      "model": "AmlScreening",
+      "field": "organisationId",
+      "lineNumber": 6725
+    },
+    {
+      "model": "KycVerification",
+      "field": "organisationId",
+      "lineNumber": 6808
+    },
+    {
+      "model": "SpainCertificate",
+      "field": "organisationId",
+      "lineNumber": 6887
+    },
+    {
+      "model": "SpainCertificateAuditLog",
+      "field": "organisationId",
+      "lineNumber": 6939
+    },
+    {
+      "model": "ZatcaCertificate",
+      "field": "organisationId",
+      "lineNumber": 6993
+    },
+    {
+      "model": "ZatcaCertificateAuditLog",
+      "field": "organisationId",
+      "lineNumber": 7072
+    },
+    {
+      "model": "ZatcaCertificateRotation",
+      "field": "organisationId",
+      "lineNumber": 7111
+    },
+    {
+      "model": "ZatcaSigningOperation",
+      "field": "organisationId",
+      "lineNumber": 7142
+    },
+    {
+      "model": "ZatcaKeyManagementAudit",
+      "field": "organisationId",
+      "lineNumber": 7183
+    },
+    {
+      "model": "SyncedEmail",
+      "field": "orgId",
+      "lineNumber": 7350
+    },
+    {
+      "model": "EmailSyncJob",
+      "field": "orgId",
+      "lineNumber": 7460
+    },
+    {
+      "model": "EmailAttachment",
+      "field": "orgId",
+      "lineNumber": 7555
+    },
+    {
+      "model": "EmailExtractedEntities",
+      "field": "orgId",
+      "lineNumber": 7640
+    },
+    {
+      "model": "StorageQuota",
+      "field": "orgId",
+      "lineNumber": 7688
+    },
+    {
+      "model": "ExtractedInvoice",
+      "field": "organisationId",
+      "lineNumber": 7774
+    },
+    {
+      "model": "ReceiptScan",
+      "field": "orgId",
+      "lineNumber": 7828
+    },
+    {
+      "model": "EmailSuggestion",
+      "field": "organisationId",
+      "lineNumber": 7967
+    },
+    {
+      "model": "VatReturn",
+      "field": "organisationId",
+      "lineNumber": 8023
+    },
+    {
+      "model": "TaxDocument",
+      "field": "organisationId",
+      "lineNumber": 8084
+    }
+  ],
+  "missingFkIndexes": [],
+  "neededCompoundIndexes": [],
+  "stats": {
+    "totalModels": 176,
+    "modelsWithOrgField": 101,
+    "modelsWithOrgId": 61,
+    "modelsWithOrganisationId": 38,
+    "modelsWithOrganizationId": 2,
+    "totalForeignKeys": 359,
+    "indexedForeignKeys": 359,
+    "missingIndexes": 0
+  }
+}

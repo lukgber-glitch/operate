@@ -145,7 +145,7 @@ export class MigrationStatusDto {
   warnings: string[];
 
   @ApiProperty({ type: 'object' })
-  metadata: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**

@@ -6,8 +6,7 @@ import { useState, useEffect } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import {
@@ -108,9 +107,10 @@ export default function ExpensesPage() {
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside subtitle="Manage and track expense reports">
-        Expenses
-      </HeadlineOutside>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Expenses</h1>
+        <p className="text-muted-foreground">Manage and track expense reports</p>
+      </div>
 
       <div className="flex flex-wrap gap-2">
         <Button variant="outline">
@@ -132,8 +132,9 @@ export default function ExpensesPage() {
       </div>
 
       {/* Filters */}
-      <AnimatedCard variant="elevated" padding="lg">
-        <div className="flex flex-col gap-4">
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
+          <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4 sm:flex-row">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -185,11 +186,13 @@ export default function ExpensesPage() {
               </Button>
             </div>
           )}
-        </div>
-      </AnimatedCard>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Expenses Table */}
-      <AnimatedCard variant="default" padding="sm">
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
@@ -366,7 +369,8 @@ export default function ExpensesPage() {
             )}
             </div>
           )}
-      </AnimatedCard>
+        </CardContent>
+      </Card>
     </div>
   );
 }

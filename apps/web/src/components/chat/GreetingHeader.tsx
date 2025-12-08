@@ -1,7 +1,6 @@
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 
 /**
  * Get time-based greeting message
@@ -19,8 +18,6 @@ function getGreeting(): string {
  * Features:
  * - Time-based greeting (morning/afternoon/evening)
  * - Personalized with user's first name
- * - Subtle fade-in animation on page load
- * - Uses HeadlineOutside component for consistent styling
  * - Graceful fallback if no user session
  *
  * @example
@@ -37,8 +34,10 @@ export function GreetingHeader() {
   const greeting = getGreeting();
 
   return (
-    <HeadlineOutside className="animate-fade-in">
-      {greeting}, {firstName}
-    </HeadlineOutside>
+    <div>
+      <h1 className="text-2xl font-semibold tracking-tight">
+        {greeting}, {firstName}
+      </h1>
+    </div>
   );
 }

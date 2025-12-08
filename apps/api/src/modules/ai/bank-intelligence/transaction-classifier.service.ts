@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 /**
  * Enhanced Transaction Classifier Service
  * Tax-aware transaction classification for German EÜR
@@ -29,6 +30,17 @@ import {
   isLikelyRecurring,
 } from './rules/vendor-patterns';
 import { VendorMatcher } from './matchers/vendor-matcher';
+
+/**
+ * Matched vendor from database
+ */
+interface MatchedVendor {
+  id: string;
+  name: string;
+  displayName: string | null;
+  defaultCategoryId: string | null;
+  defaultTaxDeductible: boolean | null;
+}
 
 /**
  * AI response structure
@@ -147,7 +159,7 @@ export class EnhancedTransactionClassifierService {
       const vendorPattern = findVendorPattern(transaction.description);
 
       // Step 3: Check for vendor match in database
-      let matchedVendor: any = null;
+      let matchedVendor: MatchedVendor | null = null;
       if (orgId && transaction.counterparty) {
         matchedVendor = await this.findMatchingVendor(
           transaction.counterparty,
@@ -325,7 +337,7 @@ export class EnhancedTransactionClassifierService {
           const errorMsg =
             result.status === 'rejected'
               ? result.reason?.message
-              : (result.value as any)?.error?.message;
+              : (result.value as Prisma.InputJsonValue)?.error?.message;
           results.push({
             classification: this.getDefaultClassification(batch[idx]),
             error: errorMsg || 'Unknown error',
@@ -615,7 +627,7 @@ export class EnhancedTransactionClassifierService {
         // Simple accuracy calculation: if corrected to same category, increase accuracy
         const currentAccuracy = parseFloat(existingPattern.accuracy.toString());
         const newAccuracy =
-          (existingPattern.adjustment as any).category === correctCategory
+          (existingPattern.adjustment as Prisma.InputJsonValue).category === correctCategory
             ? Math.min(1.0, currentAccuracy + 0.1)
             : Math.max(0.5, currentAccuracy - 0.1);
 
@@ -734,7 +746,7 @@ export class EnhancedTransactionClassifierService {
       return null;
     }
 
-    const adjustment = pattern.adjustment as any;
+    const adjustment = pattern.adjustment as Prisma.InputJsonValue;
     const accuracy = parseFloat(pattern.accuracy.toString());
 
     this.logger.debug(
@@ -805,7 +817,7 @@ export class EnhancedTransactionClassifierService {
   private async findMatchingVendor(
     vendorName: string,
     orgId: string,
-  ): Promise<any | null> {
+  ): Promise<MatchedVendor | null> {
     const vendors = await this.prisma.vendor.findMany({
       where: {
         organisationId: orgId,
@@ -835,7 +847,7 @@ export class EnhancedTransactionClassifierService {
       this.logger.debug(
         `Matched vendor: ${vendorName} -> ${matchedVendor?.name} (confidence: ${match.result.confidence})`,
       );
-      return matchedVendor;
+      return matchedVendor || null;
     }
 
     return null;
@@ -847,7 +859,7 @@ export class EnhancedTransactionClassifierService {
   private buildEnhancedPrompt(
     transaction: TransactionForClassification,
     learnedClassification: EnhancedTransactionClassification | null,
-    matchedVendor: any,
+    matchedVendor: MatchedVendor | null,
   ): string {
     let prompt = buildClassificationPrompt(transaction);
 
@@ -867,7 +879,7 @@ export class EnhancedTransactionClassifierService {
    */
   private enhanceWithVendorData(
     aiResponse: AIClassificationResponse,
-    vendor: any,
+    vendor: MatchedVendor,
   ): void {
     aiResponse.pattern.vendor = vendor.name;
     aiResponse.pattern.vendorNormalized = vendor.name

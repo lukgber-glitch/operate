@@ -36,7 +36,7 @@ export class SearchIndexerService implements OnModuleInit {
     entityType: SearchableEntityType,
     entityId: string,
     searchableText: string,
-    metadata: Record<string, any>,
+    metadata?: Record<string, unknown>,
   ): Promise<void> {
     try {
       const timestamp = Date.now();

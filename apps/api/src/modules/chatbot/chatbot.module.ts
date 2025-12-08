@@ -85,6 +85,8 @@ import { InvoiceSuggestionsGenerator } from './suggestions/generators/invoice-su
 import { ExpenseSuggestionsGenerator } from './suggestions/generators/expense-suggestions.generator';
 import { TaxSuggestionsGenerator } from './suggestions/generators/tax-suggestions.generator';
 import { HRSuggestionsGenerator } from './suggestions/generators/hr-suggestions.generator';
+import { BillsSuggestionsGenerator } from './suggestions/generators/bills-suggestions.generator';
+import { BankReconciliationSuggestionsGenerator } from './suggestions/generators/bank-reconciliation-suggestions.generator';
 
 // Scenario planning
 import { ChatScenarioExtension } from './chat-scenario.extension';
@@ -183,6 +185,8 @@ import { ChatScenarioExtension } from './chat-scenario.extension';
     ExpenseSuggestionsGenerator,
     TaxSuggestionsGenerator,
     HRSuggestionsGenerator,
+    BillsSuggestionsGenerator,
+    BankReconciliationSuggestionsGenerator,
 
     // Scenario planning
     ChatScenarioExtension,

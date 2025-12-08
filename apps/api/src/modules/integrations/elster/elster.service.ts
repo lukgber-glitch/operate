@@ -559,8 +559,8 @@ export class ElsterService {
           transferTicket: audit.transferTicket || '',
           status: audit.status || 'PENDING',
           submittedBy: audit.submittedBy || 'system',
-          requestPayload: audit.requestPayload as any,
-          responsePayload: audit.responsePayload as any,
+          requestPayload: audit.requestPayload as Prisma.InputJsonValue,
+          responsePayload: audit.responsePayload as Prisma.InputJsonValue,
         },
       });
 

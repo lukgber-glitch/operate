@@ -135,7 +135,7 @@ export class LexofficeParserService {
           companyName: mapped.companyName,
           firstName: mapped.firstName,
           lastName: mapped.lastName,
-          type: mapped.type as any,
+          type: mapped.type as Prisma.InputJsonValue,
           email: mapped.email,
           phone: mapped.phone,
           mobile: mapped.mobile,
@@ -249,7 +249,7 @@ export class LexofficeParserService {
 
         const invoice: LexofficeInvoice = {
           invoiceNumber: mapped.invoiceNumber,
-          status: status as any || 'open',
+          status: status as Prisma.InputJsonValue || 'open',
           customerNumber: mapped.customerNumber,
           customerName: mapped.customerName,
           customerAddress: mapped.customerAddress,
@@ -363,7 +363,7 @@ export class LexofficeParserService {
         const voucher: LexofficeVoucher = {
           voucherNumber: mapped.voucherNumber,
           receiptNumber: mapped.receiptNumber,
-          type: type as any,
+          type: type as Prisma.InputJsonValue,
           vendorName: mapped.vendorName,
           vendorVatId: this.cleanVatId(mapped.vendorVatId),
           date,

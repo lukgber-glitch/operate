@@ -182,7 +182,7 @@ export class ChorusProInvoiceService {
       const facturXPdf = await this.facturXService.generateFacturXInvoice(
         invoice,
         {
-          profile: 'EN16931' as any,
+          profile: 'EN16931' as Prisma.InputJsonValue,
           validateSIRET: true,
           validateTVA: true,
         },

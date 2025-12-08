@@ -1,0 +1,1526 @@
+{
+  "missingOnDelete": [],
+  "wrongCascade": [],
+  "stringIdsMissingRelation": [
+    {
+      "model": "Membership",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 255,
+      "details": "orgId      String"
+    },
+    {
+      "model": "AuditLog",
+      "field": "tenantId",
+      "suggestedRelation": "tenant",
+      "line": 334,
+      "details": "tenantId String // Organisation ID"
+    },
+    {
+      "model": "AuditLog",
+      "field": "entityId",
+      "suggestedRelation": "entity",
+      "line": 338,
+      "details": "entityId   String"
+    },
+    {
+      "model": "AuditLog",
+      "field": "actorId",
+      "suggestedRelation": "actor",
+      "line": 350,
+      "details": "actorId   String? // User ID or system identifier"
+    },
+    {
+      "model": "AuditLogSequence",
+      "field": "tenantId",
+      "suggestedRelation": "tenant",
+      "line": 380,
+      "details": "tenantId String @id // Organisation ID"
+    },
+    {
+      "model": "AuditLogSequence",
+      "field": "lastEntryId",
+      "suggestedRelation": "lastEntry",
+      "line": 383,
+      "details": "lastEntryId String"
+    },
+    {
+      "model": "OrganisationCountry",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 584,
+      "details": "orgId     String"
+    },
+    {
+      "model": "TaxCredential",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 610,
+      "details": "orgId          String"
+    },
+    {
+      "model": "TaxDeadlineReminder",
+      "field": "confirmationId",
+      "suggestedRelation": "confirmation",
+      "line": 819,
+      "details": "confirmationId String? // External filing confirmation number"
+    },
+    {
+      "model": "Employee",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1014,
+      "details": "orgId          String"
+    },
+    {
+      "model": "Employee",
+      "field": "taxId",
+      "suggestedRelation": "tax",
+      "line": 1034,
+      "details": "taxId     String? // Steuer-ID, etc."
+    },
+    {
+      "model": "PayrollPeriod",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1197,
+      "details": "orgId String"
+    },
+    {
+      "model": "SocialSecurityRegistration",
+      "field": "registrationId",
+      "suggestedRelation": "registration",
+      "line": 1252,
+      "details": "registrationId String // SV-Nummer, etc."
+    },
+    {
+      "model": "EmployeeDocument",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1284,
+      "details": "orgId      String"
+    },
+    {
+      "model": "EmployeeDocument",
+      "field": "encryptionKeyId",
+      "suggestedRelation": "encryptionKey",
+      "line": 1294,
+      "details": "encryptionKeyId String? // Reference to encryption key"
+    },
+    {
+      "model": "W4Form",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1358,
+      "details": "orgId      String"
+    },
+    {
+      "model": "I9Form",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1424,
+      "details": "orgId      String"
+    },
+    {
+      "model": "HrAuditLog",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1534,
+      "details": "orgId      String"
+    },
+    {
+      "model": "HrAuditLog",
+      "field": "employeeId",
+      "suggestedRelation": "employee",
+      "line": 1535,
+      "details": "employeeId String?"
+    },
+    {
+      "model": "HrAuditLog",
+      "field": "userId",
+      "suggestedRelation": "user",
+      "line": 1536,
+      "details": "userId     String // Who performed the action"
+    },
+    {
+      "model": "HrAuditLog",
+      "field": "entityId",
+      "suggestedRelation": "entity",
+      "line": 1540,
+      "details": "entityId   String"
+    },
+    {
+      "model": "TransactionClassificationReview",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1573,
+      "details": "orgId                  String"
+    },
+    {
+      "model": "TransactionClassificationReview",
+      "field": "transactionId",
+      "suggestedRelation": "transaction",
+      "line": 1574,
+      "details": "transactionId          String // Reference to transaction (could be external ID)"
+    },
+    {
+      "model": "Transaction",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1624,
+      "details": "orgId String"
+    },
+    {
+      "model": "DeductionSuggestion",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1660,
+      "details": "orgId         String"
+    },
+    {
+      "model": "DeductionSuggestion",
+      "field": "ruleId",
+      "suggestedRelation": "rule",
+      "line": 1663,
+      "details": "ruleId       String"
+    },
+    {
+      "model": "TaxDeductionSummary",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1716,
+      "details": "orgId String"
+    },
+    {
+      "model": "FraudAlert",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1767,
+      "details": "orgId         String"
+    },
+    {
+      "model": "FraudAlert",
+      "field": "transactionId",
+      "suggestedRelation": "transaction",
+      "line": 1768,
+      "details": "transactionId String?"
+    },
+    {
+      "model": "FraudAuditLog",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1803,
+      "details": "orgId         String"
+    },
+    {
+      "model": "FraudAuditLog",
+      "field": "alertId",
+      "suggestedRelation": "alert",
+      "line": 1804,
+      "details": "alertId       String?"
+    },
+    {
+      "model": "FraudAuditLog",
+      "field": "transactionId",
+      "suggestedRelation": "transaction",
+      "line": 1805,
+      "details": "transactionId String?"
+    },
+    {
+      "model": "Customer",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1830,
+      "details": "orgId String"
+    },
+    {
+      "model": "Customer",
+      "field": "vatId",
+      "suggestedRelation": "vat",
+      "line": 1837,
+      "details": "vatId   String?"
+    },
+    {
+      "model": "Invoice",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 1923,
+      "details": "orgId  String"
+    },
+    {
+      "model": "Invoice",
+      "field": "customerId",
+      "suggestedRelation": "customer",
+      "line": 1929,
+      "details": "customerId      String? // Can be clientId from Client table or external ID"
+    },
+    {
+      "model": "Invoice",
+      "field": "customerVatId",
+      "suggestedRelation": "customerVat",
+      "line": 1934,
+      "details": "customerVatId   String?"
+    },
+    {
+      "model": "Expense",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 2026,
+      "details": "orgId String"
+    },
+    {
+      "model": "Expense",
+      "field": "vendorVatId",
+      "suggestedRelation": "vendorVat",
+      "line": 2040,
+      "details": "vendorVatId String?"
+    },
+    {
+      "model": "Bill",
+      "field": "sourceEmailId",
+      "suggestedRelation": "sourceEmail",
+      "line": 2124,
+      "details": "sourceEmailId      String? // If extracted from email"
+    },
+    {
+      "model": "Bill",
+      "field": "sourceAttachmentId",
+      "suggestedRelation": "sourceAttachment",
+      "line": 2125,
+      "details": "sourceAttachmentId String? // If from email attachment"
+    },
+    {
+      "model": "Bill",
+      "field": "extractedDataId",
+      "suggestedRelation": "extractedData",
+      "line": 2126,
+      "details": "extractedDataId    String? // Link to AI extraction record"
+    },
+    {
+      "model": "Bill",
+      "field": "categoryId",
+      "suggestedRelation": "category",
+      "line": 2129,
+      "details": "categoryId        String? // Expense category"
+    },
+    {
+      "model": "BillPayment",
+      "field": "transactionId",
+      "suggestedRelation": "transaction",
+      "line": 2217,
+      "details": "transactionId     String? // Link to BankTransaction"
+    },
+    {
+      "model": "BillPayment",
+      "field": "bankTransactionId",
+      "suggestedRelation": "bankTransaction",
+      "line": 2218,
+      "details": "bankTransactionId String? // External bank transaction ID"
+    },
+    {
+      "model": "ScheduledPayment",
+      "field": "invoiceId",
+      "suggestedRelation": "invoice",
+      "line": 2242,
+      "details": "invoiceId      String?"
+    },
+    {
+      "model": "BankAccount",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 2285,
+      "details": "orgId String"
+    },
+    {
+      "model": "BankTransaction",
+      "field": "transactionId",
+      "suggestedRelation": "transaction",
+      "line": 2354,
+      "details": "transactionId String?"
+    },
+    {
+      "model": "PaymentAllocation",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 2395,
+      "details": "orgId        String"
+    },
+    {
+      "model": "BankConnection",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 2478,
+      "details": "orgId String"
+    },
+    {
+      "model": "BankConnection",
+      "field": "providerConnectionId",
+      "suggestedRelation": "providerConnection",
+      "line": 2482,
+      "details": "providerConnectionId String // External connection ID from provider"
+    },
+    {
+      "model": "BankConnection",
+      "field": "institutionId",
+      "suggestedRelation": "institution",
+      "line": 2483,
+      "details": "institutionId        String"
+    },
+    {
+      "model": "BankAccountNew",
+      "field": "accountId",
+      "suggestedRelation": "account",
+      "line": 2523,
+      "details": "accountId     String // External account ID from provider"
+    },
+    {
+      "model": "BankTransactionNew",
+      "field": "transactionId",
+      "suggestedRelation": "transaction",
+      "line": 2559,
+      "details": "transactionId String // External transaction ID from bank"
+    },
+    {
+      "model": "BankTransactionNew",
+      "field": "matchedExpenseId",
+      "suggestedRelation": "matchedExpense",
+      "line": 2578,
+      "details": "matchedExpenseId        String? // Optional relation to Expense"
+    },
+    {
+      "model": "BankTransactionNew",
+      "field": "matchedInvoicePaymentId",
+      "suggestedRelation": "matchedInvoicePayment",
+      "line": 2579,
+      "details": "matchedInvoicePaymentId String? // Optional relation to Invoice payment"
+    },
+    {
+      "model": "ReconciliationRule",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 2608,
+      "details": "orgId String"
+    },
+    {
+      "model": "ReconciliationRule",
+      "field": "categoryId",
+      "suggestedRelation": "category",
+      "line": 2618,
+      "details": "categoryId String?"
+    },
+    {
+      "model": "ReconciliationRule",
+      "field": "vendorId",
+      "suggestedRelation": "vendor",
+      "line": 2619,
+      "details": "vendorId   String?"
+    },
+    {
+      "model": "Document",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 2661,
+      "details": "orgId String"
+    },
+    {
+      "model": "DocumentFolder",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 2705,
+      "details": "orgId String"
+    },
+    {
+      "model": "GobdExport",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 2733,
+      "details": "orgId        String"
+    },
+    {
+      "model": "SaftExport",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 2756,
+      "details": "orgId        String"
+    },
+    {
+      "model": "ElsterAuditLog",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 2784,
+      "details": "orgId           String"
+    },
+    {
+      "model": "ElsterAuditLog",
+      "field": "userId",
+      "suggestedRelation": "user",
+      "line": 2785,
+      "details": "userId          String?"
+    },
+    {
+      "model": "AutomationAuditLog",
+      "field": "entityId",
+      "suggestedRelation": "entity",
+      "line": 2860,
+      "details": "entityId   String"
+    },
+    {
+      "model": "Notification",
+      "field": "userId",
+      "suggestedRelation": "user",
+      "line": 2881,
+      "details": "userId    String"
+    },
+    {
+      "model": "Notification",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 2882,
+      "details": "orgId     String"
+    },
+    {
+      "model": "Integration",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 2959,
+      "details": "orgId String"
+    },
+    {
+      "model": "OnboardingProgress",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 3067,
+      "details": "orgId  String @unique"
+    },
+    {
+      "model": "OnboardingProgress",
+      "field": "userId",
+      "suggestedRelation": "user",
+      "line": 3068,
+      "details": "userId String // User who started onboarding"
+    },
+    {
+      "model": "CostEntry",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 3176,
+      "details": "orgId        String       @map(\"org_id\")"
+    },
+    {
+      "model": "CostEntry",
+      "field": "automationId",
+      "suggestedRelation": "automation",
+      "line": 3181,
+      "details": "automationId String?      @map(\"automation_id\")"
+    },
+    {
+      "model": "Conversation",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 3207,
+      "details": "orgId  String"
+    },
+    {
+      "model": "Conversation",
+      "field": "contextId",
+      "suggestedRelation": "context",
+      "line": 3216,
+      "details": "contextId   String? // Reference to related entity"
+    },
+    {
+      "model": "MessageActionLog",
+      "field": "entityId",
+      "suggestedRelation": "entity",
+      "line": 3351,
+      "details": "entityId   String? // Reference to created/modified entity"
+    },
+    {
+      "model": "Suggestion",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 3397,
+      "details": "orgId  String"
+    },
+    {
+      "model": "Suggestion",
+      "field": "userId",
+      "suggestedRelation": "user",
+      "line": 3398,
+      "details": "userId String? // Null for org-wide suggestions"
+    },
+    {
+      "model": "Suggestion",
+      "field": "entityId",
+      "suggestedRelation": "entity",
+      "line": 3409,
+      "details": "entityId   String?"
+    },
+    {
+      "model": "Client",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 3481,
+      "details": "orgId        String"
+    },
+    {
+      "model": "Client",
+      "field": "vatId",
+      "suggestedRelation": "vat",
+      "line": 3493,
+      "details": "vatId              String? // VAT/Tax ID (e.g., VAT, GSTIN, EIN)"
+    },
+    {
+      "model": "Client",
+      "field": "taxId",
+      "suggestedRelation": "tax",
+      "line": 3494,
+      "details": "taxId              String?"
+    },
+    {
+      "model": "ClientCommunication",
+      "field": "userId",
+      "suggestedRelation": "user",
+      "line": 3672,
+      "details": "userId   String // User who logged this"
+    },
+    {
+      "model": "ClientCommunication",
+      "field": "relatedEntityId",
+      "suggestedRelation": "relatedEntity",
+      "line": 3683,
+      "details": "relatedEntityId   String?"
+    },
+    {
+      "model": "ClientCommunication",
+      "field": "emailMessageId",
+      "suggestedRelation": "emailMessage",
+      "line": 3686,
+      "details": "emailMessageId String?"
+    },
+    {
+      "model": "ClientCommunication",
+      "field": "emailThreadId",
+      "suggestedRelation": "emailThread",
+      "line": 3687,
+      "details": "emailThreadId  String?"
+    },
+    {
+      "model": "ClientPayment",
+      "field": "invoiceId",
+      "suggestedRelation": "invoice",
+      "line": 3727,
+      "details": "invoiceId     String?"
+    },
+    {
+      "model": "ClientPayment",
+      "field": "transactionId",
+      "suggestedRelation": "transaction",
+      "line": 3733,
+      "details": "transactionId String? // External transaction ID"
+    },
+    {
+      "model": "Vendor",
+      "field": "taxId",
+      "suggestedRelation": "tax",
+      "line": 3795,
+      "details": "taxId     String?"
+    },
+    {
+      "model": "Vendor",
+      "field": "defaultCategoryId",
+      "suggestedRelation": "defaultCategory",
+      "line": 3808,
+      "details": "defaultCategoryId    String? // Category to auto-assign to bills from this vendor (FK - Category model TBD)"
+    },
+    {
+      "model": "RelationshipMetrics",
+      "field": "entityId",
+      "suggestedRelation": "entity",
+      "line": 3842,
+      "details": "entityId       String"
+    },
+    {
+      "model": "ReportSchedule",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 3880,
+      "details": "orgId String"
+    },
+    {
+      "model": "Budget",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 3940,
+      "details": "orgId             String        @map(\"org_id\")"
+    },
+    {
+      "model": "CorrectionRecord",
+      "field": "entityId",
+      "suggestedRelation": "entity",
+      "line": 4129,
+      "details": "entityId   String"
+    },
+    {
+      "model": "ElsterCertificateAuditLog",
+      "field": "organisationId",
+      "suggestedRelation": "organisation",
+      "line": 4223,
+      "details": "organisationId String"
+    },
+    {
+      "model": "ElsterFiling",
+      "field": "submissionId",
+      "suggestedRelation": "submission",
+      "line": 4264,
+      "details": "submissionId   String? // External reference from ELSTER/tigerVAT"
+    },
+    {
+      "model": "ElsterFiling",
+      "field": "certificateId",
+      "suggestedRelation": "certificate",
+      "line": 4275,
+      "details": "certificateId String?"
+    },
+    {
+      "model": "ProcessDocumentation",
+      "field": "tenantId",
+      "suggestedRelation": "tenant",
+      "line": 4324,
+      "details": "tenantId     String"
+    },
+    {
+      "model": "ScheduledExport",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 4347,
+      "details": "orgId       String"
+    },
+    {
+      "model": "ScheduledExportRun",
+      "field": "exportId",
+      "suggestedRelation": "export",
+      "line": 4375,
+      "details": "exportId          String? // Reference to actual export (GobdExport, SaftExport, etc.)"
+    },
+    {
+      "model": "ArchivedDocument",
+      "field": "organisationId",
+      "suggestedRelation": "organisation",
+      "line": 4411,
+      "details": "organisationId String"
+    },
+    {
+      "model": "ArchivedDocument",
+      "field": "entityId",
+      "suggestedRelation": "entity",
+      "line": 4435,
+      "details": "entityId   String?"
+    },
+    {
+      "model": "QuickBooksConnection",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 4531,
+      "details": "orgId String"
+    },
+    {
+      "model": "QuickBooksConnection",
+      "field": "companyId",
+      "suggestedRelation": "company",
+      "line": 4534,
+      "details": "companyId   String // QuickBooks realm ID"
+    },
+    {
+      "model": "XeroConnection",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 4636,
+      "details": "orgId String"
+    },
+    {
+      "model": "XeroConnection",
+      "field": "xeroTenantId",
+      "suggestedRelation": "xeroTenant",
+      "line": 4639,
+      "details": "xeroTenantId String // Xero tenant ID"
+    },
+    {
+      "model": "EmailConnection",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 4738,
+      "details": "orgId  String"
+    },
+    {
+      "model": "PlaidBankAccount",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 4861,
+      "details": "orgId String"
+    },
+    {
+      "model": "PlaidBankAccount",
+      "field": "plaidAccountId",
+      "suggestedRelation": "plaidAccount",
+      "line": 4864,
+      "details": "plaidAccountId  String // External account ID from Plaid"
+    },
+    {
+      "model": "PlaidBankAccount",
+      "field": "plaidItemId",
+      "suggestedRelation": "plaidItem",
+      "line": 4865,
+      "details": "plaidItemId     String // Plaid item this account belongs to"
+    },
+    {
+      "model": "PlaidBankAccount",
+      "field": "institutionId",
+      "suggestedRelation": "institution",
+      "line": 4866,
+      "details": "institutionId   String?"
+    },
+    {
+      "model": "PlaidTransaction",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 4919,
+      "details": "orgId     String"
+    },
+    {
+      "model": "PlaidTransaction",
+      "field": "plaidTransactionId",
+      "suggestedRelation": "plaidTransaction",
+      "line": 4922,
+      "details": "plaidTransactionId String  @unique"
+    },
+    {
+      "model": "PlaidTransaction",
+      "field": "plaidAccountId",
+      "suggestedRelation": "plaidAccount",
+      "line": 4923,
+      "details": "plaidAccountId     String"
+    },
+    {
+      "model": "PlaidTransaction",
+      "field": "plaidItemId",
+      "suggestedRelation": "plaidItem",
+      "line": 4924,
+      "details": "plaidItemId        String?"
+    },
+    {
+      "model": "PlaidTransaction",
+      "field": "categoryId",
+      "suggestedRelation": "category",
+      "line": 4947,
+      "details": "categoryId                      String?"
+    },
+    {
+      "model": "PlaidTransaction",
+      "field": "matchedExpenseId",
+      "suggestedRelation": "matchedExpense",
+      "line": 4976,
+      "details": "matchedExpenseId String? // Link to Expense model"
+    },
+    {
+      "model": "PlaidTransaction",
+      "field": "matchedInvoiceId",
+      "suggestedRelation": "matchedInvoice",
+      "line": 4977,
+      "details": "matchedInvoiceId String? // Link to Invoice model"
+    },
+    {
+      "model": "TrueLayerBankAccount",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 5060,
+      "details": "orgId String"
+    },
+    {
+      "model": "TrueLayerBankAccount",
+      "field": "trueLayerAccountId",
+      "suggestedRelation": "trueLayerAccount",
+      "line": 5063,
+      "details": "trueLayerAccountId    String // External account ID from TrueLayer"
+    },
+    {
+      "model": "TrueLayerBankAccount",
+      "field": "trueLayerConnectionId",
+      "suggestedRelation": "trueLayerConnection",
+      "line": 5064,
+      "details": "trueLayerConnectionId String // TrueLayer connection this account belongs to"
+    },
+    {
+      "model": "TrueLayerTransaction",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 5122,
+      "details": "orgId     String"
+    },
+    {
+      "model": "TrueLayerTransaction",
+      "field": "trueLayerTransactionId",
+      "suggestedRelation": "trueLayerTransaction",
+      "line": 5125,
+      "details": "trueLayerTransactionId String  @unique"
+    },
+    {
+      "model": "TrueLayerTransaction",
+      "field": "trueLayerAccountId",
+      "suggestedRelation": "trueLayerAccount",
+      "line": 5126,
+      "details": "trueLayerAccountId     String"
+    },
+    {
+      "model": "TrueLayerTransaction",
+      "field": "trueLayerConnectionId",
+      "suggestedRelation": "trueLayerConnection",
+      "line": 5127,
+      "details": "trueLayerConnectionId  String?"
+    },
+    {
+      "model": "TrueLayerTransaction",
+      "field": "matchedExpenseId",
+      "suggestedRelation": "matchedExpense",
+      "line": 5156,
+      "details": "matchedExpenseId String?"
+    },
+    {
+      "model": "TrueLayerTransaction",
+      "field": "matchedInvoiceId",
+      "suggestedRelation": "matchedInvoice",
+      "line": 5157,
+      "details": "matchedInvoiceId String?"
+    },
+    {
+      "model": "GoCardlessConnection",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 5272,
+      "details": "orgId String"
+    },
+    {
+      "model": "GoCardlessConnection",
+      "field": "creditorId",
+      "suggestedRelation": "creditor",
+      "line": 5275,
+      "details": "creditorId   String // GoCardless creditor ID"
+    },
+    {
+      "model": "GoCardlessCustomer",
+      "field": "customerId",
+      "suggestedRelation": "customer",
+      "line": 5323,
+      "details": "customerId String @unique"
+    },
+    {
+      "model": "GoCardlessCustomer",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 5324,
+      "details": "orgId      String"
+    },
+    {
+      "model": "GoCardlessCustomer",
+      "field": "gcCustomerId",
+      "suggestedRelation": "gcCustomer",
+      "line": 5327,
+      "details": "gcCustomerId String"
+    },
+    {
+      "model": "GoCardlessRedirectFlow",
+      "field": "redirectFlowId",
+      "suggestedRelation": "redirectFlow",
+      "line": 5346,
+      "details": "redirectFlowId String @unique"
+    },
+    {
+      "model": "GoCardlessRedirectFlow",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 5347,
+      "details": "orgId          String"
+    },
+    {
+      "model": "GoCardlessRedirectFlow",
+      "field": "customerId",
+      "suggestedRelation": "customer",
+      "line": 5348,
+      "details": "customerId     String"
+    },
+    {
+      "model": "GoCardlessRedirectFlow",
+      "field": "mandateId",
+      "suggestedRelation": "mandate",
+      "line": 5356,
+      "details": "mandateId String? // Set after completion"
+    },
+    {
+      "model": "GoCardlessMandate",
+      "field": "mandateId",
+      "suggestedRelation": "mandate",
+      "line": 5381,
+      "details": "mandateId  String @unique"
+    },
+    {
+      "model": "GoCardlessMandate",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 5382,
+      "details": "orgId      String"
+    },
+    {
+      "model": "GoCardlessMandate",
+      "field": "customerId",
+      "suggestedRelation": "customer",
+      "line": 5383,
+      "details": "customerId String"
+    },
+    {
+      "model": "GoCardlessMandate",
+      "field": "customerBankAccountId",
+      "suggestedRelation": "customerBankAccount",
+      "line": 5392,
+      "details": "customerBankAccountId String"
+    },
+    {
+      "model": "GoCardlessMandate",
+      "field": "creditorId",
+      "suggestedRelation": "creditor",
+      "line": 5393,
+      "details": "creditorId            String"
+    },
+    {
+      "model": "GoCardlessPayment",
+      "field": "paymentId",
+      "suggestedRelation": "payment",
+      "line": 5423,
+      "details": "paymentId String @unique"
+    },
+    {
+      "model": "GoCardlessPayment",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 5424,
+      "details": "orgId     String"
+    },
+    {
+      "model": "GoCardlessPayment",
+      "field": "mandateId",
+      "suggestedRelation": "mandate",
+      "line": 5425,
+      "details": "mandateId String"
+    },
+    {
+      "model": "GoCardlessPayout",
+      "field": "payoutId",
+      "suggestedRelation": "payout",
+      "line": 5465,
+      "details": "payoutId String @unique"
+    },
+    {
+      "model": "GoCardlessRefund",
+      "field": "refundId",
+      "suggestedRelation": "refund",
+      "line": 5487,
+      "details": "refundId  String @unique"
+    },
+    {
+      "model": "GoCardlessRefund",
+      "field": "paymentId",
+      "suggestedRelation": "payment",
+      "line": 5488,
+      "details": "paymentId String"
+    },
+    {
+      "model": "GoCardlessSubscription",
+      "field": "subscriptionId",
+      "suggestedRelation": "subscription",
+      "line": 5507,
+      "details": "subscriptionId String @unique"
+    },
+    {
+      "model": "GoCardlessSubscription",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 5508,
+      "details": "orgId          String"
+    },
+    {
+      "model": "GoCardlessSubscription",
+      "field": "mandateId",
+      "suggestedRelation": "mandate",
+      "line": 5509,
+      "details": "mandateId      String"
+    },
+    {
+      "model": "GoCardlessWebhookEvent",
+      "field": "eventId",
+      "suggestedRelation": "event",
+      "line": 5547,
+      "details": "eventId      String @unique"
+    },
+    {
+      "model": "TaxNexus",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 5580,
+      "details": "orgId String"
+    },
+    {
+      "model": "TaxNexus",
+      "field": "nexusTypeId",
+      "suggestedRelation": "nexusType",
+      "line": 5588,
+      "details": "nexusTypeId      String? // Physical, economic, marketplace, etc."
+    },
+    {
+      "model": "TaxNexus",
+      "field": "localNexusTypeId",
+      "suggestedRelation": "localNexusType",
+      "line": 5590,
+      "details": "localNexusTypeId String?"
+    },
+    {
+      "model": "TaxNexus",
+      "field": "taxRegistrationId",
+      "suggestedRelation": "taxRegistration",
+      "line": 5604,
+      "details": "taxRegistrationId String? // State tax ID"
+    },
+    {
+      "model": "TaxExemptionCertificate",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 5650,
+      "details": "orgId      String"
+    },
+    {
+      "model": "TaxExemptionCertificate",
+      "field": "customerId",
+      "suggestedRelation": "customer",
+      "line": 5651,
+      "details": "customerId String? // Reference to Customer model"
+    },
+    {
+      "model": "TaxExemptionCertificate",
+      "field": "avalaraId",
+      "suggestedRelation": "avalara",
+      "line": 5680,
+      "details": "avalaraId String? // Avalara certificate ID"
+    },
+    {
+      "model": "TaxTransaction",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 5711,
+      "details": "orgId String"
+    },
+    {
+      "model": "TaxTransaction",
+      "field": "invoiceId",
+      "suggestedRelation": "invoice",
+      "line": 5721,
+      "details": "invoiceId    String? // Link to Invoice model"
+    },
+    {
+      "model": "TaxTransaction",
+      "field": "customerId",
+      "suggestedRelation": "customer",
+      "line": 5722,
+      "details": "customerId   String? // Link to Customer"
+    },
+    {
+      "model": "TaxTransaction",
+      "field": "avalaraId",
+      "suggestedRelation": "avalara",
+      "line": 5741,
+      "details": "avalaraId   String? // Avalara internal ID"
+    },
+    {
+      "model": "HmrcConnection",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 5793,
+      "details": "orgId String"
+    },
+    {
+      "model": "HmrcVatReturn",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 5884,
+      "details": "orgId        String"
+    },
+    {
+      "model": "HmrcVatReturn",
+      "field": "hmrcReceiptId",
+      "suggestedRelation": "hmrcReceipt",
+      "line": 5912,
+      "details": "hmrcReceiptId       String? // Form bundle number from HMRC"
+    },
+    {
+      "model": "UsageEvent",
+      "field": "stripeUsageRecordId",
+      "suggestedRelation": "stripeUsageRecord",
+      "line": 6031,
+      "details": "stripeUsageRecordId String?"
+    },
+    {
+      "model": "UsageSummary",
+      "field": "stripeInvoiceItemId",
+      "suggestedRelation": "stripeInvoiceItem",
+      "line": 6121,
+      "details": "stripeInvoiceItemId String?"
+    },
+    {
+      "model": "StripeUsageRecord",
+      "field": "stripeSubscriptionItemId",
+      "suggestedRelation": "stripeSubscriptionItem",
+      "line": 6149,
+      "details": "stripeSubscriptionItemId String"
+    },
+    {
+      "model": "StripeUsageRecord",
+      "field": "stripeUsageRecordId",
+      "suggestedRelation": "stripeUsageRecord",
+      "line": 6150,
+      "details": "stripeUsageRecordId      String?"
+    },
+    {
+      "model": "SubscriptionTier",
+      "field": "stripeProductId",
+      "suggestedRelation": "stripeProduct",
+      "line": 6210,
+      "details": "stripeProductId      String?"
+    },
+    {
+      "model": "RevenueRecognition",
+      "field": "subscriptionId",
+      "suggestedRelation": "subscription",
+      "line": 6237,
+      "details": "subscriptionId String?"
+    },
+    {
+      "model": "RevenueRecognition",
+      "field": "invoiceId",
+      "suggestedRelation": "invoice",
+      "line": 6252,
+      "details": "invoiceId   String? // Link to invoice if applicable"
+    },
+    {
+      "model": "DeferredRevenueSchedule",
+      "field": "invoiceId",
+      "suggestedRelation": "invoice",
+      "line": 6338,
+      "details": "invoiceId     String"
+    },
+    {
+      "model": "DunningState",
+      "field": "subscriptionId",
+      "suggestedRelation": "subscription",
+      "line": 6429,
+      "details": "subscriptionId String @unique"
+    },
+    {
+      "model": "GdprAuditLog",
+      "field": "userId",
+      "suggestedRelation": "user",
+      "line": 6560,
+      "details": "userId         String?"
+    },
+    {
+      "model": "GdprAuditLog",
+      "field": "organisationId",
+      "suggestedRelation": "organisation",
+      "line": 6561,
+      "details": "organisationId String?"
+    },
+    {
+      "model": "GdprAuditLog",
+      "field": "actorId",
+      "suggestedRelation": "actor",
+      "line": 6562,
+      "details": "actorId        String? // Who performed the action"
+    },
+    {
+      "model": "GdprAuditLog",
+      "field": "resourceId",
+      "suggestedRelation": "resource",
+      "line": 6565,
+      "details": "resourceId     String?"
+    },
+    {
+      "model": "PersonaInquiry",
+      "field": "inquiryId",
+      "suggestedRelation": "inquiry",
+      "line": 6625,
+      "details": "inquiryId         String    @unique // Persona's inquiry ID (inq_XXXXX)"
+    },
+    {
+      "model": "PersonaInquiry",
+      "field": "templateId",
+      "suggestedRelation": "template",
+      "line": 6626,
+      "details": "templateId        String // Persona template used"
+    },
+    {
+      "model": "PersonaInquiry",
+      "field": "referenceId",
+      "suggestedRelation": "reference",
+      "line": 6627,
+      "details": "referenceId       String? // Internal reference for tracking"
+    },
+    {
+      "model": "PersonaWebhookLog",
+      "field": "eventId",
+      "suggestedRelation": "event",
+      "line": 6695,
+      "details": "eventId      String // Persona event ID"
+    },
+    {
+      "model": "AmlScreening",
+      "field": "searchId",
+      "suggestedRelation": "search",
+      "line": 6719,
+      "details": "searchId       String    @unique // ComplyAdvantage search ID"
+    },
+    {
+      "model": "AmlMonitoring",
+      "field": "monitoringId",
+      "suggestedRelation": "monitoring",
+      "line": 6784,
+      "details": "monitoringId  String    @unique // ComplyAdvantage monitoring ID"
+    },
+    {
+      "model": "KycVerification",
+      "field": "providerRefId",
+      "suggestedRelation": "providerRef",
+      "line": 6812,
+      "details": "providerRefId  String? // External provider reference"
+    },
+    {
+      "model": "SpainCertificateAuditLog",
+      "field": "organisationId",
+      "suggestedRelation": "organisation",
+      "line": 6939,
+      "details": "organisationId String"
+    },
+    {
+      "model": "ZatcaCertificate",
+      "field": "encryptionKeyId",
+      "suggestedRelation": "encryptionKey",
+      "line": 7011,
+      "details": "encryptionKeyId      String // Reference to key in HSM/KMS"
+    },
+    {
+      "model": "ZatcaCertificate",
+      "field": "csidRequestId",
+      "suggestedRelation": "csidRequest",
+      "line": 7017,
+      "details": "csidRequestId String?         @unique // Request tracking ID"
+    },
+    {
+      "model": "ZatcaCertificate",
+      "field": "previousCertificateId",
+      "suggestedRelation": "previousCertificate",
+      "line": 7034,
+      "details": "previousCertificateId   String? // Link to certificate being renewed"
+    },
+    {
+      "model": "ZatcaCertificateAuditLog",
+      "field": "organisationId",
+      "suggestedRelation": "organisation",
+      "line": 7072,
+      "details": "organisationId String"
+    },
+    {
+      "model": "ZatcaCertificateAuditLog",
+      "field": "zatcaRequestId",
+      "suggestedRelation": "zatcaRequest",
+      "line": 7089,
+      "details": "zatcaRequestId  String? // ZATCA request tracking ID"
+    },
+    {
+      "model": "ZatcaCertificateAuditLog",
+      "field": "zatcaResponseId",
+      "suggestedRelation": "zatcaResponse",
+      "line": 7090,
+      "details": "zatcaResponseId String? // ZATCA response ID"
+    },
+    {
+      "model": "ZatcaCertificateRotation",
+      "field": "organisationId",
+      "suggestedRelation": "organisation",
+      "line": 7111,
+      "details": "organisationId   String"
+    },
+    {
+      "model": "ZatcaCertificateRotation",
+      "field": "oldCertificateId",
+      "suggestedRelation": "oldCertificate",
+      "line": 7112,
+      "details": "oldCertificateId String? // Previous certificate"
+    },
+    {
+      "model": "ZatcaSigningOperation",
+      "field": "organisationId",
+      "suggestedRelation": "organisation",
+      "line": 7142,
+      "details": "organisationId String"
+    },
+    {
+      "model": "ZatcaSigningOperation",
+      "field": "invoiceId",
+      "suggestedRelation": "invoice",
+      "line": 7145,
+      "details": "invoiceId     String           @unique // Internal invoice ID"
+    },
+    {
+      "model": "ZatcaKeyManagementAudit",
+      "field": "organisationId",
+      "suggestedRelation": "organisation",
+      "line": 7183,
+      "details": "organisationId String"
+    },
+    {
+      "model": "ZatcaKeyManagementAudit",
+      "field": "keyId",
+      "suggestedRelation": "key",
+      "line": 7184,
+      "details": "keyId          String // KMS/HSM key identifier"
+    },
+    {
+      "model": "SyncedEmail",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 7350,
+      "details": "orgId        String"
+    },
+    {
+      "model": "SyncedEmail",
+      "field": "userId",
+      "suggestedRelation": "user",
+      "line": 7351,
+      "details": "userId       String"
+    },
+    {
+      "model": "SyncedEmail",
+      "field": "threadId",
+      "suggestedRelation": "thread",
+      "line": 7356,
+      "details": "threadId   String? // For Gmail threading"
+    },
+    {
+      "model": "EmailSyncJob",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 7460,
+      "details": "orgId        String"
+    },
+    {
+      "model": "EmailSyncJob",
+      "field": "userId",
+      "suggestedRelation": "user",
+      "line": 7461,
+      "details": "userId       String"
+    },
+    {
+      "model": "EmailSyncJob",
+      "field": "lastMessageId",
+      "suggestedRelation": "lastMessage",
+      "line": 7482,
+      "details": "lastMessageId String? // Last message ID synced (for pagination)"
+    },
+    {
+      "model": "EmailAttachment",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 7555,
+      "details": "orgId   String"
+    },
+    {
+      "model": "EmailAttachment",
+      "field": "userId",
+      "suggestedRelation": "user",
+      "line": 7556,
+      "details": "userId  String"
+    },
+    {
+      "model": "EmailAttachment",
+      "field": "extractedDataId",
+      "suggestedRelation": "extractedData",
+      "line": 7595,
+      "details": "extractedDataId  String? // Reference to Invoice/Receipt/etc."
+    },
+    {
+      "model": "EmailExtractedEntities",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 7640,
+      "details": "orgId   String"
+    },
+    {
+      "model": "EmailExtractedEntities",
+      "field": "userId",
+      "suggestedRelation": "user",
+      "line": 7641,
+      "details": "userId  String"
+    },
+    {
+      "model": "StorageQuota",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 7688,
+      "details": "orgId String @unique"
+    },
+    {
+      "model": "ExtractedInvoice",
+      "field": "userId",
+      "suggestedRelation": "user",
+      "line": 7775,
+      "details": "userId         String?"
+    },
+    {
+      "model": "ReceiptScan",
+      "field": "orgId",
+      "suggestedRelation": "org",
+      "line": 7828,
+      "details": "orgId        String"
+    },
+    {
+      "model": "EmailSuggestion",
+      "field": "organisationId",
+      "suggestedRelation": "organisation",
+      "line": 7967,
+      "details": "organisationId String"
+    },
+    {
+      "model": "EmailSuggestion",
+      "field": "entityId",
+      "suggestedRelation": "entity",
+      "line": 7977,
+      "details": "entityId   String?"
+    },
+    {
+      "model": "EmailSuggestion",
+      "field": "sourceEmailId",
+      "suggestedRelation": "sourceEmail",
+      "line": 7982,
+      "details": "sourceEmailId      String?"
+    },
+    {
+      "model": "VatReturn",
+      "field": "organisationId",
+      "suggestedRelation": "organisation",
+      "line": 8023,
+      "details": "organisationId String"
+    },
+    {
+      "model": "VatReturn",
+      "field": "receiptId",
+      "suggestedRelation": "receipt",
+      "line": 8041,
+      "details": "receiptId      String? // ELSTER receipt ID"
+    }
+  ],
+  "recommendations": []
+}

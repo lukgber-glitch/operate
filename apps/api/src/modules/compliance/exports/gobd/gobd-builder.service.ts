@@ -478,7 +478,7 @@ export class GobdBuilderService {
     try {
       // Check if accounts table exists by trying to query it
       // This is a placeholder - replace with actual account model when available
-      const accounts = await (this.prisma as any).account?.findMany({
+      const accounts = await (this.prisma as Prisma.InputJsonValue).account?.findMany({
         where: {
           orgId,
         },
@@ -557,7 +557,7 @@ export class GobdBuilderService {
   ): Promise<InvoiceData[]> {
     // Note: Invoice table not yet in schema - will return empty until implemented
     try {
-      const invoices = await (this.prisma as any).invoice?.findMany({
+      const invoices = await (this.prisma as Prisma.InputJsonValue).invoice?.findMany({
         where: {
           orgId,
           date: {
@@ -601,7 +601,7 @@ export class GobdBuilderService {
   private async exportCustomers(orgId: string): Promise<CustomerData[]> {
     // Note: Customer table not yet in schema - will return empty until implemented
     try {
-      const customers = await (this.prisma as any).customer?.findMany({
+      const customers = await (this.prisma as Prisma.InputJsonValue).customer?.findMany({
         where: {
           orgId,
         },
@@ -639,7 +639,7 @@ export class GobdBuilderService {
   private async exportSuppliers(orgId: string): Promise<SupplierData[]> {
     // Note: Supplier table not yet in schema - will return empty until implemented
     try {
-      const suppliers = await (this.prisma as any).supplier?.findMany({
+      const suppliers = await (this.prisma as Prisma.InputJsonValue).supplier?.findMany({
         where: {
           orgId,
         },

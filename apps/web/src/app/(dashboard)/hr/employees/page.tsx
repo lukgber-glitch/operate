@@ -6,9 +6,8 @@ import { useEffect, useState } from 'react';
 
 import { EmployeeFilters } from '@/components/hr/employee-filters';
 import { EmployeeTable } from '@/components/hr/employee-table';
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -101,9 +100,10 @@ export default function EmployeesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <HeadlineOutside subtitle="Manage your organization's employees">
-          Employees
-        </HeadlineOutside>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Employees</h1>
+          <p className="text-muted-foreground">Manage your organization's employees</p>
+        </div>
 
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExport}>
@@ -119,97 +119,99 @@ export default function EmployeesPage() {
         </div>
       </div>
 
-      <AnimatedCard variant="elevated" padding="lg">
-        <div className="space-y-6">
-          <EmployeeFilters
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            onReset={handleReset}
-          />
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                Showing {employees.length} of {total} employees
-              </p>
-
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Rows per page:</span>
-                <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
-                  <SelectTrigger className="w-[80px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="25">25</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <EmployeeTable
-              employees={employees}
-              isLoading={isLoading}
-              onDelete={handleDelete}
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
+          <div className="space-y-6">
+            <EmployeeFilters
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              onReset={handleReset}
             />
 
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(page - 1)}
-                  disabled={page === 1}
-                >
-                  Previous
-                </Button>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Showing {employees.length} of {total} employees
+                </p>
 
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter((p) => {
-                      // Show first, last, current, and adjacent pages
-                      return (
-                        p === 1 ||
-                        p === totalPages ||
-                        (p >= page - 1 && p <= page + 1)
-                      );
-                    })
-                    .map((p, i, arr) => {
-                      // Add ellipsis for gaps
-                      const prev = arr[i - 1];
-                      const showEllipsis = prev && p - prev > 1;
-
-                      return (
-                        <div key={p} className="flex items-center gap-1">
-                          {showEllipsis && <span className="px-2">...</span>}
-                          <Button
-                            variant={page === p ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => handlePageChange(p)}
-                            className="min-w-[40px]"
-                          >
-                            {p}
-                          </Button>
-                        </div>
-                      );
-                    })}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Rows per page:</span>
+                  <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
+                    <SelectTrigger className="w-[80px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(page + 1)}
-                  disabled={page === totalPages}
-                >
-                  Next
-                </Button>
               </div>
-            )}
+
+              <EmployeeTable
+                employees={employees}
+                isLoading={isLoading}
+                onDelete={handleDelete}
+              />
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1}
+                  >
+                    Previous
+                  </Button>
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((p) => {
+                        // Show first, last, current, and adjacent pages
+                        return (
+                          p === 1 ||
+                          p === totalPages ||
+                          (p >= page - 1 && p <= page + 1)
+                        );
+                      })
+                      .map((p, i, arr) => {
+                        // Add ellipsis for gaps
+                        const prev = arr[i - 1];
+                        const showEllipsis = prev && p - prev > 1;
+
+                        return (
+                          <div key={p} className="flex items-center gap-1">
+                            {showEllipsis && <span className="px-2">...</span>}
+                            <Button
+                              variant={page === p ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => handlePageChange(p)}
+                              className="min-w-[40px]"
+                            >
+                              {p}
+                            </Button>
+                          </div>
+                        );
+                      })}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
     </div>
   );
 }

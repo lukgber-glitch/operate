@@ -4,7 +4,6 @@ import { Calendar, Clock, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect } from 'react';
 
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -13,7 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
 import { useLeaveOverview } from '@/hooks/use-leave-overview';
@@ -61,9 +59,10 @@ export default function LeavePage() {
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside subtitle="Manage leave requests and approvals">
-        Leave Management
-      </HeadlineOutside>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Leave Management</h1>
+        <p className="text-muted-foreground">Manage leave requests and approvals</p>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>

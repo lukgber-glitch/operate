@@ -35,6 +35,43 @@ export interface VendorCreationResult {
 }
 
 /**
+ * Vendor information extracted from email/invoice
+ */
+interface VendorInfo {
+  companyName?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  taxId?: string;
+  taxIdType?: TaxIdType;
+  domain?: string;
+  address?: string;
+  website?: string;
+  addressLine1?: string;
+  city?: string;
+  country?: string;
+  paymentTerms?: number;
+  preferredPaymentMethod?: string;
+  bankIban?: string;
+  bankBic?: string;
+  notes?: string;
+}
+
+/**
+ * Vendor update data
+ */
+interface VendorUpdateData {
+  phone?: string;
+  taxId?: string;
+  taxIdType?: TaxIdType;
+  addressLine1?: string;
+  city?: string;
+  country?: string;
+  bankIban?: string;
+  bankBic?: string;
+}
+
+/**
  * Service that automatically creates or matches vendors from email data
  */
 @Injectable()
@@ -294,14 +331,7 @@ export class VendorAutoCreatorService {
     email: EmailMessage,
     entities: ExtractedEntities,
     extractedInvoice?: ExtractedInvoiceDataDto,
-  ): {
-    companyName?: string;
-    email?: string;
-    taxId?: string;
-    domain?: string;
-    phone?: string;
-    address?: string;
-  } {
+  ): VendorInfo {
     // Prioritize invoice data if available
     if (extractedInvoice) {
       return {
@@ -338,7 +368,7 @@ export class VendorAutoCreatorService {
    * Create vendor from collected information
    */
   private async createVendorFromEmail(
-    vendorInfo: any,
+    vendorInfo: VendorInfo,
     extractedInvoice: ExtractedInvoiceDataDto | undefined,
     orgId: string,
   ): Promise<Vendor> {
@@ -377,10 +407,10 @@ export class VendorAutoCreatorService {
    */
   private async updateVendorIfNeeded(
     vendor: Vendor,
-    vendorInfo: any,
+    vendorInfo: VendorInfo,
     extractedInvoice?: ExtractedInvoiceDataDto,
   ): Promise<Vendor | null> {
-    const updates: any = {};
+    const updates: VendorUpdateData = {};
 
     // Update missing fields only
     if (!vendor.phone && vendorInfo.phone) {

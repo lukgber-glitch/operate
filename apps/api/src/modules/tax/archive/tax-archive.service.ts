@@ -16,7 +16,7 @@ export interface TaxDocument {
   mimeType: string;
   hash: string; // SHA-256 for integrity
   retentionUntil: Date;
-  metadata: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -391,7 +391,7 @@ export class TaxArchiveService {
 
     // If we have stored data in metadata, verify it
     if (doc.metadata && typeof doc.metadata === 'object' && 'archivedData' in doc.metadata) {
-      const dataString = JSON.stringify((doc.metadata as any).archivedData);
+      const dataString = JSON.stringify((doc.metadata as Prisma.InputJsonValue).archivedData);
       const currentHash = this.calculateHash(Buffer.from(dataString, 'utf-8'));
       const isValid = currentHash === doc.hash;
 

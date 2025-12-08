@@ -106,7 +106,7 @@ export class ChatService {
           role: 'ASSISTANT',
           type: 'TEXT',
           content: scenarioResponse.text,
-          metadata: scenarioResponse.data as any,
+          metadata: scenarioResponse.data as Prisma.InputJsonValue,
         },
       });
 

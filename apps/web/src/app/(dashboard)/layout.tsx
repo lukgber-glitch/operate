@@ -8,7 +8,6 @@ import { Sidebar } from '@/components/dashboard/sidebar'
 import { MobileHeader } from '@/components/mobile'
 import { PushPermissionBanner } from '@/components/notifications'
 import { TrialManager, UsageManager } from '@/components/billing'
-import { GradientBackground } from '@/components/animation'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
 
@@ -20,9 +19,7 @@ export default function DashboardLayout({
   const { isOpen } = useSidebar()
 
   return (
-    <div className="min-h-screen bg-[#F2F2F2] dark:bg-[#0D1F1B] relative overflow-hidden">
-      {/* Subtle animated gradient background */}
-      <GradientBackground intensity="subtle" />
+    <div className="min-h-screen bg-muted relative overflow-hidden">
 
       {/* Desktop Sidebar */}
       <div className="hidden lg:block relative z-20">

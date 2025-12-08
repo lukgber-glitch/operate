@@ -308,7 +308,7 @@ export class GmailService {
         // Check if MIME type is supported
         if (
           !part.mimeType ||
-          SUPPORTED_MIME_TYPES.includes(part.mimeType as any)
+          SUPPORTED_MIME_TYPES.includes(part.mimeType as Prisma.InputJsonValue)
         ) {
           attachments.push({
             filename: part.filename,

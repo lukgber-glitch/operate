@@ -59,7 +59,7 @@ export class DocumentArchiveService {
       return;
     }
     this.encryptionKey = Buffer.from(keyHex, 'hex');
-    (this as any).isConfigured = true;
+    (this as Prisma.InputJsonValue).isConfigured = true;
     this.logger.log('Document Archive Service initialized with encryption enabled');
   }
 

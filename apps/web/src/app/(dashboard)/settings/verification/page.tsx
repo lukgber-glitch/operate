@@ -12,8 +12,7 @@ import { VerificationDetailsModal } from '@/components/verification/Verification
 import { useVerification } from '@/hooks/use-verification';
 import { useKycRequirements } from '@/hooks/use-kyc-requirements';
 import { VerificationStatus } from '@/types/verification';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import { Info, RefreshCw } from 'lucide-react';
 
 export default function VerificationPage() {
@@ -58,9 +57,10 @@ export default function VerificationPage() {
   return (
     <div className="container max-w-6xl mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
-        <HeadlineOutside subtitle="Manage your identity verification and compliance status">
-          KYC Verification
-        </HeadlineOutside>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">KYC Verification</h1>
+          <p className="text-muted-foreground">Manage your identity verification and compliance status</p>
+        </div>
         <div className="flex gap-2">
           {verification && (
             <Button

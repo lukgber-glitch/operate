@@ -78,7 +78,7 @@ export class ComplianceService {
         id: result.id,
         organizationId,
         type: 'gobd',
-        status: result.status as any,
+        status: result.status as Prisma.InputJsonValue,
         dateRange: {
           start: startDate.toISOString(),
           end: endDate.toISOString(),
@@ -108,7 +108,7 @@ export class ComplianceService {
         id: result.exportId,
         organizationId,
         type: 'saft',
-        status: result.status as any,
+        status: result.status as Prisma.InputJsonValue,
         dateRange: {
           start: startDate.toISOString(),
           end: endDate.toISOString(),
@@ -141,7 +141,7 @@ export class ComplianceService {
         id: gobdExport.id,
         organizationId: gobdExport.orgId,
         type: 'gobd',
-        status: gobdExport.status as any,
+        status: gobdExport.status as Prisma.InputJsonValue,
         dateRange: {
           start: gobdExport.startDate?.toISOString() || '',
           end: gobdExport.endDate?.toISOString() || '',
@@ -169,7 +169,7 @@ export class ComplianceService {
         id: saftExport.id,
         organizationId: saftExport.orgId,
         type: 'saft',
-        status: saftExport.status as any,
+        status: saftExport.status as Prisma.InputJsonValue,
         dateRange: {
           start: saftExport.startDate?.toISOString() || '',
           end: saftExport.endDate?.toISOString() || '',
@@ -243,7 +243,7 @@ export class ComplianceService {
         id: exp.id,
         organizationId: exp.orgId,
         type: 'gobd' as const,
-        status: exp.status as any,
+        status: exp.status as Prisma.InputJsonValue,
         dateRange: {
           start: exp.startDate?.toISOString() || '',
           end: exp.endDate?.toISOString() || '',
@@ -274,7 +274,7 @@ export class ComplianceService {
         id: exp.id,
         organizationId: exp.orgId,
         type: 'saft' as const,
-        status: exp.status as any,
+        status: exp.status as Prisma.InputJsonValue,
         dateRange: {
           start: exp.startDate?.toISOString() || '',
           end: exp.endDate?.toISOString() || '',
@@ -391,7 +391,7 @@ export class ComplianceService {
 
       const streamable = await this.gobdService.downloadExport(exportId);
       // Convert StreamableFile to ReadableStream
-      return streamable.getStream() as any;
+      return streamable.getStream() as Prisma.InputJsonValue;
     }
 
     // Try SAF-T

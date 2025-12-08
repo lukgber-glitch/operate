@@ -105,6 +105,10 @@ model Organisation {
   taxCredentials        TaxCredential[]
   employees             Employee[]
   payrollPeriods        PayrollPeriod[]
+  hrAuditLogs           HrAuditLog[]
+  employeeDocuments     EmployeeDocument[]
+  w4Forms               W4Form[]
+  i9Forms               I9Form[]
   transactions          Transaction[]
   deductionSuggestions  DeductionSuggestion[]
   taxDeductionSummaries TaxDeductionSummary[]
@@ -202,9 +206,14 @@ model User {
   employees     Employee[]
 
   // HR Relations
-  leaveRequestsReviewed   LeaveRequest[]  @relation("LeaveRequestReviewer")
-  timeEntriesApproved     TimeEntry[]     @relation("TimeEntryApprover")
-  payrollPeriodsProcessed PayrollPeriod[] @relation("PayrollProcessor")
+  leaveRequestsReviewed     LeaveRequest[]     @relation("LeaveRequestReviewer")
+  timeEntriesApproved       TimeEntry[]        @relation("TimeEntryApprover")
+  payrollPeriodsProcessed   PayrollPeriod[]    @relation("PayrollProcessor")
+  hrAuditLogs               HrAuditLog[]       @relation("HrAuditLogUser")
+  employeeDocumentsVerified EmployeeDocument[] @relation("EmployeeDocumentVerifier")
+  employeeDocumentsRejected EmployeeDocument[] @relation("EmployeeDocumentRejecter")
+  employeeDocumentsUploaded EmployeeDocument[] @relation("EmployeeDocumentUploader")
+  w4FormsSigned             W4Form[]           @relation("W4FormSigner")
 
   // AI & Classification Relations
   classificationsReviewed TransactionClassificationReview[] @relation("ClassificationReviewer")
@@ -259,7 +268,7 @@ model Membership {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
-  user         User         @relation(fields: [userId], references: [id])
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@unique([userId, orgId])
@@ -279,7 +288,7 @@ model Session {
   userAgent String?
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expiresAt])
@@ -1052,7 +1061,7 @@ model Employee {
 
   // Relations
   organisation       Organisation                 @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  user               User?                        @relation(fields: [userId], references: [id])
+  user               User?                        @relation(fields: [userId], references: [id], onDelete: SetNull)
   contracts          EmploymentContract[]
   leaveEntitlements  LeaveEntitlement[]
   leaveRequests      LeaveRequest[]
@@ -1062,6 +1071,7 @@ model Employee {
   documents          EmployeeDocument[]
   w4Forms            W4Form[]
   i9Forms            I9Form[]
+  hrAuditLogs        HrAuditLog[]                 @relation("HrAuditLogEmployee")
 
   @@unique([orgId, employeeNumber])
   @@unique([email, orgId])
@@ -1151,7 +1161,7 @@ model LeaveRequest {
   updatedAt DateTime @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  reviewer User?    @relation("LeaveRequestReviewer", fields: [reviewedBy], references: [id])
+  reviewer User?    @relation("LeaveRequestReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
 
   @@index([employeeId])
   @@index([status])
@@ -1184,7 +1194,7 @@ model TimeEntry {
   updatedAt DateTime @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  approver User?    @relation("TimeEntryApprover", fields: [approvedBy], references: [id])
+  approver User?    @relation("TimeEntryApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
 
   @@index([employeeId, date])
   @@index([status])
@@ -1207,7 +1217,7 @@ model PayrollPeriod {
   updatedAt DateTime @updatedAt
 
   organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  processor    User?        @relation("PayrollProcessor", fields: [processedBy], references: [id])
+  processor    User?        @relation("PayrollProcessor", fields: [processedBy], references: [id], onDelete: SetNull)
   payslips     Payslip[]
 
   @@unique([orgId, year, month])
@@ -1317,8 +1327,12 @@ model EmployeeDocument {
   deletedAt DateTime? // Soft delete
 
   // Relations
-  employee Employee                  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  versions EmployeeDocumentVersion[]
+  organisation Organisation              @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employee     Employee                  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  verifier     User?                     @relation("EmployeeDocumentVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
+  rejecter     User?                     @relation("EmployeeDocumentRejecter", fields: [rejectedBy], references: [id], onDelete: SetNull)
+  uploader     User                      @relation("EmployeeDocumentUploader", fields: [uploadedBy], references: [id], onDelete: Restrict)
+  versions     EmployeeDocumentVersion[]
 
   @@index([employeeId])
   @@index([orgId])
@@ -1408,7 +1422,9 @@ model W4Form {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  signer       User?        @relation("W4FormSigner", fields: [signedBy], references: [id], onDelete: SetNull)
 
   @@index([employeeId])
   @@index([orgId])
@@ -1517,7 +1533,8 @@ model I9Form {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@index([employeeId])
   @@index([orgId])
@@ -1546,6 +1563,11 @@ model HrAuditLog {
   userAgent String?
 
   createdAt DateTime @default(now())
+
+  // Relations
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employee     Employee?    @relation("HrAuditLogEmployee", fields: [employeeId], references: [id], onDelete: SetNull)
+  user         User         @relation("HrAuditLogUser", fields: [userId], references: [id], onDelete: Restrict)
 
   @@index([orgId])
   @@index([employeeId])
@@ -1595,7 +1617,7 @@ model TransactionClassificationReview {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reviewer User? @relation("ClassificationReviewer", fields: [reviewedBy], references: [id])
+  reviewer User? @relation("ClassificationReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
 
   @@index([orgId])
   @@index([status])
@@ -1696,9 +1718,9 @@ model DeductionSuggestion {
 
   transaction  Transaction  @relation(fields: [transactionId], references: [id], onDelete: Cascade)
   organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  confirmer    User?        @relation("DeductionConfirmer", fields: [confirmedBy], references: [id])
-  rejecter     User?        @relation("DeductionRejecter", fields: [rejectedBy], references: [id])
-  modifier     User?        @relation("DeductionModifier", fields: [modifiedBy], references: [id])
+  confirmer    User?        @relation("DeductionConfirmer", fields: [confirmedBy], references: [id], onDelete: SetNull)
+  rejecter     User?        @relation("DeductionRejecter", fields: [rejectedBy], references: [id], onDelete: SetNull)
+  modifier     User?        @relation("DeductionModifier", fields: [modifiedBy], references: [id], onDelete: SetNull)
 
   @@index([transactionId])
   @@index([orgId])
@@ -1786,7 +1808,7 @@ model FraudAlert {
   updatedAt DateTime @updatedAt
 
   organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  resolver     User?        @relation("FraudAlertResolver", fields: [resolvedBy], references: [id])
+  resolver     User?        @relation("FraudAlertResolver", fields: [resolvedBy], references: [id], onDelete: SetNull)
 
   @@index([orgId])
   @@index([transactionId])
@@ -1811,7 +1833,7 @@ model FraudAuditLog {
 
   createdAt DateTime @default(now())
 
-  performer User? @relation("FraudAuditPerformer", fields: [performedBy], references: [id])
+  performer User? @relation("FraudAuditPerformer", fields: [performedBy], references: [id], onDelete: SetNull)
 
   @@index([orgId])
   @@index([alertId])
@@ -1968,13 +1990,13 @@ model Invoice {
 
   // Recurring invoice link
   recurringInvoiceId String?
-  recurringInvoice   RecurringInvoice? @relation(fields: [recurringInvoiceId], references: [id])
+  recurringInvoice   RecurringInvoice? @relation(fields: [recurringInvoiceId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  client           Client?             @relation(fields: [clientId], references: [id])
+  client           Client?             @relation(fields: [clientId], references: [id], onDelete: Restrict)
   items            InvoiceItem[]
   paymentReminders PaymentReminder[]
   allocations      PaymentAllocation[]
@@ -2153,7 +2175,7 @@ model Bill {
 
   // Relations
   organisation     Organisation       @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  vendor           Vendor?            @relation(fields: [vendorId], references: [id])
+  vendor           Vendor?            @relation(fields: [vendorId], references: [id], onDelete: Restrict)
   lineItems        BillLineItem[]
   payments         BillPayment[]
   ScheduledPayment ScheduledPayment[]
@@ -2268,7 +2290,7 @@ model ScheduledPayment {
   // Relations
   organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   bill         Bill?        @relation(fields: [billId], references: [id], onDelete: Cascade)
-  bankAccount  BankAccount? @relation(fields: [bankAccountId], references: [id])
+  bankAccount  BankAccount? @relation(fields: [bankAccountId], references: [id], onDelete: Restrict)
 
   @@index([organisationId])
   @@index([billId])
@@ -2687,7 +2709,7 @@ model Document {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  folder DocumentFolder? @relation(fields: [folderId], references: [id])
+  folder DocumentFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
 
   @@index([orgId])
   @@index([type])
@@ -2713,7 +2735,7 @@ model DocumentFolder {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  parent    DocumentFolder?  @relation("FolderHierarchy", fields: [parentId], references: [id])
+  parent    DocumentFolder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   children  DocumentFolder[] @relation("FolderHierarchy")
   documents Document[]
 
@@ -2866,7 +2888,7 @@ model AutomationAuditLog {
   outputData Json? // What was created/modified
 
   userId String? // null if fully automated
-  user   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
 
@@ -3116,7 +3138,7 @@ model OnboardingProgress {
 model UserOnboardingProgress {
   id             String    @id @default(cuid())
   userId         String    @unique
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Restrict)
   currentStep    String    @default("welcome")
   completedSteps String[]  @default([])
   skippedSteps   String[]  @default([])
@@ -3134,7 +3156,7 @@ model UserOnboardingProgress {
 model OnboardingAnalysis {
   id            String         @id @default(cuid())
   userId        String
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Restrict)
   status        AnalysisStatus @default(PENDING)
   bankAnalysis  Json? // { transactionsProcessed, categorized, deductionsFound }
   emailAnalysis Json? // { emailsScanned, invoicesFound, matched }
@@ -3228,7 +3250,7 @@ model Conversation {
 
   // Relations
   organisation Organisation          @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
   messages     Message[]
   summaries    ConversationSummary[]
   memories     ConversationMemory[]
@@ -4004,7 +4026,7 @@ model RecurringInvoice {
 
   // Template info
   customerId String
-  customer   Customer @relation(fields: [customerId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
 
   // Recurrence settings
   frequency  RecurringFrequency
@@ -4035,7 +4057,7 @@ model RecurringInvoice {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdById String
-  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
 
   @@index([organisationId, isActive])
   @@index([nextRunDate])
@@ -4138,7 +4160,7 @@ model CorrectionRecord {
 
   // User who made the correction
   userId String
-  user   User   @relation("CorrectionRecords", fields: [userId], references: [id])
+  user   User   @relation("CorrectionRecords", fields: [userId], references: [id], onDelete: Restrict)
 
   createdAt DateTime @default(now())
 
@@ -4766,7 +4788,7 @@ model EmailConnection {
   updatedAt DateTime @updatedAt
 
   // Relations
-  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User            @relation(fields: [userId], references: [id], onDelete: Restrict)
   organisation Organisation    @relation(fields: [orgId], references: [id], onDelete: Cascade)
   auditLogs    EmailAuditLog[]
   SyncedEmail  SyncedEmail[]
@@ -6033,7 +6055,7 @@ model UsageEvent {
 
   // User context (optional)
   userId String?
-  user   User?   @relation("UsageEvents", fields: [userId], references: [id])
+  user   User?   @relation("UsageEvents", fields: [userId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
 
@@ -6474,7 +6496,7 @@ model UserConsent {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@unique([userId, purpose])
   @@index([userId])
@@ -6508,7 +6530,7 @@ model DataSubjectRequest {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Restrict)
   organisation Organisation? @relation(fields: [organisationId], references: [id], onDelete: SetNull)
 
   @@index([userId])
@@ -6635,7 +6657,7 @@ model PersonaInquiry {
   expiresAt         DateTime?
   metadata          Json      @default("{}") // Additional context data
 
-  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
   organization  Organisation?         @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   verifications PersonaVerification[]
 
@@ -6732,8 +6754,8 @@ model AmlScreening {
   updatedAt      DateTime  @updatedAt
   metadata       Json?
 
-  user         User?           @relation(fields: [userId], references: [id])
-  organisation Organisation    @relation(fields: [organisationId], references: [id])
+  user         User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organisation Organisation    @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   alerts       AmlAlert[]
   monitoring   AmlMonitoring[]
 
@@ -6822,7 +6844,7 @@ model KycVerification {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Restrict)
   organisation Organisation  @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   decisions    KycDecision[]
 
@@ -7849,7 +7871,7 @@ model ReceiptScan {
 
   // Relations
   expenseId String?  @unique
-  expense   Expense? @relation(fields: [expenseId], references: [id])
+  expense   Expense? @relation(fields: [expenseId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

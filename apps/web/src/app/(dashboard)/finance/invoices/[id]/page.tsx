@@ -18,8 +18,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -196,9 +195,10 @@ export default function InvoiceDetailPage({
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <HeadlineOutside subtitle="Invoice details">
-            {invoiceData.number}
-          </HeadlineOutside>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">{invoiceData.number}</h1>
+            <p className="text-muted-foreground">Invoice details</p>
+          </div>
         </div>
 
         <div className="flex gap-2">
@@ -273,7 +273,8 @@ export default function InvoiceDetailPage({
       </div>
 
       {/* Invoice Details */}
-      <AnimatedCard variant="elevated" padding="lg">
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
         <div className="space-y-8">
             {/* Header Information */}
             <div className="grid gap-8 sm:grid-cols-2">
@@ -407,11 +408,13 @@ export default function InvoiceDetailPage({
               </>
             )}
         </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
 
       {/* Actions */}
       {status !== 'paid' && (
-        <AnimatedCard variant="elevated" padding="lg">
+        <Card className="rounded-[24px]">
+          <CardContent className="p-6">
           <div className="text-lg font-semibold mb-4">Actions</div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -439,7 +442,8 @@ export default function InvoiceDetailPage({
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-        </AnimatedCard>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

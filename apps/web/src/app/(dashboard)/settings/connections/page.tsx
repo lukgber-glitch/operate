@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
 import { ConnectionGrid, AddConnectionDialog, Integration, IntegrationType } from '@/components/connections'
-import { AnimatedCard } from '@/components/ui/animated-card'
-import { HeadlineOutside } from '@/components/ui/headline-outside'
 
 export default function ConnectionsPage() {
   const router = useRouter()

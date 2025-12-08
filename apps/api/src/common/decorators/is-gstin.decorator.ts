@@ -39,7 +39,7 @@ export class IsGSTINConstraint implements ValidatorConstraintInterface {
    * @param value - Value to validate
    * @returns True if valid GSTIN
    */
-  validate(value: any): boolean {
+  validate(value: unknown): boolean {
     if (typeof value !== 'string') {
       return false;
     }
@@ -133,7 +133,7 @@ export function IsOptionalGSTIN(validationOptions?: IsGSTINOptions) {
       options: validationOptions,
       constraints: [],
       validator: {
-        validate(value: any): boolean {
+        validate(value: unknown): boolean {
           // If value is null or undefined, it's valid (optional)
           if (value === null || value === undefined || value === '') {
             return true;
@@ -245,7 +245,7 @@ export function IsGSTINArray(validationOptions?: IsGSTINOptions) {
       options: validationOptions,
       constraints: [],
       validator: {
-        validate(value: any): boolean {
+        validate(value: unknown): boolean {
           if (!Array.isArray(value)) {
             return false;
           }

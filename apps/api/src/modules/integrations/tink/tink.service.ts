@@ -118,7 +118,7 @@ export class TinkService {
     );
 
     // Mark as configured
-    (this as any).isConfigured = true;
+    (this as Prisma.InputJsonValue).isConfigured = true;
     this.logger.log(`Tink Service initialized (${this.config.environment} mode, Mock: ${this.config.mockMode})`);
   }
 
@@ -644,7 +644,7 @@ export class TinkService {
       LIMIT 1
     `;
 
-    return result && (result as any[]).length > 0 ? (result as any[])[0] : null;
+    return result && (result as Prisma.InputJsonValue[]).length > 0 ? (result as Prisma.InputJsonValue[])[0] : null;
   }
 
   /**

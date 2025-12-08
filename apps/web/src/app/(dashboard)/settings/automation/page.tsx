@@ -24,8 +24,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -263,9 +261,10 @@ export default function AutomationSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside subtitle="Configure AI-powered automation for your business operations">
-        Automation Settings
-      </HeadlineOutside>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Automation Settings</h1>
+        <p className="text-muted-foreground">Configure AI-powered automation for your business operations</p>
+      </div>
 
       {/* Info Banner */}
       <Alert className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950">

@@ -1,23 +1,9 @@
 // Minimal Design System Components
-export { AnimatedCard } from './animated-card'
-export type { AnimatedCardProps } from './animated-card'
-
-export { PrimaryButton } from './primary-button'
-export type { PrimaryButtonProps } from './primary-button'
-
 export { MinimalInput } from './minimal-input'
 export type { MinimalInputProps } from './minimal-input'
 
-export { HeadlineOutside } from './headline-outside'
-export type { HeadlineOutsideProps } from './headline-outside'
-
-export { IconButton } from './icon-button'
-export type { IconButtonProps } from './icon-button'
-
-// Legacy components (keep for backwards compatibility)
-export { AnimatedCard as AnimatedCardLegacy } from './AnimatedCard'
-export { AnimatedButton } from './AnimatedButton'
-export { AnimatedIcon } from './AnimatedIcon'
+// Loading indicators
+export { GuruLoader } from './guru-loader'
 
 // Shadcn UI components
 export { Alert } from './alert'

@@ -108,7 +108,7 @@ export class DeductionsService {
             deductibleAmount: aiSuggestion.deductibleAmount,
             confidence: aiSuggestion.confidence,
             reasoning: aiSuggestion.reasoning,
-            requirements: aiSuggestion.requirements as any,
+            requirements: aiSuggestion.requirements as Prisma.InputJsonValue,
           },
         });
         savedSuggestions.push(this.mapToDto(updated));
@@ -128,7 +128,7 @@ export class DeductionsService {
             legalReference: aiSuggestion.legalReference,
             legalDescription: aiSuggestion.legalDescription,
             status: 'SUGGESTED',
-            requirements: aiSuggestion.requirements as any,
+            requirements: aiSuggestion.requirements as Prisma.InputJsonValue,
             confidence: aiSuggestion.confidence,
             reasoning: aiSuggestion.reasoning,
           },
@@ -404,7 +404,7 @@ export class DeductionsService {
       legalReference: suggestion.legalReference,
       legalDescription: suggestion.legalDescription,
       status: suggestion.status as DeductionSuggestionStatus,
-      requirements: suggestion.requirements as any,
+      requirements: suggestion.requirements as Prisma.InputJsonValue,
       confidence: parseFloat(suggestion.confidence.toString()),
       reasoning: suggestion.reasoning,
       createdAt: suggestion.createdAt,

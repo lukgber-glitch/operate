@@ -49,6 +49,7 @@ import { EventsModule } from './websocket/events.module';
 // QueueModule temporarily disabled - causes startup hang with Redis ACL
 // import { QueueModule } from './modules/queue/queue.module';
 import { PerformanceModule } from './modules/performance/performance.module';
+import { BulkModule } from './modules/bulk/bulk.module';
 // import { QueueBoardAuthMiddleware } from './modules/queue/queue-board.middleware';
 // JobsModule temporarily disabled - causes startup hang with Redis ACL
 // import { JobsModule } from './modules/jobs/jobs.module';
@@ -221,6 +222,9 @@ import configuration from './config/configuration';
     // WebSocket module (real-time updates)
     EventsModule,
     PerformanceModule,
+
+    // Bulk operations module
+    BulkModule,
 
     // QueueModule and JobsModule temporarily disabled
     // They cause startup hang due to Bull Board Redis connection issues

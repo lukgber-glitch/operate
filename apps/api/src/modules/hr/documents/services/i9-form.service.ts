@@ -159,21 +159,21 @@ export class I9FormService {
       data: {
         section2CompletedAt: new Date(),
         firstDayOfEmployment: new Date(dto.firstDayOfEmployment),
-        documentListA: dto.documentListA as any,
+        documentListA: dto.documentListA as Prisma.InputJsonValue,
         documentListATitle: dto.documentListATitle,
         documentListAIssuer: dto.documentListAIssuer,
         documentListANumber: dto.documentListANumber,
         documentListAExpiry: dto.documentListAExpiry
           ? new Date(dto.documentListAExpiry)
           : null,
-        documentListB: dto.documentListB as any,
+        documentListB: dto.documentListB as Prisma.InputJsonValue,
         documentListBTitle: dto.documentListBTitle,
         documentListBIssuer: dto.documentListBIssuer,
         documentListBNumber: dto.documentListBNumber,
         documentListBExpiry: dto.documentListBExpiry
           ? new Date(dto.documentListBExpiry)
           : null,
-        documentListC: dto.documentListC as any,
+        documentListC: dto.documentListC as Prisma.InputJsonValue,
         documentListCTitle: dto.documentListCTitle,
         documentListCIssuer: dto.documentListCIssuer,
         documentListCNumber: dto.documentListCNumber,

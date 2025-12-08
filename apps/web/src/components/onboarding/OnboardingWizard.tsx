@@ -8,8 +8,6 @@ import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { MorphButton } from '@/components/animation/MorphButton'
-import { AnimatedContainer } from '@/components/ui/animated-container'
 
 import { OnboardingProgress, type OnboardingStep } from './OnboardingProgress'
 import { useOnboardingWizard } from './hooks/useOnboardingWizard'
@@ -231,47 +229,36 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
 
     const formData = methods.watch()
 
-    // Map step IDs to morphIds
-    const morphId = `onboarding-step-${step.id}`
-
-    const stepContent = (() => {
-      switch (step.id) {
-        case 'welcome':
-          return <WelcomeStep />
-        case 'company':
-          return <CompanyInfoStep />
-        case 'banking':
-          return <BankingStep />
-        case 'email':
-          return <EmailStep />
-        case 'tax':
-          return <TaxStep />
-        case 'accounting':
-          return <AccountingStep />
-        case 'preferences':
-          return <PreferencesStep />
-        case 'completion':
-          return (
-            <CompletionStep
-              companyName={formData.companyInfo?.name}
-              setupCompleted={{
-                banking: formData.banking?.connected,
-                email: formData.email?.connected,
-                tax: formData.tax?.connected,
-                accounting: formData.accounting?.connected,
-              }}
-            />
-          )
-        default:
-          return null
-      }
-    })()
-
-    return (
-      <AnimatedContainer morphId={morphId} key={morphId}>
-        {stepContent}
-      </AnimatedContainer>
-    )
+    switch (step.id) {
+      case 'welcome':
+        return <WelcomeStep />
+      case 'company':
+        return <CompanyInfoStep />
+      case 'banking':
+        return <BankingStep />
+      case 'email':
+        return <EmailStep />
+      case 'tax':
+        return <TaxStep />
+      case 'accounting':
+        return <AccountingStep />
+      case 'preferences':
+        return <PreferencesStep />
+      case 'completion':
+        return (
+          <CompletionStep
+            companyName={formData.companyInfo?.name}
+            setupCompleted={{
+              banking: formData.banking?.connected,
+              email: formData.email?.connected,
+              tax: formData.tax?.connected,
+              accounting: formData.accounting?.connected,
+            }}
+          />
+        )
+      default:
+        return null
+    }
   }
 
   const currentStepData = STEPS[currentStep]
@@ -300,10 +287,10 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
           {/* Header - Only show on non-welcome and non-completion steps */}
           {currentStepData?.id !== 'welcome' && currentStepData?.id !== 'completion' && (
             <div className="text-center space-y-3">
-              <h1 className="text-4xl font-semibold text-[var(--color-text)]">
+              <h1 className="text-4xl font-semibold">
                 Welcome to Operate
               </h1>
-              <p className="text-lg text-[var(--color-text-secondary)]">
+              <p className="text-lg text-muted-foreground">
                 Let&apos;s set up your account in just a few steps
               </p>
             </div>
@@ -329,7 +316,7 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
 
           {/* Navigation - Hide on completion step */}
           {currentStepData?.id !== 'completion' && (
-            <Card className="p-6 rounded-[24px] border-[var(--color-border)] bg-[var(--color-surface)]">
+            <Card className="p-6 rounded-[24px]">
               <div className="flex items-center justify-between gap-4">
                 <Button
                   type="button"
@@ -343,11 +330,11 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
                 </Button>
 
                 <div className="flex items-center gap-3 text-center">
-                  <span className="text-sm text-[var(--color-text-secondary)] font-medium">
+                  <span className="text-sm text-muted-foreground font-medium">
                     Step {currentStep + 1} of {STEPS.length}
                   </span>
                   {progress.estimatedTimeRemaining && (
-                    <span className="text-xs text-[var(--color-text-secondary)] hidden md:inline">
+                    <span className="text-xs text-muted-foreground hidden md:inline">
                       • {progress.estimatedTimeRemaining} remaining
                     </span>
                   )}
@@ -365,12 +352,10 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
                     </Button>
                   )}
                   {isLastStep ? (
-                    <MorphButton
+                    <Button
                       type="submit"
                       disabled={isSubmitting}
-                      targetId="main-chat-card"
-                      variant="primary"
-                      size="md"
+                      className="h-12 px-6 rounded-[12px]"
                     >
                       {isSubmitting ? (
                         <>Processing...</>
@@ -380,18 +365,16 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
                           Complete Setup
                         </>
                       )}
-                    </MorphButton>
+                    </Button>
                   ) : (
-                    <MorphButton
+                    <Button
                       type="button"
                       onClick={handleNext}
-                      targetId={`onboarding-step-${STEPS[currentStep + 1]?.id}`}
-                      variant="primary"
-                      size="md"
+                      className="h-12 px-6 rounded-[12px]"
                     >
                       Next
                       <ChevronRight className="w-4 h-4 ml-2" />
-                    </MorphButton>
+                    </Button>
                   )}
                 </div>
               </div>

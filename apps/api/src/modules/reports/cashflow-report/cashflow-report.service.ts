@@ -958,7 +958,7 @@ export class CashFlowReportService {
 
     // Operating cash flow ratio
     const period = await this.parseReportingPeriod({
-      periodType: 'QUARTERLY' as any,
+      periodType: 'QUARTERLY' as Prisma.InputJsonValue,
     });
     const netIncome = await this.getNetIncome(orgId, period);
     const operatingActivities = await this.calculateOperatingActivities(
@@ -1070,7 +1070,7 @@ export class CashFlowReportService {
     const period = await this.parseReportingPeriod({
       startDate: dto.startDate,
       endDate: dto.endDate,
-    } as any);
+    } as Prisma.InputJsonValue);
 
     // Get cash flow components
     const netIncome = await this.getNetIncome(orgId, period);
@@ -1507,7 +1507,7 @@ export class CashFlowReportService {
       orgId,
       previousPeriod,
       currency,
-      {} as any,
+      {} as Prisma.InputJsonValue,
     );
 
     // Calculate variances

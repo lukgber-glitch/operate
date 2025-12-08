@@ -401,7 +401,7 @@ export class StripeConnectService {
   private async logAuditEvent(event: {
     userId: string;
     action: string;
-    metadata: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await this.prisma.$executeRaw`

@@ -6,8 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -86,16 +85,18 @@ export default function NewExpensePage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <HeadlineOutside subtitle="Submit a new expense report">
-          New Expense
-        </HeadlineOutside>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">New Expense</h1>
+          <p className="text-muted-foreground">Submit a new expense report</p>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Form */}
         <div className="space-y-6 lg:col-span-2">
           {/* Expense Details */}
-          <AnimatedCard variant="elevated" padding="lg">
+          <Card className="rounded-[24px]">
+            <CardContent className="p-6">
             <div className="text-lg font-semibold mb-4">Expense Details</div>
             <div className="space-y-4">
               <div className="space-y-2">
@@ -185,10 +186,12 @@ export default function NewExpensePage() {
                 </div>
               </div>
             </div>
-          </AnimatedCard>
+            </CardContent>
+          </Card>
 
           {/* Receipt Upload */}
-          <AnimatedCard variant="elevated" padding="lg">
+          <Card className="rounded-[24px]">
+            <CardContent className="p-6">
             <div className="text-lg font-semibold mb-4">Receipt</div>
               <div className="space-y-4">
                 <div className="flex items-center justify-center w-full">
@@ -228,10 +231,12 @@ export default function NewExpensePage() {
                   </div>
                 )}
               </div>
-          </AnimatedCard>
+            </CardContent>
+          </Card>
 
           {/* Notes */}
-          <AnimatedCard variant="elevated" padding="lg">
+          <Card className="rounded-[24px]">
+            <CardContent className="p-6">
             <div className="text-lg font-semibold mb-4">Additional Notes</div>
               <Textarea
                 placeholder="Add any additional information about this expense..."
@@ -239,12 +244,14 @@ export default function NewExpensePage() {
                 onChange={(e) => setNotes(e.target.value)}
                 rows={4}
               />
-          </AnimatedCard>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Summary Sidebar */}
         <div className="space-y-6">
-          <AnimatedCard variant="elevated" padding="lg">
+          <Card className="rounded-[24px]">
+            <CardContent className="p-6">
             <div className="text-lg font-semibold mb-4">Summary</div>
             <div className="space-y-4">
               <div className="flex justify-between text-sm">
@@ -274,9 +281,11 @@ export default function NewExpensePage() {
                 </div>
               </div>
             </div>
-          </AnimatedCard>
+            </CardContent>
+          </Card>
 
-          <AnimatedCard variant="elevated" padding="lg">
+          <Card className="rounded-[24px]">
+            <CardContent className="p-6">
             <div className="space-y-3">
               <Button
                 className="w-full"
@@ -294,9 +303,11 @@ export default function NewExpensePage() {
                 Cancel
               </Button>
             </div>
-          </AnimatedCard>
+            </CardContent>
+          </Card>
 
-          <AnimatedCard variant="elevated" padding="lg" className="bg-muted/50">
+          <Card className="rounded-[24px] bg-muted/50">
+            <CardContent className="p-6">
               <div className="space-y-2 text-sm text-muted-foreground">
                 <p className="font-semibold text-foreground">
                   Expense Guidelines
@@ -308,7 +319,8 @@ export default function NewExpensePage() {
                   <li>Include detailed description</li>
                 </ul>
               </div>
-          </AnimatedCard>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

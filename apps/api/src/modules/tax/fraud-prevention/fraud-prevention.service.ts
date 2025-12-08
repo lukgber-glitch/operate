@@ -30,7 +30,7 @@ export class FraudPreventionService {
       anomalyStdDeviationThreshold: 2,
       velocityIncreaseThreshold: 1.5,
       autoBlockDuplicateScore: 0.95,
-      autoBlockSeverity: 'critical' as any, // FraudDetector uses string, not enum
+      autoBlockSeverity: 'critical' as Prisma.InputJsonValue, // FraudDetector uses string, not enum
       requireReviewAbove: 100000, // €1,000
       requireReviewForCategories: ['VEHICLE_BUSINESS', 'TRAVEL_BUSINESS'],
       logAllChecks: true,
@@ -88,14 +88,14 @@ export class FraudPreventionService {
 
     // Store alerts
     for (const alert of result.alerts) {
-      await this.storeAlert(alert as any);
+      await this.storeAlert(alert as Prisma.InputJsonValue);
     }
 
     this.logger.log(
       `Fraud check complete: ${result.alerts.length} alerts generated`,
     );
 
-    return result as any;
+    return result as Prisma.InputJsonValue;
   }
 
   /**
@@ -364,8 +364,8 @@ export class FraudPreventionService {
     // Top categories
     const categoryCount = new Map<string, number>();
     for (const alert of alerts) {
-      if (alert.details && (alert.details as any).categoryCode) {
-        const cat = (alert.details as any).categoryCode;
+      if (alert.details && (alert.details as Prisma.InputJsonValue).categoryCode) {
+        const cat = (alert.details as Prisma.InputJsonValue).categoryCode;
         categoryCount.set(cat, (categoryCount.get(cat) || 0) + 1);
       }
     }
@@ -382,8 +382,8 @@ export class FraudPreventionService {
         end: endDate,
       },
       totalAlerts,
-      alertsBySeverity: alertsBySeverity as any,
-      alertsByType: alertsByType as any,
+      alertsBySeverity: alertsBySeverity as Prisma.InputJsonValue,
+      alertsByType: alertsByType as Prisma.InputJsonValue,
       reviewedAlerts,
       confirmedFraud,
       falsePositives,
@@ -486,7 +486,7 @@ export class FraudPreventionService {
    * Convert Prisma alert to DTO
    */
   private toAlertDto(alert: any): FraudAlertDto {
-    const details = alert.details as any || {};
+    const details = alert.details as Prisma.InputJsonValue || {};
     return {
       id: alert.id,
       type: alert.type,

@@ -47,8 +47,8 @@ export class WiseService {
     this.config = {
       apiToken: this.configService.get<string>('WISE_API_TOKEN') || '',
       environment: this.configService.get<string>('WISE_SANDBOX') === 'true'
-        ? 'sandbox' as any
-        : 'production' as any,
+        ? 'sandbox' as Prisma.InputJsonValue
+        : 'production' as Prisma.InputJsonValue,
       webhookSecret: this.configService.get<string>('WISE_WEBHOOK_SECRET') || '',
       sandbox: this.configService.get<string>('WISE_SANDBOX') === 'true',
       profileId: this.configService.get<string>('WISE_PROFILE_ID') || undefined,

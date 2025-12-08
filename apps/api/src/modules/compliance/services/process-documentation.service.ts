@@ -111,7 +111,7 @@ export class ProcessDocumentationService {
         tenantId,
         version,
         status: ProcessDocumentationStatus.DRAFT,
-        sections: sections as any,
+        sections: sections as Prisma.InputJsonValue,
       },
     });
 
@@ -144,13 +144,13 @@ export class ProcessDocumentationService {
     }
 
     // Update section
-    const sections = doc.sections as any;
+    const sections = doc.sections as Prisma.InputJsonValue;
     sections[section] = content;
 
     await this.prisma.processDocumentation.update({
       where: { id: doc.id },
       data: {
-        sections: sections as any,
+        sections: sections as Prisma.InputJsonValue,
         updatedAt: new Date(),
       },
     });
@@ -233,7 +233,7 @@ export class ProcessDocumentationService {
       };
     }
 
-    const sections = doc.sections as any as ProcessDocumentationSections;
+    const sections = doc.sections as Prisma.InputJsonValue as ProcessDocumentationSections;
     const missingSections: string[] = [];
     const missingFields: string[] = [];
     const warnings: string[] = [];

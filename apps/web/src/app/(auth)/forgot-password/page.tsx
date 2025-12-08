@@ -3,8 +3,7 @@
 import { useTranslations } from 'next-intl';
 
 import { PasswordResetRequestForm } from '@/components/auth/password-reset-form';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import { LanguageSelector } from '@/components/auth/language-selector';
 
 export default function ForgotPasswordPage() {
@@ -13,16 +12,19 @@ export default function ForgotPasswordPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <HeadlineOutside subtitle={t('forgotPasswordDescription') || "Enter your email address and we'll send you a link to reset your password"}>
-          {t('forgotPasswordTitle') || 'Reset password'}
-        </HeadlineOutside>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t('forgotPasswordTitle') || 'Reset password'}</h1>
+          <p className="text-muted-foreground">{t('forgotPasswordDescription') || "Enter your email address and we'll send you a link to reset your password"}</p>
+        </div>
         <LanguageSelector />
       </div>
-      <AnimatedCard variant="elevated" padding="lg">
-        <div className="space-y-6">
-          <PasswordResetRequestForm />
-        </div>
-      </AnimatedCard>
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
+          <div className="space-y-6">
+            <PasswordResetRequestForm />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

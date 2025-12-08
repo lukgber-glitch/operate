@@ -715,7 +715,7 @@ export class RelationshipTrackerService {
         return [];
       }
 
-      const metadata = entity.metadata as any;
+      const metadata = entity.metadata as Prisma.InputJsonValue;
       const emailHistory = metadata.emailHistory || [];
 
       return emailHistory.map((e: any) => ({
@@ -752,7 +752,7 @@ export class RelationshipTrackerService {
           },
         },
         update: {
-          metrics: metrics as any,
+          metrics: metrics as Prisma.InputJsonValue,
           healthScore: metrics.healthScore,
           healthStatus: metrics.healthStatus,
         },
@@ -760,7 +760,7 @@ export class RelationshipTrackerService {
           entityId,
           entityType,
           organisationId: orgId,
-          metrics: metrics as any,
+          metrics: metrics as Prisma.InputJsonValue,
           healthScore: metrics.healthScore,
           healthStatus: metrics.healthStatus,
         },

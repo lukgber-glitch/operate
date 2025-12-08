@@ -62,7 +62,7 @@ export class TrueLayerService {
     this.config = {
       clientId: this.configService.get<string>('TRUELAYER_CLIENT_ID') || '',
       clientSecret: this.configService.get<string>('TRUELAYER_CLIENT_SECRET') || '',
-      environment: isProduction ? 'production' as any : 'sandbox' as any,
+      environment: isProduction ? 'production' as Prisma.InputJsonValue : 'sandbox' as Prisma.InputJsonValue,
       redirectUri: this.configService.get<string>('TRUELAYER_REDIRECT_URI') ||
         'http://localhost:3000/integrations/truelayer/callback',
       webhookUrl: this.configService.get<string>('TRUELAYER_WEBHOOK_URL') || '',
@@ -558,7 +558,7 @@ export class TrueLayerService {
   private async logAuditEvent(event: {
     userId: string;
     action: string;
-    metadata: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await this.prisma.$executeRaw`

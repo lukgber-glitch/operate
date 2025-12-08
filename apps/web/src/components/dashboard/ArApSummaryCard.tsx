@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatedCard, CardContent, CardHeader, CardTitle } from '@/components/ui/AnimatedCard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowUp, ArrowDown, TrendingUp, TrendingDown } from 'lucide-react';
 import { useArApSummary } from '@/hooks/useDashboard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -18,7 +18,7 @@ export function ArApSummaryCard({ type }: ArApSummaryCardProps) {
 
   if (isLoading) {
     return (
-      <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
+      <Card className="rounded-[24px]">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             {title}
@@ -29,13 +29,13 @@ export function ArApSummaryCard({ type }: ArApSummaryCardProps) {
           <Skeleton className="h-8 w-32 mb-2" />
           <Skeleton className="h-4 w-24" />
         </CardContent>
-      </AnimatedCard>
+      </Card>
     );
   }
 
   if (error || !data) {
     return (
-      <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
+      <Card className="rounded-[24px]">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             {title}
@@ -46,14 +46,14 @@ export function ArApSummaryCard({ type }: ArApSummaryCardProps) {
           <div className="text-2xl font-bold">€0</div>
           <div className="text-xs text-muted-foreground">Keine Daten verfügbar</div>
         </CardContent>
-      </AnimatedCard>
+      </Card>
     );
   }
 
   const isPositive = data.changePercent >= 0;
 
   return (
-    <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
+    <Card className="rounded-[24px]">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
@@ -76,6 +76,6 @@ export function ArApSummaryCard({ type }: ArApSummaryCardProps) {
           )}
         </div>
       </CardContent>
-    </AnimatedCard>
+    </Card>
   );
 }

@@ -1,24 +1,25 @@
 import { Brain, Mail, Building2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 export default function IntelligencePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <HeadlineOutside subtitle="AI-powered insights and automation for your business">
-        <span className="flex items-center gap-3">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-3">
           <Brain className="h-8 w-8 text-purple-600" />
           Intelligence
-        </span>
-      </HeadlineOutside>
+        </h1>
+        <p className="text-muted-foreground">AI-powered insights and automation for your business</p>
+      </div>
 
       {/* Intelligence Features Grid */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* Email Intelligence */}
-        <AnimatedCard variant="elevated" padding="lg" className="hover:shadow-lg transition-shadow">
+        <Card className="rounded-[24px] hover:shadow-lg transition-shadow">
+          <CardContent className="p-6">
           <div className="space-y-6">
             <div className="flex items-start justify-between">
               <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/20">
@@ -76,10 +77,12 @@ export default function IntelligencePage() {
             </div>
             </div>
           </div>
-        </AnimatedCard>
+          </CardContent>
+        </Card>
 
         {/* Bank Intelligence (Coming Soon) */}
-        <AnimatedCard variant="elevated" padding="lg" className="opacity-60">
+        <Card className="rounded-[24px] opacity-60">
+          <CardContent className="p-6">
           <div className="space-y-6">
             <div className="flex items-start justify-between">
               <div className="p-3 rounded-lg bg-green-100 dark:bg-green-900/20">
@@ -125,11 +128,13 @@ export default function IntelligencePage() {
             </div>
             </div>
           </div>
-        </AnimatedCard>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Getting Started */}
-      <AnimatedCard variant="elevated" padding="lg">
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-semibold">Getting Started with Intelligence</h3>
@@ -190,7 +195,8 @@ export default function IntelligencePage() {
           </ol>
           </div>
         </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
     </div>
   );
 }

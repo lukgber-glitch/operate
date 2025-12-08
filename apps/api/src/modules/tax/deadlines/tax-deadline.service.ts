@@ -175,7 +175,7 @@ export class TaxDeadlineService {
     }
 
     // Parse organization settings
-    const settings = (org.settings as any) || {};
+    const settings = (org.settings as Prisma.InputJsonValue) || {};
     const taxFilingFrequency = settings.taxFilingFrequency || 'quarterly';
     const isVatRegistered = !!org.vatNumber;
 

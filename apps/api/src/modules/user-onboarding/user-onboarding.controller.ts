@@ -17,6 +17,7 @@ import {
   ApiParam,
   ApiBody,
 } from '@nestjs/swagger';
+import { RequestWithUser } from '../../common/types/request.types';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -28,6 +29,10 @@ import {
   GoToStepDto,
 } from './dto';
 import { ONBOARDING_STEPS } from './user-onboarding.constants';
+
+interface StepDataBody {
+  stepData?: Record<string, unknown>;
+}
 
 /**
  * User Onboarding Controller
@@ -55,7 +60,7 @@ export class UserOnboardingController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Onboarding progress not found' })
-  async getProgress(@Req() req: any): Promise<OnboardingProgressDto> {
+  async getProgress(@Req() req: RequestWithUser): Promise<OnboardingProgressDto> {
     const userId = req.user.userId;
     return this.onboardingService.getProgress(userId);
   }
@@ -74,7 +79,7 @@ export class UserOnboardingController {
     type: OnboardingProgressDto,
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async startOnboarding(@Req() req: any): Promise<OnboardingProgressDto> {
+  async startOnboarding(@Req() req: RequestWithUser): Promise<OnboardingProgressDto> {
     const userId = req.user.userId;
     return this.onboardingService.startOnboarding(userId);
   }
@@ -116,9 +121,9 @@ export class UserOnboardingController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Onboarding progress not found' })
   async completeStep(
-    @Req() req: any,
+    @Req() req: RequestWithUser,
     @Param('stepId') stepId: string,
-    @Body() body?: { stepData?: Record<string, any> },
+    @Body() body?: StepDataBody,
   ): Promise<OnboardingProgressDto> {
     const userId = req.user.userId;
     return this.onboardingService.completeStep(userId, stepId, body?.stepData);
@@ -148,7 +153,7 @@ export class UserOnboardingController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Onboarding progress not found' })
   async skipStep(
-    @Req() req: any,
+    @Req() req: RequestWithUser,
     @Param('stepId') stepId: string,
   ): Promise<OnboardingProgressDto> {
     const userId = req.user.userId;
@@ -179,7 +184,7 @@ export class UserOnboardingController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Onboarding progress not found' })
   async goToStep(
-    @Req() req: any,
+    @Req() req: RequestWithUser,
     @Param('stepId') stepId: string,
   ): Promise<OnboardingProgressDto> {
     const userId = req.user.userId;
@@ -203,7 +208,7 @@ export class UserOnboardingController {
   @ApiResponse({ status: 400, description: 'Missing required steps or already completed' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Onboarding progress not found' })
-  async completeOnboarding(@Req() req: any): Promise<OnboardingProgressDto> {
+  async completeOnboarding(@Req() req: RequestWithUser): Promise<OnboardingProgressDto> {
     const userId = req.user.userId;
     return this.onboardingService.completeOnboarding(userId);
   }
@@ -227,7 +232,7 @@ export class UserOnboardingController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
   @ApiResponse({ status: 404, description: 'Onboarding progress not found' })
-  async resetOnboarding(@Req() req: any): Promise<OnboardingProgressDto> {
+  async resetOnboarding(@Req() req: RequestWithUser): Promise<OnboardingProgressDto> {
     const userId = req.user.userId;
     return this.onboardingService.resetOnboarding(userId);
   }
@@ -251,7 +256,7 @@ export class UserOnboardingController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getStatus(@Req() req: any): Promise<{ isComplete: boolean }> {
+  async getStatus(@Req() req: RequestWithUser): Promise<{ isComplete: boolean }> {
     const userId = req.user.userId;
     const isComplete = await this.onboardingService.isOnboardingComplete(userId);
     return { isComplete };

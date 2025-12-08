@@ -4,9 +4,7 @@ import * as React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Upload, X, Info } from 'lucide-react'
 
-import { AnimatedCard } from '@/components/ui/animated-card'
 import { Card, CardContent } from '@/components/ui/card'
-import { HeadlineOutside } from '@/components/ui/headline-outside'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -344,10 +342,12 @@ export function CompanyProfileStep() {
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside subtitle="Tell us about your business. This information will be used to set up your account and configure country-specific tax settings.">
-        Company Information
-      </HeadlineOutside>
-      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px]">
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-semibold tracking-tight">Company Information</h2>
+        <p className="text-muted-foreground">Tell us about your business. This information will be used to set up your account and configure country-specific tax settings.</p>
+      </div>
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
         <div className="space-y-6">
           {/* Company Name */}
           <div className="space-y-2">
@@ -853,7 +853,8 @@ export function CompanyProfileStep() {
             </p>
           </div>
         </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
     </div>
   )
 }

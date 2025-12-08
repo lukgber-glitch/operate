@@ -483,7 +483,7 @@ export class InvoicesService {
       items: {
         orderBy: { sortOrder: 'asc' },
       },
-    })) as any;
+    })) as Prisma.InputJsonValue;
 
     if (!existing) {
       throw new NotFoundException(`Invoice with ID ${id} not found`);

@@ -28,8 +28,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -142,9 +141,10 @@ export default function CRMPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <HeadlineOutside subtitle="Manage your clients and relationships">
-          CRM
-        </HeadlineOutside>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">CRM</h1>
+          <p className="text-muted-foreground">Manage your clients and relationships</p>
+        </div>
         <Dialog
           open={isCreateOpen || !!editClient}
           onOpenChange={(open) => {
@@ -174,8 +174,9 @@ export default function CRMPage() {
       </div>
 
       {/* Filters */}
-      <AnimatedCard variant="elevated" padding="lg">
-        <div className="space-y-6">
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
+          <div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
             <div className="sm:col-span-2">
               <div className="relative">
@@ -262,7 +263,8 @@ export default function CRMPage() {
             </div>
           </div>
         </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
 
       {/* Content */}
       {isLoading ? (
@@ -272,15 +274,17 @@ export default function CRMPage() {
           <Skeleton className="h-12 w-full" />
         </div>
       ) : !clientsData?.items.length ? (
-        <AnimatedCard variant="elevated" padding="lg">
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <p className="text-muted-foreground mb-4">No clients found</p>
-            <Button onClick={() => setIsCreateOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Your First Client
-            </Button>
-          </div>
-        </AnimatedCard>
+        <Card className="rounded-[24px]">
+          <CardContent className="p-6">
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <p className="text-muted-foreground mb-4">No clients found</p>
+              <Button onClick={() => setIsCreateOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Your First Client
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       ) : view === 'grid' ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {clientsData.items.map((client) => (
@@ -293,8 +297,9 @@ export default function CRMPage() {
           ))}
         </div>
       ) : (
-        <AnimatedCard variant="elevated" padding="md">
-          <Table>
+        <Card className="rounded-[24px]">
+          <CardContent className="p-4">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>
@@ -409,7 +414,8 @@ export default function CRMPage() {
               ))}
             </TableBody>
           </Table>
-        </AnimatedCard>
+          </CardContent>
+        </Card>
       )}
 
       {/* Pagination */}

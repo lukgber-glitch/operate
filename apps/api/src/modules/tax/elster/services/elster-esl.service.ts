@@ -169,7 +169,7 @@ export class ElsterEslService {
           submissionId: result.transferTicket,
           transferTicket: result.transferTicket,
           submittedAt: result.success ? new Date() : null,
-          data: data as any,
+          data: data as Prisma.InputJsonValue,
           response: result.rawResponse,
           errors: result.errors ? { errors: result.errors } : null,
           certificateId: certificate.id,
@@ -612,8 +612,8 @@ export class ElsterEslService {
       submittedAt: f.submittedAt,
       responseAt: f.responseAt,
       data: f.data as ZMData,
-      response: f.response as any,
-      errors: f.errors as any,
+      response: f.response as Prisma.InputJsonValue,
+      errors: f.errors as Prisma.InputJsonValue,
       certificateId: f.certificateId,
       createdAt: f.createdAt,
       updatedAt: f.updatedAt,
@@ -650,7 +650,7 @@ export class ElsterEslService {
         period: data.period.month || data.period.quarter || 12,
         periodType: this.determinePeriodType(data.period),
         status: ZMFilingStatus.DRAFT,
-        data: data as any,
+        data: data as Prisma.InputJsonValue,
         createdBy: 'system', // TODO: Get from request context
       },
     });

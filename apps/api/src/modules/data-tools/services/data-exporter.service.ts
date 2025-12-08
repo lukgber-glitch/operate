@@ -96,7 +96,7 @@ export class DataExporterService {
 
       return {
         jobId: crypto.randomUUID(),
-        status: 'completed' as any,
+        status: 'completed' as Prisma.InputJsonValue,
         fileUrl,
         fileSize: stats.size,
         downloadToken: this.generateDownloadToken(filePath),

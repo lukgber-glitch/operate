@@ -18,10 +18,8 @@ import {
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { AnimatedCard } from '@/components/ui/animated-card'
-import { HeadlineOutside } from '@/components/ui/headline-outside'
-import { useGSAP } from '@gsap/react'
-import { gsap, staggerIn } from '@/lib/gsap'
+import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 
 const NEXT_STEPS = [
   {
@@ -88,76 +86,6 @@ interface CompletionStepProps {
 export function CompletionStep({ companyName, setupCompleted }: CompletionStepProps) {
   const router = useRouter()
   const [isNavigating, setIsNavigating] = React.useState(false)
-  const headlineRef = React.useRef<HTMLDivElement>(null)
-  const checkmarkRef = React.useRef<HTMLDivElement>(null)
-  const badgeRef = React.useRef<HTMLDivElement>(null)
-  const nextStepsRef = React.useRef<HTMLDivElement>(null)
-  const ctaButtonRef = React.useRef<HTMLButtonElement>(null)
-
-  // Celebration animation sequence
-  useGSAP(() => {
-    const tl = gsap.timeline({ delay: 0.2 })
-
-    // Headline fades in first
-    tl.fromTo(
-      headlineRef.current,
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
-    )
-      // Checkmark bounces in with rotation
-      .fromTo(
-        checkmarkRef.current,
-        { scale: 0, rotation: -180, opacity: 0 },
-        { scale: 1, rotation: 0, opacity: 1, duration: 0.8, ease: 'back.out(2)' },
-        '-=0.2'
-      )
-      // Add a little bounce
-      .to(checkmarkRef.current, {
-        scale: 1.1,
-        duration: 0.15,
-        ease: 'power2.out',
-      })
-      .to(checkmarkRef.current, {
-        scale: 1,
-        duration: 0.15,
-        ease: 'power2.in',
-      })
-      // Badge pops in
-      .fromTo(
-        badgeRef.current,
-        { opacity: 0, scale: 0.8 },
-        { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.7)' },
-        '-=0.1'
-      )
-
-    // Stagger next steps cards
-    if (nextStepsRef.current) {
-      const cards = nextStepsRef.current.querySelectorAll('.next-step-card')
-      staggerIn(cards, {
-        delay: 1.2,
-        stagger: 0.08,
-        duration: 0.4,
-      })
-    }
-
-    // CTA button pulses in at the end
-    if (ctaButtonRef.current) {
-      tl.fromTo(
-        ctaButtonRef.current,
-        { opacity: 0, scale: 0.9 },
-        { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.7)' },
-        '-=0.2'
-      )
-        // Add subtle pulse animation
-        .to(ctaButtonRef.current, {
-          scale: 1.05,
-          duration: 0.6,
-          ease: 'power1.inOut',
-          yoyo: true,
-          repeat: -1,
-        })
-    }
-  }, [])
 
   const handleGoToDashboard = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -200,112 +128,104 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
   return (
     <div className="space-y-6">
       {/* Success Headline */}
-      <HeadlineOutside
-        ref={headlineRef}
-        align="center"
-        subtitle={
-          companyName
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-semibold tracking-tight">Setup Complete!</h2>
+        <p className="text-muted-foreground">
+          {companyName
             ? `Welcome aboard, ${companyName}! Your account is ready to use.`
-            : 'Your account is ready to use.'
-        }
-        style={{ opacity: 0 }}
-      >
-        Setup Complete!
-      </HeadlineOutside>
+            : 'Your account is ready to use.'}
+        </p>
+      </div>
 
       {/* Success Message Card */}
-      <AnimatedCard variant="elevated" padding="lg" className="rounded-[24px] border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
-        <div className="text-center space-y-4">
-          <div
-            ref={checkmarkRef}
-            className="mx-auto w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center"
-            style={{ opacity: 0 }}
-          >
-            <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-500" />
+      <Card className="rounded-[24px] border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
+        <CardContent className="p-6">
+          <div className="text-center space-y-4">
+            <div className="mx-auto w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-500" />
+            </div>
           </div>
-        </div>
-        <div className="text-center space-y-4 mt-6">
-          <div
-            ref={badgeRef}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-900 text-sm"
-            style={{ opacity: 0 }}
-          >
-            <CheckCircle2 className="w-4 h-4 text-green-600" />
-            <span>
-              <strong>{completedIntegrations}</strong> integration
-              {completedIntegrations !== 1 ? 's' : ''} connected
-            </span>
+          <div className="text-center space-y-4 mt-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-900 text-sm">
+              <CheckCircle2 className="w-4 h-4 text-green-600" />
+              <span>
+                <strong>{completedIntegrations}</strong> integration
+                {completedIntegrations !== 1 ? 's' : ''} connected
+              </span>
+            </div>
+            <p className="text-sm text-green-700 dark:text-green-300 max-w-md mx-auto">
+              You&apos;re all set! Your business is now connected to Operate and ready to streamline
+              your operations.
+            </p>
           </div>
-          <p className="text-sm text-green-700 dark:text-green-300 max-w-md mx-auto">
-            You&apos;re all set! Your business is now connected to Operate and ready to streamline
-            your operations.
-          </p>
-        </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
 
       {/* Quick Actions */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-center">What Would You Like to Do First?</h3>
-        <div ref={nextStepsRef} className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {NEXT_STEPS.map((step) => (
-            <AnimatedCard
+            <Card
               key={step.title}
-              variant="outline"
-              padding="sm"
-              className="next-step-card rounded-[24px] hover:border-primary/50 transition-all cursor-pointer group"
-              style={{ opacity: 0 }}
+              className="rounded-[24px] hover:border-primary/50 transition-all cursor-pointer group"
               onClick={(e) => handleNavigate(e, step.href)}
             >
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 p-2 rounded-lg bg-[var(--color-primary)]/10 group-hover:bg-[var(--color-primary)]/20 transition-colors">
-                  <step.icon className="w-5 h-5 text-[var(--color-primary)]" />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-medium group-hover:text-[var(--color-primary)] transition-colors">
-                      {step.title}
-                    </h4>
-                    <ArrowRight className="w-4 h-4 text-[var(--color-text-muted)] group-hover:text-[var(--color-primary)] group-hover:translate-x-1 transition-all" />
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                    <step.icon className="w-5 h-5 text-primary" />
                   </div>
-                  <p className="text-xs text-[var(--color-text-secondary)]">{step.description}</p>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-medium group-hover:text-primary transition-colors">
+                        {step.title}
+                      </h4>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                    </div>
+                    <p className="text-xs text-muted-foreground">{step.description}</p>
+                  </div>
                 </div>
-              </div>
-            </AnimatedCard>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
 
       {/* Resources */}
-      <AnimatedCard variant="default" padding="lg" className="rounded-[24px]">
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-lg font-semibold">Need Help Getting Started?</h3>
-            <p className="text-sm text-[var(--color-text-secondary)] mt-1">Check out these resources to make the most of Operate</p>
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold">Need Help Getting Started?</h3>
+              <p className="text-sm text-muted-foreground mt-1">Check out these resources to make the most of Operate</p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              {RESOURCES.map((resource) => (
+                <Button
+                  key={resource.title}
+                  type="button"
+                  variant="outline"
+                  className="h-auto flex-col items-start p-4 text-left"
+                  onClick={(e) => handleNavigate(e, resource.href)}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <resource.icon className="w-4 h-4" />
+                    <span className="text-sm font-medium">{resource.title}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{resource.description}</span>
+                </Button>
+              ))}
+            </div>
           </div>
-          <div className="grid gap-3 md:grid-cols-3">
-            {RESOURCES.map((resource) => (
-              <Button
-                key={resource.title}
-                type="button"
-                variant="outline"
-                className="h-auto flex-col items-start p-4 text-left"
-                onClick={(e) => handleNavigate(e, resource.href)}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <resource.icon className="w-4 h-4" />
-                  <span className="text-sm font-medium">{resource.title}</span>
-                </div>
-                <span className="text-xs text-muted-foreground">{resource.description}</span>
-              </Button>
-            ))}
-          </div>
-        </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
 
       {/* Tips */}
-      <AnimatedCard variant="default" padding="lg" className="rounded-[24px] bg-muted/50">
+      <Card className="rounded-[24px] bg-muted/50">
+        <CardContent className="p-6">
           <div className="space-y-2">
-            <h4 className="text-sm font-semibold">💡 Pro Tips</h4>
+            <h4 className="text-sm font-semibold">Pro Tips</h4>
             <ul className="space-y-1.5 text-xs text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span>•</span>
@@ -331,18 +251,17 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
               </li>
             </ul>
           </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
 
       {/* Primary CTA */}
       <div className="flex justify-center pt-4">
         <Button
-          ref={ctaButtonRef}
           type="button"
           size="lg"
           onClick={handleGoToDashboard}
           disabled={isNavigating}
-          className="w-full md:w-auto rounded-[12px] bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)]"
-          style={{ opacity: 0 }}
+          className="w-full md:w-auto rounded-[12px]"
         >
           <LayoutDashboard className="w-4 h-4 mr-2" />
           {isNavigating ? 'Loading...' : 'Go to Dashboard'}

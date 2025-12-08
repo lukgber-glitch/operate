@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatedCard, CardContent, CardHeader, CardTitle } from '@/components/ui/AnimatedCard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   FileText,
@@ -53,7 +53,7 @@ export function QuickActions() {
   ];
 
   return (
-    <AnimatedCard hoverEffect="lift" className="rounded-[24px]">
+    <Card className="rounded-[24px]">
       <CardHeader>
         <CardTitle className="text-lg">Schnellaktionen</CardTitle>
       </CardHeader>
@@ -77,6 +77,6 @@ export function QuickActions() {
           })}
         </div>
       </CardContent>
-    </AnimatedCard>
+    </Card>
   );
 }

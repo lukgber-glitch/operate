@@ -87,7 +87,7 @@ export class ArAgingService {
 
       // Calculate amount due (total - paid)
       const totalAmount = invoice.totalAmount?.toNumber() || 0;
-      const paidAmount = (invoice as any).paidAmount?.toNumber() || 0;
+      const paidAmount = (invoice as Prisma.InputJsonValue).paidAmount?.toNumber() || 0;
       const amountDue = totalAmount - paidAmount;
 
       // Skip if below minimum amount filter

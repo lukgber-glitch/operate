@@ -311,7 +311,7 @@ export class LexofficeMapperService {
         select: { settings: true },
       });
 
-      const settings = (org?.settings as any) || {};
+      const settings = (org?.settings as Prisma.InputJsonValue) || {};
       const existingProducts = settings.lexofficeProducts || [];
 
       for (const product of products) {

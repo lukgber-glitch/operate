@@ -444,14 +444,14 @@ export class XeroMigrationService {
           orgId: progress.config.orgId,
           xeroTenantId: progress.config.xeroTenantId,
           status: progress.status,
-          config: progress.config as any,
-          progress: progress as any,
+          config: progress.config as Prisma.InputJsonValue,
+          progress: progress as Prisma.InputJsonValue,
           startedAt: progress.startedAt,
           completedAt: progress.completedAt,
         },
         update: {
           status: progress.status,
-          progress: progress as any,
+          progress: progress as Prisma.InputJsonValue,
           completedAt: progress.completedAt,
         },
       });
@@ -476,7 +476,7 @@ export class XeroMigrationService {
 
       if (!migration) return null;
 
-      return migration.progress as any;
+      return migration.progress as Prisma.InputJsonValue;
     } catch (error) {
       this.logger.error(
         `Failed to load migration state: ${error.message}`,
@@ -525,7 +525,7 @@ export class XeroMigrationService {
       xeroTenantId: m.xeroTenantId,
       startedAt: m.startedAt,
       completedAt: m.completedAt,
-      overallProgress: (m.progress as any)?.overallProgress || 0,
+      overallProgress: (m.progress as Prisma.InputJsonValue)?.overallProgress || 0,
     }));
   }
 }

@@ -16,9 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
@@ -113,9 +112,10 @@ export default function EmployeeDetailPage() {
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            <HeadlineOutside subtitle="View and manage employee information">
-              Employee Details
-            </HeadlineOutside>
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight">Employee Details</h1>
+              <p className="text-muted-foreground">View and manage employee information</p>
+            </div>
           </div>
 
           <div className="flex gap-2">
@@ -142,7 +142,8 @@ export default function EmployeeDetailPage() {
 
         <EmployeeCard employee={employee} />
 
-        <AnimatedCard variant="elevated" padding="lg">
+        <Card className="rounded-[24px]">
+          <CardContent className="p-6">
           <Tabs defaultValue="overview" className="w-full">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -288,7 +289,8 @@ export default function EmployeeDetailPage() {
               </div>
             </TabsContent>
           </Tabs>
-        </AnimatedCard>
+          </CardContent>
+        </Card>
       </div>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

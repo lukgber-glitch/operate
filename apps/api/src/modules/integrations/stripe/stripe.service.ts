@@ -49,7 +49,7 @@ export class StripeService {
 
     // Initialize Stripe client
     this.stripe = new Stripe(this.config.secretKey, {
-      apiVersion: this.config.apiVersion as any,
+      apiVersion: this.config.apiVersion as Prisma.InputJsonValue,
       typescript: true,
       maxNetworkRetries: 3,
       timeout: 30000,

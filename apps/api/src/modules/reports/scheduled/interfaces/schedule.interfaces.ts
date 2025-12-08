@@ -119,7 +119,7 @@ export interface ReportGenerationResult {
   fileName: string;
   fileSizeBytes: number;
   format: string;
-  metadata: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface DeliveryResult {

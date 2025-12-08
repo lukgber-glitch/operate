@@ -103,7 +103,7 @@ export class QuickBooksAuthService {
     this.startStateCleanup();
 
     // Mark as configured
-    (this as any).isConfigured = true;
+    (this as Prisma.InputJsonValue).isConfigured = true;
     this.logger.log(
       `QuickBooks Auth Service initialized (${this.config.environment} environment)`,
     );
@@ -190,7 +190,7 @@ export class QuickBooksAuthService {
         throw new InternalServerErrorException('Failed to exchange code for tokens');
       }
 
-      const token = tokenResponse.token as any;
+      const token = tokenResponse.token as Prisma.InputJsonValue;
 
       // Encrypt tokens
       const encryptedAccess = QuickBooksEncryptionUtil.encrypt(
@@ -377,7 +377,7 @@ export class QuickBooksAuthService {
       this.oauthClient.token.setToken({
         refresh_token: refreshToken,
         realmId: connection.companyId,
-      } as any);
+      } as Prisma.InputJsonValue);
 
       // Refresh the token
       const tokenResponse = await this.oauthClient.refresh();
@@ -386,7 +386,7 @@ export class QuickBooksAuthService {
         throw new InternalServerErrorException('Failed to refresh tokens');
       }
 
-      const token = tokenResponse.token as any;
+      const token = tokenResponse.token as Prisma.InputJsonValue;
 
       // Encrypt new tokens
       const encryptedAccess = QuickBooksEncryptionUtil.encrypt(
@@ -491,7 +491,7 @@ export class QuickBooksAuthService {
       this.oauthClient.token.setToken({
         access_token: accessToken,
         realmId: connection.companyId,
-      } as any);
+      } as Prisma.InputJsonValue);
 
       // Revoke tokens (best effort - don't fail if revocation fails)
       try {

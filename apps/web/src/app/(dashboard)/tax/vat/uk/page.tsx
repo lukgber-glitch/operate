@@ -5,10 +5,8 @@ import { HMRCConnectionStatus } from '@/components/tax/uk/HMRCConnectionStatus';
 import { VATObligationsList } from '@/components/tax/uk/VATObligationsList';
 import { VATReturnWizard } from '@/components/tax/uk/VATReturnWizard';
 import { useHMRCConnection } from '@/hooks/useHMRC';
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -23,61 +21,62 @@ export default function UKVATPage() {
   if (showWizard) {
     return (
       <div className="space-y-6">
-        <HeadlineOutside
-          subtitle="Submit your VAT return to HMRC Making Tax Digital"
-          actions={
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowWizard(false)}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-          }
-        >
-          File UK VAT Return
-        </HeadlineOutside>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">File UK VAT Return</h1>
+            <p className="text-muted-foreground">Submit your VAT return to HMRC Making Tax Digital</p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowWizard(false)}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+        </div>
 
-        <AnimatedCard variant="elevated" padding="lg">
-          <VATReturnWizard onComplete={() => setShowWizard(false)} />
-        </AnimatedCard>
+        <Card className="rounded-[24px]">
+          <CardContent className="p-6">
+            <VATReturnWizard onComplete={() => setShowWizard(false)} />
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside
-        subtitle="Manage your UK VAT returns and HMRC connection"
-        actions={
-          <div className="flex gap-2">
-            <Link href="/tax/vat">
-              <Button variant="outline">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                All VAT
-              </Button>
-            </Link>
-            <Button
-              onClick={() => setShowWizard(true)}
-              disabled={!connection?.isConnected}
-            >
-              <FileText className="mr-2 h-4 w-4" />
-              File Return
-            </Button>
-          </div>
-        }
-      >
-        <div className="flex items-center gap-3">
-          UK VAT
-          <Badge variant="outline" className="text-xs">
-            Making Tax Digital
-          </Badge>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-3">
+            UK VAT
+            <Badge variant="outline" className="text-xs">
+              Making Tax Digital
+            </Badge>
+          </h1>
+          <p className="text-muted-foreground">Manage your UK VAT returns and HMRC connection</p>
         </div>
-      </HeadlineOutside>
+        <div className="flex gap-2">
+          <Link href="/tax/vat">
+            <Button variant="outline">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              All VAT
+            </Button>
+          </Link>
+          <Button
+            onClick={() => setShowWizard(true)}
+            disabled={!connection?.isConnected}
+          >
+            <FileText className="mr-2 h-4 w-4" />
+            File Return
+          </Button>
+        </div>
+      </div>
 
-      <AnimatedCard variant="elevated" padding="lg">
-        <div className="space-y-6">
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
+          <div className="space-y-6">
 
       {/* HMRC Connection Status */}
       <HMRCConnectionStatus />
@@ -222,8 +221,9 @@ export default function UKVATPage() {
           </TabsContent>
         </Tabs>
       )}
-        </div>
-      </AnimatedCard>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

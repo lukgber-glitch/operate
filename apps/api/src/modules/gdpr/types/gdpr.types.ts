@@ -207,7 +207,7 @@ export interface DataSubjectRequest {
   extensionReason?: string;
   completedBy?: string;
   resultFileUrl?: string;
-  metadata: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -282,7 +282,7 @@ export interface UserDataExport {
     documents: any[];
     consents: ConsentRecord[];
     auditLogs: any[];
-    metadata: Record<string, any>;
+    metadata?: Record<string, unknown>;
   };
 }
 

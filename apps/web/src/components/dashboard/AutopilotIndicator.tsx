@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatedCard, CardContent } from '@/components/ui/AnimatedCard';
+import { Card, CardContent } from '@/components/ui/card';
 import { Sparkles, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -83,14 +83,11 @@ export function AutopilotIndicator({ className }: AutopilotIndicatorProps) {
   const isActive = status?.enabled && (status?.activeCount ?? 0) > 0;
 
   return (
-    <AnimatedCard
-      hoverEffect="interactive"
-      className={cn('rounded-[24px] relative overflow-hidden', className)}
-    >
+    <Card className={cn('rounded-[24px] relative overflow-hidden', className)}>
       {/* Pulse animation when active */}
       {isActive && (
         <div className="absolute inset-0 opacity-30 pointer-events-none">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[var(--color-primary)] to-transparent animate-pulse" />
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary to-transparent animate-pulse" />
         </div>
       )}
 
@@ -102,24 +99,24 @@ export function AutopilotIndicator({ className }: AutopilotIndicatorProps) {
                 className={cn(
                   'p-2.5 rounded-xl transition-colors',
                   isActive
-                    ? 'bg-[var(--color-primary)]/20'
-                    : 'bg-[var(--color-surface)]'
+                    ? 'bg-primary/20'
+                    : 'bg-muted'
                 )}
               >
                 <Sparkles
                   className={cn(
                     'h-5 w-5 transition-colors',
                     isActive
-                      ? 'text-[var(--color-primary)]'
-                      : 'text-[var(--color-text-secondary)]'
+                      ? 'text-primary'
+                      : 'text-muted-foreground'
                   )}
                 />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
+                <h3 className="text-sm font-semibold">
                   {isActive ? 'Autopilot Active' : 'Autopilot Off'}
                 </h3>
-                <p className="text-xs text-[var(--color-text-secondary)]">
+                <p className="text-xs text-muted-foreground">
                   {isActive
                     ? `${status.activeCount} automation${status.activeCount !== 1 ? 's' : ''} running`
                     : 'Enable to automate tasks'}
@@ -136,31 +133,31 @@ export function AutopilotIndicator({ className }: AutopilotIndicatorProps) {
                   </span>
                 </div>
               )}
-              <Settings className="h-4 w-4 text-[var(--color-text-secondary)]" />
+              <Settings className="h-4 w-4 text-muted-foreground" />
             </div>
           </div>
 
           {/* Active features list */}
           {isActive && status && (
-            <div className="mt-3 pt-3 border-t border-[var(--color-border)]">
+            <div className="mt-3 pt-3 border-t border-border">
               <div className="flex flex-wrap gap-1.5">
                 {status.features.emailInvoiceExtraction && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                     Email→Invoice
                   </span>
                 )}
                 {status.features.bankReconciliation && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                     Bank Sync
                   </span>
                 )}
                 {status.features.proactiveSuggestions && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                     Smart Suggestions
                   </span>
                 )}
                 {status.features.documentClassification && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                     AI Classification
                   </span>
                 )}
@@ -169,6 +166,6 @@ export function AutopilotIndicator({ className }: AutopilotIndicatorProps) {
           )}
         </CardContent>
       </Link>
-    </AnimatedCard>
+    </Card>
   );
 }

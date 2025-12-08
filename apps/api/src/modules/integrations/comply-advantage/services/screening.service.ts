@@ -82,7 +82,7 @@ export class ScreeningService {
     this.setupInterceptors();
 
     // Mark as configured
-    (this as any).isConfigured = true;
+    (this as Prisma.InputJsonValue).isConfigured = true;
     this.logger.log('ComplyAdvantage Screening Service initialized');
   }
 

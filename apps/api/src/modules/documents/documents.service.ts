@@ -178,7 +178,7 @@ export class DocumentsService {
       ...(dto.folderId && { folder: { connect: { id: dto.folderId } } }),
       tags: dto.tags || [],
       uploadedBy: userId,
-      metadata: dto.metadata as any,
+      metadata: dto.metadata as Prisma.InputJsonValue,
       status: DocumentStatus.ACTIVE,
       version: 1,
     });
@@ -460,7 +460,7 @@ export class DocumentsService {
         await this.repository.update(dto.documentId, {
           type: result.type,
           metadata: {
-            ...(document.metadata as any),
+            ...(document.metadata as Prisma.InputJsonValue),
             classification: classificationResult,
             classifiedAt: new Date().toISOString(),
           },

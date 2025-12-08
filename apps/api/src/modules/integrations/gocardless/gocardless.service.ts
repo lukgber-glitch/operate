@@ -241,7 +241,7 @@ export class GoCardlessService {
       created_at: new Date().toISOString(),
       reference: 'MANDATE-' + Date.now(),
       scheme: 'bacs',
-      status: 'pending_submission' as any,
+      status: 'pending_submission' as Prisma.InputJsonValue,
       next_possible_charge_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       payments_require_approval: false,
       metadata: {},

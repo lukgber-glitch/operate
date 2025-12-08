@@ -413,7 +413,7 @@ export class ReportGeneratorService {
     }
 
     return {
-      metadata: null as any, // Will be set by generateReport
+      metadata: null as Prisma.InputJsonValue, // Will be set by generateReport
       summary: {
         totalRevenue,
         costOfGoodsSold,
@@ -427,7 +427,7 @@ export class ReportGeneratorService {
         netIncome,
         netProfitMargin,
       },
-      sections: [revenueSection, cogsSection, opexSection, otherSection] as any,
+      sections: [revenueSection, cogsSection, opexSection, otherSection] as Prisma.InputJsonValue,
     };
   }
 
@@ -579,7 +579,7 @@ export class ReportGeneratorService {
     };
 
     return {
-      metadata: null as any,
+      metadata: null as Prisma.InputJsonValue,
       summary: {
         operatingCashFlow,
         investingCashFlow,
@@ -588,7 +588,7 @@ export class ReportGeneratorService {
         beginningBalance,
         endingBalance,
       },
-      sections: [operatingSection, investingSection, financingSection] as any,
+      sections: [operatingSection, investingSection, financingSection] as Prisma.InputJsonValue,
     };
   }
 
@@ -737,7 +737,7 @@ export class ReportGeneratorService {
     };
 
     return {
-      metadata: null as any,
+      metadata: null as Prisma.InputJsonValue,
       summary: {
         totalTaxLiability,
         totalDeductions,
@@ -745,7 +745,7 @@ export class ReportGeneratorService {
         netTaxDue,
         effectiveTaxRate,
       },
-      sections: [liabilitiesSection, deductionsSection, creditsSection] as any,
+      sections: [liabilitiesSection, deductionsSection, creditsSection] as Prisma.InputJsonValue,
     };
   }
 
@@ -847,14 +847,14 @@ export class ReportGeneratorService {
     };
 
     return {
-      metadata: null as any,
+      metadata: null as Prisma.InputJsonValue,
       summary: {
         vatCollected,
         vatPaid,
         netVatPosition,
         vatRate,
       },
-      sections: [salesSection, purchasesSection] as any,
+      sections: [salesSection, purchasesSection] as Prisma.InputJsonValue,
     };
   }
 
@@ -1022,7 +1022,7 @@ export class ReportGeneratorService {
     };
 
     return {
-      metadata: null as any,
+      metadata: null as Prisma.InputJsonValue,
       summary: {
         totalAssets,
         totalLiabilities,
@@ -1036,7 +1036,7 @@ export class ReportGeneratorService {
         currentLiabilitiesSection,
         longTermLiabilitiesSection,
         equitySection,
-      ] as any,
+      ] as Prisma.InputJsonValue,
     };
   }
 
@@ -1097,7 +1097,7 @@ export class ReportGeneratorService {
     });
 
     return {
-      metadata: null as any,
+      metadata: null as Prisma.InputJsonValue,
       summary: {
         totalExpenses,
       },
@@ -1161,7 +1161,7 @@ export class ReportGeneratorService {
     });
 
     return {
-      metadata: null as any,
+      metadata: null as Prisma.InputJsonValue,
       summary: {
         totalRevenue,
       },
@@ -1307,7 +1307,7 @@ export class ReportGeneratorService {
     }));
 
     return {
-      metadata: null as any,
+      metadata: null as Prisma.InputJsonValue,
       summary: {
         total,
         current,
@@ -1348,7 +1348,7 @@ export class ReportGeneratorService {
 
     if (source === 'expense') {
       return await this.prisma.expense.groupBy({
-        by: groupBy as any,
+        by: groupBy as Prisma.InputJsonValue,
         where: {
           orgId: organisationId,
           status: 'APPROVED',
@@ -1362,10 +1362,10 @@ export class ReportGeneratorService {
           amount: true,
         },
         _count: true,
-      }) as any;
+      }) as Prisma.InputJsonValue;
     } else if (source === 'invoice') {
       return await this.prisma.invoice.groupBy({
-        by: groupBy as any,
+        by: groupBy as Prisma.InputJsonValue,
         where: {
           orgId: organisationId,
           issueDate: {
@@ -1378,7 +1378,7 @@ export class ReportGeneratorService {
           totalAmount: true,
         },
         _count: true,
-      }) as any;
+      }) as Prisma.InputJsonValue;
     }
 
     return [];

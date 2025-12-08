@@ -98,7 +98,7 @@ export class PlaidService {
     this.plaidClient = new PlaidApi(configuration);
 
     // Mark as configured
-    (this as any).isConfigured = true;
+    (this as Prisma.InputJsonValue).isConfigured = true;
     this.logger.log(
       `Plaid Service initialized (${getPlaidEnvironmentName(this.config.environment)} mode, Mock: ${this.config.mockMode})`,
     );
@@ -594,7 +594,7 @@ export class PlaidService {
   private async logAuditEvent(event: {
     userId: string;
     action: string;
-    metadata: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }): Promise<void> {
     try {
       await this.prisma.$executeRaw`

@@ -292,8 +292,8 @@ export class ZugferdService {
         'cbc:IssueDate': invoice.issueDate.toISOString().split('T')[0],
         'cbc:InvoiceTypeCode': this.getInvoiceTypeCode(
           invoice.type,
-        ) as any,
-        'cbc:DocumentCurrencyCode': (invoice.currency || 'EUR') as any,
+        ) as Prisma.InputJsonValue,
+        'cbc:DocumentCurrencyCode': (invoice.currency || 'EUR') as Prisma.InputJsonValue,
 
         'cac:AccountingSupplierParty': {
           'cac:Party': {
@@ -305,7 +305,7 @@ export class ZugferdService {
               'cac:Country': {
                 'cbc:IdentificationCode': this.normalizeCountryCode(
                   invoice.seller.address?.country || 'DE',
-                ) as any,
+                ) as Prisma.InputJsonValue,
               },
             },
             'cac:PartyLegalEntity': {
@@ -324,7 +324,7 @@ export class ZugferdService {
               'cac:Country': {
                 'cbc:IdentificationCode': this.normalizeCountryCode(
                   invoice.buyer.address?.country || 'DE',
-                ) as any,
+                ) as Prisma.InputJsonValue,
               },
             },
             'cac:PartyLegalEntity': {
@@ -336,7 +336,7 @@ export class ZugferdService {
         'cac:TaxTotal': [
           {
             'cbc:TaxAmount': invoice.taxAmount.toString(),
-            'cbc:TaxAmount@currencyID': (invoice.currency || 'EUR') as any,
+            'cbc:TaxAmount@currencyID': (invoice.currency || 'EUR') as Prisma.InputJsonValue,
           },
         ],
 
@@ -356,15 +356,15 @@ export class ZugferdService {
           'cbc:InvoicedQuantity': item.quantity.toString(),
           'cbc:InvoicedQuantity@unitCode': item.unit || 'C62',
           'cbc:LineExtensionAmount': item.amount.toString(),
-          'cbc:LineExtensionAmount@currencyID': invoice.currency || (invoice.currency || 'EUR') as any,
+          'cbc:LineExtensionAmount@currencyID': invoice.currency || (invoice.currency || 'EUR') as Prisma.InputJsonValue,
           'cac:Item': {
             'cbc:Name': item.description,
           },
           'cac:Price': {
             'cbc:PriceAmount': item.unitPrice.toString(),
-            'cbc:PriceAmount@currencyID': invoice.currency || (invoice.currency || 'EUR') as any,
+            'cbc:PriceAmount@currencyID': invoice.currency || (invoice.currency || 'EUR') as Prisma.InputJsonValue,
           },
-        })) as any,
+        })) as Prisma.InputJsonValue,
       },
     };
 

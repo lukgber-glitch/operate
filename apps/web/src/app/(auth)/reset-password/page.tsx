@@ -4,8 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { PasswordResetForm } from '@/components/auth/password-reset-form';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function ResetPasswordContent() {
@@ -15,30 +14,36 @@ function ResetPasswordContent() {
   if (!token) {
     return (
       <div className="space-y-6">
-        <HeadlineOutside subtitle="This password reset link is invalid or has expired. Please request a new one.">
-          Invalid Reset Link
-        </HeadlineOutside>
-        <AnimatedCard variant="elevated" padding="lg">
-          <div className="space-y-6">
-            <p className="text-destructive text-sm">
-              This password reset link is invalid or has expired. Please request a new one.
-            </p>
-          </div>
-        </AnimatedCard>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Invalid Reset Link</h1>
+          <p className="text-muted-foreground">This password reset link is invalid or has expired. Please request a new one.</p>
+        </div>
+        <Card className="rounded-[24px]">
+          <CardContent className="p-6">
+            <div className="space-y-6">
+              <p className="text-destructive text-sm">
+                This password reset link is invalid or has expired. Please request a new one.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside subtitle="Enter your new password below">
-        Set new password
-      </HeadlineOutside>
-      <AnimatedCard variant="elevated" padding="lg">
-        <div className="space-y-6">
-          <PasswordResetForm token={token} />
-        </div>
-      </AnimatedCard>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Set new password</h1>
+        <p className="text-muted-foreground">Enter your new password below</p>
+      </div>
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
+          <div className="space-y-6">
+            <PasswordResetForm token={token} />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -51,9 +56,11 @@ export default function ResetPasswordPage() {
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-4 w-64" />
         </div>
-        <AnimatedCard variant="elevated" padding="lg">
-          <Skeleton className="h-40 w-full" />
-        </AnimatedCard>
+        <Card className="rounded-[24px]">
+          <CardContent className="p-6">
+            <Skeleton className="h-40 w-full" />
+          </CardContent>
+        </Card>
       </div>
     }>
       <ResetPasswordContent />

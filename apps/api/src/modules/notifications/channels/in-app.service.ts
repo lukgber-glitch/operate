@@ -77,7 +77,7 @@ export class InAppService {
     for (const response of userConnections) {
       try {
         // Send SSE event
-        (response as any).write(`data: ${data}\n\n`);
+        (response as Prisma.InputJsonValue).write(`data: ${data}\n\n`);
       } catch (error) {
         this.logger.warn(
           `Failed to write to SSE connection for user ${userId}: ${error.message}`,
@@ -165,7 +165,7 @@ export class InAppService {
     for (const [userId, connections] of this.connections.entries()) {
       for (const response of connections) {
         try {
-          (response as any).write(`data: ${data}\n\n`);
+          (response as Prisma.InputJsonValue).write(`data: ${data}\n\n`);
         } catch (error) {
           this.logger.warn(
             `Failed to broadcast to user ${userId}: ${error.message}`,
@@ -188,7 +188,7 @@ export class InAppService {
     for (const connections of this.connections.values()) {
       for (const response of connections) {
         try {
-          (response as any).write(`: ${heartbeat}\n\n`);
+          (response as Prisma.InputJsonValue).write(`: ${heartbeat}\n\n`);
         } catch (error) {
           // Connection is dead, will be cleaned up on next send
         }
@@ -208,7 +208,7 @@ export class InAppService {
       for (const response of connections) {
         // Try to write a comment (won't affect client)
         try {
-          (response as any).write(':ping\n\n');
+          (response as Prisma.InputJsonValue).write(':ping\n\n');
         } catch (error) {
           deadConnections.push(response);
         }

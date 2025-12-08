@@ -237,7 +237,7 @@ export class ReceiptScannerService {
 
     const where: Prisma.ReceiptScanWhereInput = {
       organisationId,
-      ...(status && { status: status.toUpperCase() as any }),
+      ...(status && { status: status.toUpperCase() as Prisma.InputJsonValue }),
       ...(userId && { userId }),
     };
 
@@ -265,7 +265,7 @@ export class ReceiptScannerService {
     ]);
 
     return {
-      data: scans as any,
+      data: scans as Prisma.InputJsonValue,
       total,
       page,
       pageSize,
@@ -280,7 +280,7 @@ export class ReceiptScannerService {
       where: { id: scanId },
     });
 
-    return scan as any;
+    return scan as Prisma.InputJsonValue;
   }
 
   // ============================================================================
@@ -344,7 +344,7 @@ export class ReceiptScannerService {
     await this.prisma.receiptScan.update({
       where: { id: params.scanId },
       data: {
-        ocrData: params.ocrResult as any,
+        ocrData: params.ocrResult as Prisma.InputJsonValue,
         ocrConfidence: params.ocrResult.confidence,
         category: params.classification.category,
         subcategory: params.classification.subcategory,
@@ -406,7 +406,7 @@ export class ReceiptScannerService {
       amount: ocrResult.totalAmount || 0,
       currency: ocrResult.currency || 'EUR',
       date: ocrResult.date || new Date(),
-      category: classification.category as any,
+      category: classification.category as Prisma.InputJsonValue,
       subcategory: classification.subcategory,
       vendorName: ocrResult.merchantName,
       vendorVatId: ocrResult.merchantVatId,

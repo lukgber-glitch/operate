@@ -23,7 +23,7 @@ import { CommunicationTimeline } from '@/components/crm/CommunicationTimeline';
 import { ContactList } from '@/components/crm/ContactList';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AnimatedCard } from '@/components/ui/animated-card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -154,7 +154,8 @@ export default function ClientDetailPage() {
       </div>
 
       {/* Client Info Card */}
-      <AnimatedCard variant="elevated" padding="lg">
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
         <div className="space-y-6">
           <h3 className="text-lg font-semibold">Contact Information</h3>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -273,7 +274,8 @@ export default function ClientDetailPage() {
             </div>
           )}
         </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
 
       {/* Metrics */}
       {metricsLoading ? (
@@ -293,7 +295,8 @@ export default function ClientDetailPage() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <AnimatedCard variant="elevated" padding="lg">
+          <Card className="rounded-[24px]">
+            <CardContent className="p-6">
             <div className="space-y-6">
               <h3 className="text-lg font-semibold">Recent Activity</h3>
               {communicationsLoading ? (
@@ -327,7 +330,8 @@ export default function ClientDetailPage() {
                 </p>
               )}
             </div>
-          </AnimatedCard>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="contacts">
@@ -347,23 +351,27 @@ export default function ClientDetailPage() {
         </TabsContent>
 
         <TabsContent value="invoices">
-          <AnimatedCard variant="elevated" padding="lg">
+          <Card className="rounded-[24px]">
+            <CardContent className="p-6">
             <div className="py-12 text-center">
               <p className="text-muted-foreground">
                 Invoice integration coming soon
               </p>
             </div>
-          </AnimatedCard>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="documents">
-          <AnimatedCard variant="elevated" padding="lg">
+          <Card className="rounded-[24px]">
+            <CardContent className="p-6">
             <div className="py-12 text-center">
               <p className="text-muted-foreground">
                 Document management coming soon
               </p>
             </div>
-          </AnimatedCard>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 

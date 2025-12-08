@@ -119,7 +119,7 @@ export class EntitlementsService {
 
     // Get max carryover allowed
     const maxCarryover = this.calculator.calculateMaxCarryover(
-      { countryCode: employee.countryCode } as any,
+      { countryCode: employee.countryCode } as Prisma.InputJsonValue,
       previousYear,
     );
 

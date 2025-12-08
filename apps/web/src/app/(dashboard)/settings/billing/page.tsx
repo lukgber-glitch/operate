@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { gsap } from 'gsap';
+import { useState } from 'react';
 import { CreditCard, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSubscription, type BillingCycle, type PlanTier } from '@/hooks/use-subscription';
@@ -19,8 +18,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 
 export default function BillingSettingsPage() {
   const {
@@ -43,81 +40,6 @@ export default function BillingSettingsPage() {
   const [selectedBillingCycle, setSelectedBillingCycle] = useState<BillingCycle>(
     subscription?.billingCycle || 'MONTHLY'
   );
-
-  // Refs for GSAP animations
-  const headerRef = useRef<HTMLDivElement>(null);
-  const planCardRef = useRef<HTMLDivElement>(null);
-  const usageRef = useRef<HTMLDivElement>(null);
-  const paymentRef = useRef<HTMLDivElement>(null);
-  const historyRef = useRef<HTMLDivElement>(null);
-  const actionsRef = useRef<HTMLDivElement>(null);
-
-  // Update billing cycle when subscription loads
-  useEffect(() => {
-    if (subscription?.billingCycle) {
-      setSelectedBillingCycle(subscription.billingCycle);
-    }
-  }, [subscription]);
-
-  // GSAP entrance animations
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-      tl.from(headerRef.current, {
-        opacity: 0,
-        y: -20,
-        duration: 0.6,
-      })
-        .from(
-          planCardRef.current,
-          {
-            opacity: 0,
-            y: 30,
-            duration: 0.6,
-          },
-          '-=0.4'
-        )
-        .from(
-          usageRef.current,
-          {
-            opacity: 0,
-            y: 30,
-            duration: 0.6,
-          },
-          '-=0.4'
-        )
-        .from(
-          paymentRef.current,
-          {
-            opacity: 0,
-            y: 30,
-            duration: 0.6,
-          },
-          '-=0.4'
-        )
-        .from(
-          historyRef.current,
-          {
-            opacity: 0,
-            y: 30,
-            duration: 0.6,
-          },
-          '-=0.4'
-        )
-        .from(
-          actionsRef.current,
-          {
-            opacity: 0,
-            y: 30,
-            duration: 0.6,
-          },
-          '-=0.4'
-        );
-    });
-
-    return () => ctx.revert();
-  }, []);
 
   const handleSelectPlan = async (tier: PlanTier, cycle: BillingCycle) => {
     if (tier === subscription?.planTier && cycle === subscription?.billingCycle) {
@@ -164,45 +86,37 @@ export default function BillingSettingsPage() {
   return (
     <div className="space-y-6 pb-16">
       {/* Header */}
-      <div ref={headerRef}>
-        <h1 className="text-3xl font-bold tracking-tight">Billing & Subscription</h1>
-        <p className="text-muted-foreground mt-2">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Billing & Subscription</h1>
+        <p className="text-muted-foreground">
           Manage your subscription, payment methods, and billing history
         </p>
       </div>
 
       {/* Current Plan */}
-      <div ref={planCardRef}>
-        <CurrentPlanCard
-          subscription={subscription}
-          usage={usage}
-          onChangePlan={() => setShowPlanDialog(true)}
-        />
-      </div>
+      <CurrentPlanCard
+        subscription={subscription}
+        usage={usage}
+        onChangePlan={() => setShowPlanDialog(true)}
+      />
 
       {/* Usage Overview */}
-      <div ref={usageRef}>
-        <UsageOverview subscription={subscription} usage={usage} />
-      </div>
+      <UsageOverview subscription={subscription} usage={usage} />
 
       {/* Payment Methods */}
-      <div ref={paymentRef}>
-        <PaymentMethods
-          paymentMethods={paymentMethods}
-          onAdd={addPaymentMethod}
-          onRemove={removePaymentMethod}
-          onSetDefault={setDefaultPaymentMethod}
-          isLoading={isLoading}
-        />
-      </div>
+      <PaymentMethods
+        paymentMethods={paymentMethods}
+        onAdd={addPaymentMethod}
+        onRemove={removePaymentMethod}
+        onSetDefault={setDefaultPaymentMethod}
+        isLoading={isLoading}
+      />
 
       {/* Billing History */}
-      <div ref={historyRef}>
-        <BillingHistory invoices={invoices} isLoading={isLoading} />
-      </div>
+      <BillingHistory invoices={invoices} isLoading={isLoading} />
 
       {/* Subscription Actions */}
-      <div ref={actionsRef} className="space-y-4">
+      <div className="space-y-4">
         {/* Switch Billing Cycle */}
         {subscription && subscription.planTier !== 'FREE' && (
           <div className="rounded-lg border bg-card p-6">

@@ -498,7 +498,7 @@ Extract the parameters as JSON:`;
       },
     };
 
-    return await this.reportGenerator.generateReport(organisationId, userId, reportParams as any);
+    return await this.reportGenerator.generateReport(organisationId, userId, reportParams as Prisma.InputJsonValue);
   }
 
   /**

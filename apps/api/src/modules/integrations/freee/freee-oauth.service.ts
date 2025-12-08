@@ -103,7 +103,7 @@ export class FreeeOAuthService {
     this.startStateCleanup();
 
     // Mark as configured
-    (this as any).isConfigured = true;
+    (this as Prisma.InputJsonValue).isConfigured = true;
     this.logger.log('freee OAuth Service initialized');
   }
 
@@ -629,7 +629,7 @@ export class FreeeOAuthService {
           requestId: event.requestId,
           ipAddress: event.ipAddress,
           userAgent: event.userAgent,
-          metadata: event.metadata as any,
+          metadata: event.metadata as Prisma.InputJsonValue,
         },
       });
     } catch (error) {

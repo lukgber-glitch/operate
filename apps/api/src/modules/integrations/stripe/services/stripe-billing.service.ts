@@ -366,7 +366,7 @@ export class StripeBillingService {
       const subscription = await this.stripe.subscriptions.update(
         dto.subscriptionId,
         {
-          pause_collection: null as any,
+          pause_collection: null as Prisma.InputJsonValue,
         },
       );
 
@@ -639,7 +639,7 @@ export class StripeBillingService {
         id: item.price.id,
         unitAmount: item.price.unit_amount || 0,
         currency: item.price.currency,
-        interval: item.price.recurring?.interval as any || 'month',
+        interval: item.price.recurring?.interval as Prisma.InputJsonValue || 'month',
         intervalCount: item.price.recurring?.interval_count || 1,
       },
     };

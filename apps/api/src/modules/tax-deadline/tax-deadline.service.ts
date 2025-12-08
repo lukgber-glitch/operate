@@ -51,7 +51,7 @@ export class TaxDeadlineService {
           organizationId: dto.organizationId,
           countryId: dto.countryId,
           taxType: dto.taxType,
-          periodType: dto.periodType as any,
+          periodType: dto.periodType as Prisma.InputJsonValue,
           periodStart: new Date(dto.periodStart),
           periodEnd: new Date(dto.periodEnd),
           dueDate: new Date(dto.dueDate),

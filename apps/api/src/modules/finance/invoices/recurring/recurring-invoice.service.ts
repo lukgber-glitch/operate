@@ -213,7 +213,7 @@ export class RecurringInvoiceService {
     if (dto.endDate !== undefined) {
       updateData.endDate = dto.endDate ? new Date(dto.endDate) : null;
     }
-    if (dto.lineItems) updateData.lineItems = dto.lineItems as any;
+    if (dto.lineItems) updateData.lineItems = dto.lineItems as Prisma.InputJsonValue;
     if (dto.currency) updateData.currency = dto.currency;
     if (dto.taxRate !== undefined) updateData.taxRate = dto.taxRate;
     if (dto.notes !== undefined) updateData.notes = dto.notes;

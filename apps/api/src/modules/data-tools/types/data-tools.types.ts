@@ -82,7 +82,7 @@ export interface ExportJob {
   startedAt?: Date;
   completedAt?: Date;
   error?: string;
-  metadata: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -106,7 +106,7 @@ export interface DeletionJob {
   confirmed: boolean;
   confirmationToken?: string;
   error?: string;
-  metadata: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }

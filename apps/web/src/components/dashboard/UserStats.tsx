@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatedCard, CardContent, CardHeader, CardTitle } from '@/components/ui/AnimatedCard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, FileText, Receipt, Zap } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -165,7 +165,7 @@ export function UserStats({ className }: UserStatsProps) {
   const hasData = stats?.hasData ?? false;
 
   return (
-    <AnimatedCard hoverEffect="none" className={cn('rounded-[24px]', className)}>
+    <Card className={cn('rounded-[24px]', className)}>
       <CardHeader>
         <CardTitle className="text-base font-semibold">Your Activity</CardTitle>
       </CardHeader>
@@ -202,13 +202,13 @@ export function UserStats({ className }: UserStatsProps) {
         </div>
 
         {!isLoading && !hasData && (
-          <div className="mt-4 p-3 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)]">
-            <p className="text-xs text-[var(--color-text-secondary)] text-center">
+          <div className="mt-4 p-3 rounded-lg bg-muted border border-border">
+            <p className="text-xs text-muted-foreground text-center">
               Connect your bank or upload documents to see your stats
             </p>
           </div>
         )}
       </CardContent>
-    </AnimatedCard>
+    </Card>
   );
 }

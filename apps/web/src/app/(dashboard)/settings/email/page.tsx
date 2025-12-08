@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EmailConnectionCard, EmailConnection } from '@/components/email/EmailConnectionCard';

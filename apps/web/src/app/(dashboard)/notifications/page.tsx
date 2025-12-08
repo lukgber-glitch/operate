@@ -14,8 +14,7 @@ import { NotificationItem } from '@/components/notifications/NotificationItem'
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { AnimatedCard } from '@/components/ui/animated-card'
-import { HeadlineOutside } from '@/components/ui/headline-outside'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -98,9 +97,10 @@ export default function NotificationsPage() {
     return (
       <div className="space-y-6">
         <div className="mb-6 flex items-center justify-between">
-          <HeadlineOutside subtitle="Manage how you receive notifications">
-            Notification Settings
-          </HeadlineOutside>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Notification Settings</h1>
+            <p className="text-muted-foreground">Manage how you receive notifications</p>
+          </div>
           <Button variant="outline" onClick={() => setActiveTab('all')}>
             Back to Notifications
           </Button>
@@ -114,11 +114,12 @@ export default function NotificationsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <HeadlineOutside subtitle={unreadCount > 0
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Notifications</h1>
+          <p className="text-muted-foreground">{unreadCount > 0
               ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`
-              : 'All caught up!'}>
-          Notifications
-        </HeadlineOutside>
+              : 'All caught up!'}</p>
+        </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setActiveTab('preferences')}>
             <Settings className="mr-2 h-4 w-4" />
@@ -133,7 +134,8 @@ export default function NotificationsPage() {
         </div>
       </div>
 
-      <AnimatedCard variant="elevated" padding="lg">
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
         <div className="space-y-6">
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
@@ -290,7 +292,8 @@ export default function NotificationsPage() {
           )}
           </div>
         </div>
-      </AnimatedCard>
+      </CardContent>
+      </Card>
     </div>
   )
 }

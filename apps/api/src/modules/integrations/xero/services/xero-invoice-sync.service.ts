@@ -306,13 +306,13 @@ export class XeroInvoiceSyncService {
    */
   private mapOperateInvoiceToXero(invoice: any, xeroContactId: string): Invoice {
     const xeroInvoice: Invoice = {
-      type: 'ACCREC' as any, // Accounts Receivable (sales invoice)
+      type: 'ACCREC' as Prisma.InputJsonValue, // Accounts Receivable (sales invoice)
       contact: {
         contactID: xeroContactId,
       },
       date: invoice.invoiceDate?.toISOString().split('T')[0],
       dueDate: invoice.dueDate?.toISOString().split('T')[0],
-      lineAmountTypes: 'Exclusive' as any, // Tax is calculated on top of line amounts
+      lineAmountTypes: 'Exclusive' as Prisma.InputJsonValue, // Tax is calculated on top of line amounts
       invoiceNumber: invoice.invoiceNumber,
       reference: invoice.reference || undefined,
       currencyCode: invoice.currency || 'EUR',

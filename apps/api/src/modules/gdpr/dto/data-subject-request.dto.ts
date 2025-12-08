@@ -138,7 +138,7 @@ export class DataSubjectRequestResponseDto {
   resultFileUrl?: string;
 
   @ApiProperty()
-  metadata: Record<string, any>;
+  metadata?: Record<string, unknown>;
 
   @ApiProperty()
   createdAt: Date;

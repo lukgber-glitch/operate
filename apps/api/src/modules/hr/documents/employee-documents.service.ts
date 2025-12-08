@@ -58,7 +58,7 @@ export class EmployeeDocumentsService {
       data: {
         employeeId,
         orgId,
-        documentType: dto.documentType as any,
+        documentType: dto.documentType as Prisma.InputJsonValue,
         fileName: file.originalname,
         fileSize: storageResult.fileSize,
         mimeType: storageResult.mimeType,
@@ -219,7 +219,7 @@ export class EmployeeDocumentsService {
     const updated = await this.prisma.employeeDocument.update({
       where: { id: documentId },
       data: {
-        status: 'VERIFIED' as any,
+        status: 'VERIFIED' as Prisma.InputJsonValue,
         verifiedAt: new Date(),
         verifiedBy: userId,
       },
@@ -253,7 +253,7 @@ export class EmployeeDocumentsService {
     const updated = await this.prisma.employeeDocument.update({
       where: { id: documentId },
       data: {
-        status: 'REJECTED' as any,
+        status: 'REJECTED' as Prisma.InputJsonValue,
         rejectedAt: new Date(),
         rejectedBy: userId,
         rejectionReason: dto.reason,
@@ -333,7 +333,7 @@ export class EmployeeDocumentsService {
       where: {
         orgId,
         deletedAt: null,
-        status: 'PENDING' as any,
+        status: 'PENDING' as Prisma.InputJsonValue,
       },
       include: {
         employee: {
@@ -370,7 +370,7 @@ export class EmployeeDocumentsService {
     const terminatedEmployees = await this.prisma.employee.findMany({
       where: {
         orgId,
-        status: 'TERMINATED' as any,
+        status: 'TERMINATED' as Prisma.InputJsonValue,
         terminationDate: { not: null },
       },
       select: {

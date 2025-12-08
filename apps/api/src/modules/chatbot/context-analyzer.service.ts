@@ -179,7 +179,7 @@ export class ContextAnalyzerService {
     const uncategorizedCount = await this.prisma.expense.count({
       where: {
         orgId,
-        category: null as any, // ExpenseCategory enum doesn't accept null in Prisma types
+        category: null as Prisma.InputJsonValue, // ExpenseCategory enum doesn't accept null in Prisma types
       },
     });
 

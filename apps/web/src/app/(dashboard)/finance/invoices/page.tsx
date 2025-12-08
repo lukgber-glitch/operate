@@ -6,8 +6,7 @@ import { useState, useEffect } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AnimatedCard } from '@/components/ui/animated-card';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -64,9 +63,10 @@ export default function InvoicesPage() {
 
   return (
     <div className="space-y-6">
-      <HeadlineOutside subtitle="Manage and track your invoices">
-        Invoices
-      </HeadlineOutside>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Invoices</h1>
+        <p className="text-muted-foreground">Manage and track your invoices</p>
+      </div>
 
       <div className="flex gap-2">
         <Button variant="outline" asChild>
@@ -88,36 +88,39 @@ export default function InvoicesPage() {
       </div>
 
       {/* Filters */}
-      <AnimatedCard variant="elevated" padding="lg">
-        <div className="flex flex-col gap-4 sm:flex-row">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search by customer or invoice number..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
-            />
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search by customer or invoice number..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <Filter className="mr-2 h-4 w-4" />
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="DRAFT">Draft</SelectItem>
+                <SelectItem value="SENT">Sent</SelectItem>
+                <SelectItem value="PAID">Paid</SelectItem>
+                <SelectItem value="OVERDUE">Overdue</SelectItem>
+                <SelectItem value="CANCELLED">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">All Statuses</SelectItem>
-              <SelectItem value="DRAFT">Draft</SelectItem>
-              <SelectItem value="SENT">Sent</SelectItem>
-              <SelectItem value="PAID">Paid</SelectItem>
-              <SelectItem value="OVERDUE">Overdue</SelectItem>
-              <SelectItem value="CANCELLED">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </AnimatedCard>
+        </CardContent>
+      </Card>
 
       {/* Invoices Table */}
-      <AnimatedCard variant="default" padding="sm">
+      <Card className="rounded-[24px]">
+        <CardContent className="p-6">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
@@ -278,7 +281,8 @@ export default function InvoicesPage() {
             )}
             </div>
           )}
-      </AnimatedCard>
+        </CardContent>
+      </Card>
     </div>
   );
 }

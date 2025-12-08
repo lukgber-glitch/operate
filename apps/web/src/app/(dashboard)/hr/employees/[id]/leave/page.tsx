@@ -8,11 +8,10 @@ import { useEffect, useState } from 'react';
 import { LeaveBalanceCard } from '@/components/hr/leave-balance-card';
 import { LeaveCalendar } from '@/components/hr/leave-calendar';
 import { LeaveRequestForm } from '@/components/hr/leave-request-form';
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -128,9 +127,10 @@ export default function EmployeeLeavePage() {
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            <HeadlineOutside subtitle="View balances and manage leave requests">
-              Leave Management
-            </HeadlineOutside>
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight">Leave Management</h1>
+              <p className="text-muted-foreground">View balances and manage leave requests</p>
+            </div>
           </div>
 
           <Button onClick={() => setShowDialog(true)}>
@@ -145,7 +145,8 @@ export default function EmployeeLeavePage() {
           ))}
         </div>
 
-        <AnimatedCard variant="elevated" padding="lg">
+        <Card className="rounded-[24px]">
+          <CardContent className="p-6">
           <div className="grid gap-6 lg:grid-cols-2">
             <LeaveCalendar requests={requests} />
 
@@ -206,7 +207,8 @@ export default function EmployeeLeavePage() {
               )}
             </div>
           </div>
-        </AnimatedCard>
+          </CardContent>
+        </Card>
       </div>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>

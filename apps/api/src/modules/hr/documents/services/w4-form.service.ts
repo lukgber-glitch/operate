@@ -96,7 +96,7 @@ export class W4FormService {
         city: dto.city,
         state: dto.state,
         zipCode: dto.zipCode,
-        filingStatus: dto.filingStatus as any,
+        filingStatus: dto.filingStatus as Prisma.InputJsonValue,
         multipleJobsOrSpouseWorks: dto.multipleJobsOrSpouseWorks,
         numberOfDependentsUnder17: dto.numberOfDependentsUnder17,
         dependentsUnder17Amount,
@@ -140,7 +140,7 @@ export class W4FormService {
     const updateData: Prisma.W4FormUpdateInput = {};
 
     if (dto.filingStatus !== undefined) {
-      updateData.filingStatus = dto.filingStatus as any;
+      updateData.filingStatus = dto.filingStatus as Prisma.InputJsonValue;
     }
 
     if (dto.multipleJobsOrSpouseWorks !== undefined) {

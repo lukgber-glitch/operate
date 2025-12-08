@@ -308,8 +308,8 @@ export class StripeProductsService {
     try {
       this.logger.log('Initializing default pricing tiers');
 
-      const products: Record<SubscriptionTier, Stripe.Product> = {} as any;
-      const prices: Record<SubscriptionTier, { monthly: Stripe.Price; yearly: Stripe.Price }> = {} as any;
+      const products: Record<SubscriptionTier, Stripe.Product> = {} as Prisma.InputJsonValue;
+      const prices: Record<SubscriptionTier, { monthly: Stripe.Price; yearly: Stripe.Price }> = {} as Prisma.InputJsonValue;
 
       for (const [tier, config] of Object.entries(this.DEFAULT_TIERS)) {
         // Create product
@@ -334,7 +334,7 @@ export class StripeProductsService {
             interval: BillingInterval.MONTH,
             nickname: `${config.name} - Monthly`,
           });
-          prices[tier as SubscriptionTier] = { monthly: monthlyPrice } as any;
+          prices[tier as SubscriptionTier] = { monthly: monthlyPrice } as Prisma.InputJsonValue;
         }
 
         // Create yearly price

@@ -7,10 +7,9 @@ import { useEffect, useState } from 'react';
 
 import { ContractForm } from '@/components/hr/contract-form';
 import { ContractList } from '@/components/hr/contract-list';
-import { AnimatedCard } from '@/components/ui/animated-card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { HeadlineOutside } from '@/components/ui/headline-outside';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
 import { useContracts } from '@/hooks/use-contracts';
@@ -133,9 +132,10 @@ export default function EmployeeContractsPage() {
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            <HeadlineOutside subtitle="Manage employment contracts">
-              Contracts
-            </HeadlineOutside>
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight">Contracts</h1>
+              <p className="text-muted-foreground">Manage employment contracts</p>
+            </div>
           </div>
 
           <Button onClick={handleCreate}>
@@ -144,13 +144,15 @@ export default function EmployeeContractsPage() {
           </Button>
         </div>
 
-        <AnimatedCard variant="elevated" padding="lg">
+        <Card className="rounded-[24px]">
+          <CardContent className="p-6">
           <ContractList
             contracts={contracts}
             onEdit={handleEdit}
             onDelete={handleDelete}
           />
-        </AnimatedCard>
+          </CardContent>
+        </Card>
       </div>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>

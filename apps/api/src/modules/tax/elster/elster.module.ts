@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { ScheduleModule } from '@nestjs/schedule';
-import { PrismaModule } from '@/common/prisma/prisma.module';
+import { DatabaseModule } from '../../database/database.module';
 import { ElsterCertificateService } from './services/elster-certificate.service';
 import { ElsterVatService } from './services/elster-vat.service';
 import { ElsterStatusService } from './services/elster-status.service';
@@ -37,7 +37,7 @@ import { StatusSchedulerService } from './jobs/status-scheduler.service';
  * - ELSTER_POLLING_INTERVAL_MS: Polling interval in ms (default: 300000 = 5min)
  */
 @Module({
-  imports: [ConfigModule, HttpModule, PrismaModule, ScheduleModule.forRoot()],
+  imports: [ConfigModule, HttpModule, DatabaseModule, ScheduleModule.forRoot()],
   providers: [
     ElsterCertificateService,
     ElsterVatService,

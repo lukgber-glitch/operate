@@ -249,7 +249,7 @@ export class CertificateRotationService {
           userAgent: entry.userAgent,
           success: entry.success,
           errorMessage: entry.errorMessage,
-          details: entry.details as any,
+          details: entry.details as Prisma.InputJsonValue,
         },
       });
     } catch (error) {

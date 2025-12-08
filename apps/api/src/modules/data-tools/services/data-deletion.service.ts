@@ -37,7 +37,7 @@ export class DataDeletionService {
         this.logger.log(`Deletion scheduled for ${options.scheduledFor}`);
         return {
           jobId: crypto.randomUUID(),
-          status: 'pending' as any,
+          status: 'pending' as Prisma.InputJsonValue,
           recordsDeleted: 0,
           tablesAffected: [],
           categories,
@@ -59,7 +59,7 @@ export class DataDeletionService {
 
       return {
         jobId: crypto.randomUUID(),
-        status: 'completed' as any,
+        status: 'completed' as Prisma.InputJsonValue,
         recordsDeleted,
         tablesAffected: [...new Set(tablesAffected)], // Remove duplicates
         categories,
