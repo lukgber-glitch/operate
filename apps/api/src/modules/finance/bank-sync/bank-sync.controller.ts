@@ -24,6 +24,7 @@ import {
 } from './bank-sync.types';
 import { BankProvider } from '@prisma/client';
 import { BankImportScheduler } from './jobs';
+import { TinkService } from '../../integrations/tink/tink.service';
 
 /**
  * Bank Sync Controller
@@ -36,6 +37,7 @@ export class BankSyncController {
     private readonly bankSyncService: BankSyncService,
     @Inject(forwardRef(() => BankImportScheduler))
     private readonly bankImportScheduler: BankImportScheduler,
+    private readonly tinkService: TinkService,
   ) {}
 
   /**
@@ -145,6 +147,32 @@ export class BankSyncController {
     };
 
     return await this.bankSyncService.syncAllConnections(params);
+  }
+
+  /**
+   * Get available banks for a country
+   * GET /organisations/:orgId/bank-connections/banks
+   */
+  @Get('banks')
+  async getBanks(@Query('country') country: string) {
+    // European countries that use Tink
+    const euroCountries = ['DE', 'AT', 'FR', 'IT', 'ES', 'NL', 'BE', 'SE', 'DK', 'NO', 'FI', 'IE', 'CH'];
+
+    if (euroCountries.includes(country)) {
+      const providers = await this.tinkService.getProviders(country);
+      return {
+        data: providers.map(p => ({
+          id: p.financialInstitution.id,
+          name: p.financialInstitution.name,
+          logo: p.image || null,
+          country: country,
+          bic: null, // Tink doesn't provide BIC in provider list
+        }))
+      };
+    }
+
+    // For US/UK, return empty (they use embedded widgets like Plaid/TrueLayer)
+    return { data: [] };
   }
 
   /**

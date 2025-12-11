@@ -228,14 +228,14 @@ export function BankingStep() {
   if (!provider) {
     return (
       <div className="space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl md:text-4xl font-semibold text-white tracking-tight mb-6">
+        <div className="text-center space-y-4 mb-8 mt-4">
+          <h1 className="text-4xl md:text-5xl font-semibold text-white tracking-tight">
             Connect Your{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
               Bank Account
             </span>
           </h1>
-          <p className="text-white/60">Link your business bank account to automatically sync transactions and streamline your bookkeeping.</p>
+          <p className="text-lg text-gray-300/90 max-w-2xl mx-auto leading-relaxed">Link your business bank account to automatically sync transactions and streamline your bookkeeping.</p>
         </div>
         <Card className="rounded-[24px]">
           <CardContent className="p-6">
@@ -261,21 +261,21 @@ export function BankingStep() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl md:text-4xl font-semibold text-white tracking-tight mb-6">
+      <div className="text-center space-y-4 mb-8 mt-4">
+        <h1 className="text-4xl md:text-5xl font-semibold text-white tracking-tight">
           Connect Your{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
             Bank Account
           </span>
         </h1>
-        <p className="text-white/60">Link your business bank account to automatically sync transactions and streamline your bookkeeping. This step is optional but highly recommended.</p>
+        <p className="text-lg text-gray-300/90 max-w-2xl mx-auto leading-relaxed">Link your business bank account to automatically sync transactions and streamline your bookkeeping. This step is optional but highly recommended.</p>
       </div>
       <Card className="rounded-[24px]">
         <CardContent className="p-6">
         <div className="space-y-6">
           {/* Security Notice */}
           <div className="flex items-start gap-3 p-4 bg-white/10 rounded-lg">
-            <ShieldCheck className="w-5 h-5 text-white/70 mt-0.5 flex-shrink-0" />
+            <ShieldCheck className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-sm font-medium text-white">Bank-level security</p>
               <p className="text-sm text-white/60">

@@ -87,7 +87,7 @@ export function AccountingStep() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-4 mb-8">
+      <div className="text-center space-y-4 mb-8 mt-4">
         <h1 className="text-4xl md:text-5xl font-semibold text-white tracking-tight">
           Accounting{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">

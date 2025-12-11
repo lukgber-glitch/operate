@@ -128,7 +128,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
   return (
     <div className="space-y-6">
       {/* Success Headline */}
-      <div className="text-center space-y-4 mb-8">
+      <div className="text-center space-y-4 mb-8 mt-4">
         <h1 className="text-4xl md:text-5xl font-semibold text-white tracking-tight">
           Setup{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
@@ -173,7 +173,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
           {NEXT_STEPS.map((step) => (
             <Card
               key={step.title}
-              className="rounded-[24px] hover:border-primary/50 transition-all cursor-pointer group"
+              className="rounded-[24px] hover:border-white/30 transition-all cursor-pointer group"
               onClick={(e) => handleNavigate(e, step.href)}
             >
               <CardContent className="p-4">
