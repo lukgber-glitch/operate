@@ -171,6 +171,19 @@
     ".planning/UI_BEAUTIFICATION_STATE.json"
   ],
 
+  "agentDefinitions": {
+    "PRISM": "agents/UI_PRISM_AGENT.md - Full checklist for fixing dark theme violations",
+    "VERIFY": "agents/UI_VERIFY_AGENT.md - Strict audit rules (1 violation = FAIL)",
+    "usage": "Agents MUST read their definition file FIRST before any work"
+  },
+
+  "headlineSpec": {
+    "size": "text-3xl md:text-4xl (NOT text-2xl)",
+    "color": "text-white with gradient span on keyword",
+    "gradient": "text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500",
+    "spacing": "mb-6 after headline"
+  },
+
   "existingAssets": {
     "GuruLoader": "apps/web/src/components/ui/guru-loader.tsx",
     "GuruLogo": "apps/web/src/components/ui/guru-logo.tsx",
@@ -181,14 +194,14 @@
   },
 
   "nextActions": [
-    "Phase 10: REAL Browser Testing with Puppeteer MCP",
-    "Test auth flows with actual clicks and form submissions",
-    "Test onboarding wizard navigation through all 8 steps",
-    "Test dashboard navigation, modals, and quick actions",
-    "Take screenshots at each step for verification"
+    "Run VERIFY on all onboarding files to confirm compliance",
+    "Apply dark theme to remaining 100+ component files",
+    "Use agents/UI_PRISM_AGENT.md for fixes",
+    "Use agents/UI_VERIFY_AGENT.md for audits",
+    "Phase 10: Browser testing after all files compliant"
   ],
 
-  "resumeCommand": "Phase 10: REAL Browser Testing. Use Puppeteer MCP for actual clicks, not just rendering.",
+  "resumeCommand": "Dark theme rollout: Launch PRISM with agents/UI_PRISM_AGENT.md spec, VERIFY with agents/UI_VERIFY_AGENT.md spec. Green OK for success states.",
 
   "completedFiles": [
     "apps/web/src/app/globals.css - blue palette CSS vars + glassmorphism import",
