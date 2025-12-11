@@ -135,19 +135,23 @@ export function EmailStep() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
-          <Mail className="w-5 h-5" />
-          Connect Your Email
-        </h2>
-        <p className="text-muted-foreground">Connect your business email to automatically extract invoices, receipts, and important documents. Connect one or both email providers.</p>
+      <div className="text-center space-y-4 mb-8">
+        <h1 className="text-4xl md:text-5xl font-semibold text-white tracking-tight">
+          Connect Your{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+            Email
+          </span>
+        </h1>
+        <p className="text-lg text-gray-300/90 max-w-2xl mx-auto leading-relaxed">
+          Connect your business email to automatically extract invoices, receipts, and important documents. Connect one or both email providers.
+        </p>
       </div>
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10">
         <CardContent className="p-6">
         <div className="space-y-6">
           {/* Security Notice */}
           <Alert>
-            <ShieldCheck className="w-4 h-4" />
+            <ShieldCheck className="w-4 h-4 text-white/70" />
             <AlertDescription className="ml-2">
               <strong>Secure & Private:</strong> We only read emails containing
               invoices and receipts. Your credentials are encrypted with
@@ -158,7 +162,7 @@ export function EmailStep() {
 
           {/* Provider Cards */}
           <div className="space-y-4">
-            <h4 className="text-sm font-medium">Choose your email provider</h4>
+            <h4 className="text-sm font-medium text-white">Choose your email provider</h4>
             <div className="grid grid-cols-1 gap-4">
               {EMAIL_PROVIDERS.map((provider) => {
                 const connection =
@@ -196,9 +200,9 @@ export function EmailStep() {
 
           {/* Success Message */}
           {anyConnected && (
-            <Alert className="bg-green-50 border-green-200">
-              <ShieldCheck className="w-4 h-4 text-green-600" />
-              <AlertDescription className="ml-2 text-green-800">
+            <Alert className="bg-white/10 border border-white/20">
+              <ShieldCheck className="w-4 h-4 text-white/70" />
+              <AlertDescription className="ml-2 text-white">
                 <strong>Email Connected!</strong> Your invoices and receipts
                 will now be automatically extracted and categorized. You can
                 manage your email connections anytime in Settings.
@@ -208,24 +212,24 @@ export function EmailStep() {
 
           {/* Benefits Section */}
           <div className="space-y-4 pt-6 border-t">
-            <h4 className="text-sm font-medium flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-primary" />
+            <h4 className="text-sm font-medium text-white flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-white/70" />
               What you get with email integration
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {BENEFITS.map((benefit, index) => (
                 <div
                   key={index}
-                  className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg"
+                  className="flex items-start gap-3 p-3 bg-white/10 rounded-lg"
                 >
-                  <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <benefit.icon className="w-4 h-4 text-primary" />
+                  <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <benefit.icon className="w-4 h-4 text-white/70" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium mb-0.5">
+                    <p className="text-sm font-medium mb-0.5 text-white">
                       {benefit.title}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-white/60">
                       {benefit.description}
                     </p>
                   </div>
@@ -235,13 +239,13 @@ export function EmailStep() {
           </div>
 
           {/* Privacy & Security Info */}
-          <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="flex items-start gap-3 p-4 bg-white/10 border border-white/20 rounded-lg">
+            <Info className="w-5 h-5 text-white/70 mt-0.5 flex-shrink-0" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-blue-900 mb-1">
+              <p className="text-sm font-medium text-white mb-1">
                 How we protect your privacy
               </p>
-              <ul className="text-xs text-blue-800 space-y-1">
+              <ul className="text-xs text-white/60 space-y-1">
                 <li>
                   • We only scan emails with specific keywords (invoice,
                   receipt, bill)
@@ -259,7 +263,7 @@ export function EmailStep() {
               </ul>
               <Button
                 variant="link"
-                className="h-auto p-0 text-xs text-blue-700 mt-2"
+                className="h-auto p-0 text-xs text-white mt-2"
                 asChild
               >
                 <a
@@ -279,7 +283,7 @@ export function EmailStep() {
               <Button
                 variant="ghost"
                 onClick={handleSkip}
-                className="text-muted-foreground"
+                className="text-white/60"
               >
                 Skip for now - I'll connect later
               </Button>
@@ -291,17 +295,17 @@ export function EmailStep() {
 
       {/* Alternative: Manual Upload Reminder */}
       {!anyConnected && (
-        <Card className="border-dashed rounded-[24px]">
+        <Card className="border-dashed rounded-[24px] bg-white/5 backdrop-blur-xl border-white/10">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
-                <FileText className="w-6 h-6 text-muted-foreground" />
+              <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <FileText className="w-6 h-6 text-white/70" />
               </div>
               <div className="flex-1">
-                <h4 className="text-sm font-medium mb-1">
+                <h4 className="text-sm font-medium text-white mb-1">
                   Prefer to upload manually?
                 </h4>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-white/60">
                   You can always upload invoices and receipts manually from your
                   dashboard. However, email integration saves significant time
                   and ensures nothing is missed.

@@ -21,7 +21,7 @@ const TAX_PROVIDERS: TaxProvider[] = [
   {
     id: 'elster',
     name: 'ELSTER',
-    icon: '🇩🇪',
+    icon: 'Globe',
     description: 'Official German tax filing system',
     countries: ['DE'],
     recommended: true,
@@ -29,7 +29,7 @@ const TAX_PROVIDERS: TaxProvider[] = [
   {
     id: 'finanzonline',
     name: 'FinanzOnline',
-    icon: '🇦🇹',
+    icon: 'Globe',
     description: 'Austrian tax authority portal',
     countries: ['AT'],
     recommended: true,
@@ -37,14 +37,14 @@ const TAX_PROVIDERS: TaxProvider[] = [
   {
     id: 'estv',
     name: 'ESTV',
-    icon: '🇨🇭',
+    icon: 'Globe',
     description: 'Swiss Federal Tax Administration',
     countries: ['CH'],
   },
   {
     id: 'impots-gouv',
     name: 'impots.gouv.fr',
-    icon: '🇫🇷',
+    icon: 'Globe',
     description: 'French tax authority portal',
     countries: ['FR'],
   },
@@ -74,22 +74,29 @@ export function TaxStep() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-semibold tracking-tight">Connect Tax Software</h2>
-        <p className="text-muted-foreground">Connect to your country&apos;s tax authority portal to streamline tax filing and VAT returns. This step is optional.</p>
+      <div className="text-center space-y-4 mb-8">
+        <h1 className="text-4xl md:text-5xl font-semibold text-white tracking-tight">
+          Tax{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+            Software
+          </span>
+        </h1>
+        <p className="text-lg text-gray-300/90 max-w-2xl mx-auto leading-relaxed">
+          Connect to your country&apos;s tax authority portal to streamline tax filing and VAT returns. This step is optional.
+        </p>
       </div>
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10">
         <CardContent className="p-6">
         <div className="space-y-6">
           {connectedTax ? (
-            <div className="flex items-center justify-between p-4 bg-primary/10 border border-primary/20 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-white/10 border border-white/20 rounded-lg">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-primary" />
+                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-white/70" />
                 </div>
                 <div>
-                  <p className="font-medium">Tax Software Connected</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="font-medium text-white">Tax Software Connected</p>
+                  <p className="text-sm text-white/60">
                     {TAX_PROVIDERS.find((p) => p.id === selectedProvider)?.name}
                   </p>
                 </div>
@@ -108,11 +115,11 @@ export function TaxStep() {
           ) : (
             <>
               {/* Security Notice */}
-              <div className="flex items-start gap-3 p-4 bg-muted rounded-lg">
-                <ShieldCheck className="w-5 h-5 text-primary mt-0.5" />
+              <div className="flex items-start gap-3 p-4 bg-white/10 rounded-lg">
+                <ShieldCheck className="w-5 h-5 text-white/70 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium">Secure and compliant</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm font-medium text-white">Secure and compliant</p>
+                  <p className="text-sm text-white/60">
                     Your tax credentials are encrypted and stored securely. We comply with all
                     data protection regulations.
                   </p>
@@ -122,28 +129,30 @@ export function TaxStep() {
               {/* Provider Options */}
               {filteredProviders.length > 0 ? (
                 <div className="space-y-3">
-                  <h4 className="text-sm font-medium">Choose your tax software</h4>
+                  <h4 className="text-sm font-medium text-white">Choose your tax software</h4>
                   <div className="grid grid-cols-1 gap-3">
                     {filteredProviders.map((provider) => (
                       <Card
                         key={provider.id}
-                        className="hover:border-primary/50 transition-colors cursor-pointer"
+                        className="hover:border-white/30 transition-colors cursor-pointer"
                         onClick={() => handleConnectTax(provider.id)}
                       >
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between">
                             <div className="flex items-start gap-3 flex-1">
-                              <div className="text-3xl">{provider.icon}</div>
+                              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                                <Globe className="w-5 h-5 text-white/70" />
+                              </div>
                               <div className="flex-1">
                                 <div className="flex items-center gap-2">
-                                  <h5 className="font-medium">{provider.name}</h5>
+                                  <h5 className="font-medium text-white">{provider.name}</h5>
                                   {provider.recommended && (
-                                    <Badge variant="secondary" className="text-xs">
+                                    <Badge className="bg-white/10 text-white/80 border-white/20 text-xs">
                                       Recommended
                                     </Badge>
                                   )}
                                 </div>
-                                <p className="text-sm text-muted-foreground mt-1">
+                                <p className="text-sm text-white/60 mt-1">
                                   {provider.description}
                                 </p>
                               </div>
@@ -159,8 +168,8 @@ export function TaxStep() {
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center p-8 text-center">
-                  <Globe className="w-12 h-12 text-muted-foreground mb-3" />
-                  <p className="text-sm text-muted-foreground">
+                  <Globe className="w-12 h-12 text-white/70 mb-3" />
+                  <p className="text-sm text-white/60">
                     No tax providers available for your selected country yet.
                   </p>
                 </div>
@@ -168,29 +177,29 @@ export function TaxStep() {
 
               {/* Benefits */}
               <div className="space-y-3 pt-6 border-t">
-                <h4 className="text-sm font-medium">Benefits of connecting tax software</h4>
+                <h4 className="text-sm font-medium text-white">Benefits of connecting tax software</h4>
                 <div className="space-y-2">
                   <div className="flex items-start gap-2">
-                    <FileText className="w-4 h-4 text-primary mt-0.5" />
-                    <p className="text-sm text-muted-foreground">
+                    <FileText className="w-4 h-4 text-white/70 mt-0.5" />
+                    <p className="text-sm text-white/60">
                       Automated VAT return preparation
                     </p>
                   </div>
                   <div className="flex items-start gap-2">
-                    <FileText className="w-4 h-4 text-primary mt-0.5" />
-                    <p className="text-sm text-muted-foreground">
+                    <FileText className="w-4 h-4 text-white/70 mt-0.5" />
+                    <p className="text-sm text-white/60">
                       Direct submission to tax authorities
                     </p>
                   </div>
                   <div className="flex items-start gap-2">
-                    <FileText className="w-4 h-4 text-primary mt-0.5" />
-                    <p className="text-sm text-muted-foreground">
+                    <FileText className="w-4 h-4 text-white/70 mt-0.5" />
+                    <p className="text-sm text-white/60">
                       Real-time tax liability calculations
                     </p>
                   </div>
                   <div className="flex items-start gap-2">
-                    <FileText className="w-4 h-4 text-primary mt-0.5" />
-                    <p className="text-sm text-muted-foreground">
+                    <FileText className="w-4 h-4 text-white/70 mt-0.5" />
+                    <p className="text-sm text-white/60">
                       Compliance monitoring and alerts
                     </p>
                   </div>

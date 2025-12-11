@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { AlertCircle, Building2, CheckCircle2, ChevronRight, Loader2, Search, ShieldCheck, X } from 'lucide-react'
+import { AlertCircle, BarChart3, Building2, CheckCircle2, ChevronRight, DollarSign, Loader2, RefreshCw, Search, ShieldCheck, TrendingUp, X } from 'lucide-react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -229,15 +229,20 @@ export function BankingStep() {
     return (
       <div className="space-y-6">
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-semibold tracking-tight">Connect Your Bank Account</h2>
-          <p className="text-muted-foreground">Link your business bank account to automatically sync transactions and streamline your bookkeeping.</p>
+          <h1 className="text-3xl md:text-4xl font-semibold text-white tracking-tight mb-6">
+            Connect Your{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+              Bank Account
+            </span>
+          </h1>
+          <p className="text-white/60">Link your business bank account to automatically sync transactions and streamline your bookkeeping.</p>
         </div>
         <Card className="rounded-[24px]">
           <CardContent className="p-6">
           <div className="space-y-6">
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
+            <Alert className="bg-white/5 border-white/10">
+              <AlertCircle className="h-4 w-4 text-white/70" />
+              <AlertDescription className="text-white/70">
                 Bank connections are not yet available for {companyCountry}. You can add bank
                 accounts manually from your dashboard after completing onboarding.
               </AlertDescription>
@@ -257,18 +262,23 @@ export function BankingStep() {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-semibold tracking-tight">Connect Your Bank Account</h2>
-        <p className="text-muted-foreground">Link your business bank account to automatically sync transactions and streamline your bookkeeping. This step is optional but highly recommended.</p>
+        <h1 className="text-3xl md:text-4xl font-semibold text-white tracking-tight mb-6">
+          Connect Your{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+            Bank Account
+          </span>
+        </h1>
+        <p className="text-white/60">Link your business bank account to automatically sync transactions and streamline your bookkeeping. This step is optional but highly recommended.</p>
       </div>
       <Card className="rounded-[24px]">
         <CardContent className="p-6">
         <div className="space-y-6">
           {/* Security Notice */}
-          <div className="flex items-start gap-3 p-4 bg-muted rounded-lg">
-            <ShieldCheck className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+          <div className="flex items-start gap-3 p-4 bg-white/10 rounded-lg">
+            <ShieldCheck className="w-5 h-5 text-white/70 mt-0.5 flex-shrink-0" />
             <div className="flex-1">
-              <p className="text-sm font-medium">Bank-level security</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm font-medium text-white">Bank-level security</p>
+              <p className="text-sm text-white/60">
                 Your credentials are encrypted and never stored. We use read-only access to fetch
                 your transactions via {provider.name}.
               </p>
@@ -279,7 +289,7 @@ export function BankingStep() {
           {hasConnection && (
             <>
               <div className="space-y-3">
-                <h4 className="text-sm font-medium">Connected Banks</h4>
+                <h4 className="text-sm font-medium text-white">Connected Banks</h4>
                 {connections.map((connection) => (
                   <ConnectedBankCard
                     key={connection.id}
@@ -288,28 +298,28 @@ export function BankingStep() {
                   />
                 ))}
               </div>
-              <Separator />
+              <Separator className="bg-white/10" />
             </>
           )}
 
           {/* Bank Provider Info */}
-          <Card className="border-primary/20 bg-primary/5">
+          <Card className="border-white/20 bg-white/10">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Building2 className="w-6 h-6 text-primary" />
+                <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Building2 className="w-6 h-6 text-white/70" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h5 className="font-medium">{provider.name}</h5>
+                    <h5 className="font-medium text-white">{provider.name}</h5>
                     {provider.recommended && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-white/10 text-white/80 border border-white/20">
                         Recommended
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">{provider.description}</p>
-                  <p className="text-xs text-muted-foreground mt-2">
+                  <p className="text-sm text-white/60 mt-1">{provider.description}</p>
+                  <p className="text-xs text-white/60 mt-2">
                     {provider.bankCount} banks available
                   </p>
                 </div>
@@ -319,9 +329,9 @@ export function BankingStep() {
 
           {/* Bank Search */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium">Select Your Bank</h4>
+            <h4 className="text-sm font-medium text-white">Select Your Bank</h4>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
               <Input
                 placeholder="Search for your bank..."
                 value={searchQuery}
@@ -339,7 +349,7 @@ export function BankingStep() {
                   ))}
                 </div>
               ) : filteredBanks.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8 text-white/60">
                   <p className="text-sm">No banks found matching "{searchQuery}"</p>
                 </div>
               ) : (
@@ -356,13 +366,13 @@ export function BankingStep() {
           </div>
 
           {/* Benefits */}
-          <div className="space-y-3 pt-6 border-t">
-            <h4 className="text-sm font-medium">Why connect your bank?</h4>
+          <div className="space-y-3 pt-6 border-t border-white/10">
+            <h4 className="text-sm font-medium text-white">Why connect your bank?</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <BenefitItem icon="💰" text="Automatic transaction import and categorization" />
-              <BenefitItem icon="📊" text="Real-time cash flow monitoring" />
-              <BenefitItem icon="🔄" text="Simplified reconciliation process" />
-              <BenefitItem icon="📈" text="Better insights and tax preparation" />
+              <BenefitItem icon={<DollarSign className="w-4 h-4 text-white/70" />} text="Automatic transaction import and categorization" />
+              <BenefitItem icon={<BarChart3 className="w-4 h-4 text-white/70" />} text="Real-time cash flow monitoring" />
+              <BenefitItem icon={<RefreshCw className="w-4 h-4 text-white/70" />} text="Simplified reconciliation process" />
+              <BenefitItem icon={<TrendingUp className="w-4 h-4 text-white/70" />} text="Better insights and tax preparation" />
             </div>
           </div>
 
@@ -393,25 +403,25 @@ interface BankCardProps {
 function BankCard({ bank, isConnecting, onConnect }: BankCardProps) {
   return (
     <Card
-      className={`hover:border-primary/50 transition-colors cursor-pointer ${
-        isConnecting ? 'border-primary/50' : ''
+      className={`border-white/20 hover:border-white/30 transition-colors cursor-pointer ${
+        isConnecting ? 'border-white/30' : ''
       }`}
       onClick={() => !isConnecting && onConnect(bank)}
     >
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1">
-            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
               {bank.logo ? (
                 <img src={bank.logo} alt={bank.name} className="w-8 h-8 object-contain" />
               ) : (
-                <Building2 className="w-5 h-5 text-primary" />
+                <Building2 className="w-5 h-5 text-white/70" />
               )}
             </div>
             <div className="flex-1">
-              <h5 className="font-medium">{bank.name}</h5>
+              <h5 className="font-medium text-white">{bank.name}</h5>
               {bank.bic && (
-                <p className="text-xs text-muted-foreground">BIC: {bank.bic}</p>
+                <p className="text-xs text-white/60">BIC: {bank.bic}</p>
               )}
             </div>
           </div>
@@ -463,41 +473,41 @@ function ConnectedBankCard({ connection, onDisconnect }: ConnectedBankCardProps)
   }
 
   return (
-    <Card className="border-primary/20 bg-primary/5">
+    <Card className="border-white/20 bg-white/10">
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
               {connection.status === 'ACTIVE' ? (
-                <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
               ) : connection.status === 'ERROR' || connection.status === 'NEEDS_REAUTH' ? (
-                <AlertCircle className="w-5 h-5 text-destructive" />
+                <AlertCircle className="w-5 h-5 text-red-400" />
               ) : (
-                <Building2 className="w-5 h-5 text-primary-foreground" />
+                <Building2 className="w-5 h-5 text-white/70" />
               )}
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <p className="font-medium">{connection.bankName}</p>
+                <p className="font-medium text-white">{connection.bankName}</p>
                 {connection.status === 'ACTIVE' && (
-                  <Badge variant="outline" className="text-xs border-primary text-primary">
+                  <Badge variant="outline" className="text-xs bg-green-500/20 text-green-400 border-green-500/30">
                     Connected
                   </Badge>
                 )}
                 {connection.status === 'NEEDS_REAUTH' && (
-                  <Badge variant="outline" className="text-xs border-destructive text-destructive">
+                  <Badge variant="outline" className="text-xs bg-red-500/20 text-red-400 border-red-500/30">
                     Needs Reauth
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-white/60">
                 {connection.accounts.length} {connection.accounts.length === 1 ? 'account' : 'accounts'}
                 {connection.lastSyncAt && (
                   <> • Last synced {new Date(connection.lastSyncAt).toLocaleDateString()}</>
                 )}
               </p>
               {connection.errorMessage && (
-                <p className="text-xs text-destructive mt-1">{connection.errorMessage}</p>
+                <p className="text-xs text-red-400 mt-1">{connection.errorMessage}</p>
               )}
             </div>
           </div>
@@ -517,24 +527,24 @@ function ConnectedBankCard({ connection, onDisconnect }: ConnectedBankCardProps)
 
         {/* Connected Accounts */}
         {connection.accounts.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-border/50 space-y-2">
+          <div className="mt-4 pt-4 border-t border-white/10 space-y-2">
             {connection.accounts.map((account) => (
               <div key={account.id} className="flex items-center justify-between text-sm">
                 <div className="flex-1">
-                  <p className="font-medium">{account.accountName}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="font-medium text-white">{account.accountName}</p>
+                  <p className="text-xs text-white/60">
                     {account.type} • {account.accountNumber.slice(-4).padStart(account.accountNumber.length, '•')}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium">
+                  <p className="font-medium text-white">
                     {new Intl.NumberFormat('en-US', {
                       style: 'currency',
                       currency: account.currency,
                     }).format(account.balance)}
                   </p>
                   {account.availableBalance !== undefined && account.availableBalance !== account.balance && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-white/60">
                       Available: {new Intl.NumberFormat('en-US', {
                         style: 'currency',
                         currency: account.currency,
@@ -555,15 +565,15 @@ function ConnectedBankCard({ connection, onDisconnect }: ConnectedBankCardProps)
  * BenefitItem Component - Display a benefit with icon
  */
 interface BenefitItemProps {
-  icon: string
+  icon: React.ReactNode
   text: string
 }
 
 function BenefitItem({ icon, text }: BenefitItemProps) {
   return (
     <div className="flex items-start gap-2">
-      <span className="text-lg flex-shrink-0">{icon}</span>
-      <p className="text-sm text-muted-foreground">{text}</p>
+      <span className="flex-shrink-0">{icon}</span>
+      <p className="text-sm text-white/60">{text}</p>
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 interface GuruLogoProps {
   size?: number;
   className?: string;
+  variant?: 'colored' | 'light' | 'dark';
 }
 
 /**
@@ -12,8 +13,34 @@ interface GuruLogoProps {
  *
  * Use this for navigation, headers, and static logo display.
  * For loading states, use GuruLoader instead.
+ *
+ * @param variant - 'colored' (default, blue), 'light' (white, for dark backgrounds), 'dark' (dark, for light backgrounds)
  */
-export function GuruLogo({ size = 32, className }: GuruLogoProps) {
+export function GuruLogo({ size = 32, className, variant = 'colored' }: GuruLogoProps) {
+  // Color definitions based on variant
+  const colors = {
+    colored: {
+      body: '#90caf9',
+      overlay: '#64b5f6',
+      highlight: '#fefefe',
+      accent: '#919292',
+    },
+    light: {
+      body: '#ffffff',
+      overlay: 'rgba(255, 255, 255, 0.85)',
+      highlight: '#ffffff',
+      accent: 'rgba(255, 255, 255, 0.7)',
+    },
+    dark: {
+      body: '#0a2540',
+      overlay: '#1a3a5a',
+      highlight: '#ffffff',
+      accent: '#64748b',
+    },
+  };
+
+  const selectedColors = colors[variant];
+
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -27,10 +54,10 @@ export function GuruLogo({ size = 32, className }: GuruLogoProps) {
       <defs>
         <style>
           {`
-            .guru-body { fill: #90caf9; }
-            .guru-overlay { fill: #64b5f6; }
-            .guru-highlight { fill: #fefefe; }
-            .guru-accent { fill: #919292; }
+            .guru-body { fill: ${selectedColors.body}; }
+            .guru-overlay { fill: ${selectedColors.overlay}; }
+            .guru-highlight { fill: ${selectedColors.highlight}; }
+            .guru-accent { fill: ${selectedColors.accent}; }
           `}
         </style>
       </defs>

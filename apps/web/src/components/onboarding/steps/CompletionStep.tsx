@@ -128,9 +128,14 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
   return (
     <div className="space-y-6">
       {/* Success Headline */}
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-semibold tracking-tight">Setup Complete!</h2>
-        <p className="text-muted-foreground">
+      <div className="text-center space-y-4 mb-8">
+        <h1 className="text-4xl md:text-5xl font-semibold text-white tracking-tight">
+          Setup{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+            Complete
+          </span>
+        </h1>
+        <p className="text-lg text-gray-300/90 max-w-2xl mx-auto leading-relaxed">
           {companyName
             ? `Welcome aboard, ${companyName}! Your account is ready to use.`
             : 'Your account is ready to use.'}
@@ -138,22 +143,22 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       </div>
 
       {/* Success Message Card */}
-      <Card className="rounded-[24px] border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
+      <Card className="rounded-[24px] bg-white/10 border border-white/20">
         <CardContent className="p-6">
           <div className="text-center space-y-4">
-            <div className="mx-auto w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-              <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-500" />
+            <div className="mx-auto w-16 h-16 rounded-full bg-white/10 flex items-center justify-center">
+              <CheckCircle2 className="w-10 h-10 text-white/70" />
             </div>
           </div>
           <div className="text-center space-y-4 mt-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-900 text-sm">
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-sm">
+              <CheckCircle2 className="w-4 h-4 text-white/70" />
               <span>
                 <strong>{completedIntegrations}</strong> integration
                 {completedIntegrations !== 1 ? 's' : ''} connected
               </span>
             </div>
-            <p className="text-sm text-green-700 dark:text-green-300 max-w-md mx-auto">
+            <p className="text-sm text-white/60 max-w-md mx-auto">
               You&apos;re all set! Your business is now connected to Operate and ready to streamline
               your operations.
             </p>
@@ -163,7 +168,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
 
       {/* Quick Actions */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-center">What Would You Like to Do First?</h3>
+        <h3 className="text-lg font-semibold text-center text-white">What Would You Like to Do First?</h3>
         <div className="grid gap-4 md:grid-cols-2">
           {NEXT_STEPS.map((step) => (
             <Card
@@ -173,17 +178,17 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
             >
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                    <step.icon className="w-5 h-5 text-primary" />
+                  <div className="mt-0.5 p-2 rounded-lg bg-white/10 group-hover:bg-white/20 transition-colors">
+                    <step.icon className="w-5 h-5 text-white/70" />
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-medium group-hover:text-primary transition-colors">
+                      <h4 className="text-sm font-medium text-white group-hover:text-white transition-colors">
                         {step.title}
                       </h4>
-                      <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                      <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all" />
                     </div>
-                    <p className="text-xs text-muted-foreground">{step.description}</p>
+                    <p className="text-xs text-white/70">{step.description}</p>
                   </div>
                 </div>
               </CardContent>
@@ -193,12 +198,12 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       </div>
 
       {/* Resources */}
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10">
         <CardContent className="p-6">
           <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-semibold">Need Help Getting Started?</h3>
-              <p className="text-sm text-muted-foreground mt-1">Check out these resources to make the most of Operate</p>
+              <h3 className="text-lg font-semibold text-white">Need Help Getting Started?</h3>
+              <p className="text-sm text-white/70 mt-1">Check out these resources to make the most of Operate</p>
             </div>
             <div className="grid gap-3 md:grid-cols-3">
               {RESOURCES.map((resource) => (
@@ -213,7 +218,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
                     <resource.icon className="w-4 h-4" />
                     <span className="text-sm font-medium">{resource.title}</span>
                   </div>
-                  <span className="text-xs text-muted-foreground">{resource.description}</span>
+                  <span className="text-xs text-white/60">{resource.description}</span>
                 </Button>
               ))}
             </div>
@@ -222,11 +227,11 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       </Card>
 
       {/* Tips */}
-      <Card className="rounded-[24px] bg-muted/50">
+      <Card className="rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10">
         <CardContent className="p-6">
           <div className="space-y-2">
-            <h4 className="text-sm font-semibold">Pro Tips</h4>
-            <ul className="space-y-1.5 text-xs text-muted-foreground">
+            <h4 className="text-sm font-semibold text-white">Pro Tips</h4>
+            <ul className="space-y-1.5 text-xs text-white/60">
               <li className="flex items-start gap-2">
                 <span>•</span>
                 <span>

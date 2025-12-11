@@ -95,19 +95,26 @@ export function CompanyInfoStep() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-semibold tracking-tight">Company Information</h2>
-        <p className="text-muted-foreground">Tell us about your business. This information will be used to set up your account and configure country-specific tax settings.</p>
+      <div className="text-center space-y-4 mb-8">
+        <h1 className="text-4xl md:text-5xl font-semibold text-white tracking-tight">
+          Company{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+            Information
+          </span>
+        </h1>
+        <p className="text-lg text-gray-300/90 max-w-2xl mx-auto leading-relaxed">
+          Tell us about your business to set up your account and configure country-specific tax settings.
+        </p>
       </div>
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10">
         <CardContent className="p-6">
         <div className="space-y-6">
           {/* Company Name */}
           <div className="space-y-2">
-            <Label htmlFor="companyName">
+            <Label htmlFor="companyName" className="text-white">
               Company Name <span className="text-destructive">*</span>
             </Label>
-            <Input
+            <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
               id="companyName"
               placeholder="e.g., Acme GmbH"
               {...register('companyInfo.name', {
@@ -125,7 +132,7 @@ export function CompanyInfoStep() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Country */}
             <div className="space-y-2">
-              <Label htmlFor="country">
+              <Label htmlFor="country" className="text-white">
                 Country <span className="text-destructive">*</span>
               </Label>
               <Select
@@ -152,7 +159,7 @@ export function CompanyInfoStep() {
 
             {/* Legal Form */}
             <div className="space-y-2">
-              <Label htmlFor="legalForm">
+              <Label htmlFor="legalForm" className="text-white">
                 Legal Form <span className="text-destructive">*</span>
               </Label>
               <Select
@@ -180,17 +187,17 @@ export function CompanyInfoStep() {
 
           {/* Tax ID */}
           <div className="space-y-2">
-            <Label htmlFor="taxId">
+            <Label htmlFor="taxId" className="text-white">
               Tax ID / VAT Number <span className="text-destructive">*</span>
             </Label>
-            <Input
+            <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
               id="taxId"
               placeholder="e.g., DE123456789"
               {...register('companyInfo.taxId', {
                 required: 'Tax ID is required',
               })}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-white/60">
               Enter your company&apos;s tax identification number or VAT registration number
             </p>
             {errors.companyInfo && typeof errors.companyInfo === 'object' && 'taxId' in errors.companyInfo && errors.companyInfo.taxId && (
@@ -202,7 +209,7 @@ export function CompanyInfoStep() {
 
           {/* Industry */}
           <div className="space-y-2">
-            <Label htmlFor="industry">
+            <Label htmlFor="industry" className="text-white">
               Industry <span className="text-destructive">*</span>
             </Label>
             <Select
@@ -228,16 +235,16 @@ export function CompanyInfoStep() {
           </div>
 
           {/* Address Section */}
-          <div className="space-y-4 pt-6 border-t">
-            <h4 className="text-sm font-medium">Business Address</h4>
+          <div className="space-y-4 pt-6">
+            <h4 className="text-sm font-medium text-white">Business Address</h4>
 
             {/* Street and Number */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="street">
+                <Label htmlFor="street" className="text-white">
                   Street <span className="text-destructive">*</span>
                 </Label>
-                <Input
+                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="street"
                   placeholder="e.g., Hauptstraße"
                   {...register('companyInfo.address.street', {
@@ -252,10 +259,10 @@ export function CompanyInfoStep() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="streetNumber">
+                <Label htmlFor="streetNumber" className="text-white">
                   Number <span className="text-destructive">*</span>
                 </Label>
-                <Input
+                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="streetNumber"
                   placeholder="e.g., 123"
                   {...register('companyInfo.address.streetNumber', {
@@ -273,10 +280,10 @@ export function CompanyInfoStep() {
             {/* Postal Code and City */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="postalCode">
+                <Label htmlFor="postalCode" className="text-white">
                   Postal Code <span className="text-destructive">*</span>
                 </Label>
-                <Input
+                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="postalCode"
                   placeholder="e.g., 10115"
                   {...register('companyInfo.address.postalCode', {
@@ -291,10 +298,10 @@ export function CompanyInfoStep() {
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="city">
+                <Label htmlFor="city" className="text-white">
                   City <span className="text-destructive">*</span>
                 </Label>
-                <Input
+                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="city"
                   placeholder="e.g., Berlin"
                   {...register('companyInfo.address.city', {
@@ -311,16 +318,16 @@ export function CompanyInfoStep() {
           </div>
 
           {/* Business Contact Section */}
-          <div className="space-y-4 pt-6 border-t">
-            <h4 className="text-sm font-medium">Business Contact</h4>
+          <div className="space-y-4 pt-6">
+            <h4 className="text-sm font-medium text-white">Business Contact</h4>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Business Email */}
               <div className="space-y-2">
-                <Label htmlFor="businessEmail">
+                <Label htmlFor="businessEmail" className="text-white">
                   Business Email <span className="text-destructive">*</span>
                 </Label>
-                <Input
+                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="businessEmail"
                   type="email"
                   placeholder="e.g., info@company.com"
@@ -337,10 +344,10 @@ export function CompanyInfoStep() {
 
               {/* Business Phone */}
               <div className="space-y-2">
-                <Label htmlFor="businessPhone">
+                <Label htmlFor="businessPhone" className="text-white">
                   Business Phone <span className="text-destructive">*</span>
                 </Label>
-                <Input
+                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="businessPhone"
                   type="tel"
                   placeholder="e.g., +49 30 123456"
@@ -358,13 +365,13 @@ export function CompanyInfoStep() {
           </div>
 
           {/* Financial Settings Section */}
-          <div className="space-y-4 pt-6 border-t">
-            <h4 className="text-sm font-medium">Financial Settings</h4>
+          <div className="space-y-4 pt-6">
+            <h4 className="text-sm font-medium text-white">Financial Settings</h4>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Currency */}
               <div className="space-y-2">
-                <Label htmlFor="currency">
+                <Label htmlFor="currency" className="text-white">
                   Currency <span className="text-destructive">*</span>
                 </Label>
                 <Select
@@ -391,7 +398,7 @@ export function CompanyInfoStep() {
 
               {/* Fiscal Year Start */}
               <div className="space-y-2">
-                <Label htmlFor="fiscalYearStart">
+                <Label htmlFor="fiscalYearStart" className="text-white">
                   Fiscal Year Starts <span className="text-destructive">*</span>
                 </Label>
                 <Select
@@ -409,7 +416,7 @@ export function CompanyInfoStep() {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-white/60">
                   Most companies start their fiscal year in January
                 </p>
                 {errors.companyInfo && typeof errors.companyInfo === 'object' && 'fiscalYearStart' in errors.companyInfo && errors.companyInfo.fiscalYearStart && (

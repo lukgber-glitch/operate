@@ -66,25 +66,32 @@ export function PreferencesStep() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-semibold tracking-tight">System Preferences</h2>
-        <p className="text-muted-foreground">Customize your experience with language, regional settings, and notification preferences.</p>
+      <div className="text-center space-y-4 mb-8">
+        <h1 className="text-4xl md:text-5xl font-semibold text-white tracking-tight">
+          Your{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+            Preferences
+          </span>
+        </h1>
+        <p className="text-lg text-gray-300/90 max-w-2xl mx-auto leading-relaxed">
+          Customize your experience with language, regional settings, and notification preferences.
+        </p>
       </div>
 
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10">
         <CardContent className="p-6">
         <div className="space-y-6">
           {/* Regional Settings */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-primary" />
-              <h4 className="text-sm font-medium">Regional Settings</h4>
+              <Globe className="w-4 h-4 text-white/70" />
+              <h4 className="text-sm font-medium text-white">Regional Settings</h4>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Language */}
               <div className="space-y-2">
-                <Label htmlFor="language">Language</Label>
+                <Label htmlFor="language" className="text-white">Language</Label>
                 <Select
                   value={selectedLanguage}
                   onValueChange={(value) => setValue('preferences.language', value)}
@@ -104,7 +111,7 @@ export function PreferencesStep() {
 
               {/* Timezone */}
               <div className="space-y-2">
-                <Label htmlFor="timezone">Timezone</Label>
+                <Label htmlFor="timezone" className="text-white">Timezone</Label>
                 <Select
                   value={selectedTimezone}
                   onValueChange={(value) => setValue('preferences.timezone', value)}
@@ -124,7 +131,7 @@ export function PreferencesStep() {
 
               {/* Currency */}
               <div className="space-y-2">
-                <Label htmlFor="currency">Default Currency</Label>
+                <Label htmlFor="currency" className="text-white">Default Currency</Label>
                 <Select
                   value={selectedCurrency}
                   onValueChange={(value) => setValue('preferences.currency', value)}
@@ -144,7 +151,7 @@ export function PreferencesStep() {
 
               {/* Date Format */}
               <div className="space-y-2">
-                <Label htmlFor="dateFormat">Date Format</Label>
+                <Label htmlFor="dateFormat" className="text-white">Date Format</Label>
                 <Select
                   value={selectedDateFormat}
                   onValueChange={(value) => setValue('preferences.dateFormat', value)}
@@ -169,8 +176,8 @@ export function PreferencesStep() {
           {/* Notification Preferences */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-primary" />
-              <h4 className="text-sm font-medium">Notification Preferences</h4>
+              <Bell className="w-4 h-4 text-white/70" />
+              <h4 className="text-sm font-medium text-white">Notification Preferences</h4>
             </div>
 
             <div className="space-y-4">
@@ -180,7 +187,7 @@ export function PreferencesStep() {
                   <Label htmlFor="emailNotifications" className="cursor-pointer">
                     Email Notifications
                   </Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/60">
                     Receive important updates via email
                   </p>
                 </div>
@@ -199,7 +206,7 @@ export function PreferencesStep() {
                   <Label htmlFor="invoiceReminders" className="cursor-pointer">
                     Invoice Reminders
                   </Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/60">
                     Get notified about pending and overdue invoices
                   </p>
                 </div>
@@ -218,7 +225,7 @@ export function PreferencesStep() {
                   <Label htmlFor="taxDeadlines" className="cursor-pointer">
                     Tax Deadline Alerts
                   </Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/60">
                     Never miss VAT returns and tax filing deadlines
                   </p>
                 </div>
@@ -237,7 +244,7 @@ export function PreferencesStep() {
                   <Label htmlFor="bankTransactions" className="cursor-pointer">
                     Bank Transaction Alerts
                   </Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/60">
                     Get notified of new bank transactions
                   </p>
                 </div>
@@ -256,7 +263,7 @@ export function PreferencesStep() {
                   <Label htmlFor="weeklyReports" className="cursor-pointer">
                     Weekly Summary Reports
                   </Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/60">
                     Receive weekly financial summaries and insights
                   </p>
                 </div>

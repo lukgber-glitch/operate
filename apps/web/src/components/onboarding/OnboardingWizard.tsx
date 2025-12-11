@@ -1,13 +1,17 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { motion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react'
 import * as React from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { z } from 'zod'
 
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { AnimatedButton } from '@/components/ui/animated-button'
+import { GlassCard } from '@/components/ui/glass-card'
+import { AnimatedGradientBackground } from '@/components/ui/animated-gradient-background'
+import { GuruLogo } from '@/components/ui/guru-logo'
+import { useReducedMotion } from '@/hooks/use-reduced-motion'
 
 import { OnboardingProgress, type OnboardingStep } from './OnboardingProgress'
 import { useOnboardingWizard } from './hooks/useOnboardingWizard'
@@ -138,6 +142,12 @@ interface OnboardingWizardProps {
 
 export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardProps) {
   const [direction, setDirection] = React.useState<'forward' | 'backward'>('forward')
+  const [isMounted, setIsMounted] = React.useState(false)
+  const prefersReducedMotion = useReducedMotion()
+
+  React.useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const methods = useForm<OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
@@ -231,7 +241,7 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
 
     switch (step.id) {
       case 'welcome':
-        return <WelcomeStep />
+        return <WelcomeStep onGetStarted={handleNext} />
       case 'company':
         return <CompanyInfoStep />
       case 'banking':
@@ -281,20 +291,21 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-8 md:px-6 md:py-12">
-      <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(submitOnboarding)} className="space-y-8">
-          {/* Header - Only show on non-welcome and non-completion steps */}
-          {currentStepData?.id !== 'welcome' && currentStepData?.id !== 'completion' && (
-            <div className="text-center space-y-3">
-              <h1 className="text-4xl font-semibold">
-                Welcome to Operate
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Let&apos;s set up your account in just a few steps
-              </p>
-            </div>
-          )}
+    <div className="relative w-full">
+      {/* Full viewport wrapper for welcome step */}
+      {currentStepData?.id === 'welcome' ? (
+        <FormProvider {...methods}>
+          <form onSubmit={handleSubmit(submitOnboarding)}>
+            <StepTransition stepKey={currentStep} direction={direction}>
+              {renderStep()}
+            </StepTransition>
+          </form>
+        </FormProvider>
+      ) : (
+        <div className="relative w-full max-w-4xl mx-auto px-4 py-8 md:px-6 md:py-12">
+          <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(submitOnboarding)} className="space-y-8">
+
 
           {/* Progress Indicator - Hide on welcome and completion */}
           {currentStepData?.id !== 'welcome' && currentStepData?.id !== 'completion' && (
@@ -316,25 +327,28 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
 
           {/* Navigation - Hide on completion step */}
           {currentStepData?.id !== 'completion' && (
-            <Card className="p-6 rounded-[24px]">
+            <GlassCard intensity="onDark" className="p-6 rounded-[24px]">
               <div className="flex items-center justify-between gap-4">
-                <Button
+                {/* Back button - transparent with border */}
+                <motion.button
                   type="button"
-                  variant="outline"
                   onClick={handlePrevious}
                   disabled={isFirstStep}
-                  className="h-12 px-6 rounded-[12px]"
+                  className="h-12 px-6 rounded-xl font-semibold text-white border-2 border-white/20 hover:border-white/40 transition-colors duration-200 hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 >
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Back
-                </Button>
+                </motion.button>
 
                 <div className="flex items-center gap-3 text-center">
-                  <span className="text-sm text-muted-foreground font-medium">
+                  <span className="text-sm text-white/70 font-medium">
                     Step {currentStep + 1} of {STEPS.length}
                   </span>
                   {progress.estimatedTimeRemaining && (
-                    <span className="text-xs text-muted-foreground hidden md:inline">
+                    <span className="text-xs text-white/60 hidden md:inline">
                       • {progress.estimatedTimeRemaining} remaining
                     </span>
                   )}
@@ -342,46 +356,78 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
 
                 <div className="flex items-center gap-3">
                   {showSkipButton && (
-                    <Button
+                    <motion.button
                       type="button"
-                      variant="ghost"
                       onClick={handleSkip}
-                      className="h-12 px-5 rounded-[12px]"
+                      className="h-12 px-5 rounded-xl font-semibold text-white/70 hover:text-white transition-colors duration-200"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                     >
                       Skip
-                    </Button>
+                    </motion.button>
                   )}
                   {isLastStep ? (
-                    <Button
+                    <motion.button
                       type="submit"
                       disabled={isSubmitting}
-                      className="h-12 px-6 rounded-[12px]"
+                      className="relative h-12 px-8 rounded-xl font-semibold text-white overflow-hidden disabled:opacity-75 disabled:cursor-not-allowed flex items-center group"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                     >
-                      {isSubmitting ? (
-                        <>Processing...</>
-                      ) : (
-                        <>
-                          <Check className="w-4 h-4 mr-2" />
-                          Complete Setup
-                        </>
-                      )}
-                    </Button>
+                      {/* Base gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600" />
+                      {/* Animated gradient overlay on hover */}
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-500"
+                        initial={{ opacity: 0 }}
+                        whileHover={{ opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                      />
+                      <span className="relative z-10 flex items-center">
+                        {isSubmitting ? (
+                          <>Processing...</>
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4 mr-2" />
+                            Complete Setup
+                          </>
+                        )}
+                      </span>
+                    </motion.button>
                   ) : (
-                    <Button
+                    <motion.button
                       type="button"
                       onClick={handleNext}
-                      className="h-12 px-6 rounded-[12px]"
+                      className="relative h-12 px-8 rounded-xl font-semibold text-white overflow-hidden flex items-center group"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                     >
-                      Next
-                      <ChevronRight className="w-4 h-4 ml-2" />
-                    </Button>
+                      {/* Base gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600" />
+                      {/* Animated gradient overlay on hover */}
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-500"
+                        initial={{ opacity: 0 }}
+                        whileHover={{ opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                      />
+                      <span className="relative z-10 flex items-center">
+                        Next
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </span>
+                    </motion.button>
                   )}
                 </div>
               </div>
-            </Card>
+            </GlassCard>
           )}
-        </form>
-      </FormProvider>
+          </form>
+        </FormProvider>
+      </div>
+      )}
     </div>
   )
 }

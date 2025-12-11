@@ -346,17 +346,18 @@ export function CompanyProfileStep() {
         <h2 className="text-2xl font-semibold tracking-tight">Company Information</h2>
         <p className="text-muted-foreground">Tell us about your business. This information will be used to set up your account and configure country-specific tax settings.</p>
       </div>
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10">
         <CardContent className="p-6">
         <div className="space-y-6">
           {/* Company Name */}
           <div className="space-y-2">
-            <Label htmlFor="companyName">
+            <Label htmlFor="companyName" className="text-white">
               Company Name <span className="text-destructive">*</span>
             </Label>
-            <Input
+            <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
               id="companyName"
               placeholder="e.g., Acme GmbH"
+              className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
               {...register('companyInfo.name', {
                 required: 'Company name is required',
                 minLength: { value: 2, message: 'Company name must be at least 2 characters' },
@@ -373,7 +374,7 @@ export function CompanyProfileStep() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Country */}
             <div className="space-y-2">
-              <Label htmlFor="country">
+              <Label htmlFor="country" className="text-white">
                 Country <span className="text-destructive">*</span>
               </Label>
               <Select
@@ -415,7 +416,7 @@ export function CompanyProfileStep() {
 
             {/* Legal Form */}
             <div className="space-y-2">
-              <Label htmlFor="legalForm">
+              <Label htmlFor="legalForm" className="text-white">
                 Legal Form <span className="text-destructive">*</span>
               </Label>
               <Select
@@ -447,7 +448,7 @@ export function CompanyProfileStep() {
 
           {/* Industry/Sector */}
           <div className="space-y-2">
-            <Label htmlFor="industry">
+            <Label htmlFor="industry" className="text-white">
               Industry/Sector <span className="text-destructive">*</span>
             </Label>
             <Select
@@ -480,10 +481,10 @@ export function CompanyProfileStep() {
 
           {/* Tax ID / VAT Number */}
           <div className="space-y-2">
-            <Label htmlFor="taxId">
+            <Label htmlFor="taxId" className="text-white">
               {countryConfig?.vatLabel || 'Tax ID / VAT Number'} <span className="text-destructive">*</span>
             </Label>
-            <Input
+            <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
               id="taxId"
               placeholder={countryConfig?.vatPlaceholder || 'e.g., DE123456789'}
               {...register('companyInfo.taxId', {
@@ -506,8 +507,8 @@ export function CompanyProfileStep() {
 
           {/* Trade Register Number (Optional) */}
           <div className="space-y-2">
-            <Label htmlFor="tradeRegister">Trade Register Number (Optional)</Label>
-            <Input
+            <Label htmlFor="tradeRegister" className="text-white">Trade Register Number (Optional)</Label>
+            <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
               id="tradeRegister"
               placeholder="e.g., HRB 12345"
               {...register('companyInfo.tradeRegisterNumber')}
@@ -524,10 +525,10 @@ export function CompanyProfileStep() {
             {/* Street and Number */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="street">
+                <Label htmlFor="street" className="text-white">
                   Street <span className="text-destructive">*</span>
                 </Label>
-                <Input
+                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="street"
                   placeholder="e.g., Hauptstraße"
                   {...register('companyInfo.address.street', {
@@ -542,10 +543,10 @@ export function CompanyProfileStep() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="streetNumber">
+                <Label htmlFor="streetNumber" className="text-white">
                   Number <span className="text-destructive">*</span>
                 </Label>
-                <Input
+                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="streetNumber"
                   placeholder="e.g., 123"
                   {...register('companyInfo.address.streetNumber', {
@@ -563,10 +564,10 @@ export function CompanyProfileStep() {
             {/* Postal Code and City */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="postalCode">
+                <Label htmlFor="postalCode" className="text-white">
                   Postal Code <span className="text-destructive">*</span>
                 </Label>
-                <Input
+                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="postalCode"
                   placeholder={selectedCountry === 'US' ? 'e.g., 10001' : 'e.g., 10115'}
                   {...register('companyInfo.address.postalCode', {
@@ -581,10 +582,10 @@ export function CompanyProfileStep() {
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="city">
+                <Label htmlFor="city" className="text-white">
                   City <span className="text-destructive">*</span>
                 </Label>
-                <Input
+                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="city"
                   placeholder="e.g., Berlin"
                   {...register('companyInfo.address.city', {
@@ -602,7 +603,7 @@ export function CompanyProfileStep() {
             {/* State/Region (conditional for US) */}
             {countryConfig?.requiresState && (
               <div className="space-y-2">
-                <Label htmlFor="state">
+                <Label htmlFor="state" className="text-white">
                   State <span className="text-destructive">*</span>
                 </Label>
                 <Select
@@ -639,10 +640,10 @@ export function CompanyProfileStep() {
             {/* Business Email and Phone */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="businessEmail">
+                <Label htmlFor="businessEmail" className="text-white">
                   Business Email <span className="text-destructive">*</span>
                 </Label>
-                <Input
+                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="businessEmail"
                   type="email"
                   placeholder="contact@company.com"
@@ -662,10 +663,10 @@ export function CompanyProfileStep() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="businessPhone">
+                <Label htmlFor="businessPhone" className="text-white">
                   Business Phone <span className="text-destructive">*</span>
                 </Label>
-                <Input
+                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="businessPhone"
                   type="tel"
                   placeholder="+49 30 12345678"
@@ -683,8 +684,8 @@ export function CompanyProfileStep() {
 
             {/* Website (Optional) */}
             <div className="space-y-2">
-              <Label htmlFor="website">Website (Optional)</Label>
-              <Input
+              <Label htmlFor="website" className="text-white">Website (Optional)</Label>
+              <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                 id="website"
                 type="url"
                 placeholder="https://www.company.com"
@@ -717,7 +718,7 @@ export function CompanyProfileStep() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Fiscal Year Start */}
               <div className="space-y-2">
-                <Label htmlFor="fiscalYearStart">
+                <Label htmlFor="fiscalYearStart" className="text-white">
                   Fiscal Year Start Month <span className="text-destructive">*</span>
                 </Label>
                 <Select
@@ -750,10 +751,10 @@ export function CompanyProfileStep() {
 
               {/* Currency */}
               <div className="space-y-2">
-                <Label htmlFor="currency">
+                <Label htmlFor="currency" className="text-white">
                   Default Currency <span className="text-destructive">*</span>
                 </Label>
-                <Input
+                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="currency"
                   value={currency || ''}
                   readOnly
@@ -768,7 +769,7 @@ export function CompanyProfileStep() {
 
             {/* VAT Registration Status */}
             <div className="space-y-2">
-              <Label htmlFor="vatRegistered">VAT Registration Status</Label>
+              <Label htmlFor="vatRegistered" className="text-white">VAT Registration Status</Label>
               <Select
                 value={vatRegistered?.toString() || 'false'}
                 onValueChange={(value) => {
