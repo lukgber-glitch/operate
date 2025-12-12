@@ -2,6 +2,7 @@ import { Module, forwardRef, Inject } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { BankSyncService } from './bank-sync.service';
 import { BankSyncController } from './bank-sync.controller';
+import { BanksController } from './banks.controller';
 import { DatabaseModule } from '../../database/database.module';
 import { TinkModule } from '../../integrations/tink/tink.module';
 import type { BankImportJobModule } from './jobs/bank-import.module';
@@ -26,7 +27,7 @@ import type { BankImportJobModule } from './jobs/bank-import.module';
     TinkModule,
     forwardRef(() => require('./jobs/bank-import.module').BankImportJobModule), // Use forwardRef with require to avoid circular dependency
   ],
-  controllers: [BankSyncController],
+  controllers: [BankSyncController, BanksController],
   providers: [BankSyncService],
   exports: [BankSyncService], // Export for use in other modules
 })
