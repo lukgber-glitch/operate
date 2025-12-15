@@ -69,7 +69,14 @@ jobs:
         run: |
           cd packages/database
           pnpm prisma generate
-          pnpm prisma migrate deploy
+          pnpm prisma db push --skip-generate
+        env:
+          DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
+
+      - name: Seed test data (Web)
+        run: |
+          cd packages/database
+          pnpm prisma db seed
         env:
           DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
 
@@ -206,7 +213,7 @@ jobs:
         run: |
           cd packages/database
           pnpm prisma generate
-          pnpm prisma migrate deploy
+          pnpm prisma db push --skip-generate
         env:
           DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
 
