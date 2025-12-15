@@ -51,7 +51,7 @@ uploads/
 
 # Deployment artifacts
 *.tar.gz
-pnpm-lock.yaml
+# pnpm-lock.yaml - DO NOT IGNORE - needed for CI reproducible builds
 
 # Large build artifacts
 *.tar.gz
