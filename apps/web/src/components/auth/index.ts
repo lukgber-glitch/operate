@@ -6,3 +6,4 @@
 
 export { BiometricPrompt } from './BiometricPrompt';
 export { BiometricLoginButton } from './BiometricLoginButton';
+export * from './FeatureShowcase';

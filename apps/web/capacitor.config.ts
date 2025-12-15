@@ -3,13 +3,14 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'guru.operate.app',
   appName: 'Operate',
-  webDir: '.next', // Next.js build output directory
+  webDir: 'out', // Static export directory (for fallback only)
   server: {
-    // For development - allows hot reload from local dev server
-    url: process.env.NODE_ENV === 'development'
+    // Production: Load from live server (keeps all Next.js features)
+    // Development: Load from local dev server
+    url: process.env.CAPACITOR_DEV === 'true'
       ? 'http://localhost:3000'
-      : undefined,
-    cleartext: process.env.NODE_ENV === 'development',
+      : 'https://operate.guru',
+    cleartext: process.env.CAPACITOR_DEV === 'true',
   },
   plugins: {
     SplashScreen: {
