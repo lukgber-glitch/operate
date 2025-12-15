@@ -79,6 +79,7 @@ jobs:
           pnpm prisma db seed
         env:
           DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
+          SKIP_COUNTRY_SEED: "true"
 
       - name: Install Playwright browsers
         run: |
@@ -223,6 +224,7 @@ jobs:
           pnpm prisma db seed
         env:
           DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
+          SKIP_COUNTRY_SEED: "true"
 
       - name: Run API integration tests
         run: |

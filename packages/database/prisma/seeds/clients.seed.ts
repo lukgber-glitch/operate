@@ -7,7 +7,7 @@
  * - With multiple contacts, addresses, and communications
  */
 
-import { PrismaClient, ClientType, ClientStatus, AddressType, CommunicationType, CommunicationDirection } from '@prisma/client';
+import { PrismaClient, ClientType, ClientStatus, AddressType } from '@prisma/client';
 
 export async function seedClients(prisma: PrismaClient, organisationId: string) {
   console.log('\nSeeding CRM clients...');
