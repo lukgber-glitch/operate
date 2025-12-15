@@ -217,6 +217,7 @@ export function useBankConnections() {
       try {
         const updated = await bankConnectionsApi.syncConnection(connectionId);
         setState((prev) => ({
+          ...prev,
           connections: prev.connections.map((c) =>
             c.id === connectionId ? updated : c
           ),

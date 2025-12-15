@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -40,7 +40,7 @@ const contractSchema = z.object({
 
 type ContractFormData = z.infer<typeof contractSchema>;
 
-export default function NewContractPage() {
+function NewContractContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const templateId = searchParams.get('template');
@@ -250,5 +250,13 @@ export default function NewContractPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function NewContractPage() {
+  return (
+    <Suspense fallback={<div className="animate-pulse p-4">Loading...</div>}>
+      <NewContractContent />
+    </Suspense>
   );
 }

@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FileText, Image, Loader2 } from 'lucide-react';
+import { FileText, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
-export default function ShareTargetPage() {
+function ShareTargetContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [processing, setProcessing] = useState(true);
@@ -89,5 +89,24 @@ export default function ShareTargetPage() {
         </div>
       </Card>
     </div>
+  );
+}
+
+export default function ShareTargetPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <Card className="max-w-md w-full p-6">
+          <div className="text-center space-y-4">
+            <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Loader2 className="w-6 h-6 text-primary animate-spin" />
+            </div>
+            <p className="text-sm text-muted-foreground">Loading...</p>
+          </div>
+        </Card>
+      </div>
+    }>
+      <ShareTargetContent />
+    </Suspense>
   );
 }

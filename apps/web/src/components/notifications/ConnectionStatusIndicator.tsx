@@ -82,6 +82,7 @@ export function ConnectionStatusIndicator({
       const timer = setTimeout(() => setShowPulse(false), 2000)
       return () => clearTimeout(timer)
     }
+    return undefined
   }, [status])
 
   const handleClick = () => {

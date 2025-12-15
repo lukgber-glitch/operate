@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Calculator, ArrowLeft, Globe } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { Calculator, ArrowLeft, Globe, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { fadeUp } from '@/lib/animation-variants';
-import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -18,14 +18,37 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  CommuterCalculator,
-  HomeOfficeCalculator,
-  PerDiemCalculator,
-  MileageCalculator,
-  TrainingCalculator,
-} from '@/components/tax/calculators';
 import { Country, COUNTRY_CONFIGS } from '@/hooks/use-tax-calculators';
+
+// Dynamic imports with ssr: false to avoid prerender errors with useTranslations
+const CommuterCalculator = dynamic(
+  () => import('@/components/tax/calculators').then((mod) => mod.CommuterCalculator),
+  { ssr: false, loading: () => <CalculatorLoading /> }
+);
+const HomeOfficeCalculator = dynamic(
+  () => import('@/components/tax/calculators').then((mod) => mod.HomeOfficeCalculator),
+  { ssr: false, loading: () => <CalculatorLoading /> }
+);
+const PerDiemCalculator = dynamic(
+  () => import('@/components/tax/calculators').then((mod) => mod.PerDiemCalculator),
+  { ssr: false, loading: () => <CalculatorLoading /> }
+);
+const MileageCalculator = dynamic(
+  () => import('@/components/tax/calculators').then((mod) => mod.MileageCalculator),
+  { ssr: false, loading: () => <CalculatorLoading /> }
+);
+const TrainingCalculator = dynamic(
+  () => import('@/components/tax/calculators').then((mod) => mod.TrainingCalculator),
+  { ssr: false, loading: () => <CalculatorLoading /> }
+);
+
+function CalculatorLoading() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <Loader2 className="h-8 w-8 animate-spin text-white/50" />
+    </div>
+  );
+}
 
 const getCurrencySymbol = (currency: string): string => {
   const symbols: Record<string, string> = {
@@ -48,8 +71,22 @@ const formatAmount = (amount: number, currency: string): string => {
   return `${symbol}${amount.toFixed(2)}`;
 };
 
+// Static text labels
+const labels = {
+  title: 'Tax Calculators',
+  subtitle: 'Calculate tax deductions and allowances',
+  tabs: {
+    commuter: 'Commuter',
+    homeOffice: 'Home Office',
+    perDiem: 'Per Diem',
+    mileage: 'Mileage',
+    training: 'Training',
+    info: 'Info',
+  },
+};
+
 export default function TaxCalculatorsPage() {
-  const t = useTranslations('taxCalculators');
+  const t = labels;
   const currentYear = new Date().getFullYear();
   const [country, setCountry] = useState<Country>('AT');
   const [taxYear, setTaxYear] = useState(currentYear.toString());
@@ -74,10 +111,10 @@ export default function TaxCalculatorsPage() {
           <div>
             <h1 className="text-2xl text-white font-semibold tracking-tight flex items-center gap-2">
               <Calculator className="h-6 w-6" />
-              {t('title')}
+              {t.title}
             </h1>
             <p className="text-white/70">
-              {t('subtitle')}
+              {t.subtitle}
             </p>
           </div>
         </div>
@@ -124,22 +161,22 @@ export default function TaxCalculatorsPage() {
             <Tabs defaultValue="commuter" className="w-full">
               <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-6">
                 <TabsTrigger value="commuter" className="text-xs sm:text-sm">
-                  {t('tabs.commuter')}
+                  {t.tabs.commuter}
                 </TabsTrigger>
                 <TabsTrigger value="homeoffice" className="text-xs sm:text-sm">
-                  {t('tabs.homeOffice')}
+                  {t.tabs.homeOffice}
                 </TabsTrigger>
                 <TabsTrigger value="perdiem" className="text-xs sm:text-sm">
-                  {t('tabs.perDiem')}
+                  {t.tabs.perDiem}
                 </TabsTrigger>
                 <TabsTrigger value="mileage" className="text-xs sm:text-sm">
-                  {t('tabs.mileage')}
+                  {t.tabs.mileage}
                 </TabsTrigger>
                 <TabsTrigger value="training" className="text-xs sm:text-sm">
-                  {t('tabs.training')}
+                  {t.tabs.training}
                 </TabsTrigger>
                 <TabsTrigger value="info" className="text-xs sm:text-sm">
-                  {t('tabs.info')}
+                  {t.tabs.info}
                 </TabsTrigger>
               </TabsList>
 
