@@ -115,6 +115,33 @@ async function main() {
   });
   console.log(`Created ${membership.role} membership for ${adminUser.email}`);
 
+  // Create E2E test user (used by automated tests)
+  console.log('\nCreating E2E test user...');
+  const testPasswordHash = await hashPassword('TestPassword123!');
+  const testUser = await prisma.user.create({
+    data: {
+      email: 'test@operate.guru',
+      passwordHash: testPasswordHash,
+      firstName: 'Test',
+      lastName: 'User',
+      locale: 'en',
+      mfaEnabled: false,
+      onboardingComplete: true,
+    },
+  });
+  console.log(`Created test user: ${testUser.email}`);
+
+  // Create test user membership
+  const testMembership = await prisma.membership.create({
+    data: {
+      userId: testUser.id,
+      orgId: organisation.id,
+      role: Role.ADMIN,
+      acceptedAt: new Date(),
+    },
+  });
+  console.log(`Created ${testMembership.role} membership for ${testUser.email}`);
+
   // Seed HR data
   console.log('\n' + '='.repeat(60));
   console.log('STEP 3: Seeding HR Data');
@@ -143,6 +170,10 @@ async function main() {
   console.log(`  Admin Email:  ${adminUser.email}`);
   console.log(`  Admin Pass:   Admin123!`);
   console.log(`  Role:         ${membership.role}`);
+  console.log('\nE2E Test User:');
+  console.log(`  Email:        test@operate.guru`);
+  console.log(`  Password:     TestPassword123!`);
+  console.log(`  Role:         ADMIN`);
   console.log('\nCountry Context:');
   console.log('  DACH:  Germany (DE), Austria (AT), Switzerland (CH)');
   console.log('  EU:    France (FR), Italy (IT), Netherlands (NL),');

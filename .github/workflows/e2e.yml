@@ -85,22 +85,44 @@ jobs:
           REDIS_URL: redis://localhost:6379
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: test-secret-for-e2e-tests
+          JWT_ACCESS_SECRET: test-jwt-access-secret-for-e2e
+          JWT_REFRESH_SECRET: test-jwt-refresh-secret-for-e2e
+          ANTHROPIC_API_KEY: test-key-not-used-in-tests
 
       - name: Start API server
         run: |
           cd apps/api
           pnpm start:prod &
-          sleep 10
+          sleep 5
         env:
           DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
           REDIS_URL: redis://localhost:6379
-          JWT_SECRET: test-jwt-secret
+          JWT_ACCESS_SECRET: test-jwt-access-secret-for-e2e
+          JWT_REFRESH_SECRET: test-jwt-refresh-secret-for-e2e
+          ANTHROPIC_API_KEY: test-key-not-used-in-tests
           PORT: 3001
+
+      - name: Start Web server
+        run: |
+          cd apps/web
+          pnpm start &
+          sleep 10
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3001/api/v1
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: test-secret-for-e2e-tests
+
+      - name: Wait for servers
+        run: |
+          echo "Waiting for API server..."
+          timeout 30 bash -c 'until curl -s http://localhost:3001/api/v1/health > /dev/null 2>&1; do sleep 1; done' || echo "API health check skipped"
+          echo "Waiting for Web server..."
+          timeout 30 bash -c 'until curl -s http://localhost:3000 > /dev/null 2>&1; do sleep 1; done' || echo "Web server ready or skipped"
 
       - name: Run E2E tests
         run: |
           cd apps/web
-          pnpm exec playwright test --project=${{ matrix.project }}
+          CI=true pnpm exec playwright test --project=${{ matrix.project }}
         env:
           TEST_BASE_URL: http://localhost:3000
           TEST_USER_EMAIL: test@operate.guru
@@ -202,7 +224,9 @@ jobs:
         env:
           DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
           REDIS_URL: redis://localhost:6379
-          JWT_SECRET: test-jwt-secret
+          JWT_ACCESS_SECRET: test-jwt-access-secret-for-e2e
+          JWT_REFRESH_SECRET: test-jwt-refresh-secret-for-e2e
+          ANTHROPIC_API_KEY: test-key-not-used-in-tests
           TEST_USER_EMAIL: test@operate.guru
           TEST_USER_PASSWORD: TestPassword123!
 
