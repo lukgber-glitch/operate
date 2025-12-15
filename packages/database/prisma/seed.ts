@@ -115,32 +115,36 @@ async function main() {
   });
   console.log(`Created ${membership.role} membership for ${adminUser.email}`);
 
-  // Create E2E test user (used by automated tests)
-  console.log('\nCreating E2E test user...');
-  const testPasswordHash = await hashPassword('TestPassword123!');
-  const testUser = await prisma.user.create({
-    data: {
-      email: 'test@operate.guru',
-      passwordHash: testPasswordHash,
-      firstName: 'Test',
-      lastName: 'User',
-      locale: 'en',
-      mfaEnabled: false,
-      onboardingComplete: true,
-    },
-  });
-  console.log(`Created test user: ${testUser.email}`);
+  // Create E2E test user (ONLY in non-production - used by automated tests)
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('\nCreating E2E test user...');
+    const testPasswordHash = await hashPassword('TestPassword123!');
+    const testUser = await prisma.user.create({
+      data: {
+        email: 'test@operate.guru',
+        passwordHash: testPasswordHash,
+        firstName: 'Test',
+        lastName: 'User',
+        locale: 'en',
+        mfaEnabled: false,
+        onboardingComplete: true,
+      },
+    });
+    console.log(`Created test user: ${testUser.email}`);
 
-  // Create test user membership
-  const testMembership = await prisma.membership.create({
-    data: {
-      userId: testUser.id,
-      orgId: organisation.id,
-      role: Role.ADMIN,
-      acceptedAt: new Date(),
-    },
-  });
-  console.log(`Created ${testMembership.role} membership for ${testUser.email}`);
+    // Create test user membership
+    const testMembership = await prisma.membership.create({
+      data: {
+        userId: testUser.id,
+        orgId: organisation.id,
+        role: Role.ADMIN,
+        acceptedAt: new Date(),
+      },
+    });
+    console.log(`Created ${testMembership.role} membership for ${testUser.email}`);
+  } else {
+    console.log('\nSkipping E2E test user (production mode)');
+  }
 
   // Seed HR data
   console.log('\n' + '='.repeat(60));
