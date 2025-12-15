@@ -3,19 +3,9 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Sparkles, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
-
-interface AutopilotStatus {
-  enabled: boolean;
-  features: {
-    emailInvoiceExtraction: boolean;
-    bankReconciliation: boolean;
-    proactiveSuggestions: boolean;
-    documentClassification: boolean;
-  };
-  activeCount: number;
-}
+import { useAutopilotConfig } from '@/hooks/use-autopilot';
 
 interface AutopilotIndicatorProps {
   className?: string;
@@ -25,7 +15,7 @@ interface AutopilotIndicatorProps {
  * AutopilotIndicator Component
  *
  * Shows if automation features are enabled with a gentle pulse animation.
- * Links to settings for easy configuration.
+ * Links to autopilot page for easy configuration.
  *
  * TRUTHFULNESS GUARANTEE:
  * - Shows actual automation status from user settings
@@ -33,54 +23,19 @@ interface AutopilotIndicatorProps {
  * - No fake "AI accuracy" percentages
  */
 export function AutopilotIndicator({ className }: AutopilotIndicatorProps) {
-  const [status, setStatus] = useState<AutopilotStatus | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { config, isLoading, fetchConfig } = useAutopilotConfig();
 
   useEffect(() => {
-    async function fetchAutopilotStatus() {
-      try {
-        // TODO: Replace with actual API call
-        // const response = await fetch('/api/v1/settings/automation');
-        // const data = await response.json();
-
-        // Simulated data - replace with real API
-        const simulatedStatus: AutopilotStatus = {
-          enabled: false,
-          features: {
-            emailInvoiceExtraction: false,
-            bankReconciliation: false,
-            proactiveSuggestions: false,
-            documentClassification: false,
-          },
-          activeCount: 0,
-        };
-
-        setStatus(simulatedStatus);
-      } catch (error) {
-        console.error('Failed to fetch autopilot status:', error);
-        setStatus({
-          enabled: false,
-          features: {
-            emailInvoiceExtraction: false,
-            bankReconciliation: false,
-            proactiveSuggestions: false,
-            documentClassification: false,
-          },
-          activeCount: 0,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchAutopilotStatus();
+    fetchConfig();
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !config) {
     return null;
   }
 
-  const isActive = status?.enabled && (status?.activeCount ?? 0) > 0;
+  const isActive = config.enabled;
+  const activeFeatures = Object.entries(config.features).filter(([_, enabled]) => enabled);
+  const activeCount = activeFeatures.length;
 
   return (
     <Card className={cn('rounded-[24px] relative overflow-hidden', className)}>
@@ -91,7 +46,7 @@ export function AutopilotIndicator({ className }: AutopilotIndicatorProps) {
         </div>
       )}
 
-      <Link href="/settings/automation" className="block relative">
+      <Link href="/autopilot" className="block relative">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -108,7 +63,7 @@ export function AutopilotIndicator({ className }: AutopilotIndicatorProps) {
                     'h-5 w-5 transition-colors',
                     isActive
                       ? 'text-primary'
-                      : 'text-muted-foreground'
+                      : 'text-gray-300'
                   )}
                 />
               </div>
@@ -116,9 +71,9 @@ export function AutopilotIndicator({ className }: AutopilotIndicatorProps) {
                 <h3 className="text-sm font-semibold">
                   {isActive ? 'Autopilot Active' : 'Autopilot Off'}
                 </h3>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-300">
                   {isActive
-                    ? `${status.activeCount} automation${status.activeCount !== 1 ? 's' : ''} running`
+                    ? `${activeCount} feature${activeCount !== 1 ? 's' : ''} enabled`
                     : 'Enable to automate tasks'}
                 </p>
               </div>
@@ -128,37 +83,37 @@ export function AutopilotIndicator({ className }: AutopilotIndicatorProps) {
               {isActive && (
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20">
                   <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs font-medium text-green-600 dark:text-green-400">
+                  <span className="text-xs font-medium text-green-400">
                     Live
                   </span>
                 </div>
               )}
-              <Settings className="h-4 w-4 text-muted-foreground" />
+              <Settings className="h-4 w-4 text-gray-300" />
             </div>
           </div>
 
           {/* Active features list */}
-          {isActive && status && (
+          {isActive && activeCount > 0 && (
             <div className="mt-3 pt-3 border-t border-border">
               <div className="flex flex-wrap gap-1.5">
-                {status.features.emailInvoiceExtraction && (
+                {config.features.autoCategorizeTransactions && (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                    Email→Invoice
+                    Auto-Categorize
                   </span>
                 )}
-                {status.features.bankReconciliation && (
+                {config.features.autoCreateInvoices && (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                    Bank Sync
+                    Auto-Invoice
                   </span>
                 )}
-                {status.features.proactiveSuggestions && (
+                {config.features.autoReconcile && (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                    Smart Suggestions
+                    Auto-Reconcile
                   </span>
                 )}
-                {status.features.documentClassification && (
+                {config.features.autoExtractReceipts && (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                    AI Classification
+                    Receipt Extract
                   </span>
                 )}
               </div>

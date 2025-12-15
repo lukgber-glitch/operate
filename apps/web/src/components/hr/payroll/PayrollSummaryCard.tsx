@@ -1,10 +1,12 @@
 /**
  * Payroll Summary Card Component
  * Displays totals and breakdown for payroll
+ * Optimized with memoization
  */
 
 'use client';
 
+import { memo, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { formatCurrency } from '@/hooks/use-payroll';
@@ -21,7 +23,7 @@ interface PayrollSummaryCardProps {
   variant?: 'default' | 'compact';
 }
 
-export function PayrollSummaryCard({
+function PayrollSummaryCardComponent({
   totalGross,
   totalNet,
   totalEmployeeTaxes,
@@ -31,7 +33,19 @@ export function PayrollSummaryCard({
   employeeCount,
   variant = 'default',
 }: PayrollSummaryCardProps) {
-  const totalCost = totalGross + totalEmployerTaxes;
+  // Memoize computed values
+  const totalCost = useMemo(() => totalGross + totalEmployerTaxes, [totalGross, totalEmployerTaxes]);
+
+  // Memoize formatted values for display
+  const formattedValues = useMemo(() => ({
+    gross: formatCurrency(totalGross),
+    net: formatCurrency(totalNet),
+    employeeTaxes: formatCurrency(totalEmployeeTaxes),
+    employerTaxes: formatCurrency(totalEmployerTaxes),
+    additions: formatCurrency(totalAdditions),
+    deductions: formatCurrency(totalDeductions),
+    totalCost: formatCurrency(totalCost),
+  }), [totalGross, totalNet, totalEmployeeTaxes, totalEmployerTaxes, totalAdditions, totalDeductions, totalCost]);
 
   if (variant === 'compact') {
     return (
@@ -40,7 +54,7 @@ export function PayrollSummaryCard({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-muted-foreground">Total Net Pay</p>
-              <p className="text-2xl font-bold">{formatCurrency(totalNet)}</p>
+              <p className="text-2xl font-bold">{formattedValues.net}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Employees</p>
@@ -75,7 +89,7 @@ export function PayrollSummaryCard({
 
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Gross Pay</span>
-            <span className="font-medium">{formatCurrency(totalGross)}</span>
+            <span className="font-medium">{formattedValues.gross}</span>
           </div>
 
           {totalAdditions > 0 && (
@@ -84,7 +98,7 @@ export function PayrollSummaryCard({
                 <TrendingUp className="h-4 w-4" />
                 Additions
               </div>
-              <span className="font-medium">+{formatCurrency(totalAdditions)}</span>
+              <span className="font-medium">+{formattedValues.additions}</span>
             </div>
           )}
 
@@ -94,13 +108,13 @@ export function PayrollSummaryCard({
                 <TrendingDown className="h-4 w-4" />
                 Deductions
               </div>
-              <span className="font-medium">-{formatCurrency(totalDeductions)}</span>
+              <span className="font-medium">-{formattedValues.deductions}</span>
             </div>
           )}
 
           <div className="flex items-center justify-between text-red-600 dark:text-red-400">
             <span className="text-sm">Employee Taxes</span>
-            <span className="font-medium">-{formatCurrency(totalEmployeeTaxes)}</span>
+            <span className="font-medium">-{formattedValues.employeeTaxes}</span>
           </div>
 
           <Separator />
@@ -111,7 +125,7 @@ export function PayrollSummaryCard({
               Net Pay
             </div>
             <span className="text-lg font-bold text-green-600 dark:text-green-400">
-              {formatCurrency(totalNet)}
+              {formattedValues.net}
             </span>
           </div>
         </div>
@@ -124,22 +138,25 @@ export function PayrollSummaryCard({
 
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Gross Pay</span>
-            <span className="font-medium">{formatCurrency(totalGross)}</span>
+            <span className="font-medium">{formattedValues.gross}</span>
           </div>
 
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Employer Taxes</span>
-            <span className="font-medium">{formatCurrency(totalEmployerTaxes)}</span>
+            <span className="font-medium">{formattedValues.employerTaxes}</span>
           </div>
 
           <Separator />
 
           <div className="flex items-center justify-between">
             <span className="font-medium">Total Cost</span>
-            <span className="text-lg font-bold">{formatCurrency(totalCost)}</span>
+            <span className="text-lg font-bold">{formattedValues.totalCost}</span>
           </div>
         </div>
       </CardContent>
     </Card>
   );
 }
+
+// Memoized export to prevent unnecessary re-renders
+export const PayrollSummaryCard = memo(PayrollSummaryCardComponent);

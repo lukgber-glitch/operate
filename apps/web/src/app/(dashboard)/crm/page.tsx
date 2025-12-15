@@ -10,9 +10,29 @@ import {
   Grid,
   List,
   ArrowUpDown,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/animation-variants';
+
+// Custom debounce hook for search optimization
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 import { ClientCard } from '@/components/crm/ClientCard';
 import { ClientForm } from '@/components/crm/ClientForm';
@@ -29,6 +49,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import {
   Dialog,
   DialogContent,
@@ -90,30 +111,44 @@ export default function CRMPage() {
   const [editClient, setEditClient] = useState<Client | null>(null);
   const [deleteClient, setDeleteClient] = useState<Client | null>(null);
 
+  // Separate search input state for debouncing
+  const [searchInput, setSearchInput] = useState('');
+  const debouncedSearch = useDebounce(searchInput, 300);
+
   const [filters, setFilters] = useState<ClientFilters>({
-    search: '',
     sortBy: 'name',
     sortOrder: 'asc',
     page: 1,
     limit: 20,
   });
 
+  // Sync debounced search to filters
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      search: debouncedSearch || undefined,
+      page: 1, // Reset to first page on search
+    }));
+  }, [debouncedSearch]);
+
   const { data: clientsData, isLoading } = useClients(filters);
   const createMutation = useCreateClient();
   const updateMutation = useUpdateClient();
   const deleteMutation = useDeleteClient();
 
-  const handleCreateClient = async (data: any) => {
+  // Memoized create handler with proper typing
+  const handleCreateClient = useCallback(async (data: Omit<Client, 'id' | 'createdAt' | 'updatedAt' | 'totalRevenue' | 'totalInvoices' | 'pendingInvoices' | 'overdueInvoices' | 'avgPaymentDays'>) => {
     await createMutation.mutateAsync(data);
     setIsCreateOpen(false);
-  };
+  }, [createMutation]);
 
-  const handleUpdateClient = async (data: any) => {
+  // Memoized update handler with proper typing
+  const handleUpdateClient = useCallback(async (data: Partial<Client>) => {
     if (editClient) {
       await updateMutation.mutateAsync({ id: editClient.id, data });
       setEditClient(null);
     }
-  };
+  }, [editClient, updateMutation]);
 
   const handleDeleteClient = async () => {
     if (deleteClient) {
@@ -140,10 +175,15 @@ export default function CRMPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex items-center justify-between"
+      >
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">CRM</h1>
-          <p className="text-muted-foreground">Manage your clients and relationships</p>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">CRM</h1>
+          <p className="text-white/70">Manage your clients and relationships</p>
         </div>
         <Dialog
           open={isCreateOpen || !!editClient}
@@ -171,22 +211,35 @@ export default function CRMPage() {
             />
           </DialogContent>
         </Dialog>
-      </div>
+      </motion.div>
 
       {/* Filters */}
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6">
-          <div className="space-y-6">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+      >
+        <GlassCard padding="lg">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
             <div className="sm:col-span-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
                 <Input
                   placeholder="Search clients..."
-                  value={filters.search}
-                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                  className="pl-9"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="pl-9 pr-9"
                 />
+                {searchInput && (
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-white/10"
+                    onClick={() => setSearchInput('')}
+                  >
+                    <X className="h-4 w-4 text-white/70" />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -262,11 +315,16 @@ export default function CRMPage() {
               </Button>
             </div>
           </div>
-        </div>
-        </CardContent>
-      </Card>
+        </GlassCard>
+      </motion.div>
 
       {/* Content */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.2 }}
+      >
       {isLoading ? (
         <div className="space-y-4">
           <Skeleton className="h-12 w-full" />
@@ -274,17 +332,15 @@ export default function CRMPage() {
           <Skeleton className="h-12 w-full" />
         </div>
       ) : !clientsData?.items.length ? (
-        <Card className="rounded-[24px]">
-          <CardContent className="p-6">
+        <GlassCard padding="lg">
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <p className="text-muted-foreground mb-4">No clients found</p>
+              <p className="text-white/70 mb-4">No clients found</p>
               <Button onClick={() => setIsCreateOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Your First Client
               </Button>
             </div>
-          </CardContent>
-        </Card>
+        </GlassCard>
       ) : view === 'grid' ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {clientsData.items.map((client) => (
@@ -297,8 +353,7 @@ export default function CRMPage() {
           ))}
         </div>
       ) : (
-        <Card className="rounded-[24px]">
-          <CardContent className="p-4">
+        <GlassCard padding="lg">
             <Table>
             <TableHeader>
               <TableRow>
@@ -414,9 +469,9 @@ export default function CRMPage() {
               ))}
             </TableBody>
           </Table>
-          </CardContent>
-        </Card>
+        </GlassCard>
       )}
+      </motion.div>
 
       {/* Pagination */}
       {clientsData && clientsData.totalPages > 1 && (
@@ -428,7 +483,7 @@ export default function CRMPage() {
           >
             Previous
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-white/70">
             Page {filters.page} of {clientsData.totalPages}
           </span>
           <Button

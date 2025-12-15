@@ -16,6 +16,8 @@ import {
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/animation-variants';
 
 import { ClientForm } from '@/components/crm/ClientForm';
 import { ClientMetrics } from '@/components/crm/ClientMetrics';
@@ -114,7 +116,12 @@ export default function ClientDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex items-center justify-between"
+      >
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/crm">
@@ -151,10 +158,16 @@ export default function ClientDetailPage() {
           <Edit className="h-4 w-4 mr-2" />
           Edit Client
         </Button>
-      </div>
+      </motion.div>
 
       {/* Client Info Card */}
-      <Card className="rounded-[24px]">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+      >
+        <Card className="rounded-[24px]">
         <CardContent className="p-6">
         <div className="space-y-6">
           <h3 className="text-lg font-semibold">Contact Information</h3>
@@ -276,16 +289,30 @@ export default function ClientDetailPage() {
         </div>
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Metrics */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.2 }}
+      >
       {metricsLoading ? (
         <Skeleton className="h-48 w-full" />
       ) : metrics ? (
         <ClientMetrics metrics={metrics} />
       ) : null}
+      </motion.div>
 
       {/* Tabs */}
-      <Tabs defaultValue="overview" className="space-y-6">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.3 }}
+      >
+        <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="contacts">Contacts</TabsTrigger>
@@ -374,6 +401,7 @@ export default function ClientDetailPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      </motion.div>
 
       {/* Edit Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>

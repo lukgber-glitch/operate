@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { Send, Loader2, Paperclip, Mic } from 'lucide-react';
+import { Send, Loader2, Paperclip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { ChatMessage, Message } from './ChatMessage';
 import { GuruLoader } from '@/components/ui/guru-loader';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
+import { VoiceMorphButton } from './VoiceMorphButton';
 
 interface ChatCentralPanelProps {
   messages: Message[];
@@ -31,7 +32,7 @@ const panelVariants = {
     y: 0,
     scale: 1,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 200,
       damping: 25,
     },
@@ -44,7 +45,7 @@ const messageVariants = {
     opacity: 1,
     y: 0,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 300,
       damping: 30,
     },
@@ -174,7 +175,7 @@ export function ChatCentralPanel({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <GuruLoader size="sm" />
+                <GuruLoader size={24} />
                 <span
                   className="text-sm animate-pulse"
                   style={{ color: 'var(--color-blue-600)' }}
@@ -191,7 +192,7 @@ export function ChatCentralPanel({
           <div className="h-full flex flex-col items-center justify-center py-12">
             {emptyStateContent || (
               <>
-                <GuruLoader size="lg" className="mb-6 opacity-40" />
+                <GuruLoader size={48} className="mb-6 opacity-40" />
                 <p
                   className="text-lg text-center"
                   style={{ color: 'var(--color-blue-600)' }}
@@ -262,18 +263,16 @@ export function ChatCentralPanel({
             />
           </div>
 
-          {/* Voice Button */}
+          {/* Voice Button with Morphing States */}
           {showVoice && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="shrink-0 h-10 w-10 rounded-xl hover:bg-blue-100/80"
-              disabled={disabled}
-              aria-label="Voice input"
-            >
-              <Mic className="h-5 w-5" style={{ color: 'var(--color-blue-500)' }} />
-            </Button>
+            <VoiceMorphButton
+              onTranscript={(text) => {
+                setInput((prev) => (prev ? `${prev} ${text}` : text));
+                textareaRef.current?.focus();
+              }}
+              disabled={disabled || isLoading}
+              showTranscript
+            />
           )}
 
           {/* Send Button */}

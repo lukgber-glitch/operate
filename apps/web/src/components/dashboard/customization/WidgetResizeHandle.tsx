@@ -38,7 +38,7 @@ export function WidgetResizeHandle({ currentSize, onResize, className }: WidgetR
         <Minimize2 className="h-3 w-3" />
       </Button>
 
-      <span className="text-xs font-medium text-muted-foreground min-w-[60px] text-center">
+      <span className="text-xs font-medium text-gray-300 min-w-[60px] text-center">
         {currentSize === 'full-width' ? 'Full' : currentSize.charAt(0).toUpperCase() + currentSize.slice(1)}
       </span>
 

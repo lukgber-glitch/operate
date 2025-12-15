@@ -8,9 +8,12 @@ import {
   FolderSync,
   FileText,
   Info,
+  Copy,
+  Settings,
 } from 'lucide-react';
 import * as React from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useToast } from '@/components/ui/use-toast';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -99,7 +102,9 @@ const BENEFITS = [
 export function EmailStep() {
   const { setValue, watch } = useFormContext();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [hasConnected, setHasConnected] = React.useState(false);
+  const [forwardingAddress, setForwardingAddress] = React.useState<string>('');
 
   const {
     gmail,
@@ -126,6 +131,26 @@ export function EmailStep() {
       console.error(`${provider} connection error:`, error);
     },
   });
+
+  // Fetch forwarding address on mount
+  React.useEffect(() => {
+    const fetchForwardingAddress = async () => {
+      try {
+        const response = await fetch('/api/email/mailboxes/forwarding', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ purpose: 'BILLS_INVOICES' }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setForwardingAddress(data.inboxAddress);
+        }
+      } catch (error) {
+        console.error('Failed to fetch forwarding address:', error);
+      }
+    };
+    fetchForwardingAddress();
+  }, []);
 
   const handleSkip = () => {
     setValue('email.skipped', true);
@@ -210,6 +235,40 @@ export function EmailStep() {
             </Alert>
           )}
 
+          {/* Forwarding Address Section */}
+          <div className="mt-8 pt-8 border-t border-white/10">
+            <div className="text-center mb-4">
+              <span className="text-sm text-white/60">or</span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white/10">
+              <h4 className="font-medium text-white mb-2">
+                Forward invoices manually
+              </h4>
+              <p className="text-sm text-white/60 mb-3">
+                Send or forward invoices to your personal Operate inbox:
+              </p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 px-3 py-2 bg-black/20 rounded-lg text-sm font-mono text-white truncate">
+                  {forwardingAddress || 'bills-xxxxx@in.operate.guru'}
+                </code>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(forwardingAddress || '');
+                    toast({ title: 'Copied to clipboard!' });
+                  }}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-white/50 mt-2">
+                💡 Tip: Add this as a contact called "Operate Bills"
+              </p>
+            </div>
+          </div>
+
           {/* Benefits Section */}
           <div className="space-y-4 pt-6 border-t">
             <h4 className="text-sm font-medium text-white flex items-center gap-2">
@@ -235,6 +294,21 @@ export function EmailStep() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Settings Hint */}
+          <div className="mt-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+            <div className="flex items-start gap-3">
+              <Settings className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm text-white">
+                  <span className="font-medium">Want more control?</span>
+                </p>
+                <p className="text-sm text-white/60 mt-1">
+                  Add more email accounts, select specific folders, or set up category filters in Settings after completing onboarding.
+                </p>
+              </div>
             </div>
           </div>
 

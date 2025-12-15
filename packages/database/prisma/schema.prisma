@@ -94,49 +94,60 @@ model Organisation {
   commercialRegistration    String? // CR for Saudi Arabia
   tradeLicenseNumber        String? // UAE Trade License
 
+  // Business Context for Email Processing
+  industry           String? // e.g., 'technology', 'consulting', 'retail'
+  businessModel      String? // 'B2B', 'B2C', 'HYBRID'
+  targetCustomerType String? // 'BUSINESS', 'CONSUMER', 'BOTH'
+
+  // Onboarding status
+  onboardingCompleted Boolean @default(false)
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  memberships           Membership[]
-  auditLogs             AuditLog[]
-  auditLogSequences     AuditLogSequence[]     @relation("AuditLogSequence")
-  organisationCountries OrganisationCountry[]
-  taxCredentials        TaxCredential[]
-  employees             Employee[]
-  payrollPeriods        PayrollPeriod[]
-  hrAuditLogs           HrAuditLog[]
-  employeeDocuments     EmployeeDocument[]
-  w4Forms               W4Form[]
-  i9Forms               I9Form[]
-  transactions          Transaction[]
-  deductionSuggestions  DeductionSuggestion[]
-  taxDeductionSummaries TaxDeductionSummary[]
-  fraudAlerts           FraudAlert[]
-  costEntries           CostEntry[]
-  budgets               Budget[]
-  automationSettings    AutomationSettings?
-  automationAuditLogs   AutomationAuditLog[]
-  recurringInvoices     RecurringInvoice[]
-  paymentReminders      PaymentReminder[]
-  correctionRecords     CorrectionRecord[]
-  learningPatterns      LearningPattern[]
-  reminderSettings      ReminderSettings?
-  bankConnections       BankConnection[]
-  elsterCertificates    ElsterCertificate[]
-  spainCertificates     SpainCertificate[]
-  zatcaCertificates     ZatcaCertificate[]
-  elsterFilings         ElsterFiling[]
-  taxDocuments          TaxDocument[]
-  processDocumentations ProcessDocumentation[]
-  quickbooksConnections QuickBooksConnection[]
-  xeroConnections       XeroConnection[]
-  emailConnections      EmailConnection[]
-  plaidBankAccounts     PlaidBankAccount[]
-  plaidTransactions     PlaidTransaction[]
-  storageQuota          StorageQuota?
-  extractedInvoices     ExtractedInvoice[]
-  gocardlessConnections GoCardlessConnection[]
+  memberships            Membership[]
+  auditLogs              AuditLog[]
+  auditLogSequences      AuditLogSequence[]     @relation("AuditLogSequence")
+  organisationCountries  OrganisationCountry[]
+  taxCredentials         TaxCredential[]
+  employees              Employee[]
+  payrollPeriods         PayrollPeriod[]
+  hrAuditLogs            HrAuditLog[]
+  employeeDocuments      EmployeeDocument[]
+  w4Forms                W4Form[]
+  i9Forms                I9Form[]
+  transactions           Transaction[]
+  deductionSuggestions   DeductionSuggestion[]
+  taxDeductionSummaries  TaxDeductionSummary[]
+  taxDeductionEntries    TaxDeductionEntry[]
+  fraudAlerts            FraudAlert[]
+  costEntries            CostEntry[]
+  budgets                Budget[]
+  automationSettings     AutomationSettings?
+  automationAuditLogs    AutomationAuditLog[]
+  recurringInvoices      RecurringInvoice[]
+  paymentReminders       PaymentReminder[]
+  correctionRecords      CorrectionRecord[]
+  learningPatterns       LearningPattern[]
+  reminderSettings       ReminderSettings?
+  bankConnections        BankConnection[]
+  elsterCertificates     ElsterCertificate[]
+  spainCertificates      SpainCertificate[]
+  zatcaCertificates      ZatcaCertificate[]
+  elsterFilings          ElsterFiling[]
+  taxDocuments           TaxDocument[]
+  processDocumentations  ProcessDocumentation[]
+  quickbooksConnections  QuickBooksConnection[]
+  xeroConnections        XeroConnection[]
+  emailConnections       EmailConnection[]
+  emailMailboxes         EmailMailbox[]
+  emailForwardingInboxes EmailForwardingInbox[]
+  plaidBankAccounts      PlaidBankAccount[]
+  plaidTransactions      PlaidTransaction[]
+  storageQuota           StorageQuota?
+  extractedInvoices      ExtractedInvoice[]
+  gocardlessConnections  GoCardlessConnection[]
 
   // Usage-based billing relations
   usageEvents        UsageEvent[]
@@ -175,13 +186,43 @@ model Organisation {
   // Vendor Management Relations
   vendors Vendor[]
   bills   Bill[]
+  quotes  Quote[]
 
   // Email Intelligence Relations
   relationshipMetrics RelationshipMetrics[]
+  emailFilterConfig   EmailFilterConfig?
+  emailReviewQueue    EmailReviewQueue[]
 
   // Payment Allocation Relations
   paymentAllocations PaymentAllocation[]
   ScheduledPayment   ScheduledPayment[]
+
+  // Contract Relations
+  contracts         Contract[]
+  contractTemplates ContractTemplate[]
+
+  // Business Health Score Relations
+  businessHealthScores BusinessHealthScore[]
+
+  // Insurance Relations
+  insurancePolicies InsurancePolicy[]
+
+  // Mileage Relations
+  mileageEntries MileageEntry[]
+
+  // Time Tracking Relations
+  projects            Project[]
+  billableTimeEntries BillableTimeEntry[]
+
+  // Smart Tax Assistant Relations
+  taxSuggestions TaxSuggestion[]
+  taxDeadlines   TaxDeadline[]
+
+  // AI Autopilot Relations
+  autopilotConfig    AutopilotConfig?
+  autopilotActions   AutopilotAction[]
+  autopilotSummaries AutopilotSummary[]
+  PaymentInitiation  PaymentInitiation[]
 }
 
 model User {
@@ -222,6 +263,7 @@ model User {
   deductionsConfirmed DeductionSuggestion[] @relation("DeductionConfirmer")
   deductionsRejected  DeductionSuggestion[] @relation("DeductionRejecter")
   deductionsModified  DeductionSuggestion[] @relation("DeductionModifier")
+  taxDeductionEntries TaxDeductionEntry[]
 
   // Fraud Prevention Relations
   fraudAlertsResolved  FraudAlert[]    @relation("FraudAlertResolver")
@@ -256,6 +298,7 @@ model User {
   TaxDeadlineReminder TaxDeadlineReminder[]
   EmailConnection     EmailConnection[]
   AmlScreening        AmlScreening[]
+  PaymentInitiation   PaymentInitiation[]
 }
 
 model Membership {
@@ -1787,6 +1830,115 @@ model TaxDeductionSummary {
   @@index([countryCode])
 }
 
+enum TaxDeductionType {
+  COMMUTER_ALLOWANCE
+  HOME_OFFICE_FLAT
+  PER_DIEM_MEALS
+  MILEAGE_BUSINESS
+  TRAINING_EDUCATION
+  HOME_OFFICE_ROOM
+  WORK_EQUIPMENT
+  BUSINESS_MEALS
+  OFFICE_SUPPLIES
+  PHONE_INTERNET
+  INSURANCE
+  DONATIONS
+  OTHER
+}
+
+model TaxDeductionEntry {
+  id             String  @id @default(uuid())
+  organisationId String
+  userId         String?
+
+  // Core fields
+  category    TaxDeductionType
+  countryCode String           @db.VarChar(2)
+  taxYear     Int
+
+  // Amounts
+  originalAmount   Decimal @db.Decimal(10, 2)
+  deductibleAmount Decimal @db.Decimal(10, 2)
+  currency         String  @default("EUR") @db.VarChar(3)
+
+  // Category-specific data (JSON)
+  calculatorData Json? // Stores category-specific inputs
+
+  // For COMMUTER_ALLOWANCE
+  distanceKm         Decimal? @db.Decimal(8, 2)
+  workingDays        Int?
+  usePublicTransport Boolean  @default(false)
+
+  // For HOME_OFFICE_FLAT / HOME_OFFICE_ROOM
+  daysWorkedFromHome Int?
+  roomSqm            Decimal? @db.Decimal(6, 2)
+  totalHomeSqm       Decimal? @db.Decimal(6, 2)
+  monthlyRent        Decimal? @db.Decimal(10, 2)
+
+  // For PER_DIEM_MEALS
+  tripStartDate   DateTime?
+  tripEndDate     DateTime?
+  tripDestination String?
+  isInternational Boolean   @default(false)
+
+  // For MILEAGE_BUSINESS
+  vehicleType String? // car, motorcycle, bicycle, electric
+  tripPurpose String?
+
+  // For TRAINING_EDUCATION
+  trainingType String?
+  providerName String?
+
+  // Metadata
+  description     String?
+  notes           String?
+  receiptAttached Boolean  @default(false)
+  documentIds     String[] // Links to uploaded receipts
+
+  // Legal reference
+  legalReference String?
+
+  // Status
+  status DeductionSuggestionStatus @default(CONFIRMED)
+
+  // Timestamps
+  entryDate DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([organisationId, taxYear])
+  @@index([organisationId, category])
+  @@index([userId])
+  @@index([countryCode, taxYear])
+}
+
+model TaxDeductionRateConfig {
+  id          String           @id @default(uuid())
+  countryCode String           @db.VarChar(2)
+  taxYear     Int
+  category    TaxDeductionType
+
+  // Rate configuration (JSON for flexibility)
+  config Json // Stores all rates and limits
+
+  // Metadata
+  legalReference String?
+  effectiveFrom  DateTime
+  effectiveTo    DateTime?
+
+  // Audit
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  @@unique([countryCode, taxYear, category])
+  @@index([countryCode, taxYear])
+}
+
 // ============================================================================
 // FRAUD PREVENTION MODELS
 // ============================================================================
@@ -2075,6 +2227,70 @@ model InvoiceItem {
   @@index([invoiceId])
 }
 
+model Quote {
+  id             String       @id @default(cuid())
+  quoteNumber    String       @unique
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id])
+  clientId       String?
+
+  title       String
+  description String?
+
+  items QuoteItem[]
+
+  subtotal       Decimal @db.Decimal(19, 4)
+  taxAmount      Decimal @default(0) @db.Decimal(19, 4)
+  discountAmount Decimal @default(0) @db.Decimal(19, 4)
+  total          Decimal @db.Decimal(19, 4)
+  currency       String  @default("EUR")
+
+  status     QuoteStatus @default(DRAFT)
+  validUntil DateTime?
+  sentAt     DateTime?
+  viewedAt   DateTime?
+  acceptedAt DateTime?
+  rejectedAt DateTime?
+
+  convertedToInvoiceId String? @unique
+
+  notes       String?
+  terms       String?
+  publicToken String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([status])
+  @@index([organisationId, status])
+  @@index([createdAt, organisationId])
+}
+
+model QuoteItem {
+  id      String @id @default(cuid())
+  quoteId String
+  quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  description String
+  quantity    Decimal @db.Decimal(19, 4)
+  unitPrice   Decimal @db.Decimal(19, 4)
+  taxRate     Decimal @default(0) @db.Decimal(5, 2)
+  total       Decimal @db.Decimal(19, 4)
+
+  sortOrder Int @default(0)
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  VIEWED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CONVERTED
+}
+
 model Expense {
   id    String @id @default(uuid())
   orgId String
@@ -2141,6 +2357,79 @@ model Expense {
   @@index([date, orgId])
   @@index([createdAt, orgId])
   @@index([category, orgId])
+}
+
+// ============================================================================
+// MILEAGE TRACKING MODELS
+// ============================================================================
+
+model MileageEntry {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id])
+  userId         String
+
+  clientId  String?
+  projectId String?
+
+  date        DateTime @db.Date
+  description String?
+  purpose     String?
+
+  startLocation String?
+  endLocation   String?
+
+  distanceKm    Decimal @db.Decimal(10, 2)
+  distanceMiles Decimal @db.Decimal(10, 2)
+
+  ratePerKm   Decimal? @db.Decimal(10, 4)
+  ratePerMile Decimal? @db.Decimal(10, 4)
+
+  totalAmount Decimal @db.Decimal(19, 4)
+  currency    String  @default("EUR")
+
+  vehicleType VehicleType @default(CAR)
+  isRoundTrip Boolean     @default(false)
+
+  reimbursed   Boolean   @default(false)
+  reimbursedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([date])
+  @@index([userId])
+  @@index([reimbursed])
+}
+
+model MileageRate {
+  id             String  @id @default(cuid())
+  organisationId String?
+
+  country     String
+  year        Int
+  vehicleType VehicleType
+
+  ratePerKm   Decimal @db.Decimal(10, 4)
+  ratePerMile Decimal @db.Decimal(10, 4)
+
+  isOfficial Boolean @default(false)
+
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([country, year])
+  @@index([organisationId])
+}
+
+enum VehicleType {
+  CAR
+  MOTORCYCLE
+  BICYCLE
+  ELECTRIC_CAR
 }
 
 // ============================================================================
@@ -2623,6 +2912,7 @@ model BankAccountNew {
   @@index([isActive])
   // Compound indexes for performance
   @@index([bankConnectionId, isActive])
+  @@index([bankConnectionId, accountId]) // OPTIMIZATION: For batch account sync operations
 }
 
 model BankTransactionNew {
@@ -2675,6 +2965,8 @@ model BankTransactionNew {
   @@index([matchedInvoicePaymentId])
   // Compound indexes for performance
   @@index([bankAccountId, reconciliationStatus])
+  @@index([bankAccountId, transactionId]) // OPTIMIZATION: For batch duplicate detection in sync
+  @@index([bankAccountId, reconciliationStatus, bookingDate])
 }
 
 model ReconciliationRule {
@@ -2975,6 +3267,7 @@ model Notification {
   @@index([orgId, status])
   @@index([createdAt, orgId])
   @@index([orgId, userId])
+  @@index([userId, orgId, status, createdAt])
 }
 
 // ============================================================================
@@ -3389,6 +3682,7 @@ model Message {
   @@index([role])
   @@index([type])
   @@index([createdAt])
+  @@index([conversationId, createdAt])
   @@map("messages")
 }
 
@@ -3643,6 +3937,8 @@ model Client {
   communications ClientCommunication[]
   payments       ClientPayment[]
   invoices       Invoice[]
+  contracts      Contract[]
+  projects       Project[]
 
   @@unique([orgId, clientNumber])
   @@unique([orgId, email])
@@ -3893,6 +4189,9 @@ model Vendor {
   // Notes
   notes String?
 
+  // Metadata (for storing additional data like source information)
+  metadata Json?
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -3944,6 +4243,39 @@ model RelationshipMetrics {
   @@index([healthStatus])
   @@index([lastUpdated])
   @@index([entityId])
+}
+
+// ============================================================================
+// BUSINESS HEALTH SCORE MODELS
+// ============================================================================
+
+model BusinessHealthScore {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  date DateTime @db.Date
+
+  overallScore Int // 0-100
+
+  cashFlowScore      Int // 0-100
+  arHealthScore      Int // Accounts Receivable 0-100
+  apHealthScore      Int // Accounts Payable 0-100
+  taxComplianceScore Int // 0-100
+  profitabilityScore Int // 0-100
+  runwayScore        Int // 0-100
+
+  metrics         Json // Raw calculation data
+  insights        String[] @default([])
+  recommendations String[] @default([])
+
+  createdAt DateTime @default(now())
+
+  @@unique([organisationId, date])
+  @@index([organisationId])
+  @@index([date])
+  @@index([overallScore])
+  @@index([createdAt, organisationId])
 }
 
 // ============================================================================
@@ -4855,6 +5187,7 @@ model EmailConnection {
   auditLogs    EmailAuditLog[]
   SyncedEmail  SyncedEmail[]
   EmailSyncJob EmailSyncJob[]
+  mailboxes    EmailMailbox[]
 
   @@unique([userId, provider, email])
   @@index([userId])
@@ -4910,6 +5243,75 @@ model EmailAuditLog {
   @@index([success])
   @@index([requestId])
   @@map("email_audit_logs")
+}
+
+model EmailMailbox {
+  id           String @id @default(cuid())
+  connectionId String
+  orgId        String
+  userId       String
+
+  // Mailbox identity
+  email       String
+  displayName String?
+
+  // Purpose-based configuration
+  purpose     EmailMailboxPurpose @default(GENERAL)
+  description String?
+
+  // Folder selection
+  foldersToScan  String[]
+  scanAllFolders Boolean  @default(true)
+  labelIds       String[] // Gmail labels
+  folderIds      String[] // Outlook folders
+
+  // Status
+  isActive   Boolean   @default(true)
+  lastSyncAt DateTime?
+  syncError  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  connection   EmailConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  organisation Organisation    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, email, purpose])
+  @@index([orgId])
+  @@index([connectionId])
+  @@index([purpose])
+  @@index([isActive])
+  @@map("email_mailboxes")
+}
+
+model EmailForwardingInbox {
+  id    String @id @default(cuid())
+  orgId String
+
+  // Unique forwarding address
+  inboxAddress String @unique // e.g., bills-a1b2c3@in.operate.guru
+  inboxPrefix  String // e.g., bills-a1b2c3
+
+  // Purpose
+  purpose     EmailMailboxPurpose @default(BILLS_INVOICES)
+  displayName String? // e.g., "Bills & Invoices"
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Stats
+  emailsReceived Int       @default(0)
+  lastEmailAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([inboxAddress])
+  @@index([purpose])
+  @@map("email_forwarding_inboxes")
 }
 
 // ============================================================================
@@ -5286,6 +5688,76 @@ model TrueLayerTransaction {
   @@index([orgId, status])
   @@index([createdAt, orgId])
   @@map("truelayer_transactions")
+}
+
+enum PaymentInitiationStatus {
+  PENDING
+  AUTHORIZATION_REQUIRED
+  AUTHORIZING
+  AUTHORIZED
+  EXECUTED
+  SETTLED
+  FAILED
+  CANCELLED
+}
+
+enum PaymentSourceType {
+  BILL
+  EXPENSE
+  INVOICE
+  TAX
+  MANUAL
+}
+
+model PaymentInitiation {
+  id     String @id @default(uuid())
+  orgId  String
+  userId String
+
+  amount   Decimal @db.Decimal(12, 2)
+  currency String  @default("EUR")
+
+  beneficiaryName          String
+  beneficiaryIban          String?
+  beneficiarySortCode      String?
+  beneficiaryAccountNumber String?
+
+  reference   String?
+  description String?
+
+  status             PaymentInitiationStatus @default(PENDING)
+  truelayerPaymentId String?                 @unique
+
+  redirectUri      String?
+  authorizationUri String?
+
+  sourceType PaymentSourceType @default(MANUAL)
+  billId     String?
+  expenseId  String?
+  invoiceId  String?
+
+  ipAddress String?
+  userAgent String?
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  authorizedAt DateTime?
+  executedAt   DateTime?
+  settledAt    DateTime?
+
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([userId])
+  @@index([status])
+  @@index([truelayerPaymentId])
+  @@index([billId])
+  @@index([expenseId])
+  @@index([invoiceId])
+  @@index([sourceType])
+  @@index([createdAt])
+  @@map("payment_initiations")
 }
 
 // ============================================================================
@@ -7539,8 +8011,9 @@ model SyncedEmail {
 /// Email Sync Job - Tracks sync operations for monitoring and debugging
 /// Each sync operation creates a job record with status and statistics
 model EmailSyncJob {
-  id           String @id @default(cuid())
+  id           String  @id @default(cuid())
   connectionId String
+  mailboxId    String?
   orgId        String
   userId       String
 
@@ -7629,6 +8102,13 @@ enum EmailSyncStatus {
   PARTIAL // Partially completed (some errors)
   CANCELLED // Cancelled by user
   RATE_LIMITED // Paused due to rate limiting
+}
+
+enum EmailMailboxPurpose {
+  BILLS_INVOICES
+  INSURANCE_CONTRACTS
+  CUSTOMER_COMMS
+  GENERAL
 }
 
 /// Email Attachment - Stores downloaded attachments from synced emails
@@ -7763,6 +8243,90 @@ model EmailExtractedEntities {
   @@index([orgId, userId])
   @@index([emailId, status])
   @@map("email_extracted_entities")
+}
+
+model EmailFilterConfig {
+  id    String @id @default(uuid())
+  orgId String @unique
+
+  // Domain Filtering
+  personalDomainBlocklist  String[] @default([])
+  serviceProviderWhitelist String[] @default([])
+  customDomainBlacklist    String[] @default([])
+  customDomainWhitelist    String[] @default([])
+
+  // Email Pattern Filtering
+  blockedEmailPatterns String[] @default([])
+
+  // Header Analysis
+  skipAutoReplies   Boolean @default(true)
+  skipBulkMail      Boolean @default(true)
+  skipMarketingMail Boolean @default(true)
+
+  // Confidence Thresholds
+  minEntityConfidence         Float @default(0.6)
+  minClassificationConfidence Float @default(0.7)
+
+  // Auto-create Settings
+  autoCreateCustomers Boolean @default(true)
+  autoCreateVendors   Boolean @default(true)
+  requireManualReview Boolean @default(false)
+
+  // Review Queue Settings
+  reviewLowConfidence    Boolean @default(true)
+  lowConfidenceThreshold Float   @default(0.5)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@map("email_filter_configs")
+}
+
+model EmailReviewQueue {
+  id      String @id @default(uuid())
+  orgId   String
+  emailId String
+
+  // Review Context
+  reviewType   String // 'LOW_CONFIDENCE', 'PATTERN_MATCH', 'DOMAIN_SUSPECT', 'MANUAL_CHECK'
+  reviewReason String
+
+  // Extracted Data (snapshot)
+  senderEmail       String
+  senderDomain      String
+  extractedCompany  String?
+  extractedContacts Json?
+  classification    String?
+  confidence        Float
+
+  // Suggested Action
+  suggestedAction String // 'CREATE_CUSTOMER', 'CREATE_VENDOR', 'SKIP', 'BLOCK_DOMAIN'
+
+  // Review Status
+  status      String    @default("PENDING") // 'PENDING', 'APPROVED', 'REJECTED', 'BLOCKED'
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  reviewNotes String?
+
+  // Result
+  resultAction   String?
+  resultEntityId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([status])
+  @@index([reviewType])
+  @@index([createdAt])
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@map("email_review_queue")
 }
 
 /// Storage Quota - Tracks storage usage per organization
@@ -8233,4 +8797,513 @@ model ComplianceBadge {
 
   @@index([isActive])
   @@index([slug])
+}
+
+// ============================================================================
+// CONTRACTS & E-SIGNATURE
+// ============================================================================
+
+model Contract {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  title       String
+  description String?
+
+  templateId String?
+  template   ContractTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  content String @db.Text
+
+  status ContractStatus @default(DRAFT)
+
+  value    Decimal? @db.Decimal(19, 4)
+  currency String   @default("EUR")
+
+  startDate DateTime?
+  endDate   DateTime?
+
+  sentAt   DateTime?
+  viewedAt DateTime?
+  signedAt DateTime?
+
+  signerName    String?
+  signerEmail   String?
+  signerIp      String?
+  signatureData String? @db.Text
+
+  signatureToken String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([clientId])
+  @@index([status])
+  @@index([signatureToken])
+  @@index([organisationId, status])
+  @@map("contracts")
+}
+
+model ContractTemplate {
+  id             String        @id @default(cuid())
+  organisationId String?
+  organisation   Organisation? @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  category    TemplateCategory
+
+  content   String @db.Text
+  variables Json?
+
+  isSystem Boolean @default(false)
+
+  contracts Contract[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([category])
+  @@index([isSystem])
+  @@map("contract_templates")
+}
+
+enum ContractStatus {
+  DRAFT
+  SENT
+  VIEWED
+  SIGNED
+  EXPIRED
+  CANCELLED
+}
+
+enum TemplateCategory {
+  SERVICE_AGREEMENT
+  NDA
+  FREELANCE
+  CONSULTING
+  RETAINER
+  PROJECT
+  CUSTOM
+}
+
+// ============================================================================
+// INSURANCE & POLICY TRACKER
+// ============================================================================
+
+model InsurancePolicy {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  name         String
+  type         InsuranceType
+  provider     String
+  policyNumber String?
+
+  description String?
+
+  coverageAmount Decimal? @db.Decimal(19, 4)
+  deductible     Decimal? @db.Decimal(19, 4)
+  currency       String   @default("EUR")
+
+  premiumAmount    Decimal          @db.Decimal(19, 4)
+  premiumFrequency PaymentFrequency @default(MONTHLY)
+
+  startDate   DateTime
+  endDate     DateTime
+  renewalDate DateTime?
+
+  autoRenew Boolean @default(false)
+
+  status PolicyStatus @default(ACTIVE)
+
+  contactName  String?
+  contactPhone String?
+  contactEmail String?
+
+  documents InsuranceDocument[]
+  payments  InsurancePayment[]
+
+  notes        String?
+  reminderDays Int     @default(30)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([endDate])
+  @@index([status])
+  @@index([organisationId, status])
+  @@map("insurance_policies")
+}
+
+model InsuranceDocument {
+  id       String          @id @default(cuid())
+  policyId String
+  policy   InsurancePolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  name     String
+  fileUrl  String
+  fileType String?
+  fileSize Int?
+
+  uploadedAt DateTime @default(now())
+
+  @@index([policyId])
+  @@map("insurance_documents")
+}
+
+model InsurancePayment {
+  id       String          @id @default(cuid())
+  policyId String
+  policy   InsurancePolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  amount   Decimal @db.Decimal(19, 4)
+  currency String  @default("EUR")
+
+  dueDate  DateTime
+  paidDate DateTime?
+
+  status InsurancePaymentStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+
+  @@index([policyId])
+  @@index([dueDate])
+  @@index([status])
+  @@map("insurance_payments")
+}
+
+enum InsuranceType {
+  LIABILITY
+  PROFESSIONAL_INDEMNITY
+  PROPERTY
+  HEALTH
+  LIFE
+  DISABILITY
+  CYBER
+  VEHICLE
+  WORKERS_COMP
+  OTHER
+}
+
+enum PolicyStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING_RENEWAL
+}
+
+enum PaymentFrequency {
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUAL
+  ANNUAL
+  ONE_TIME
+}
+
+enum InsurancePaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+// ============================================================================
+// TIME TRACKING & PROJECT MANAGEMENT MODELS
+// ============================================================================
+
+enum ProjectStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+model Project {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  clientId       String?
+  client         Client?      @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  name        String
+  description String?
+  color       String? @default("#6366f1")
+
+  budgetHours  Decimal? @db.Decimal(10, 2)
+  budgetAmount Decimal? @db.Decimal(19, 4)
+  hourlyRate   Decimal? @db.Decimal(19, 4)
+  currency     String   @default("EUR")
+
+  status ProjectStatus @default(ACTIVE)
+
+  billableTimeEntries BillableTimeEntry[]
+
+  startDate DateTime?
+  endDate   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([clientId])
+  @@index([status])
+  @@index([organisationId, status])
+}
+
+model BillableTimeEntry {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  userId         String
+
+  clientId  String?
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  description String?
+
+  startTime DateTime
+  endTime   DateTime?
+  duration  Int? // Duration in minutes
+
+  billable   Boolean  @default(true)
+  billed     Boolean  @default(false)
+  hourlyRate Decimal? @db.Decimal(19, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([userId])
+  @@index([projectId])
+  @@index([clientId])
+  @@index([organisationId, userId])
+  @@index([organisationId, projectId])
+  @@index([billed])
+}
+
+// ============================================================================
+// AI AUTOPILOT MODE MODELS
+// ============================================================================
+
+enum AutopilotActionType {
+  CATEGORIZE_TRANSACTION
+  CREATE_INVOICE
+  SEND_REMINDER
+  RECONCILE_TRANSACTION
+  EXTRACT_RECEIPT
+  PAY_BILL
+  FILE_EXPENSE
+  CREATE_CLIENT
+  MATCH_PAYMENT
+}
+
+enum AutopilotActionStatus {
+  PENDING
+  APPROVED
+  EXECUTED
+  REJECTED
+  FAILED
+}
+
+model AutopilotConfig {
+  id             String       @id @default(cuid())
+  organisationId String       @unique
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  enabled Boolean @default(false)
+
+  // Feature toggles
+  autoCategorizeTx    Boolean @default(true)
+  autoCreateInvoices  Boolean @default(false)
+  autoSendReminders   Boolean @default(false)
+  autoReconcile       Boolean @default(true)
+  autoExtractReceipts Boolean @default(true)
+  autoPayBills        Boolean @default(false)
+  autoFileExpenses    Boolean @default(true)
+
+  // Thresholds
+  confidenceThreshold Int      @default(90) // Min confidence for auto-action
+  maxAutoAmount       Decimal? @db.Decimal(19, 4) // Max amount for auto-pay
+
+  // Schedule
+  dailySummaryEnabled Boolean @default(true)
+  dailySummaryTime    String  @default("09:00") // HH:mm
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("autopilot_config")
+}
+
+model AutopilotAction {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  type   AutopilotActionType
+  status AutopilotActionStatus @default(PENDING)
+
+  description String
+
+  entityType String? // "transaction", "invoice", "expense", etc.
+  entityId   String?
+
+  confidence Int? // AI confidence 0-100
+
+  oldValue Json? // Previous state
+  newValue Json? // New state after action
+
+  requiresApproval Boolean   @default(false)
+  approvedAt       DateTime?
+  approvedBy       String?
+  rejectedAt       DateTime?
+  rejectedReason   String?
+
+  executedAt DateTime?
+  error      String?
+
+  createdAt DateTime @default(now())
+
+  @@index([organisationId])
+  @@index([status])
+  @@index([type])
+  @@index([organisationId, status])
+  @@index([organisationId, type])
+  @@map("autopilot_actions")
+}
+
+model AutopilotSummary {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  date DateTime @db.Date
+
+  actionsCompleted Int @default(0)
+  actionsPending   Int @default(0)
+  actionsRejected  Int @default(0)
+
+  transactionsCategorized  Int @default(0)
+  receiptsProcessed        Int @default(0)
+  invoicesCreated          Int @default(0)
+  remindersSent            Int @default(0)
+  reconciliationsCompleted Int @default(0)
+
+  timeSavedMinutes Int @default(0) // Estimated time saved
+
+  summary String? @db.Text // AI-generated summary
+
+  createdAt DateTime @default(now())
+
+  @@unique([organisationId, date])
+  @@index([organisationId])
+  @@index([date])
+  @@map("autopilot_summaries")
+}
+
+// ============================================================================
+// SMART TAX ASSISTANT MODELS
+// ============================================================================
+
+model TaxSuggestion {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  type     TaxSuggestionType
+  category String // "deduction", "deadline", "optimization", "warning"
+
+  title       String
+  description String @db.Text
+
+  potentialSavings Decimal? @db.Decimal(19, 4)
+  currency         String   @default("EUR")
+
+  priority SuggestionPriority @default(MEDIUM)
+  status   SuggestionStatus   @default(PENDING)
+
+  actionUrl   String? // Link to relevant page
+  actionLabel String? // "View Deductions", "File Now"
+
+  expiresAt   DateTime? // For time-sensitive suggestions
+  dismissedAt DateTime?
+  completedAt DateTime?
+
+  metadata Json? // Additional context data
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([status])
+  @@index([type])
+  @@index([organisationId, status])
+  @@index([organisationId, type])
+  @@map("tax_suggestions")
+}
+
+model TaxDeadline {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  name        String // "Q4 VAT Return", "Annual Tax Filing"
+  description String?
+
+  country String // ISO country code
+  type    TaxDeadlineType
+
+  dueDate      DateTime
+  reminderDate DateTime?
+
+  status  DeadlineStatus @default(UPCOMING)
+  filedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([organisationId])
+  @@index([dueDate])
+  @@index([status])
+  @@index([organisationId, status])
+  @@index([organisationId, dueDate])
+  @@map("tax_deadlines")
+}
+
+enum TaxSuggestionType {
+  MISSED_DEDUCTION
+  QUARTERLY_ESTIMATE
+  DEADLINE_REMINDER
+  EXPENSE_CATEGORIZATION
+  MILEAGE_DEDUCTION
+  HOME_OFFICE
+  EQUIPMENT_DEPRECIATION
+  RETIREMENT_CONTRIBUTION
+  HEALTH_INSURANCE
+  TAX_OPTIMIZATION
+  COMPLIANCE_WARNING
+}
+
+enum TaxDeadlineType {
+  VAT_RETURN
+  INCOME_TAX
+  CORPORATE_TAX
+  PAYROLL_TAX
+  ESTIMATED_PAYMENT
+  ANNUAL_FILING
+}
+
+enum DeadlineStatus {
+  UPCOMING
+  DUE_SOON
+  OVERDUE
+  FILED
 }

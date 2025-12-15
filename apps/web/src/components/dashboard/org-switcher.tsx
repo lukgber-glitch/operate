@@ -35,15 +35,19 @@ export function OrgSwitcher() {
             'justify-between w-full',
             !isSidebarOpen && 'px-2'
           )}
+          aria-label={`Switch organization, currently ${selectedOrg?.name || 'None selected'}`}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <Building2 className="h-4 w-4 flex-shrink-0" />
+            <Building2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
             {isSidebarOpen && selectedOrg && (
               <span className="truncate">{selectedOrg.name}</span>
             )}
+            {!isSidebarOpen && (
+              <span className="sr-only">{selectedOrg?.name || 'Organization'}</span>
+            )}
           </div>
           {isSidebarOpen && (
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" aria-hidden="true" />
           )}
         </Button>
       </DropdownMenuTrigger>
@@ -56,7 +60,7 @@ export function OrgSwitcher() {
           >
             <div className="flex flex-col">
               <span className="font-medium">{org.name}</span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">
+              <span className="text-xs text-gray-400">
                 {org.role}
               </span>
             </div>

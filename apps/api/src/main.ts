@@ -45,9 +45,26 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
-  // CORS
+  // CORS - allow multiple origins in development
+  const corsOrigin = configService.get<string>('corsOrigin', 'http://localhost:3000');
+  const isDev = environment === 'development';
+
   app.enableCors({
-    origin: configService.get<string>('corsOrigin', 'http://localhost:3000'),
+    origin: isDev
+      ? (origin, callback) => {
+          // Allow requests with no origin (like mobile apps or curl)
+          if (!origin) return callback(null, true);
+          // Allow any localhost port in development
+          if (origin.match(/^http:\/\/localhost:\d+$/)) {
+            return callback(null, true);
+          }
+          // Also allow the configured origin
+          if (origin === corsOrigin) {
+            return callback(null, true);
+          }
+          callback(new Error('Not allowed by CORS'));
+        }
+      : corsOrigin,
     credentials: true,
   });
 

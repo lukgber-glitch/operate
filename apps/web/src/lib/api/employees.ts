@@ -186,15 +186,50 @@ class EmployeeApi {
    * The orgId is stored in the JWT which is in HTTP-only cookies
    * For now, we'll use a placeholder - this should be replaced with actual orgId from context
    */
+  /**
+   * Get organisation ID from auth context
+   * The orgId is set in window.__orgId by the useAuth hook when user authenticates
+   *
+   * NOTE: This method now returns empty string instead of throwing to prevent page crashes.
+   * The API call will handle auth errors gracefully via the fetch() error handling.
+   */
   private getOrgId(): string {
-    // TODO: Get orgId from auth context/state
-    // For now, we'll try to get it from a global window object set by auth
-    if (typeof window !== 'undefined' && (window as any).__orgId) {
-      return (window as any).__orgId;
+    if (typeof window !== 'undefined') {
+      if ((window as any).__orgId) {
+        console.log('[EmployeeAPI] Using window.__orgId:', (window as any).__orgId);
+        return (window as any).__orgId;
+      }
+
+      // Fallback: try to parse from cookie
+      const authCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('op_auth='));
+
+      if (authCookie) {
+        try {
+          const authValue = decodeURIComponent(authCookie.split('=')[1] || '');
+          console.log('[EmployeeAPI] Found op_auth cookie, attempting to parse...');
+          const authData = JSON.parse(authValue);
+
+          // Parse JWT to extract orgId
+          if (authData.a) {
+            const payload = JSON.parse(atob(authData.a.split('.')[1]));
+            if (payload.orgId) {
+              console.log('[EmployeeAPI] Extracted orgId from JWT:', payload.orgId);
+              return payload.orgId;
+            }
+          }
+        } catch (e) {
+          console.warn('[EmployeeAPI] Failed to parse auth cookie:', e);
+        }
+      } else {
+        console.warn('[EmployeeAPI] No op_auth cookie found');
+      }
     }
-    // Fallback to a default orgId for development
-    // In production, this should throw an error if orgId is not available
-    return 'default-org-id';
+
+    // Return empty string instead of throwing - let the API call handle the 401/403
+    console.warn('[EmployeeAPI] Organisation ID not available - returning empty string');
+    return '';
   }
 
   private async request<T>(

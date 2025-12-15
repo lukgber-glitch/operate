@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { TinkService } from '../../integrations/tink/tink.service';
+import { Public } from '../../../common/decorators/public.decorator';
 
 /**
  * Public Banks Controller
@@ -13,6 +14,7 @@ export class BanksController {
    * Get available banks for a country
    * GET /bank-connections/banks?country=DE
    */
+  @Public()
   @Get('banks')
   async getBanks(@Query('country') country: string) {
     if (!country) {
@@ -30,7 +32,7 @@ export class BanksController {
             id: p.name || p.financialInstitution?.id || p.id,
             name: p.displayName || p.financialInstitution?.name || p.name,
             logo: p.images?.icon || p.image || p.logo || null,
-            country: country.toUpperCase(),
+            country: p.market || country.toUpperCase(),
             bic: null,
           }))
         };

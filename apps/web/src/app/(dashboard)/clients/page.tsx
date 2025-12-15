@@ -1,16 +1,17 @@
 'use client';
 
 import { Plus, Download } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 import { AddClientDialog } from '@/components/clients/AddClientDialog';
 import { ClientDataTable } from '@/components/clients/ClientDataTable';
 import { ClientFilters } from '@/components/clients/ClientFilters';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useClients, useDeleteClient, useBulkUpdateClients } from '@/hooks/useClients';
-import type { ClientFilters as ClientFilterType } from '@/lib/api/clients';
+import { useClients, useDeleteClient, useBulkUpdateClients, usePrefetchClient } from '@/hooks/useClients';
+import type { ClientFilters as ClientFilterType, UpdateClientDto } from '@/lib/api/clients';
 
 export default function ClientsPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -24,6 +25,7 @@ export default function ClientsPage() {
   const { data: clientsData, isLoading, error } = useClients(filters);
   const deleteMutation = useDeleteClient();
   const bulkUpdateMutation = useBulkUpdateClients();
+  const prefetchClient = usePrefetchClient();
 
   const handleFilterChange = (newFilters: Partial<ClientFilterType>) => {
     setFilters((prev) => ({
@@ -38,9 +40,9 @@ export default function ClientsPage() {
     await deleteMutation.mutateAsync(id);
   };
 
-  const handleBulkUpdate = async (clientIds: string[], updates: any) => {
+  const handleBulkUpdate = useCallback(async (clientIds: string[], updates: UpdateClientDto) => {
     await bulkUpdateMutation.mutateAsync({ clientIds, updates });
-  };
+  }, [bulkUpdateMutation]);
 
   const handleExportCSV = () => {
     if (!clientsData?.items) return;
@@ -73,16 +75,14 @@ export default function ClientsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
-          <p className="text-muted-foreground">Manage your client relationships</p>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Clients</h1>
+          <p className="text-white/70">Manage your client relationships</p>
         </div>
-        <Card className="rounded-[24px]">
-          <CardContent className="p-6">
+        <GlassCard padding="lg">
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <p className="text-destructive mb-4">Error loading clients. Please try again.</p>
             </div>
-          </CardContent>
-        </Card>
+        </GlassCard>
       </div>
     );
   }
@@ -92,8 +92,8 @@ export default function ClientsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
-          <p className="text-muted-foreground">Manage your client relationships and track key metrics</p>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Clients</h1>
+          <p className="text-white/70">Manage your client relationships and track key metrics</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportCSV} disabled={!clientsData?.items?.length}>
@@ -131,6 +131,7 @@ export default function ClientsPage() {
           sortBy={filters.sortBy}
           sortOrder={filters.sortOrder}
           onSortChange={(sortBy, sortOrder) => handleFilterChange({ sortBy: sortBy as ClientFilterType['sortBy'], sortOrder })}
+          onPrefetch={prefetchClient}
         />
       )}
 

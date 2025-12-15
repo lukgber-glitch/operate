@@ -1,9 +1,11 @@
 'use client'
 
+import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
+import { fadeUp, staggerContainer } from '@/lib/animation-variants'
 import { ConnectionGrid, AddConnectionDialog, Integration, IntegrationType } from '@/components/connections'
 
 export default function ConnectionsPage() {
@@ -154,22 +156,31 @@ export default function ConnectionsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
+      {/* Header */}
+      <motion.div variants={fadeUp}>
         <h1 className="text-3xl font-bold">Connections</h1>
-        <p className="text-muted-foreground">
+        <p className="text-white/70">
           Manage your integrations with banks, accounting software, and tax authorities
         </p>
-      </div>
+      </motion.div>
 
-      <ConnectionGrid
-        integrations={integrations}
-        onAddConnection={handleAddConnection}
-        onDisconnect={handleDisconnect}
-        onReconnect={handleReconnect}
-        onSyncNow={handleSyncNow}
-        onViewDetails={handleViewDetails}
-      />
+      {/* Connection Grid */}
+      <motion.div variants={fadeUp}>
+        <ConnectionGrid
+          integrations={integrations}
+          onAddConnection={handleAddConnection}
+          onDisconnect={handleDisconnect}
+          onReconnect={handleReconnect}
+          onSyncNow={handleSyncNow}
+          onViewDetails={handleViewDetails}
+        />
+      </motion.div>
 
       <AddConnectionDialog
         open={dialogOpen}
@@ -177,7 +188,7 @@ export default function ConnectionsPage() {
         type={selectedType}
         onConnect={handleConnect}
       />
-    </div>
+    </motion.div>
   )
 }
 

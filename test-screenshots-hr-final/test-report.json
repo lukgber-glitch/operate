@@ -1,0 +1,69 @@
+{
+  "results": [
+    {
+      "page": "Login",
+      "status": "PASS",
+      "url": "http://localhost:3000/onboarding"
+    },
+    {
+      "page": "HR Dashboard",
+      "requestedUrl": "/hr",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "status": "FAIL",
+      "note": "Redirected to onboarding"
+    },
+    {
+      "page": "Employee List",
+      "requestedUrl": "/hr/employees",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "status": "FAIL",
+      "note": "Redirected to onboarding"
+    },
+    {
+      "page": "Add Employee Form",
+      "requestedUrl": "/hr/employees/new",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "status": "FAIL",
+      "note": "Redirected to onboarding"
+    },
+    {
+      "page": "Leave Management",
+      "requestedUrl": "/hr/leave",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "status": "FAIL",
+      "note": "Redirected to onboarding"
+    },
+    {
+      "page": "Leave Requests",
+      "requestedUrl": "/hr/leave/requests",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "status": "FAIL",
+      "note": "Redirected to onboarding"
+    },
+    {
+      "page": "Leave Approvals",
+      "requestedUrl": "/hr/leave/approvals",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "status": "FAIL",
+      "note": "Redirected to onboarding"
+    },
+    {
+      "page": "Payroll Dashboard",
+      "requestedUrl": "/hr/payroll/run",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "status": "FAIL",
+      "note": "Redirected to onboarding"
+    },
+    {
+      "page": "Benefits Overview",
+      "requestedUrl": "/hr/benefits",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "status": "FAIL",
+      "note": "Redirected to onboarding"
+    }
+  ],
+  "summary": {
+    "pass": 1,
+    "fail": 8
+  }
+}

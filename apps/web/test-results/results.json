@@ -1,0 +1,1118 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\playwright.config.ts",
+    "rootDir": "C:/Users/grube/op/operate-fresh/apps/web/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 12
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/junit.xml"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/grube/op/operate-fresh/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 12
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/grube/op/operate-fresh/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/grube/op/operate-fresh/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 12
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Users/grube/op/operate-fresh/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/grube/op/operate-fresh/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 12
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/grube/op/operate-fresh/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/grube/op/operate-fresh/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 12
+        },
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "C:/Users/grube/op/operate-fresh/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/grube/op/operate-fresh/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 12
+        },
+        "id": "mobile-safari",
+        "name": "mobile-safari",
+        "testDir": "C:/Users/grube/op/operate-fresh/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/grube/op/operate-fresh/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 12
+        },
+        "id": "tablet",
+        "name": "tablet",
+        "testDir": "C:/Users/grube/op/operate-fresh/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 16,
+    "webServer": {
+      "command": "pnpm dev",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "auth.spec.ts",
+      "file": "auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication",
+          "file": "auth.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Login",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should display login page correctly",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 32600,
+                          "error": {
+                            "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n",
+                            "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:6:18",
+                            "location": {
+                              "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                              "column": 18,
+                              "line": 6
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 4 |\u001b[39m   test\u001b[33m.\u001b[39mdescribe(\u001b[32m'Login'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 5 |\u001b[39m     test(\u001b[32m'should display login page correctly'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 6 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 7 |\u001b[39m\n \u001b[90m 8 |\u001b[39m       \u001b[90m// Check page title and branding\u001b[39m\n \u001b[90m 9 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveTitle(\u001b[35m/Operate/i\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                                "column": 18,
+                                "line": 6
+                              },
+                              "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n\n  4 |   test.describe('Login', () => {\n  5 |     test('should display login page correctly', async ({ page }) => {\n> 6 |       await page.goto('/login');\n    |                  ^\n  7 |\n  8 |       // Check page title and branding\n  9 |       await expect(page).toHaveTitle(/Operate/i);\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:6:18"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-12-15T03:47:32.317Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login--2eba1-isplay-login-page-correctly-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login--2eba1-isplay-login-page-correctly-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login--2eba1-isplay-login-page-correctly-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                            "column": 18,
+                            "line": 6
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d748ac400d08b85935ef-07dd5bf7c5eed06d7a56",
+                  "file": "auth.spec.ts",
+                  "line": 5,
+                  "column": 9
+                },
+                {
+                  "title": "should login successfully with valid credentials",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 1,
+                          "status": "failed",
+                          "duration": 32638,
+                          "error": {
+                            "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n",
+                            "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:19:18",
+                            "location": {
+                              "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                              "column": 18,
+                              "line": 19
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 17 |\u001b[39m\n \u001b[90m 18 |\u001b[39m     test(\u001b[32m'should login successfully with valid credentials'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page\u001b[33m,\u001b[39m testUser }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 19 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 20 |\u001b[39m\n \u001b[90m 21 |\u001b[39m       \u001b[90m// Fill in credentials\u001b[39m\n \u001b[90m 22 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[name=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m testUser\u001b[33m.\u001b[39memail)\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                                "column": 18,
+                                "line": 19
+                              },
+                              "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n\n  17 |\n  18 |     test('should login successfully with valid credentials', async ({ page, testUser }) => {\n> 19 |       await page.goto('/login');\n     |                  ^\n  20 |\n  21 |       // Fill in credentials\n  22 |       await page.fill('input[name=\"email\"]', testUser.email);\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:19:18"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-12-15T03:47:32.334Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login--0646c-ully-with-valid-credentials-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login--0646c-ully-with-valid-credentials-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login--0646c-ully-with-valid-credentials-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                            "column": 18,
+                            "line": 19
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d748ac400d08b85935ef-ace3dcc74cfbe6ef2943",
+                  "file": "auth.spec.ts",
+                  "line": 18,
+                  "column": 9
+                },
+                {
+                  "title": "should show error for invalid email",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 2,
+                          "status": "failed",
+                          "duration": 32793,
+                          "error": {
+                            "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n",
+                            "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:57:18",
+                            "location": {
+                              "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                              "column": 18,
+                              "line": 57
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 55 |\u001b[39m\n \u001b[90m 56 |\u001b[39m     test(\u001b[32m'should show error for invalid email'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 57 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[name=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'invalid-email'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 60 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[name=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'password123'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                                "column": 18,
+                                "line": 57
+                              },
+                              "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n\n  55 |\n  56 |     test('should show error for invalid email', async ({ page }) => {\n> 57 |       await page.goto('/login');\n     |                  ^\n  58 |\n  59 |       await page.fill('input[name=\"email\"]', 'invalid-email');\n  60 |       await page.fill('input[name=\"password\"]', 'password123');\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:57:18"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-12-15T03:47:32.303Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login--83c89-how-error-for-invalid-email-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login--83c89-how-error-for-invalid-email-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login--83c89-how-error-for-invalid-email-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                            "column": 18,
+                            "line": 57
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d748ac400d08b85935ef-447a3dedfe13fd6af850",
+                  "file": "auth.spec.ts",
+                  "line": 56,
+                  "column": 9
+                },
+                {
+                  "title": "should show error for wrong password",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 3,
+                          "parallelIndex": 3,
+                          "status": "failed",
+                          "duration": 32653,
+                          "error": {
+                            "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n",
+                            "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:85:18",
+                            "location": {
+                              "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                              "column": 18,
+                              "line": 85
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 83 |\u001b[39m\n \u001b[90m 84 |\u001b[39m     test(\u001b[32m'should show error for wrong password'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 85 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 86 |\u001b[39m\n \u001b[90m 87 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[name=\"email\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'test@operate.guru'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 88 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mfill(\u001b[32m'input[name=\"password\"]'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'wrongpassword'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                                "column": 18,
+                                "line": 85
+                              },
+                              "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n\n  83 |\n  84 |     test('should show error for wrong password', async ({ page }) => {\n> 85 |       await page.goto('/login');\n     |                  ^\n  86 |\n  87 |       await page.fill('input[name=\"email\"]', 'test@operate.guru');\n  88 |       await page.fill('input[name=\"password\"]', 'wrongpassword');\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:85:18"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-12-15T03:47:32.344Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login--edbf2-ow-error-for-wrong-password-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login--edbf2-ow-error-for-wrong-password-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login--edbf2-ow-error-for-wrong-password-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                            "column": 18,
+                            "line": 85
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d748ac400d08b85935ef-49302fd8b2acd953eec1",
+                  "file": "auth.spec.ts",
+                  "line": 84,
+                  "column": 9
+                },
+                {
+                  "title": "should handle OAuth login button",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 4,
+                          "status": "failed",
+                          "duration": 32586,
+                          "error": {
+                            "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n",
+                            "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:118:18",
+                            "location": {
+                              "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                              "column": 18,
+                              "line": 118
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 116 |\u001b[39m\n \u001b[90m 117 |\u001b[39m     test(\u001b[32m'should handle OAuth login button'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 118 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 119 |\u001b[39m\n \u001b[90m 120 |\u001b[39m       \u001b[90m// Check for OAuth buttons\u001b[39m\n \u001b[90m 121 |\u001b[39m       \u001b[36mconst\u001b[39m oauthButtons \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button:has-text(\"Google\"), button:has-text(\"OAuth\")'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                                "column": 18,
+                                "line": 118
+                              },
+                              "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n\n  116 |\n  117 |     test('should handle OAuth login button', async ({ page }) => {\n> 118 |       await page.goto('/login');\n      |                  ^\n  119 |\n  120 |       // Check for OAuth buttons\n  121 |       const oauthButtons = page.locator('button:has-text(\"Google\"), button:has-text(\"OAuth\")');\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:118:18"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-12-15T03:47:32.319Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login-should-handle-OAuth-login-button-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login-should-handle-OAuth-login-button-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Login-should-handle-OAuth-login-button-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                            "column": 18,
+                            "line": 118
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d748ac400d08b85935ef-c9da2518f1e9b3746eed",
+                  "file": "auth.spec.ts",
+                  "line": 117,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Logout",
+              "file": "auth.spec.ts",
+              "line": 130,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should logout successfully",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 5,
+                          "parallelIndex": 5,
+                          "status": "failed",
+                          "duration": 32422,
+                          "error": {
+                            "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n",
+                            "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n    at Object.authenticatedPage (C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts:53:16)",
+                            "location": {
+                              "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts",
+                              "column": 16,
+                              "line": 53
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mfixtures.ts:53\n\n\u001b[0m \u001b[90m 51 |\u001b[39m   authenticatedPage\u001b[33m:\u001b[39m \u001b[36masync\u001b[39m ({ page\u001b[33m,\u001b[39m testUser }\u001b[33m,\u001b[39m use) \u001b[33m=>\u001b[39m {\n \u001b[90m 52 |\u001b[39m     \u001b[90m// Navigate to login page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[90m// Wait for page to be ready\u001b[39m\n \u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts",
+                                "column": 16,
+                                "line": 53
+                              },
+                              "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures.ts:53\n\n  51 |   authenticatedPage: async ({ page, testUser }, use) => {\n  52 |     // Navigate to login page\n> 53 |     await page.goto('/login');\n     |                ^\n  54 |\n  55 |     // Wait for page to be ready\n  56 |     await page.waitForLoadState('networkidle');\n    at Object.authenticatedPage (C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts:53:16)"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-12-15T03:47:32.324Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Logout-should-logout-successfully-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Logout-should-logout-successfully-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Logout-should-logout-successfully-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts",
+                            "column": 16,
+                            "line": 53
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d748ac400d08b85935ef-2e71c2e36148da8bc1dc",
+                  "file": "auth.spec.ts",
+                  "line": 131,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Protected Routes",
+              "file": "auth.spec.ts",
+              "line": 180,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should redirect to login when accessing protected route without auth",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 6,
+                          "parallelIndex": 6,
+                          "status": "failed",
+                          "duration": 32595,
+                          "error": {
+                            "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/dashboard\", waiting until \"load\"\u001b[22m\n",
+                            "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/dashboard\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:183:18",
+                            "location": {
+                              "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                              "column": 18,
+                              "line": 183
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 181 |\u001b[39m     test(\u001b[32m'should redirect to login when accessing protected route without auth'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 182 |\u001b[39m       \u001b[90m// Try to access dashboard without authentication\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 183 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/dashboard'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 184 |\u001b[39m\n \u001b[90m 185 |\u001b[39m       \u001b[90m// Should redirect to login\u001b[39m\n \u001b[90m 186 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'**/login'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                                "column": 18,
+                                "line": 183
+                              },
+                              "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/dashboard\", waiting until \"load\"\u001b[22m\n\n\n  181 |     test('should redirect to login when accessing protected route without auth', async ({ page }) => {\n  182 |       // Try to access dashboard without authentication\n> 183 |       await page.goto('/dashboard');\n      |                  ^\n  184 |\n  185 |       // Should redirect to login\n  186 |       await page.waitForURL('**/login', { timeout: 10000 });\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:183:18"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-12-15T03:47:32.347Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Protec-5ede5-rotected-route-without-auth-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Protec-5ede5-rotected-route-without-auth-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Protec-5ede5-rotected-route-without-auth-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                            "column": 18,
+                            "line": 183
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d748ac400d08b85935ef-69117742ddf93dbd9ee1",
+                  "file": "auth.spec.ts",
+                  "line": 181,
+                  "column": 9
+                },
+                {
+                  "title": "should allow access to protected routes when authenticated",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 7,
+                          "parallelIndex": 7,
+                          "status": "failed",
+                          "duration": 32390,
+                          "error": {
+                            "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n",
+                            "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n    at Object.authenticatedPage (C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts:53:16)",
+                            "location": {
+                              "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts",
+                              "column": 16,
+                              "line": 53
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mfixtures.ts:53\n\n\u001b[0m \u001b[90m 51 |\u001b[39m   authenticatedPage\u001b[33m:\u001b[39m \u001b[36masync\u001b[39m ({ page\u001b[33m,\u001b[39m testUser }\u001b[33m,\u001b[39m use) \u001b[33m=>\u001b[39m {\n \u001b[90m 52 |\u001b[39m     \u001b[90m// Navigate to login page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[90m// Wait for page to be ready\u001b[39m\n \u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts",
+                                "column": 16,
+                                "line": 53
+                              },
+                              "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures.ts:53\n\n  51 |   authenticatedPage: async ({ page, testUser }, use) => {\n  52 |     // Navigate to login page\n> 53 |     await page.goto('/login');\n     |                ^\n  54 |\n  55 |     // Wait for page to be ready\n  56 |     await page.waitForLoadState('networkidle');\n    at Object.authenticatedPage (C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts:53:16)"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-12-15T03:47:32.359Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Protec-c452a-d-routes-when-authenticated-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Protec-c452a-d-routes-when-authenticated-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Protec-c452a-d-routes-when-authenticated-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts",
+                            "column": 16,
+                            "line": 53
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d748ac400d08b85935ef-d10694da17edaf2a9135",
+                  "file": "auth.spec.ts",
+                  "line": 190,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Session Persistence",
+              "file": "auth.spec.ts",
+              "line": 205,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should maintain session across page reloads",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 8,
+                          "parallelIndex": 8,
+                          "status": "failed",
+                          "duration": 32375,
+                          "error": {
+                            "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n",
+                            "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n    at Object.authenticatedPage (C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts:53:16)",
+                            "location": {
+                              "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts",
+                              "column": 16,
+                              "line": 53
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mfixtures.ts:53\n\n\u001b[0m \u001b[90m 51 |\u001b[39m   authenticatedPage\u001b[33m:\u001b[39m \u001b[36masync\u001b[39m ({ page\u001b[33m,\u001b[39m testUser }\u001b[33m,\u001b[39m use) \u001b[33m=>\u001b[39m {\n \u001b[90m 52 |\u001b[39m     \u001b[90m// Navigate to login page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[90m// Wait for page to be ready\u001b[39m\n \u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts",
+                                "column": 16,
+                                "line": 53
+                              },
+                              "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures.ts:53\n\n  51 |   authenticatedPage: async ({ page, testUser }, use) => {\n  52 |     // Navigate to login page\n> 53 |     await page.goto('/login');\n     |                ^\n  54 |\n  55 |     // Wait for page to be ready\n  56 |     await page.waitForLoadState('networkidle');\n    at Object.authenticatedPage (C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts:53:16)"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-12-15T03:47:32.367Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Sessio-41a8f-session-across-page-reloads-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Sessio-41a8f-session-across-page-reloads-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Sessio-41a8f-session-across-page-reloads-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts",
+                            "column": 16,
+                            "line": 53
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d748ac400d08b85935ef-1957dceffc482c7249d4",
+                  "file": "auth.spec.ts",
+                  "line": 206,
+                  "column": 9
+                },
+                {
+                  "title": "should maintain session in new tab",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 9,
+                          "parallelIndex": 9,
+                          "status": "failed",
+                          "duration": 32422,
+                          "error": {
+                            "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n",
+                            "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n    at Object.authenticatedPage (C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts:53:16)",
+                            "location": {
+                              "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts",
+                              "column": 16,
+                              "line": 53
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mfixtures.ts:53\n\n\u001b[0m \u001b[90m 51 |\u001b[39m   authenticatedPage\u001b[33m:\u001b[39m \u001b[36masync\u001b[39m ({ page\u001b[33m,\u001b[39m testUser }\u001b[33m,\u001b[39m use) \u001b[33m=>\u001b[39m {\n \u001b[90m 52 |\u001b[39m     \u001b[90m// Navigate to login page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 53 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 54 |\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[90m// Wait for page to be ready\u001b[39m\n \u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts",
+                                "column": 16,
+                                "line": 53
+                              },
+                              "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n\n   at fixtures.ts:53\n\n  51 |   authenticatedPage: async ({ page, testUser }, use) => {\n  52 |     // Navigate to login page\n> 53 |     await page.goto('/login');\n     |                ^\n  54 |\n  55 |     // Wait for page to be ready\n  56 |     await page.waitForLoadState('networkidle');\n    at Object.authenticatedPage (C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts:53:16)"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-12-15T03:47:32.367Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Sessio-1c4e7-maintain-session-in-new-tab-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Sessio-1c4e7-maintain-session-in-new-tab-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Sessio-1c4e7-maintain-session-in-new-tab-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\fixtures.ts",
+                            "column": 16,
+                            "line": 53
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d748ac400d08b85935ef-fa328680707753642b3d",
+                  "file": "auth.spec.ts",
+                  "line": 217,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Registration",
+              "file": "auth.spec.ts",
+              "line": 238,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should display registration page if available",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 10,
+                          "parallelIndex": 10,
+                          "status": "failed",
+                          "duration": 32671,
+                          "error": {
+                            "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/register\", waiting until \"load\"\u001b[22m\n",
+                            "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/register\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:241:18",
+                            "location": {
+                              "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                              "column": 18,
+                              "line": 241
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 239 |\u001b[39m     test(\u001b[32m'should display registration page if available'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 240 |\u001b[39m       \u001b[90m// Try to navigate to registration\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 241 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/register'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 242 |\u001b[39m\n \u001b[90m 243 |\u001b[39m       \u001b[90m// If registration exists, check form\u001b[39m\n \u001b[90m 244 |\u001b[39m       \u001b[36mif\u001b[39m (\u001b[33m!\u001b[39mpage\u001b[33m.\u001b[39murl()\u001b[33m.\u001b[39mincludes(\u001b[32m'/404'\u001b[39m) \u001b[33m&&\u001b[39m \u001b[33m!\u001b[39mpage\u001b[33m.\u001b[39murl()\u001b[33m.\u001b[39mincludes(\u001b[32m'/login'\u001b[39m)) {\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                                "column": 18,
+                                "line": 241
+                              },
+                              "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/register\", waiting until \"load\"\u001b[22m\n\n\n  239 |     test('should display registration page if available', async ({ page }) => {\n  240 |       // Try to navigate to registration\n> 241 |       await page.goto('/register');\n      |                  ^\n  242 |\n  243 |       // If registration exists, check form\n  244 |       if (!page.url().includes('/404') && !page.url().includes('/login')) {\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:241:18"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-12-15T03:47:32.387Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Regist-53391-istration-page-if-available-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Regist-53391-istration-page-if-available-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Regist-53391-istration-page-if-available-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                            "column": 18,
+                            "line": 241
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d748ac400d08b85935ef-47ae1ff2c6732dbdf3bc",
+                  "file": "auth.spec.ts",
+                  "line": 239,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Password Reset",
+              "file": "auth.spec.ts",
+              "line": 251,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should display forgot password link",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 11,
+                          "parallelIndex": 11,
+                          "status": "failed",
+                          "duration": 32530,
+                          "error": {
+                            "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n",
+                            "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:253:18",
+                            "location": {
+                              "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                              "column": 18,
+                              "line": 253
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 251 |\u001b[39m   test\u001b[33m.\u001b[39mdescribe(\u001b[32m'Password Reset'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n \u001b[90m 252 |\u001b[39m     test(\u001b[32m'should display forgot password link'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 253 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 254 |\u001b[39m\n \u001b[90m 255 |\u001b[39m       \u001b[90m// Look for forgot password link\u001b[39m\n \u001b[90m 256 |\u001b[39m       \u001b[36mconst\u001b[39m forgotPasswordSelectors \u001b[33m=\u001b[39m [\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                                "column": 18,
+                                "line": 253
+                              },
+                              "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/login\", waiting until \"load\"\u001b[22m\n\n\n  251 |   test.describe('Password Reset', () => {\n  252 |     test('should display forgot password link', async ({ page }) => {\n> 253 |       await page.goto('/login');\n      |                  ^\n  254 |\n  255 |       // Look for forgot password link\n  256 |       const forgotPasswordSelectors = [\n    at C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts:253:18"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-12-15T03:47:32.376Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Passwo-f9f39-isplay-forgot-password-link-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Passwo-f9f39-isplay-forgot-password-link-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\test-results\\auth-Authentication-Passwo-f9f39-isplay-forgot-password-link-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\grube\\op\\operate-fresh\\apps\\web\\e2e\\auth.spec.ts",
+                            "column": 18,
+                            "line": 253
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d748ac400d08b85935ef-135af87fa14048b66e25",
+                  "file": "auth.spec.ts",
+                  "line": 252,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-12-15T03:47:31.236Z",
+    "duration": 34147.956999999995,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 12,
+    "flaky": 0
+  }
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useConversationHistory } from '@/hooks/use-conversation-history';
@@ -26,7 +26,7 @@ interface ChatLandingProps {
 }
 
 // Animation variants
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -37,27 +37,27 @@ const containerVariants = {
   },
 };
 
-const greetingVariants = {
+const greetingVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 200,
       damping: 20,
     },
   },
 };
 
-const chatContainerVariants = {
+const chatContainerVariants: Variants = {
   hidden: { opacity: 0, y: 30, scale: 0.98 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 200,
       damping: 25,
       delay: 0.2,
@@ -396,7 +396,7 @@ export function ChatLanding({ className }: ChatLandingProps) {
                   {/* Loading indicator with GuruLoader */}
                   {isLoading && (
                     <div className="flex items-center gap-3 py-2">
-                      <GuruLoader size="sm" />
+                      <GuruLoader size={24} />
                       <span
                         className="text-sm animate-pulse"
                         style={{ color: 'var(--color-blue-600)' }}
@@ -411,7 +411,7 @@ export function ChatLanding({ className }: ChatLandingProps) {
               ) : (
                 // Empty State with Suggestion Pills
                 <div className="h-full flex flex-col items-center justify-center py-8">
-                  <GuruLoader size="lg" className="mb-6 opacity-50" />
+                  <GuruLoader size={48} className="mb-6 opacity-50" />
                   <p
                     className="text-lg mb-6 text-center"
                     style={{ color: 'var(--color-blue-600)' }}

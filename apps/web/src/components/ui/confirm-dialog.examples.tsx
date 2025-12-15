@@ -177,7 +177,7 @@ export function LogoutExample() {
 export function BulkDeleteExample() {
   const bulkDeleteDialog = useConfirmDialog();
   const [isDeleting, setIsDeleting] = useState(false);
-  const selectedCount = 5;
+  const selectedCount: number = 5;
 
   const handleBulkDelete = async () => {
     setIsDeleting(true);

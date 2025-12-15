@@ -1,8 +1,10 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Plus, MapPin, Calendar, TrendingUp, AlertCircle } from 'lucide-react';
 
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 import {
   Card,
   CardContent,
@@ -131,9 +133,14 @@ export default function NexusPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <motion.div variants={fadeUp} className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Nexus Configuration</h1>
           <p className="text-muted-foreground">
@@ -275,10 +282,11 @@ export default function NexusPage() {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
+      </motion.div>
 
       {/* Info Banner */}
-      <Card className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950">
+      <motion.div variants={fadeUp}>
+        <Card className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950">
         <CardContent className="pt-6">
           <div className="flex gap-3">
             <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
@@ -289,10 +297,12 @@ export default function NexusPage() {
             </div>
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </motion.div>
 
       {/* Nexus List */}
-      <Card>
+      <motion.div variants={fadeUp}>
+        <Card>
         <CardHeader>
           <CardTitle>Active Nexus Registrations</CardTitle>
           <CardDescription>
@@ -387,7 +397,8 @@ export default function NexusPage() {
             </Table>
           )}
         </CardContent>
-      </Card>
-    </div>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }

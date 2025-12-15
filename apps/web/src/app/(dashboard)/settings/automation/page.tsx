@@ -13,6 +13,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +25,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -42,6 +44,7 @@ import {
   type AutomationFeatureConfig,
   type AutomationSettingsData,
 } from '@/hooks/use-automation-settings';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 
 const automationModes: Array<{
   value: AutomationMode;
@@ -94,7 +97,7 @@ function FeatureCard({
   const confidencePercent = Math.round(config.confidenceThreshold * 100);
 
   return (
-    <Card>
+    <GlassCard>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -131,7 +134,7 @@ function FeatureCard({
                   <SelectItem key={mode.value} value={mode.value}>
                     <div className="flex flex-col">
                       <span className="font-medium">{mode.label}</span>
-                      <span className="text-xs text-muted-foreground">{mode.description}</span>
+                      <span className="text-xs text-white/70">{mode.description}</span>
                     </div>
                   </SelectItem>
                 ))}
@@ -160,7 +163,7 @@ function FeatureCard({
                 }}
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/70">
                 {config.mode === 'FULL_AUTO'
                   ? `Only auto-process when AI is at least ${confidencePercent}% confident`
                   : `AI will suggest actions when confidence is at least ${confidencePercent}%`}
@@ -184,7 +187,7 @@ function FeatureCard({
                 }}
                 placeholder="5000.00"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/70">
                 {config.mode === 'FULL_AUTO'
                   ? 'Items above this amount will require manual review even if confidence is high'
                   : 'Set a maximum amount for this automation feature'}
@@ -193,7 +196,7 @@ function FeatureCard({
           )}
         </CardContent>
       )}
-    </Card>
+    </GlassCard>
   );
 }
 
@@ -260,14 +263,20 @@ export default function AutomationSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Automation Settings</h1>
-        <p className="text-muted-foreground">Configure AI-powered automation for your business operations</p>
-      </div>
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
+      <motion.div variants={fadeUp}>
+        <h1 className="text-2xl text-white font-semibold tracking-tight">Automation Settings</h1>
+        <p className="text-white/70">Configure AI-powered automation for your business operations</p>
+      </motion.div>
 
       {/* Info Banner */}
-      <Alert className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950">
+      <motion.div variants={fadeUp}>
+        <Alert className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950">
         <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         <AlertTitle className="text-blue-900 dark:text-blue-100">
           Understanding Automation Modes
@@ -288,10 +297,12 @@ export default function AutomationSettingsPage() {
           </ul>
         </AlertDescription>
       </Alert>
+      </motion.div>
 
       {/* AI Accuracy Stats */}
       {accuracyStats && (
-        <Card className="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950">
+        <motion.div variants={fadeUp}>
+        <GlassCard className="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950">
           <CardHeader>
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
@@ -303,25 +314,25 @@ export default function AutomationSettingsPage() {
           <CardContent>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               <div>
-                <div className="text-2xl font-bold text-green-900 dark:text-green-100">
+                <div className="text-2xl text-white font-bold text-green-900 dark:text-green-100">
                   {(accuracyStats.overallAccuracy * 100).toFixed(1)}%
                 </div>
                 <div className="text-xs text-green-700 dark:text-green-300">Overall Accuracy</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-green-900 dark:text-green-100">
+                <div className="text-2xl text-white font-bold text-green-900 dark:text-green-100">
                   {(accuracyStats.invoiceAccuracy * 100).toFixed(1)}%
                 </div>
                 <div className="text-xs text-green-700 dark:text-green-300">Invoice Accuracy</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-green-900 dark:text-green-100">
+                <div className="text-2xl text-white font-bold text-green-900 dark:text-green-100">
                   {(accuracyStats.expenseAccuracy * 100).toFixed(1)}%
                 </div>
                 <div className="text-xs text-green-700 dark:text-green-300">Expense Accuracy</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-green-900 dark:text-green-100">
+                <div className="text-2xl text-white font-bold text-green-900 dark:text-green-100">
                   {accuracyStats.totalProcessed.toLocaleString()}
                 </div>
                 <div className="text-xs text-green-700 dark:text-green-300">Items Processed</div>
@@ -331,11 +342,13 @@ export default function AutomationSettingsPage() {
               Last updated: {new Date(accuracyStats.lastUpdated).toLocaleString()}
             </p>
           </CardContent>
-        </Card>
+        </GlassCard>
+        </motion.div>
       )}
 
       {/* Warning for changes */}
       {hasChanges && (
+        <motion.div variants={fadeUp}>(
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Unsaved Changes</AlertTitle>
@@ -343,10 +356,11 @@ export default function AutomationSettingsPage() {
             You have unsaved changes. Click &quot;Save Settings&quot; to apply your changes.
           </AlertDescription>
         </Alert>
+        </motion.div>
       )}
 
       {/* Automation Features */}
-      <div className="space-y-4">
+      <motion.div variants={fadeUp} className="space-y-4">
         <h2 className="text-xl font-semibold">Automation Features</h2>
 
         <FeatureCard
@@ -398,12 +412,12 @@ export default function AutomationSettingsPage() {
           onUpdate={handleUpdateFeature}
           showAmountThreshold={false}
         />
-      </div>
+      </motion.div>
 
       <Separator />
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-between">
+      <motion.div variants={fadeUp} className="flex items-center justify-between">
         <Button variant="outline" onClick={handleReset} disabled={isSaving}>
           <RotateCcw className="mr-2 h-4 w-4" />
           Reset to Defaults
@@ -420,10 +434,11 @@ export default function AutomationSettingsPage() {
             {isSaving ? 'Saving...' : 'Save Settings'}
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Additional Info */}
-      <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950">
+      <motion.div variants={fadeUp}>
+        <GlassCard className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950">
         <CardHeader>
           <div className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -443,7 +458,8 @@ export default function AutomationSettingsPage() {
           </p>
           <p>• You can review all automated actions in the Activity Log</p>
         </CardContent>
-      </Card>
-    </div>
+      </GlassCard>
+      </motion.div>
+    </motion.div>
   );
 }

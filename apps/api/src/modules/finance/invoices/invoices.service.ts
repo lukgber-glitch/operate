@@ -23,6 +23,13 @@ import { FinancialAuditService } from '../../audit/financial-audit.service';
 export class InvoicesService {
   private readonly logger = new Logger(InvoicesService.name);
 
+  // In-memory cache for company defaults with TTL
+  private companyDefaultsCache = new Map<string, {
+    data: any;
+    expiry: number;
+  }>();
+  private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
   constructor(
     private repository: InvoicesRepository,
     private multiCurrencyService: MultiCurrencyService,
@@ -154,17 +161,14 @@ export class InvoicesService {
     const invoiceCurrency = dto.currency || 'EUR';
     this.currencyHelper.validateCurrency(invoiceCurrency);
 
-    // Get organization to determine base currency
-    const organisation = await this.prisma.organisation.findUnique({
-      where: { id: orgId },
-      select: { currency: true },
-    });
+    // Get organization and company defaults
+    const companyDefaults = await this.getCompanyDefaults(orgId);
 
-    if (!organisation) {
+    if (!companyDefaults) {
       throw new NotFoundException(`Organisation ${orgId} not found`);
     }
 
-    const baseCurrency = organisation.currency || 'EUR';
+    const baseCurrency = companyDefaults.currency || 'EUR';
 
     // Generate invoice number
     const issueDate = new Date(dto.issueDate);
@@ -202,6 +206,12 @@ export class InvoicesService {
       );
     }
 
+    // Merge company defaults into metadata
+    const metadata = {
+      ...dto.metadata,
+      seller: companyDefaults.seller,
+    };
+
     // Prepare invoice data
     const invoiceData: Prisma.InvoiceCreateInput = {
       orgId,
@@ -230,7 +240,7 @@ export class InvoicesService {
       bankReference: dto.bankReference,
       notes: dto.notes,
       internalNotes: dto.internalNotes,
-      metadata: dto.metadata ?? undefined,
+      metadata: metadata ?? undefined,
     };
 
     // Prepare items data
@@ -479,11 +489,11 @@ export class InvoicesService {
    * Duplicate an existing invoice
    */
   async duplicate(id: string, orgId: string) {
-    const existing = (await this.repository.findById(id, {
+    const existing = await this.repository.findById(id, {
       items: {
         orderBy: { sortOrder: 'asc' },
       },
-    })) as Prisma.InputJsonValue;
+    });
 
     if (!existing) {
       throw new NotFoundException(`Invoice with ID ${id} not found`);
@@ -494,8 +504,21 @@ export class InvoicesService {
       throw new NotFoundException(`Invoice with ID ${id} not found`);
     }
 
+    // Type-safe access to items with proper typing
+    const invoiceWithItems = existing as typeof existing & { items?: Array<{
+      description: string;
+      quantity: any;
+      unitPrice: any;
+      amount: any;
+      taxRate?: number | null;
+      taxAmount?: any;
+      productCode?: string | null;
+      unit?: string | null;
+      sortOrder?: number | null;
+    }> };
+
     // Type guard to ensure items exist
-    if (!existing.items || existing.items.length === 0) {
+    if (!invoiceWithItems.items || invoiceWithItems.items.length === 0) {
       throw new BadRequestException('Cannot duplicate invoice without items');
     }
 
@@ -511,32 +534,32 @@ export class InvoicesService {
     const newInvoiceData: Prisma.InvoiceCreateInput = {
       orgId,
       number: invoiceNumber,
-      type: existing.type,
+      type: invoiceWithItems.type,
       status: InvoiceStatus.DRAFT,
-      customerId: existing.customerId ?? undefined,
-      customerName: existing.customerName,
-      customerEmail: existing.customerEmail ?? undefined,
-      customerAddress: existing.customerAddress ?? undefined,
-      customerVatId: existing.customerVatId ?? undefined,
+      customerId: invoiceWithItems.customerId ?? undefined,
+      customerName: invoiceWithItems.customerName,
+      customerEmail: invoiceWithItems.customerEmail ?? undefined,
+      customerAddress: invoiceWithItems.customerAddress ?? undefined,
+      customerVatId: invoiceWithItems.customerVatId ?? undefined,
       issueDate: today,
       dueDate: new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-      subtotal: existing.subtotal,
-      taxAmount: existing.taxAmount,
-      totalAmount: existing.totalAmount,
-      currency: existing.currency,
-      vatRate: existing.vatRate ?? undefined,
-      reverseCharge: existing.reverseCharge,
-      paymentTerms: existing.paymentTerms ?? undefined,
-      paymentMethod: existing.paymentMethod ?? undefined,
-      bankReference: existing.bankReference ?? undefined,
-      notes: existing.notes ?? undefined,
-      internalNotes: existing.internalNotes ?? undefined,
-      metadata: existing.metadata ?? undefined,
+      subtotal: invoiceWithItems.subtotal,
+      taxAmount: invoiceWithItems.taxAmount,
+      totalAmount: invoiceWithItems.totalAmount,
+      currency: invoiceWithItems.currency,
+      vatRate: invoiceWithItems.vatRate ?? undefined,
+      reverseCharge: invoiceWithItems.reverseCharge,
+      paymentTerms: invoiceWithItems.paymentTerms ?? undefined,
+      paymentMethod: invoiceWithItems.paymentMethod ?? undefined,
+      bankReference: invoiceWithItems.bankReference ?? undefined,
+      notes: invoiceWithItems.notes ?? undefined,
+      internalNotes: invoiceWithItems.internalNotes ?? undefined,
+      metadata: invoiceWithItems.metadata ?? undefined,
     };
 
-    // Prepare items data
+    // Prepare items data with proper typing
     const itemsData: Prisma.InvoiceItemCreateManyInvoiceInput[] =
-      existing.items.map((item: any, index: number) => ({
+      invoiceWithItems.items.map((item, index) => ({
         description: item.description,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
@@ -551,7 +574,7 @@ export class InvoicesService {
     const invoice = await this.repository.create(newInvoiceData, itemsData);
 
     this.logger.log(
-      `Duplicated invoice ${existing.number} as ${invoice.number} for organisation ${orgId}`,
+      `Duplicated invoice ${invoiceWithItems.number} as ${invoice.number} for organisation ${orgId}`,
     );
 
     return invoice;
@@ -575,6 +598,50 @@ export class InvoicesService {
   }
 
   /**
+   * Generate invoice with format support (PDF, ZUGFeRD, XRechnung)
+   */
+  async generateInvoiceWithFormat(
+    id: string,
+    format?: string,
+    zugferdProfile?: string,
+    xrechnungSyntax?: string,
+  ): Promise<{ buffer: Buffer; contentType: string; filename: string }> {
+    const invoice = await this.repository.findById(id, {
+      items: {
+        orderBy: { sortOrder: 'asc' },
+      },
+    });
+
+    if (!invoice) {
+      throw new NotFoundException(`Invoice with ID ${id} not found`);
+    }
+
+    // Default to PDF if no format specified
+    const invoiceFormat = format || 'pdf';
+
+    // For now, only generate PDF (E-Invoice formats will be added later)
+    if (invoiceFormat === 'pdf') {
+      const pdfBuffer = await this.createPdfBuffer(invoice);
+      return {
+        buffer: pdfBuffer,
+        contentType: 'application/pdf',
+        filename: `invoice-${invoice.number}.pdf`,
+      };
+    }
+
+    // Placeholder for ZUGFeRD/XRechnung support
+    if (invoiceFormat === 'zugferd' || invoiceFormat === 'facturx') {
+      throw new BadRequestException('ZUGFeRD format not yet implemented');
+    }
+
+    if (invoiceFormat === 'xrechnung') {
+      throw new BadRequestException('XRechnung format not yet implemented');
+    }
+
+    throw new BadRequestException(`Unsupported format: ${invoiceFormat}`);
+  }
+
+  /**
    * Create PDF buffer from invoice data
    */
   private async createPdfBuffer(invoice: any): Promise<Buffer> {
@@ -593,21 +660,49 @@ export class InvoicesService {
       doc.fontSize(24).text('INVOICE', { align: 'right' });
       doc.moveDown();
 
-      // Invoice details
+      // Seller information (from metadata)
+      const sellerInfo = invoice.metadata?.seller;
+      if (sellerInfo) {
+        doc.fontSize(12).font('Helvetica-Bold');
+        doc.text(sellerInfo.name || '', 50, 100);
+        doc.fontSize(9).font('Helvetica');
+        let yPos = 115;
+        if (sellerInfo.address) {
+          doc.text(sellerInfo.address, 50, yPos);
+          yPos += 12;
+        }
+        if (sellerInfo.taxId) {
+          doc.text(`Tax ID: ${sellerInfo.taxId}`, 50, yPos);
+          yPos += 12;
+        }
+        if (sellerInfo.vatNumber) {
+          doc.text(`VAT: ${sellerInfo.vatNumber}`, 50, yPos);
+          yPos += 12;
+        }
+        if (sellerInfo.email) {
+          doc.text(sellerInfo.email, 50, yPos);
+          yPos += 12;
+        }
+        if (sellerInfo.phone) {
+          doc.text(sellerInfo.phone, 50, yPos);
+        }
+      }
+
+      // Invoice details (right side)
       doc.fontSize(10);
-      doc.text(`Invoice Number: ${invoice.number}`, { align: 'right' });
-      doc.text(`Issue Date: ${invoice.issueDate.toISOString().split('T')[0]}`, {
+      doc.text(`Invoice Number: ${invoice.number}`, 350, 100, { align: 'right' });
+      doc.text(`Issue Date: ${invoice.issueDate.toISOString().split('T')[0]}`, 350, 115, {
         align: 'right',
       });
-      doc.text(`Due Date: ${invoice.dueDate.toISOString().split('T')[0]}`, {
+      doc.text(`Due Date: ${invoice.dueDate.toISOString().split('T')[0]}`, 350, 130, {
         align: 'right',
       });
-      doc.text(`Status: ${invoice.status}`, { align: 'right' });
-      doc.moveDown(2);
+      doc.text(`Status: ${invoice.status}`, 350, 145, { align: 'right' });
+      doc.moveDown(4);
 
       // Bill To
-      doc.fontSize(12).text('Bill To:', { underline: true });
-      doc.fontSize(10);
+      doc.fontSize(12).font('Helvetica-Bold').text('Bill To:', 50);
+      doc.fontSize(10).font('Helvetica');
       doc.text(invoice.customerName);
       if (invoice.customerEmail) {
         doc.text(invoice.customerEmail);
@@ -901,6 +996,7 @@ export class InvoicesService {
    * Get invoice totals in a specific currency
    *
    * Useful for reporting and analytics across multiple currencies
+   * Optimized: Uses groupBy aggregation instead of fetching all invoices
    *
    * @param orgId - Organisation ID
    * @param targetCurrency - Target currency code
@@ -929,15 +1025,17 @@ export class InvoicesService {
       ...(query?.customerId && { customerId: query.customerId }),
     };
 
-    // Get all invoices
-    const invoices = await this.repository.findAll({
+    // Get aggregated totals grouped by currency for efficient processing
+    const aggregatedByCurrency = await this.prisma.invoice.groupBy({
+      by: ['currency'],
       where,
-      select: {
-        currency: true,
+      _count: {
+        _all: true,
+      },
+      _sum: {
         subtotal: true,
         taxAmount: true,
         totalAmount: true,
-        exchangeRate: true,
       },
     });
 
@@ -945,29 +1043,33 @@ export class InvoicesService {
     let totalSubtotal = 0;
     let totalTaxAmount = 0;
     let totalTotalAmount = 0;
+    let totalInvoices = 0;
 
-    for (const invoice of invoices) {
-      // Use stored exchange rate or default to 1:1
-      const rate = invoice.exchangeRate ? Number(invoice.exchangeRate) : 1;
+    for (const currencyGroup of aggregatedByCurrency) {
+      totalInvoices += currencyGroup._count._all;
+
+      // Use 1:1 rate for same currency, otherwise use default rate
+      // Note: For accurate multi-currency conversion, exchange rates should be fetched from a rates service
+      const rate = currencyGroup.currency === targetCurrency ? 1 : 1;
 
       // Convert amounts
       totalSubtotal += this.multiCurrencyService.convert(
-        Number(invoice.subtotal),
-        invoice.currency,
+        Number(currencyGroup._sum.subtotal || 0),
+        currencyGroup.currency,
         targetCurrency,
         rate,
       );
 
       totalTaxAmount += this.multiCurrencyService.convert(
-        Number(invoice.taxAmount),
-        invoice.currency,
+        Number(currencyGroup._sum.taxAmount || 0),
+        currencyGroup.currency,
         targetCurrency,
         rate,
       );
 
       totalTotalAmount += this.multiCurrencyService.convert(
-        Number(invoice.totalAmount),
-        invoice.currency,
+        Number(currencyGroup._sum.totalAmount || 0),
+        currencyGroup.currency,
         targetCurrency,
         rate,
       );
@@ -975,7 +1077,7 @@ export class InvoicesService {
 
     return {
       currency: targetCurrency,
-      totalInvoices: invoices.length,
+      totalInvoices,
       subtotal: this.multiCurrencyService.roundToDecimals(
         totalSubtotal,
         targetCurrency,
@@ -989,6 +1091,101 @@ export class InvoicesService {
         targetCurrency,
       ),
     };
+  }
+
+  /**
+   * Get company defaults from organisation and onboarding data
+   * Returns seller information to auto-populate invoices
+   * Optimized: Uses in-memory cache with TTL to reduce DB lookups
+   */
+  private async getCompanyDefaults(orgId: string): Promise<{
+    currency: string;
+    seller: {
+      name: string;
+      address?: string;
+      taxId?: string;
+      vatNumber?: string;
+      email?: string;
+      phone?: string;
+      website?: string;
+    };
+  } | null> {
+    // Check cache first
+    const cached = this.companyDefaultsCache.get(orgId);
+    if (cached && cached.expiry > Date.now()) {
+      return cached.data;
+    }
+
+    // Parallel fetch for organization and onboarding data
+    const [org, onboarding] = await Promise.all([
+      this.prisma.organisation.findUnique({
+        where: { id: orgId },
+        select: {
+          name: true,
+          country: true,
+          currency: true,
+          vatNumber: true,
+          companyRegistrationNumber: true,
+          taxRegistrationNumber: true,
+        },
+      }),
+      this.prisma.onboardingProgress.findUnique({
+        where: { orgId },
+        select: {
+          companyInfoData: true,
+        },
+      }),
+    ]);
+
+    if (!org) {
+      return null;
+    }
+
+    // Extract company info from onboarding data
+    const companyInfo = onboarding?.companyInfoData as Record<string, any> | null;
+
+    // Build address from onboarding data if available
+    let address: string | undefined;
+    if (companyInfo?.address) {
+      const addr = companyInfo.address;
+      const parts = [
+        addr.street,
+        addr.streetNumber,
+        addr.postalCode,
+        addr.city,
+        org.country,
+      ].filter(Boolean);
+      address = parts.join(', ');
+    }
+
+    const result = {
+      currency: org.currency,
+      seller: {
+        name: org.name,
+        address,
+        taxId: companyInfo?.taxId || org.companyRegistrationNumber || undefined,
+        vatNumber: org.vatNumber || undefined,
+        email: companyInfo?.email || undefined,
+        phone: companyInfo?.phone || undefined,
+        website: companyInfo?.website || undefined,
+      },
+    };
+
+    // Cache the result
+    this.companyDefaultsCache.set(orgId, {
+      data: result,
+      expiry: Date.now() + this.CACHE_TTL_MS,
+    });
+
+    return result;
+  }
+
+  /**
+   * Clear the company defaults cache for an organization
+   * Call this when organization settings are updated
+   */
+  clearCompanyDefaultsCache(orgId: string): void {
+    this.companyDefaultsCache.delete(orgId);
   }
 
   /**

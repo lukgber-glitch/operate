@@ -1,7 +1,9 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VerificationStatusCard } from '@/components/verification/VerificationStatusCard';
@@ -55,10 +57,16 @@ export default function VerificationPage() {
   }
 
   return (
-    <div className="container max-w-6xl mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="container max-w-6xl mx-auto py-8 space-y-6"
+    >
+      {/* Header */}
+      <motion.div variants={fadeUp} className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">KYC Verification</h1>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">KYC Verification</h1>
           <p className="text-muted-foreground">Manage your identity verification and compliance status</p>
         </div>
         <div className="flex gap-2">
@@ -77,19 +85,21 @@ export default function VerificationPage() {
             Refresh
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Decision Alert */}
       {verification?.decision && (
-        <KycDecisionAlert
-          decision={verification.decision}
-          onRetry={handleRetryVerification}
-          onRenew={handleRenewVerification}
-        />
+        <motion.div variants={fadeUp}>
+          <KycDecisionAlert
+            decision={verification.decision}
+            onRetry={handleRetryVerification}
+            onRenew={handleRenewVerification}
+          />
+        </motion.div>
       )}
 
       {/* Main Content */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <motion.div variants={fadeUp} className="grid gap-6 lg:grid-cols-2">
         {/* Left Column */}
         <div className="space-y-6">
           <VerificationStatusCard
@@ -126,7 +136,7 @@ export default function VerificationPage() {
             <VerificationTimeline history={verification.history} />
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Details Modal */}
       <VerificationDetailsModal
@@ -134,6 +144,6 @@ export default function VerificationPage() {
         open={detailsOpen}
         onOpenChange={setDetailsOpen}
       />
-    </div>
+    </motion.div>
   );
 }

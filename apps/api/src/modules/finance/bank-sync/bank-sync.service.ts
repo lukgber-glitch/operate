@@ -556,6 +556,7 @@ export class BankSyncService {
 
   /**
    * Sync accounts for a connection
+   * OPTIMIZED: Uses batch fetch and upsert pattern to avoid N+1 queries
    */
   private async syncAccounts(
     orgId: string,
@@ -571,53 +572,84 @@ export class BankSyncService {
       throw new BadRequestException(`Provider ${provider} not supported`);
     }
 
+    if (accounts.length === 0) {
+      return { processed: 0, created: 0, updated: 0 };
+    }
+
+    // OPTIMIZATION: Batch fetch all existing accounts for this connection in ONE query
+    const existingAccounts = await this.prisma.bankAccountNew.findMany({
+      where: {
+        bankConnectionId: connectionId,
+        accountId: { in: accounts.map(a => a.id) },
+      },
+      select: { id: true, accountId: true },
+    });
+
+    // Create lookup map for O(1) access
+    const existingAccountMap = new Map(
+      existingAccounts.map(a => [a.accountId, a.id])
+    );
+
     let created = 0;
     let updated = 0;
 
-    for (const account of accounts) {
-      const existingAccount = await this.prisma.bankAccountNew.findFirst({
-        where: {
-          bankConnectionId: connectionId,
+    // OPTIMIZATION: Use transaction for batch operations
+    await this.prisma.$transaction(async (tx) => {
+      const toCreate: Parameters<typeof tx.bankAccountNew.create>[0]['data'][] = [];
+      const updateOperations: Promise<unknown>[] = [];
+
+      for (const account of accounts) {
+        const accountData = {
           accountId: account.id,
-        },
-      });
+          accountType: this.mapAccountType(account.type),
+          name: account.name,
+          iban: account.identifiers.iban || null,
+          accountNumber: account.identifiers.accountNumber || null,
+          sortCode: account.identifiers.sortCode || null,
+          currency: account.balances.booked.amount.currencyCode,
+          currentBalance: account.balances.booked.amount.value,
+          availableBalance: account.balances.available?.amount.value || null,
+          lastBalanceUpdate: new Date(),
+          isActive: true,
+        };
 
-      const accountData = {
-        accountId: account.id,
-        accountType: this.mapAccountType(account.type),
-        name: account.name,
-        iban: account.identifiers.iban || null,
-        accountNumber: account.identifiers.accountNumber || null,
-        sortCode: account.identifiers.sortCode || null,
-        currency: account.balances.booked.amount.currencyCode,
-        currentBalance: account.balances.booked.amount.value,
-        availableBalance: account.balances.available?.amount.value || null,
-        lastBalanceUpdate: new Date(),
-        isActive: true,
-      };
-
-      if (existingAccount) {
-        await this.prisma.bankAccountNew.update({
-          where: { id: existingAccount.id },
-          data: accountData,
-        });
-        updated++;
-      } else {
-        await this.prisma.bankAccountNew.create({
-          data: {
+        const existingId = existingAccountMap.get(account.id);
+        if (existingId) {
+          // Queue update operation
+          updateOperations.push(
+            tx.bankAccountNew.update({
+              where: { id: existingId },
+              data: accountData,
+            })
+          );
+          updated++;
+        } else {
+          // Collect for batch create
+          toCreate.push({
             ...accountData,
             bankConnectionId: connectionId,
-          },
-        });
-        created++;
+          });
+          created++;
+        }
       }
-    }
+
+      // Execute batch updates in parallel
+      if (updateOperations.length > 0) {
+        await Promise.all(updateOperations);
+      }
+
+      // Batch create new accounts
+      if (toCreate.length > 0) {
+        await tx.bankAccountNew.createMany({ data: toCreate });
+      }
+    });
 
     return { processed: accounts.length, created, updated };
   }
 
   /**
    * Sync transactions for an account
+   * OPTIMIZED: Uses batch fetch and createMany to avoid N+1 queries
    */
   private async syncTransactions(
     orgId: string,
@@ -642,45 +674,55 @@ export class BankSyncService {
       throw new BadRequestException(`Provider ${provider} not supported`);
     }
 
-    let created = 0;
-    let duplicate = 0;
-
-    for (const tx of transactions) {
-      // Check if transaction already exists
-      const existing = await this.prisma.bankTransactionNew.findFirst({
-        where: {
-          bankAccountId,
-          transactionId: tx.id,
-        },
-      });
-
-      if (existing) {
-        duplicate++;
-        continue;
-      }
-
-      // Create new transaction
-      await this.prisma.bankTransactionNew.create({
-        data: {
-          bankAccountId,
-          transactionId: tx.id,
-          amount: tx.amount.value,
-          currency: tx.amount.currencyCode,
-          description: tx.descriptions.display,
-          merchantName: tx.merchantInformation?.merchantName || null,
-          merchantCategory: tx.merchantInformation?.merchantCategoryCode || null,
-          bookingDate: tx.dates.booked,
-          valueDate: tx.dates.value || tx.dates.booked,
-          transactionType: tx.amount.value >= 0 ? BankTransactionType.CREDIT : BankTransactionType.DEBIT,
-          status: tx.status === 'BOOKED' ? BankTransactionStatus.BOOKED : BankTransactionStatus.PENDING,
-          reconciliationStatus: ReconciliationStatus.UNMATCHED,
-          rawData: tx as Prisma.InputJsonValue,
-        },
-      });
-      created++;
+    if (transactions.length === 0) {
+      return { processed: 0, created: 0, duplicate: 0 };
     }
 
-    return { processed: transactions.length, created, duplicate };
+    // OPTIMIZATION: Batch fetch all existing transaction IDs in ONE query
+    const existingTransactions = await this.prisma.bankTransactionNew.findMany({
+      where: {
+        bankAccountId,
+        transactionId: { in: transactions.map(tx => tx.id) },
+      },
+      select: { transactionId: true },
+    });
+
+    // Create Set for O(1) lookup
+    const existingTransactionIds = new Set(
+      existingTransactions.map(t => t.transactionId)
+    );
+
+    // Filter out duplicates and prepare data for batch insert
+    const newTransactions = transactions.filter(tx => !existingTransactionIds.has(tx.id));
+    const duplicate = transactions.length - newTransactions.length;
+
+    if (newTransactions.length === 0) {
+      return { processed: transactions.length, created: 0, duplicate };
+    }
+
+    // OPTIMIZATION: Batch create all new transactions at once
+    const transactionData = newTransactions.map(tx => ({
+      bankAccountId,
+      transactionId: tx.id,
+      amount: tx.amount.value,
+      currency: tx.amount.currencyCode,
+      description: tx.descriptions.display,
+      merchantName: tx.merchantInformation?.merchantName || null,
+      merchantCategory: tx.merchantInformation?.merchantCategoryCode || null,
+      bookingDate: tx.dates.booked,
+      valueDate: tx.dates.value || tx.dates.booked,
+      transactionType: tx.amount.value >= 0 ? BankTransactionType.CREDIT : BankTransactionType.DEBIT,
+      status: tx.status === 'BOOKED' ? BankTransactionStatus.BOOKED : BankTransactionStatus.PENDING,
+      reconciliationStatus: ReconciliationStatus.UNMATCHED,
+      rawData: tx as Prisma.InputJsonValue,
+    }));
+
+    await this.prisma.bankTransactionNew.createMany({
+      data: transactionData,
+      skipDuplicates: true, // Extra safety against race conditions
+    });
+
+    return { processed: transactions.length, created: newTransactions.length, duplicate };
   }
 
   /**

@@ -34,6 +34,9 @@ export interface MessageMetadata {
   // Action metadata
   action?: ActionIntent;
   actionResult?: ActionResult;
+  actionType?: string;
+  actionParams?: Record<string, any>;
+  actionStatus?: string;
 }
 
 export interface Attachment {

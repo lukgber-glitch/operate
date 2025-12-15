@@ -144,9 +144,8 @@ export class CreateInvoiceDto {
   dueDate: string;
 
   @ApiPropertyOptional({
-    description: 'Currency code (ISO 4217)',
+    description: 'Currency code (ISO 4217). If not provided, defaults to organization currency from onboarding.',
     example: 'EUR',
-    default: 'EUR',
   })
   @IsOptional()
   @IsString()

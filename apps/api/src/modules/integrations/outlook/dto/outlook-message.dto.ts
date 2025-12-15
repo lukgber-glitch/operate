@@ -74,6 +74,14 @@ export class ListMessagesDto {
   @IsOptional()
   @IsString()
   orderBy?: string;
+
+  @ApiPropertyOptional({
+    description: 'Folder ID to list messages from (for mailbox configurations)',
+    example: 'AAMkAGI2...',
+  })
+  @IsOptional()
+  @IsString()
+  folderId?: string;
 }
 
 /**

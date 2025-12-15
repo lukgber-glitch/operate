@@ -78,7 +78,7 @@ const blobVariants = (duration: number, delay: number) => ({
     transition: {
       duration,
       repeat: Infinity,
-      ease: 'easeInOut',
+      ease: 'easeInOut' as const,
       delay,
     },
   },
@@ -133,7 +133,7 @@ export function AnimatedGradientBackground({
           transition={{
             duration: config.duration,
             repeat: Infinity,
-            ease: 'easeInOut',
+            ease: 'easeInOut' as const,
           }}
         />
       )}

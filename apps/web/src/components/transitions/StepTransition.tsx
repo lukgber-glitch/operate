@@ -187,7 +187,7 @@ export function StepIndicator({
             animate={{
               scaleX: currentStep === index ? 1 : currentStep > index ? 1 : 0,
             }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            transition={{ duration: 0.3, ease: 'easeInOut' as const }}
             style={{ transformOrigin: 'left' }}
           />
         </button>

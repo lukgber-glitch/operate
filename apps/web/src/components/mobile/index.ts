@@ -25,3 +25,12 @@ export {
   MobileQuickActions,
 } from './MobileDashboard'
 export type { DashboardStats, QuickAction } from './MobileDashboard'
+
+// Enhanced mobile interactions
+export { PullToRefresh } from './PullToRefresh'
+export { SwipeActions, SwipeActionIcons } from './SwipeActions'
+export type { SwipeAction } from './SwipeActions'
+export { BottomSheet } from './BottomSheet'
+export type { SnapPoint } from './BottomSheet'
+export { FloatingActionButton } from './FloatingActionButton'
+export type { FABAction } from './FloatingActionButton'

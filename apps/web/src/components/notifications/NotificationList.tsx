@@ -1,7 +1,7 @@
 "use client"
 
-import { useMemo } from 'react'
-import { Inbox } from 'lucide-react'
+import { useMemo, useRef, useState, useEffect, useCallback } from 'react'
+import { Inbox, Loader2 } from 'lucide-react'
 
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
@@ -16,6 +16,12 @@ interface NotificationListProps {
   onItemClick?: (notification: Notification) => void
   groupByDate?: boolean
   maxHeight?: string
+  /** Enable virtualization for large lists (renders items on demand) */
+  virtualized?: boolean
+  /** Number of items to render initially when virtualized */
+  initialRenderCount?: number
+  /** Number of items to add when scrolling to bottom */
+  loadMoreCount?: number
 }
 
 interface GroupedNotifications {
@@ -24,6 +30,12 @@ interface GroupedNotifications {
   thisWeek: Notification[]
   older: Notification[]
 }
+
+// Virtualization constants
+const VIRTUALIZATION_THRESHOLD = 50 // Enable virtualization for lists > 50 items
+const DEFAULT_INITIAL_RENDER = 20
+const DEFAULT_LOAD_MORE = 15
+const SCROLL_THRESHOLD = 100 // px from bottom to trigger load more
 
 function isToday(date: Date): boolean {
   const today = new Date()
@@ -75,6 +87,48 @@ function groupNotificationsByDate(notifications: Notification[]): GroupedNotific
   return grouped
 }
 
+/**
+ * Hook for virtualized list rendering
+ * Renders items progressively as user scrolls
+ */
+function useVirtualizedList<T>(
+  items: T[],
+  initialCount: number,
+  loadMoreCount: number,
+  enabled: boolean
+) {
+  const [renderedCount, setRenderedCount] = useState(initialCount)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+
+  // Reset when items change
+  useEffect(() => {
+    setRenderedCount(Math.min(initialCount, items.length))
+  }, [items.length, initialCount])
+
+  const loadMore = useCallback(() => {
+    if (!enabled || isLoadingMore || renderedCount >= items.length) return
+
+    setIsLoadingMore(true)
+    // Small delay to show loading indicator and prevent rapid firing
+    requestAnimationFrame(() => {
+      setRenderedCount((prev) => Math.min(prev + loadMoreCount, items.length))
+      setIsLoadingMore(false)
+    })
+  }, [enabled, isLoadingMore, renderedCount, items.length, loadMoreCount])
+
+  const visibleItems = enabled ? items.slice(0, renderedCount) : items
+  const hasMore = enabled && renderedCount < items.length
+  const remainingCount = items.length - renderedCount
+
+  return {
+    visibleItems,
+    hasMore,
+    remainingCount,
+    isLoadingMore,
+    loadMore,
+  }
+}
+
 export function NotificationList({
   notifications,
   onRead,
@@ -82,10 +136,46 @@ export function NotificationList({
   onItemClick,
   groupByDate = true,
   maxHeight = '440px',
+  virtualized,
+  initialRenderCount = DEFAULT_INITIAL_RENDER,
+  loadMoreCount = DEFAULT_LOAD_MORE,
 }: NotificationListProps) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  // Auto-enable virtualization for large lists
+  const shouldVirtualize = virtualized ?? notifications.length > VIRTUALIZATION_THRESHOLD
+
+  const {
+    visibleItems,
+    hasMore,
+    remainingCount,
+    isLoadingMore,
+    loadMore,
+  } = useVirtualizedList(
+    notifications,
+    initialRenderCount,
+    loadMoreCount,
+    shouldVirtualize
+  )
+
+  // Handle scroll to load more
+  const handleScroll = useCallback(
+    (event: React.UIEvent<HTMLDivElement>) => {
+      if (!hasMore) return
+
+      const target = event.currentTarget
+      const scrollBottom = target.scrollHeight - target.scrollTop - target.clientHeight
+
+      if (scrollBottom < SCROLL_THRESHOLD) {
+        loadMore()
+      }
+    },
+    [hasMore, loadMore]
+  )
+
   const groupedNotifications = useMemo(
-    () => (groupByDate ? groupNotificationsByDate(notifications) : null),
-    [notifications, groupByDate]
+    () => (groupByDate ? groupNotificationsByDate(visibleItems) : null),
+    [visibleItems, groupByDate]
   )
 
   if (notifications.length === 0) {
@@ -102,11 +192,35 @@ export function NotificationList({
     )
   }
 
+  // Load more indicator component
+  const LoadMoreIndicator = () => {
+    if (!hasMore) return null
+
+    return (
+      <div className="flex items-center justify-center py-4">
+        {isLoadingMore ? (
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        ) : (
+          <button
+            onClick={loadMore}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Load {Math.min(loadMoreCount, remainingCount)} more ({remainingCount} remaining)
+          </button>
+        )}
+      </div>
+    )
+  }
+
   if (!groupByDate) {
     return (
       <ScrollArea style={{ height: maxHeight }}>
-        <div className="space-y-2 p-2">
-          {notifications.map((notification) => (
+        <div
+          ref={scrollRef}
+          className="space-y-2 p-2"
+          onScroll={handleScroll}
+        >
+          {visibleItems.map((notification) => (
             <NotificationItemEnhanced
               key={notification.id}
               notification={notification}
@@ -115,6 +229,7 @@ export function NotificationList({
               onClick={onItemClick}
             />
           ))}
+          <LoadMoreIndicator />
         </div>
       </ScrollArea>
     )
@@ -147,7 +262,11 @@ export function NotificationList({
 
   return (
     <ScrollArea style={{ height: maxHeight }}>
-      <div className="space-y-4 pb-2">
+      <div
+        ref={scrollRef}
+        className="space-y-4 pb-2"
+        onScroll={handleScroll}
+      >
         {renderGroup('Today', groupedNotifications!.today)}
         {groupedNotifications!.today.length > 0 &&
          groupedNotifications!.yesterday.length > 0 && <Separator />}
@@ -161,6 +280,8 @@ export function NotificationList({
          groupedNotifications!.older.length > 0 && <Separator />}
 
         {renderGroup('Older', groupedNotifications!.older)}
+
+        <LoadMoreIndicator />
       </div>
     </ScrollArea>
   )

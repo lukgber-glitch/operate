@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Metadata } from 'next';
 import { gsap } from 'gsap';
-import { ChevronDownIcon, ShieldCheckIcon, BrainCircuitIcon, BanknoteIcon, FileTextIcon, LandmarkIcon, LockIcon, CreditCardIcon } from 'lucide-react';
+import { ChevronDownIcon, ShieldCheckIcon, BrainCircuitIcon, BanknoteIcon, FileTextIcon, LandmarkIcon, LockIcon, CreditCardIcon, RocketIcon } from 'lucide-react';
 
 interface FAQ {
   question: string;
@@ -66,11 +66,15 @@ const faqCategories: FAQCategory[] = [
       },
       {
         question: 'Can I create invoices via chat?',
-        answer: 'Yes! Simply tell the AI what you need. For example: "Create an invoice for Acme Corp for €1,500 for consulting services" or "Generate a quote for website design, 40 hours at €75/hour". The AI will create a draft that you can review and modify before sending.',
+        answer: 'Yes! Simply tell the AI what you need, like "Create an invoice for Acme Corp". Instead of just creating a draft, the AI opens a guided wizard panel on the side where you can fill in details step-by-step. The AI provides helpful tips as you progress through each step (client selection, line items, dates, review). This hybrid approach gives you the convenience of chat with the precision of a structured form.',
       },
       {
         question: 'What actions can I perform via chat?',
-        answer: 'You can perform dozens of actions via chat, including: creating and sending invoices, categorizing expenses, reconciling bank transactions, searching documents, generating financial reports, scheduling payments, managing vendors, tracking time, exporting data, and much more. Actions that involve money or sensitive data will ask for confirmation.',
+        answer: 'You can perform dozens of actions via chat, including: creating and sending invoices, adding expenses, managing clients and vendors, requesting leave, creating quotes and contracts, generating financial reports, reconciling bank transactions, searching documents, tracking time, and much more. Complex tasks like invoice creation open guided wizard panels, while simple tasks execute directly. Actions that involve money or sensitive data will ask for confirmation.',
+      },
+      {
+        question: 'What are guided wizard panels?',
+        answer: 'Guided wizard panels are step-by-step forms that appear in a side panel when you request complex tasks like creating invoices, adding expenses, or managing clients. As you work through each step, the AI provides contextual guidance in the chat. This hybrid approach combines the natural language convenience of chat with the precision and validation of structured forms, ensuring you don\'t miss any important details.',
       },
       {
         question: 'Does the AI have access to all my data?',
@@ -79,6 +83,37 @@ const faqCategories: FAQCategory[] = [
       {
         question: 'What happens when I reach my AI message limit?',
         answer: 'On the Free plan (50 messages/month) and Starter plan (500 messages/month), you\'ll receive a notification when approaching your limit. You can upgrade to Pro (unlimited messages) or wait until your limit resets at the start of the next billing month. Message history is preserved.',
+      },
+    ],
+  },
+  {
+    id: 'unique-automation',
+    title: 'Unique Automation Features',
+    icon: RocketIcon,
+    faqs: [
+      {
+        question: 'What makes Operate different from sevDesk or Lexware?',
+        answer: 'Operate is the only accounting platform with a conversational AI that can actually perform actions - not just answer questions. You can say "Create an invoice for Acme Corp" and the AI opens a guided wizard. We also offer integrated commuter allowance (Pendlerpauschale) calculation, automatic bill creation from vendor emails, bank transaction matching that learns from your corrections, and multi-country tax filing (Germany, Austria, UK) in one platform. Traditional competitors like sevDesk and Lexware don\'t have these AI automation capabilities.',
+      },
+      {
+        question: 'What is the Commuter Allowance (Pendlerpauschale) feature?',
+        answer: 'Operate automatically calculates your commuter allowance (Pendlerpauschale/Entfernungspauschale) for tax deductions. Enter your one-way distance to work and the number of working days, and we calculate the deductible amount according to German, Austrian, or Swiss tax rules. The current German rate is €0.30/km for the first 20km and €0.38/km thereafter. This is automatically included in your tax reports - no competitor offers this integrated automation.',
+      },
+      {
+        question: 'How many actions can I perform via AI chat?',
+        answer: 'Operate\'s AI can perform 37+ different actions including: creating invoices, quotes, and contracts; adding expenses and scanning receipts; managing clients and vendors; requesting and approving leave; tracking time and mileage; generating financial reports; reconciling bank transactions; and much more. Complex tasks open guided wizard panels for precision, while simple tasks execute directly with confirmation.',
+      },
+      {
+        question: 'Does the AI learn from my corrections?',
+        answer: 'Yes! Our AI learns from every correction you make. When you recategorize an expense or update a bank transaction match, the system learns your preferences and applies them automatically to similar future transactions. Over time, Operate becomes more accurate and requires less manual intervention.',
+      },
+      {
+        question: 'What is Email Intelligence?',
+        answer: 'When you connect your email (Gmail or Outlook), Operate\'s AI scans for vendor invoices and automatically creates draft bills. It extracts key information like vendor name, amount, due date, and even line items using Claude-powered OCR. You review and approve - the AI does the data entry work.',
+      },
+      {
+        question: 'What proactive suggestions does Operate provide?',
+        answer: 'Operate provides 6 types of proactive suggestions: tax deadline reminders, cash flow alerts, expense categorization recommendations, invoice follow-up reminders, reconciliation suggestions for unmatched transactions, and financial insights based on your spending patterns. These appear in your dashboard and chat interface.',
       },
     ],
   },
@@ -124,7 +159,7 @@ const faqCategories: FAQCategory[] = [
     faqs: [
       {
         question: 'How do I create an invoice?',
-        answer: 'You can create invoices in three ways: (1) Ask the AI: "Create an invoice for [client] for [amount]", (2) Go to Invoices > Create New Invoice and fill out the form, or (3) Use a template from previous invoices. You can customize invoice templates, add your logo, and set payment terms.',
+        answer: 'You can create invoices in three ways: (1) Ask the AI: "Create an invoice for [client]" which opens a guided wizard panel with step-by-step assistance, (2) Go to Invoices > Create New Invoice and fill out the form directly, or (3) Use a template from previous invoices. All methods support custom invoice templates, your logo, line items, and payment terms.',
       },
       {
         question: 'Can I send invoices directly to clients?',
@@ -226,7 +261,7 @@ const faqCategories: FAQCategory[] = [
     faqs: [
       {
         question: 'What plans are available?',
-        answer: 'We offer four plans: Free (€0, limited features), Starter (€19/month or €190/year for freelancers), Pro (€39/month or €390/year for small businesses), and Business (€69/month or €690/year for teams). Annual billing saves 17% (2 months free). See our Pricing page for detailed feature comparison.',
+        answer: 'We offer four plans: Free (€0, limited features), Starter (€9.90/month or €95/year for freelancers), Pro (€19.90/month or €190/year for small businesses), and Business (€39.90/month or €380/year for teams). Annual billing saves about 20%. See our Pricing page for detailed feature comparison.',
       },
       {
         question: 'Can I change my plan later?',

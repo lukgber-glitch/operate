@@ -113,7 +113,7 @@ export default function EmployeeDetailPage() {
               </Link>
             </Button>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">Employee Details</h1>
+              <h1 className="text-2xl text-white font-semibold tracking-tight">Employee Details</h1>
               <p className="text-muted-foreground">View and manage employee information</p>
             </div>
           </div>

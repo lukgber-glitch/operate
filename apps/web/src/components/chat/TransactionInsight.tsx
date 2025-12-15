@@ -15,6 +15,7 @@ import {
   TrendingUp,
   XCircle,
 } from 'lucide-react';
+import { useMemo, memo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -125,23 +126,27 @@ function formatDate(dateString: string): string {
   });
 }
 
-export function TransactionInsight({
+function TransactionInsightComponent({
   transaction,
   onCategorize,
   onMatch,
   onIgnore,
 }: TransactionInsightProps) {
-  const statusConfig = getStatusConfig(transaction.reconciliationStatus);
-  const confidenceConfig = getConfidenceConfig(transaction.confidence);
+  // Memoize computed values to prevent recalculation on every render
+  const statusConfig = useMemo(() => getStatusConfig(transaction.reconciliationStatus), [transaction.reconciliationStatus]);
+  const confidenceConfig = useMemo(() => getConfidenceConfig(transaction.confidence), [transaction.confidence]);
   const StatusIcon = statusConfig.icon;
 
   // Color coding for debit vs credit
-  const amountColorClass = transaction.isDebit
+  const amountColorClass = useMemo(() => transaction.isDebit
     ? 'text-red-600 dark:text-red-400'
-    : 'text-green-600 dark:text-green-400';
+    : 'text-green-600 dark:text-green-400', [transaction.isDebit]);
 
-  const amountIcon = transaction.isDebit ? ArrowDownCircle : ArrowUpCircle;
-  const AmountIcon = amountIcon;
+  const AmountIcon = useMemo(() => transaction.isDebit ? ArrowDownCircle : ArrowUpCircle, [transaction.isDebit]);
+
+  // Memoize formatted values
+  const formattedAmount = useMemo(() => formatCurrency(transaction.amount, transaction.currency), [transaction.amount, transaction.currency]);
+  const formattedDate = useMemo(() => formatDate(transaction.bookingDate), [transaction.bookingDate]);
 
   return (
     <Card className={cn(
@@ -167,7 +172,7 @@ export function TransactionInsight({
               <CardTitle className="text-lg font-bold mb-1">
                 <span className={amountColorClass}>
                   {transaction.isDebit ? '-' : '+'}
-                  {formatCurrency(transaction.amount, transaction.currency)}
+                  {formattedAmount}
                 </span>
               </CardTitle>
               <p className="text-sm font-medium text-foreground truncate mb-1">
@@ -199,7 +204,7 @@ export function TransactionInsight({
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">
-              {formatDate(transaction.bookingDate)}
+              {formattedDate}
             </span>
           </div>
 
@@ -308,3 +313,5 @@ export function TransactionInsight({
     </Card>
   );
 }
+
+export const TransactionInsight = memo(TransactionInsightComponent);

@@ -47,8 +47,8 @@ import { DatabaseModule } from '../../../database/database.module';
           port: configService.get<number>('REDIS_PORT', 6379),
           password: configService.get<string>('REDIS_PASSWORD'),
           db: configService.get<number>('REDIS_DB', 0),
-          maxRetriesPerRequest: 3,
-          enableReadyCheck: true,
+          maxRetriesPerRequest: null,
+          enableReadyCheck: false,
           enableOfflineQueue: true,
         },
         defaultJobOptions: {

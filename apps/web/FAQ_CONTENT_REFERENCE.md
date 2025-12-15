@@ -25,11 +25,11 @@
 | Plan | Monthly | Annual | Features |
 |------|---------|--------|----------|
 | **Free** | €0 | €0 | 1 bank, 50 AI msgs, basic reports |
-| **Starter** | €19 | €190 | 3 banks, 500 AI msgs, invoicing, email support |
-| **Pro** | €39 | €390 | 10 banks, unlimited AI, tax filing, 3 team members |
-| **Business** | €69 | €690 | Unlimited banks/AI, unlimited team, API access |
+| **Starter** | €9.90 | €95 | 3 banks, 200 AI msgs, invoicing, DATEV export |
+| **Pro** | €19.90 | €190 | 10 banks, unlimited AI, tax filing, 3 team members |
+| **Business** | €39.90 | €380 | Unlimited everything, API access |
 
-**Savings**: Annual billing = 17% discount (2 months free)
+**Savings**: Annual billing saves about 20%
 
 **Free Trial**: 14 days, no credit card required (paid plans only)
 
@@ -71,6 +71,23 @@
 - NOT a tax professional
 - NOT a replacement for accountants
 - Educational/informational purposes only
+
+### Unique Automation Features (Competitors Don't Have)
+- 37+ AI chat actions (create invoices, expenses, reports via natural language)
+- Commuter allowance (Pendlerpauschale) auto-calculation
+- Email-to-bill automation (extracts invoices from vendor emails)
+- Bank intelligence that learns from corrections
+- Proactive suggestions (6 types: tax, cash flow, categorization, invoices, reconciliation, insights)
+- Multi-country tax filing in one platform (DE/AT/UK)
+
+### Competitor Comparison
+| Feature | Operate | sevDesk | Lexware |
+|---------|---------|---------|---------|
+| AI Chat with Actions | ✓ 37+ actions | ✗ | ✗ |
+| Commuter Allowance | ✓ Auto-calc | ✗ | ✗ |
+| Email-to-Bill | ✓ Auto-create | ✗ | ✗ |
+| Learning AI | ✓ | ✗ | ✗ |
+| Multi-Country Tax | ✓ DE/AT/UK | DE only | DE only |
 
 ### Security & Compliance
 

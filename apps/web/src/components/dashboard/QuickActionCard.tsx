@@ -20,7 +20,7 @@ export interface QuickActionCardProps {
 const variantStyles = {
   default: {
     card: 'hover:border-slate-300 hover:shadow-md dark:hover:border-slate-700',
-    icon: 'text-slate-600 dark:text-slate-400',
+    icon: 'text-gray-400',
     iconBg: 'bg-slate-100 dark:bg-slate-800',
   },
   primary: {
@@ -30,7 +30,7 @@ const variantStyles = {
   },
   success: {
     card: 'hover:border-green-300 hover:shadow-md hover:shadow-green-100 dark:hover:border-green-700',
-    icon: 'text-green-600 dark:text-green-400',
+    icon: 'text-green-400',
     iconBg: 'bg-green-50 dark:bg-green-950',
   },
   warning: {
@@ -62,6 +62,16 @@ export function QuickActionCard({
         className
       )}
       onClick={disabled ? undefined : onClick}
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-label={`${title}${subtitle ? `: ${subtitle}` : ''}${count ? ` (${count})` : ''}`}
+      aria-disabled={disabled}
+      onKeyDown={(e) => {
+        if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       <div className="p-4 space-y-3">
         {/* Icon container */}
@@ -72,12 +82,15 @@ export function QuickActionCard({
               styles.iconBg
             )}
           >
-            <Icon className={cn('w-6 h-6', styles.icon)} />
+            <Icon className={cn('w-6 h-6', styles.icon)} aria-hidden="true" />
           </div>
 
           {/* Count badge */}
           {count !== undefined && count > 0 && (
-            <div className="flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold">
+            <div
+              className="flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold"
+              aria-label={`${count} items`}
+            >
               {count > 99 ? '99+' : count}
             </div>
           )}

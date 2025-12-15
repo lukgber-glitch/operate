@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 
-import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { UVAWizard } from './components/UVAWizard';
 
 export const metadata: Metadata = {
@@ -13,19 +13,17 @@ export default function AustrianTaxFilingPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Austrian VAT Filing (UVA)</h1>
-          <p className="text-muted-foreground">Submit your Austrian VAT return (Umsatzsteuervoranmeldung) to FinanzOnline</p>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Austrian VAT Filing (UVA)</h1>
+          <p className="text-white/70">Submit your Austrian VAT return (Umsatzsteuervoranmeldung) to FinanzOnline</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-2xl">🇦🇹</span>
+          <span className="text-2xl text-white">🇦🇹</span>
         </div>
       </div>
 
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6">
-          <UVAWizard />
-        </CardContent>
-      </Card>
+      <GlassCard padding="lg">
+        <UVAWizard />
+      </GlassCard>
     </div>
   );
 }

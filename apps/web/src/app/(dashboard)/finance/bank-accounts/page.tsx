@@ -2,11 +2,13 @@
 
 import { Plus, AlertCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { useBankConnections } from '@/hooks/use-bank-connections';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 
 import { BankAccountList } from './components/BankAccountList';
 import { BankConnectionCard } from './components/BankConnectionCard';
@@ -76,12 +78,17 @@ export default function BankAccountsPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      className="space-y-6"
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+    >
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <motion.div variants={fadeUp} className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Bank Accounts</h1>
-          <p className="text-muted-foreground">
+          <p className="text-white/70">
             Connect and manage your business bank accounts
           </p>
         </div>
@@ -90,42 +97,41 @@ export default function BankAccountsPage() {
           <Plus className="mr-2 h-4 w-4" />
           Connect Bank
         </Button>
-      </div>
+      </motion.div>
 
       {/* Alerts */}
       {needsAttention.length > 0 && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Attention Required</AlertTitle>
-          <AlertDescription>
-            {needsAttention.length} bank connection{needsAttention.length !== 1 ? 's' : ''}{' '}
-            {needsAttention.length !== 1 ? 'need' : 'needs'} your attention.
-            Please re-authenticate or check for errors.
-          </AlertDescription>
-        </Alert>
+        <motion.div variants={fadeUp}>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Attention Required</AlertTitle>
+            <AlertDescription>
+              {needsAttention.length} bank connection{needsAttention.length !== 1 ? 's' : ''}{' '}
+              {needsAttention.length !== 1 ? 'need' : 'needs'} your attention.
+              Please re-authenticate or check for errors.
+            </AlertDescription>
+          </Alert>
+        </motion.div>
       )}
 
       {/* Loading State */}
       {isLoading && connections.length === 0 && (
-        <Card>
-          <CardContent className="flex items-center justify-center h-64">
+        <GlassCard padding="lg">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-white/70">
                 Loading bank accounts...
               </p>
             </div>
-          </CardContent>
-        </Card>
+        </GlassCard>
       )}
 
       {/* Error State */}
       {error && !isLoading && (
-        <Card>
-          <CardContent className="flex items-center justify-center h-64">
+        <GlassCard padding="lg">
             <div className="text-center">
-              <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400 mx-auto mb-4" />
-              <p className="text-sm text-red-600 dark:text-red-400 mb-4">
+              <AlertCircle className="h-8 w-8 text-red-400 mx-auto mb-4" />
+              <p className="text-sm text-red-400 mb-4">
                 {error}
               </p>
               <Button
@@ -136,21 +142,19 @@ export default function BankAccountsPage() {
                 Try Again
               </Button>
             </div>
-          </CardContent>
-        </Card>
+        </GlassCard>
       )}
 
       {/* Empty State */}
       {!isLoading && !error && activeConnections.length === 0 && (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center h-64 text-center">
-            <div className="rounded-full bg-primary/10 p-4 mb-4">
-              <Plus className="h-8 w-8 text-primary" />
+        <GlassCard padding="lg">
+            <div className="rounded-full bg-white/10 p-4 mb-4">
+              <Plus className="h-8 w-8 text-white/70" />
             </div>
             <h3 className="font-semibold text-lg mb-2">
               No bank accounts connected
             </h3>
-            <p className="text-muted-foreground mb-4 max-w-sm">
+            <p className="text-white/70 mb-4 max-w-sm">
               Connect your business bank accounts to automatically sync
               transactions and manage your finances in one place.
             </p>
@@ -158,8 +162,7 @@ export default function BankAccountsPage() {
               <Plus className="mr-2 h-4 w-4" />
               Connect Your First Bank
             </Button>
-          </CardContent>
-        </Card>
+        </GlassCard>
       )}
 
       {/* Bank Connections */}
@@ -167,20 +170,23 @@ export default function BankAccountsPage() {
         <div className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
             {activeConnections.map((connection) => (
-              <BankConnectionCard
-                key={connection.id}
-                connection={connection}
-                onSync={handleSync}
-                onDisconnect={handleDisconnect}
-                onReauth={handleReauth}
-              />
+              <motion.div key={connection.id} variants={fadeUp}>
+                <BankConnectionCard
+                  connection={connection}
+                  onSync={handleSync}
+                  onDisconnect={handleDisconnect}
+                  onReauth={handleReauth}
+                />
+              </motion.div>
             ))}
           </div>
 
           {/* Account Lists */}
           <div className="space-y-4">
             {activeConnections.map((connection) => (
-              <BankAccountList key={connection.id} connection={connection} />
+              <motion.div key={connection.id} variants={fadeUp}>
+                <BankAccountList connection={connection} />
+              </motion.div>
             ))}
           </div>
         </div>
@@ -192,6 +198,6 @@ export default function BankAccountsPage() {
         onClose={() => setIsConnectModalOpen(false)}
         onConnect={handleConnect}
       />
-    </div>
+    </motion.div>
   );
 }

@@ -10,6 +10,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { MicrosoftStrategy } from './strategies/microsoft.strategy';
 import { OAuthController } from './oauth.controller';
 import { OAuthService } from './oauth.service';
+import { TestAuthController } from './test-auth.controller';
 import { UsersModule } from '../users/users.module';
 import { MfaModule } from './mfa/mfa.module';
 import { MfaGuard } from './guards/mfa.guard';
@@ -49,7 +50,7 @@ import { RbacModule } from './rbac/rbac.module';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AuthController, OAuthController],
+  controllers: [AuthController, OAuthController, TestAuthController],
   providers: [
     AuthService,
     OAuthService,

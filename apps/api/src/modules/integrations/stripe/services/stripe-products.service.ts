@@ -33,55 +33,106 @@ export class StripeProductsService {
   private readonly logger = new Logger(StripeProductsService.name);
   private readonly stripe: Stripe;
 
-  // Predefined pricing tiers configuration
+  // Caching for pricing table - reduces Stripe API calls
+  private pricingTableCache: { data: any[]; expiresAt: number } | null = null;
+  private readonly PRICING_TABLE_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+
+  // Request deduplication
+  private pendingPricingTableRequest: Promise<any[]> | null = null;
+
+  // Predefined pricing tiers configuration - EUR pricing for DACH market
   private readonly DEFAULT_TIERS = {
     [SubscriptionTier.FREE]: {
-      name: 'Free Plan',
-      description: 'Perfect for small businesses getting started',
+      name: 'Kostenlos',
+      description: 'Perfekt zum Ausprobieren',
       features: [
-        'Up to 5 employees',
-        'Basic document management',
-        'Email support',
-        'Mobile app access',
+        '50 KI-Nachrichten/Monat',
+        '1 Bankverbindung',
+        '5 Rechnungen/Monat',
+        'Grundlegende Ausgabenverfolgung',
+        '14 Tage Pro-Testversion',
       ],
       price: {
         monthly: 0,
         yearly: 0,
       },
-    },
-    [SubscriptionTier.PRO]: {
-      name: 'Pro Plan',
-      description: 'For growing businesses with advanced needs',
-      features: [
-        'Unlimited employees',
-        'Advanced document management',
-        'Priority email support',
-        'Mobile app access',
-        'ELSTER integration',
-        'Custom workflows',
-        'API access',
-      ],
-      price: {
-        monthly: 2900, // $29.00
-        yearly: 29000, // $290.00 (save ~17%)
+      limits: {
+        aiMessages: 50,
+        bankConnections: 1,
+        invoices: 5,
+        teamMembers: 1,
       },
     },
-    [SubscriptionTier.ENTERPRISE]: {
-      name: 'Enterprise Plan',
-      description: 'For large organizations with complex requirements',
+    [SubscriptionTier.STARTER]: {
+      name: 'Starter',
+      description: 'Ideal für Solo-Freelancer',
       features: [
-        'Everything in Pro',
-        'Dedicated account manager',
-        '24/7 priority support',
-        'Custom integrations',
-        'Advanced security features',
-        'SLA guarantees',
-        'White-label options',
-        'Multi-country support',
+        '200 KI-Nachrichten/Monat',
+        '3 Bankverbindungen',
+        'Unbegrenzte Rechnungen',
+        'E-Mail-Rechnungssync',
+        'Grundlegende Berichte',
+        'DATEV-Export',
+        'E-Mail-Support',
       ],
       price: {
-        monthly: 9900, // $99.00
-        yearly: 99000, // $990.00 (save ~17%)
+        monthly: 990, // €9.90
+        yearly: 9500, // €95.00 (~20% Ersparnis)
+      },
+      limits: {
+        aiMessages: 200,
+        bankConnections: 3,
+        invoices: -1, // unlimited
+        teamMembers: 1,
+      },
+    },
+    [SubscriptionTier.PRO]: {
+      name: 'Pro',
+      description: 'Für wachsende Unternehmen',
+      features: [
+        'Unbegrenzte KI-Nachrichten',
+        '10 Bankverbindungen',
+        'Steuereinreichung (UStVA, EÜR)',
+        'Cashflow-Prognosen',
+        'Dokument-OCR-Scanning',
+        'Erweiterte Berichte (BWA)',
+        'Bis zu 3 Teammitglieder',
+        'Prioritäts-Support',
+      ],
+      price: {
+        monthly: 1990, // €19.90
+        yearly: 19000, // €190.00 (~20% Ersparnis)
+      },
+      limits: {
+        aiMessages: -1, // unlimited
+        bankConnections: 10,
+        invoices: -1,
+        teamMembers: 3,
+      },
+    },
+    [SubscriptionTier.BUSINESS]: {
+      name: 'Business',
+      description: 'Für wachsende Teams',
+      features: [
+        'Unbegrenzte KI-Nachrichten',
+        'Unbegrenzte Bankverbindungen',
+        'Alle Pro-Funktionen',
+        'Unbegrenzte Teammitglieder',
+        'API-Zugang',
+        'Benutzerdefinierte Integrationen',
+        'Multi-Währung',
+        'Dedizierter Support',
+        'Eigenes Branding',
+      ],
+      price: {
+        monthly: 3990, // €39.90
+        yearly: 38000, // €380.00 (~20% Ersparnis)
+      },
+      limits: {
+        aiMessages: -1,
+        bankConnections: -1,
+        invoices: -1,
+        teamMembers: -1,
       },
     },
   };
@@ -297,10 +348,11 @@ export class StripeProductsService {
 
   /**
    * Initialize default pricing tiers
-   * Creates Free, Pro, and Enterprise products with monthly/yearly pricing
+   * Creates Free, Starter, Pro, and Business products with monthly/yearly pricing
+   * Default currency is EUR for DACH market
    */
   async initializeDefaultPricingTiers(
-    currency: string = 'usd',
+    currency: string = 'eur',
   ): Promise<{
     products: Record<SubscriptionTier, Stripe.Product>;
     prices: Record<SubscriptionTier, { monthly: Stripe.Price; yearly: Stripe.Price }>;
@@ -431,60 +483,105 @@ export class StripeProductsService {
 
   /**
    * Get pricing table data for frontend display
+   * Default currency is EUR for DACH market
+   *
+   * Performance optimizations:
+   * - Cached for 15 minutes (pricing rarely changes)
+   * - Request deduplication (concurrent calls share one request)
+   * - Batched price fetching with Promise.all
    */
-  async getPricingTable(currency: string = 'usd'): Promise<any[]> {
+  async getPricingTable(currency: string = 'eur'): Promise<any[]> {
+    // Check cache first
+    if (
+      this.pricingTableCache &&
+      Date.now() < this.pricingTableCache.expiresAt
+    ) {
+      this.logger.debug('Returning cached pricing table');
+      return this.pricingTableCache.data;
+    }
+
+    // Request deduplication - if a request is already in flight, wait for it
+    if (this.pendingPricingTableRequest) {
+      this.logger.debug('Deduplicating pricing table request');
+      return this.pendingPricingTableRequest;
+    }
+
+    // Execute the request
+    this.pendingPricingTableRequest = this.fetchPricingTable(currency)
+      .finally(() => {
+        this.pendingPricingTableRequest = null;
+      });
+
+    return this.pendingPricingTableRequest;
+  }
+
+  /**
+   * Internal method to fetch pricing table from Stripe
+   */
+  private async fetchPricingTable(currency: string): Promise<any[]> {
     try {
       const products = await this.listProducts();
 
-      const pricingTable = await Promise.all(
-        products.map(async (product) => {
-          const prices = await this.listPricesForProduct(product.id);
-
-          const monthlyPrice = prices.find(
-            (p) => p.recurring?.interval === 'month' && p.currency === currency,
-          );
-          const yearlyPrice = prices.find(
-            (p) => p.recurring?.interval === 'year' && p.currency === currency,
-          );
-
-          const features = product.metadata.features
-            ? JSON.parse(product.metadata.features)
-            : [];
-
-          return {
-            id: product.id,
-            name: product.name,
-            description: product.description,
-            tier: product.metadata.tier,
-            features,
-            pricing: {
-              monthly: monthlyPrice
-                ? {
-                    id: monthlyPrice.id,
-                    amount: monthlyPrice.unit_amount,
-                    currency: monthlyPrice.currency,
-                    formattedAmount: this.formatCurrency(
-                      monthlyPrice.unit_amount || 0,
-                      monthlyPrice.currency,
-                    ),
-                  }
-                : null,
-              yearly: yearlyPrice
-                ? {
-                    id: yearlyPrice.id,
-                    amount: yearlyPrice.unit_amount,
-                    currency: yearlyPrice.currency,
-                    formattedAmount: this.formatCurrency(
-                      yearlyPrice.unit_amount || 0,
-                      yearlyPrice.currency,
-                    ),
-                  }
-                : null,
-            },
-          };
-        }),
+      // Batch fetch all prices in parallel for efficiency
+      const allPricesPromises = products.map(product =>
+        this.listPricesForProduct(product.id),
       );
+      const allPrices = await Promise.all(allPricesPromises);
 
+      const pricingTable = products.map((product, index) => {
+        const prices = allPrices[index];
+
+        const monthlyPrice = prices.find(
+          (p) => p.recurring?.interval === 'month' && p.currency === currency,
+        );
+        const yearlyPrice = prices.find(
+          (p) => p.recurring?.interval === 'year' && p.currency === currency,
+        );
+
+        const features = product.metadata.features
+          ? JSON.parse(product.metadata.features)
+          : [];
+
+        return {
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          tier: product.metadata.tier,
+          features,
+          pricing: {
+            monthly: monthlyPrice
+              ? {
+                  id: monthlyPrice.id,
+                  amount: monthlyPrice.unit_amount,
+                  currency: monthlyPrice.currency,
+                  formattedAmount: this.formatCurrency(
+                    monthlyPrice.unit_amount || 0,
+                    monthlyPrice.currency,
+                  ),
+                }
+              : null,
+            yearly: yearlyPrice
+              ? {
+                  id: yearlyPrice.id,
+                  amount: yearlyPrice.unit_amount,
+                  currency: yearlyPrice.currency,
+                  formattedAmount: this.formatCurrency(
+                    yearlyPrice.unit_amount || 0,
+                    yearlyPrice.currency,
+                  ),
+                }
+              : null,
+          },
+        };
+      });
+
+      // Cache the result
+      this.pricingTableCache = {
+        data: pricingTable,
+        expiresAt: Date.now() + this.PRICING_TABLE_CACHE_TTL,
+      };
+
+      this.logger.log(`Fetched and cached pricing table (${pricingTable.length} products)`);
       return pricingTable;
     } catch (error) {
       this.logger.error('Failed to get pricing table', error);
@@ -492,13 +589,24 @@ export class StripeProductsService {
     }
   }
 
+  /**
+   * Invalidate pricing table cache
+   * Call this after updating products or prices
+   */
+  invalidatePricingTableCache(): void {
+    this.pricingTableCache = null;
+    this.logger.debug('Invalidated pricing table cache');
+  }
+
   // Helper Methods
 
   private formatCurrency(amount: number, currency: string): string {
-    const dollars = amount / 100;
-    return new Intl.NumberFormat('en-US', {
+    const value = amount / 100;
+    // Use German locale for EUR, English for others
+    const locale = currency.toLowerCase() === 'eur' ? 'de-DE' : 'en-US';
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: currency.toUpperCase(),
-    }).format(dollars);
+    }).format(value);
   }
 }

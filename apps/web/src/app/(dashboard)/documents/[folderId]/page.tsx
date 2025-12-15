@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/animation-variants';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -254,14 +256,14 @@ const mockDocumentsByFolder: { [key: string]: Document[] } = {
 };
 
 const documentTypeConfig = {
-  CONTRACT: { color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: FileText },
-  INVOICE: { color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', icon: Receipt },
-  RECEIPT: { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400', icon: Receipt },
-  REPORT: { color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400', icon: FileBarChart },
-  POLICY: { color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400', icon: FileCheck },
-  FORM: { color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400', icon: FileCog },
-  CERTIFICATE: { color: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400', icon: Award },
-  OTHER: { color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400', icon: File },
+  CONTRACT: { color: 'text-white/70', icon: FileText },
+  INVOICE: { color: 'text-white/70', icon: Receipt },
+  RECEIPT: { color: 'text-white/70', icon: Receipt },
+  REPORT: { color: 'text-white/70', icon: FileBarChart },
+  POLICY: { color: 'text-white/70', icon: FileCheck },
+  FORM: { color: 'text-white/70', icon: FileCog },
+  CERTIFICATE: { color: 'text-white/70', icon: Award },
+  OTHER: { color: 'text-white/70', icon: File },
 };
 
 export default function FolderPage({ params }: { params: { folderId: string } }) {
@@ -318,7 +320,7 @@ export default function FolderPage({ params }: { params: { folderId: string } })
     return (
       <div className="space-y-6">
         <div className="text-center py-12">
-          <h1 className="text-2xl font-bold">Folder not found</h1>
+          <h1 className="text-2xl text-white font-bold">Folder not found</h1>
           <p className="mt-2 text-muted-foreground">The folder you are looking for does not exist.</p>
           <Button className="mt-4" asChild>
             <Link href="/documents">
@@ -334,7 +336,12 @@ export default function FolderPage({ params }: { params: { folderId: string } })
   return (
     <div className="space-y-6">
       {/* Breadcrumb Navigation */}
-      <nav className="flex items-center space-x-1 text-sm text-slate-500 dark:text-slate-400">
+      <motion.nav
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex items-center space-x-1 text-sm text-slate-500 dark:text-slate-400"
+      >
         {breadcrumbs.map((crumb, index) => (
           <div key={crumb.href} className="flex items-center">
             {index > 0 && (
@@ -357,10 +364,16 @@ export default function FolderPage({ params }: { params: { folderId: string } })
             )}
           </div>
         ))}
-      </nav>
+      </motion.nav>
 
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" asChild>
@@ -387,10 +400,16 @@ export default function FolderPage({ params }: { params: { folderId: string } })
             Upload Document
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Filters and View Toggle */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.2 }}
+        className="flex flex-col sm:flex-row gap-4"
+      >
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -442,16 +461,28 @@ export default function FolderPage({ params }: { params: { folderId: string } })
             </TabsList>
           </Tabs>
         </div>
-      </div>
+      </motion.div>
 
       {/* Results Count */}
-      <div className="text-sm text-muted-foreground">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.3 }}
+        className="text-sm text-muted-foreground"
+      >
         Showing {filteredDocuments.length} of {documents.length} documents
-      </div>
+      </motion.div>
 
       {/* Grid View */}
       {viewMode === 'grid' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: 0.4 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+        >
           {filteredDocuments.length === 0 ? (
             <div className="col-span-full py-12 text-center">
               <FileText className="mx-auto h-12 w-12 text-slate-400" />
@@ -523,11 +554,17 @@ export default function FolderPage({ params }: { params: { folderId: string } })
               );
             })
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* List View */}
       {viewMode === 'list' && (
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: 0.4 }}
+        >
         <Card>
           <Table>
             <TableHeader>
@@ -612,6 +649,7 @@ export default function FolderPage({ params }: { params: { folderId: string } })
             </TableBody>
           </Table>
         </Card>
+        </motion.div>
       )}
 
       {/* Upload Dialog */}

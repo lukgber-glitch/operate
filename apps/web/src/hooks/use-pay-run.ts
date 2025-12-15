@@ -1,9 +1,11 @@
 /**
  * Pay Run State Management Hook
  * Uses Zustand for wizard state management
+ * Optimized with memoized selectors and O(1) lookups
  */
 
 import { create } from 'zustand';
+import { useMemo, useCallback } from 'react';
 import {
   PayRunState,
   PayPeriod,
@@ -178,26 +180,76 @@ export const usePayRunStore = create<PayRunState & PayRunActions>((set, get) => 
 
 // ==================== Helper Hooks ====================
 
+// Memoized selectors for better performance
+const selectSelectedEmployeeList = (state: PayRunState) =>
+  state.employees.filter(e => state.selectedEmployees.includes(e.employeeUuid));
+
 export function usePayRun() {
   const store = usePayRunStore();
 
-  // Define helper functions first so they can reference each other
-  const getTotalAdditions = (employeeUuid?: string): number => {
-    const additions = employeeUuid
-      ? store.additions.filter(a => a.employeeUuid === employeeUuid)
-      : store.additions;
-    return additions.reduce((sum, a) => sum + parseFloat(a.amount || '0'), 0);
-  };
+  // Memoized selected employee list - prevents unnecessary re-renders
+  const selectedEmployeeList = useMemo(
+    () => store.employees.filter(e => store.selectedEmployees.includes(e.employeeUuid)),
+    [store.employees, store.selectedEmployees]
+  );
 
-  const getTotalDeductions = (employeeUuid?: string): number => {
-    const deductions = employeeUuid
-      ? store.deductions.filter(d => d.employeeUuid === employeeUuid)
-      : store.deductions;
-    return deductions.reduce((sum, d) => sum + parseFloat(d.amount || '0'), 0);
-  };
+  // Memoized employee map for O(1) lookups
+  const employeeMap = useMemo(() => {
+    const map = new Map<string, PayrollEmployee>();
+    store.employees.forEach(e => map.set(e.employeeUuid, e));
+    return map;
+  }, [store.employees]);
 
-  const getEmployeeGrossPay = (employeeUuid: string): number => {
-    const employee = store.employees.find(e => e.employeeUuid === employeeUuid);
+  // Memoized tax breakdown map for O(1) lookups
+  const taxBreakdownMap = useMemo(() => {
+    const map = new Map<string, TaxBreakdown>();
+    store.taxBreakdowns.forEach(t => map.set(t.employeeUuid, t));
+    return map;
+  }, [store.taxBreakdowns]);
+
+  // Memoized additions by employee
+  const additionsByEmployee = useMemo(() => {
+    const map = new Map<string, Addition[]>();
+    store.additions.forEach(a => {
+      const existing = map.get(a.employeeUuid) || [];
+      existing.push(a);
+      map.set(a.employeeUuid, existing);
+    });
+    return map;
+  }, [store.additions]);
+
+  // Memoized deductions by employee
+  const deductionsByEmployee = useMemo(() => {
+    const map = new Map<string, Deduction[]>();
+    store.deductions.forEach(d => {
+      const existing = map.get(d.employeeUuid) || [];
+      existing.push(d);
+      map.set(d.employeeUuid, existing);
+    });
+    return map;
+  }, [store.deductions]);
+
+  // Optimized addition calculation with memoized map
+  const getTotalAdditions = useCallback((employeeUuid?: string): number => {
+    if (employeeUuid) {
+      const additions = additionsByEmployee.get(employeeUuid) || [];
+      return additions.reduce((sum, a) => sum + parseFloat(a.amount || '0'), 0);
+    }
+    return store.additions.reduce((sum, a) => sum + parseFloat(a.amount || '0'), 0);
+  }, [store.additions, additionsByEmployee]);
+
+  // Optimized deduction calculation with memoized map
+  const getTotalDeductions = useCallback((employeeUuid?: string): number => {
+    if (employeeUuid) {
+      const deductions = deductionsByEmployee.get(employeeUuid) || [];
+      return deductions.reduce((sum, d) => sum + parseFloat(d.amount || '0'), 0);
+    }
+    return store.deductions.reduce((sum, d) => sum + parseFloat(d.amount || '0'), 0);
+  }, [store.deductions, deductionsByEmployee]);
+
+  // Optimized gross pay calculation with memoized employee map
+  const getEmployeeGrossPay = useCallback((employeeUuid: string): number => {
+    const employee = employeeMap.get(employeeUuid);
     if (!employee) return 0;
 
     let gross = 0;
@@ -210,22 +262,24 @@ export function usePayRun() {
       gross = parseFloat(employee.salaryAmount) / 26;
     }
 
-    // Add additions
+    // Add additions using memoized function
     gross += getTotalAdditions(employeeUuid);
 
     return gross;
-  };
+  }, [employeeMap, store.hoursData, getTotalAdditions]);
 
-  const getEmployeeNetPay = (employeeUuid: string): number => {
+  // Optimized net pay calculation
+  const getEmployeeNetPay = useCallback((employeeUuid: string): number => {
     const gross = getEmployeeGrossPay(employeeUuid);
-    const taxBreakdown = store.taxBreakdowns.find(t => t.employeeUuid === employeeUuid);
+    const taxBreakdown = taxBreakdownMap.get(employeeUuid);
     const employeeTaxes = taxBreakdown ? parseFloat(taxBreakdown.totalEmployeeTaxes) : 0;
     const deductions = getTotalDeductions(employeeUuid);
 
     return gross - employeeTaxes - deductions;
-  };
+  }, [getEmployeeGrossPay, taxBreakdownMap, getTotalDeductions]);
 
-  const isStepComplete = (step: number): boolean => {
+  // Memoized step completion check
+  const isStepComplete = useCallback((step: number): boolean => {
     switch (step) {
       case 1: // Pay Period
         return !!store.selectedPayPeriod;
@@ -233,7 +287,7 @@ export function usePayRun() {
         return store.selectedEmployees.length > 0;
       case 3: // Hours
         return store.selectedEmployees.every(uuid => {
-          const employee = store.employees.find(e => e.employeeUuid === uuid);
+          const employee = employeeMap.get(uuid);
           if (!employee) return false;
           if (employee.compensationType === 'hourly') {
             return !!store.hoursData[uuid] && store.hoursData[uuid]! > 0;
@@ -249,15 +303,44 @@ export function usePayRun() {
       default:
         return false;
     }
-  };
+  }, [store.selectedPayPeriod, store.selectedEmployees, employeeMap, store.hoursData, store.taxBreakdowns, store.currentPayroll]);
+
+  // Memoized totals for summary display
+  const totals = useMemo(() => {
+    const totalGross = store.selectedEmployees.reduce(
+      (sum, uuid) => sum + getEmployeeGrossPay(uuid),
+      0
+    );
+
+    const totalNet = store.selectedEmployees.reduce(
+      (sum, uuid) => sum + getEmployeeNetPay(uuid),
+      0
+    );
+
+    const totalEmployeeTaxes = store.taxBreakdowns.reduce(
+      (sum, t) => sum + parseFloat(t.totalEmployeeTaxes || '0'),
+      0
+    );
+
+    const totalEmployerTaxes = store.taxBreakdowns.reduce(
+      (sum, t) => sum + parseFloat(t.totalEmployerTaxes || '0'),
+      0
+    );
+
+    return {
+      totalGross,
+      totalNet,
+      totalEmployeeTaxes,
+      totalEmployerTaxes,
+    };
+  }, [store.selectedEmployees, store.taxBreakdowns, getEmployeeGrossPay, getEmployeeNetPay]);
 
   return {
     ...store,
 
-    // Computed values
-    selectedEmployeeList: store.employees.filter(e =>
-      store.selectedEmployees.includes(e.employeeUuid)
-    ),
+    // Memoized computed values
+    selectedEmployeeList,
+    employeeMap,
 
     totalEmployees: store.selectedEmployees.length,
 
@@ -268,39 +351,14 @@ export function usePayRun() {
     },
 
     getTotalAdditions,
-
     getTotalDeductions,
-
     getEmployeeGrossPay,
-
     getEmployeeNetPay,
 
-    getTotalGrossPay: (): number => {
-      return store.selectedEmployees.reduce(
-        (sum, uuid) => sum + getEmployeeGrossPay(uuid),
-        0
-      );
-    },
-
-    getTotalNetPay: (): number => {
-      return store.selectedEmployees.reduce(
-        (sum, uuid) => sum + getEmployeeNetPay(uuid),
-        0
-      );
-    },
-
-    getTotalEmployeeTaxes: (): number => {
-      return store.taxBreakdowns.reduce(
-        (sum, t) => sum + parseFloat(t.totalEmployeeTaxes || '0'),
-        0
-      );
-    },
-
-    getTotalEmployerTaxes: (): number => {
-      return store.taxBreakdowns.reduce(
-        (sum, t) => sum + parseFloat(t.totalEmployerTaxes || '0'),
-        0
-      );
-    },
+    // Use memoized totals
+    getTotalGrossPay: (): number => totals.totalGross,
+    getTotalNetPay: (): number => totals.totalNet,
+    getTotalEmployeeTaxes: (): number => totals.totalEmployeeTaxes,
+    getTotalEmployerTaxes: (): number => totals.totalEmployerTaxes,
   };
 }

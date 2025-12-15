@@ -4,6 +4,8 @@ import { ArrowLeft, Edit, Trash2, ExternalLink, CheckCircle2, XCircle } from 'lu
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/animation-variants';
 
 import {
   AlertDialog,
@@ -83,7 +85,12 @@ export default function DeductionDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/tax/deductions">
@@ -91,7 +98,7 @@ export default function DeductionDetailPage({
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{deductionData.id}</h1>
+            <h1 className="text-2xl text-white font-semibold tracking-tight">{deductionData.id}</h1>
             <p className="text-muted-foreground">Tax deduction details</p>
           </div>
         </div>
@@ -123,7 +130,7 @@ export default function DeductionDetailPage({
             </Link>
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Status:</span>
@@ -135,6 +142,12 @@ export default function DeductionDetailPage({
         </Badge>
       </div>
 
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+      >
       <Card className="rounded-[24px]">
         <CardContent className="p-6">
         <div className="grid gap-6 lg:grid-cols-3">
@@ -293,14 +306,14 @@ export default function DeductionDetailPage({
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Amount</p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl text-white font-bold">
                     €{deductionData.amount.toFixed(2)}
                   </p>
                 </div>
                 <Separator />
                 <div>
                   <p className="text-sm text-muted-foreground">Tax Saving</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-2xl text-white font-bold text-green-600">
                     €{deductionData.potentialSaving.toFixed(2)}
                   </p>
                 </div>
@@ -382,6 +395,7 @@ export default function DeductionDetailPage({
         </div>
         </CardContent>
       </Card>
+      </motion.div>
     </div>
   );
 }

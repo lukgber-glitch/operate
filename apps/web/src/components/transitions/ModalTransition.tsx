@@ -156,7 +156,7 @@ export function ModalTransition({
             className={className}
             variants={modalVariants}
             transition={{
-              type: 'spring',
+              type: 'spring' as const,
               damping: 25,
               stiffness: 300,
             }}
@@ -245,7 +245,7 @@ export function DrawerTransition({
             className={`absolute ${sideClasses[side]} ${className || ''}`}
             variants={drawerVariants[side]}
             transition={{
-              type: 'spring',
+              type: 'spring' as const,
               damping: 30,
               stiffness: 300,
             }}
@@ -290,7 +290,7 @@ export function TooltipTransition({
           initial={{ opacity: 0, scale: 0.95, y: 5 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 5 }}
-          transition={{ duration: 0.15, ease: 'easeOut' }}
+          transition={{ duration: 0.15, ease: 'easeOut' as const }}
           className={className}
         >
           {children}

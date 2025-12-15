@@ -1,0 +1,120 @@
+{
+  "timestamp": "2025-12-15T03:43:36.441Z",
+  "passed": 9,
+  "failed": 1,
+  "tests": [
+    {
+      "name": "Settings - Overview",
+      "path": "/settings",
+      "status": "PASS",
+      "errors": [],
+      "warnings": [
+        "No main content found"
+      ],
+      "elements": {}
+    },
+    {
+      "name": "Settings - Profile",
+      "path": "/settings/profile",
+      "status": "FAIL",
+      "errors": [
+        "Missing required profile fields"
+      ],
+      "warnings": [],
+      "elements": {
+        "nameField": "missing",
+        "emailField": "missing",
+        "form": "found"
+      }
+    },
+    {
+      "name": "Settings - Security",
+      "path": "/settings/security",
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "elements": {
+        "passwordSection": "found",
+        "mfaSection": "missing"
+      }
+    },
+    {
+      "name": "Settings - Billing",
+      "path": "/settings/billing",
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "elements": {
+        "planInfo": "missing",
+        "usageInfo": "missing"
+      }
+    },
+    {
+      "name": "Settings - Notifications",
+      "path": "/settings/notifications",
+      "status": "PASS",
+      "errors": [],
+      "warnings": [
+        "No notification toggles found"
+      ],
+      "elements": {
+        "toggles": "0 found"
+      }
+    },
+    {
+      "name": "Settings - Connections",
+      "path": "/settings/connections",
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "elements": {
+        "integrations": "found",
+        "cards": "0 found"
+      }
+    },
+    {
+      "name": "Settings - Email",
+      "path": "/settings/email",
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "elements": {
+        "emailProviders": "missing"
+      }
+    },
+    {
+      "name": "Settings - Exports",
+      "path": "/settings/exports",
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "elements": {
+        "datev": "missing",
+        "bmd": "missing",
+        "saft": "missing"
+      }
+    },
+    {
+      "name": "Settings - AI Preferences",
+      "path": "/settings/ai",
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "elements": {
+        "aiSettings": "found",
+        "consent": "found"
+      }
+    },
+    {
+      "name": "Settings - Tax Settings",
+      "path": "/settings/tax",
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "elements": {
+        "taxSettings": "found",
+        "jurisdiction": "found"
+      }
+    }
+  ]
+}

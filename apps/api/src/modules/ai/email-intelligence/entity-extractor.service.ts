@@ -5,6 +5,7 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../../database/prisma.service';
 import { ClaudeClient } from '@operate/ai';
 import {
   ExtractedEntities,
@@ -43,7 +44,10 @@ export class EntityExtractorService {
   private readonly logger = new Logger(EntityExtractorService.name);
   private readonly claude: ClaudeClient;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
+  ) {
     const apiKey = this.configService.get<string>('ANTHROPIC_API_KEY');
     if (!apiKey) {
       this.logger.warn('ANTHROPIC_API_KEY not configured - entity extraction will fail');
@@ -402,5 +406,61 @@ export class EntityExtractorService {
 
     // This is a guess - not always accurate
     return normalized ? `${normalized}.com` : undefined;
+  }
+
+  /**
+   * Filter entities below confidence threshold
+   */
+  private filterByConfidence(
+    entities: ExtractedEntities,
+    minConfidence: number,
+  ): ExtractedEntities {
+    return {
+      ...entities,
+      companies: entities.companies?.filter(c => (c.confidence ?? 1.0) >= minConfidence) || [],
+      contacts: entities.contacts?.filter(c => (c.confidence ?? 1.0) >= minConfidence) || [],
+      amounts: entities.amounts?.filter(a => (a.confidence ?? 1.0) >= minConfidence) || [],
+      dates: entities.dates?.filter(d => (d.confidence ?? 1.0) >= minConfidence) || [],
+      addresses: entities.addresses?.filter(a => (a.confidence ?? 1.0) >= minConfidence) || [],
+      // Keep other fields unchanged
+      invoiceNumbers: entities.invoiceNumbers || [],
+      orderNumbers: entities.orderNumbers || [],
+      projectNames: entities.projectNames || [],
+      trackingNumbers: entities.trackingNumbers || [],
+      extractedAt: entities.extractedAt,
+      emailSubject: entities.emailSubject,
+      overallConfidence: entities.overallConfidence,
+    };
+  }
+
+  /**
+   * Extract entities from email with confidence threshold applied
+   */
+  async extractEntitiesWithThreshold(
+    email: EmailInput,
+    orgId: string,
+    options?: ExtractionOptions,
+  ): Promise<ExtractedEntities> {
+    // Get org-specific threshold
+    const config = await this.prisma.emailFilterConfig.findUnique({
+      where: { orgId },
+    });
+    const minConfidence = config?.minEntityConfidence ?? 0.6;
+
+    this.logger.debug(
+      `Extracting entities with confidence threshold ${minConfidence} for org ${orgId}`,
+    );
+
+    // Extract entities using existing method
+    const entities = await this.extractEntities(email, options);
+
+    // Apply confidence filtering
+    const filtered = this.filterByConfidence(entities, minConfidence);
+
+    this.logger.debug(
+      `Filtered entities: ${filtered.companies.length}/${entities.companies.length} companies, ${filtered.contacts.length}/${entities.contacts.length} contacts`,
+    );
+
+    return filtered;
   }
 }

@@ -110,7 +110,7 @@ export function CashFlowChartWidget({
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
             <CardTitle className="text-xl font-semibold flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-muted-foreground" />
+              <DollarSign className="h-5 w-5 text-gray-300" />
               Cash Flow Overview
             </CardTitle>
             <CardDescription>Track your income and expenses over time</CardDescription>
@@ -155,7 +155,7 @@ export function CashFlowChartWidget({
 
         {/* Period Selector */}
         <div className="flex items-center gap-2 pt-2">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <Calendar className="h-4 w-4 text-gray-300" />
           <Select value={period} onValueChange={(value) => setPeriod(value as TimePeriod)}>
             <SelectTrigger className="w-[180px] h-9">
               <SelectValue />
@@ -193,7 +193,7 @@ export function CashFlowChartWidget({
           <div className="flex flex-col items-center justify-center h-[350px] text-center space-y-2">
             <AlertCircle className="h-12 w-12 text-destructive" />
             <h3 className="text-lg font-semibold">Failed to load cash flow data</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-300">
               {error instanceof Error ? error.message : 'An unexpected error occurred'}
             </p>
           </div>
@@ -208,9 +208,9 @@ export function CashFlowChartWidget({
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-sm bg-green-600" />
-                  <span className="text-sm font-medium text-muted-foreground">Total Income</span>
+                  <span className="text-sm font-medium text-gray-300">Total Income</span>
                 </div>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-white">
                   {formatCurrency(data.summary.totalIncome, data.currency)}
                 </div>
               </div>
@@ -219,9 +219,9 @@ export function CashFlowChartWidget({
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-sm bg-red-600" />
-                  <span className="text-sm font-medium text-muted-foreground">Total Expenses</span>
+                  <span className="text-sm font-medium text-gray-300">Total Expenses</span>
                 </div>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-white">
                   {formatCurrency(data.summary.totalExpenses, data.currency)}
                 </div>
               </div>
@@ -230,10 +230,10 @@ export function CashFlowChartWidget({
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-sm bg-blue-600" />
-                  <span className="text-sm font-medium text-muted-foreground">Net Cash Flow</span>
+                  <span className="text-sm font-medium text-gray-300">Net Cash Flow</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold">
+                  <span className="text-2xl font-bold text-white">
                     {formatCurrency(data.summary.netCashFlow, data.currency)}
                   </span>
                   <Badge
@@ -248,7 +248,7 @@ export function CashFlowChartWidget({
                     <span>{Math.abs(data.summary.percentChange).toFixed(1)}%</span>
                   </Badge>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-300">
                   vs. previous period: {formatCurrency(data.summary.previousPeriodNet, data.currency)}
                 </p>
               </div>
@@ -269,16 +269,16 @@ export function CashFlowChartWidget({
             <div className="flex items-center justify-center gap-6 text-sm">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-sm bg-green-600" />
-                <span className="text-muted-foreground">Income</span>
+                <span className="text-gray-300">Income</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-sm bg-red-600" />
-                <span className="text-muted-foreground">Expenses</span>
+                <span className="text-gray-300">Expenses</span>
               </div>
               {chartType === 'line' && (
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-sm bg-blue-600" />
-                  <span className="text-muted-foreground">Net (dashed)</span>
+                  <span className="text-gray-300">Net (dashed)</span>
                 </div>
               )}
             </div>

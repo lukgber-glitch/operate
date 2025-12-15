@@ -129,7 +129,7 @@ export function useUpdateVendor() {
 }
 
 /**
- * Delete a vendor
+ * Delete a vendor with optimistic update
  */
 export function useDeleteVendor() {
   const queryClient = useQueryClient();
@@ -137,24 +137,57 @@ export function useDeleteVendor() {
 
   return useMutation({
     mutationFn: (id: string) => deleteVendor(id),
-    onSuccess: (_, deletedId) => {
-      // Remove from cache
-      queryClient.removeQueries({ queryKey: ['vendors', deletedId] });
+    // Optimistic update - remove from list immediately
+    onMutate: async (deletedId: string) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['vendors'] });
 
-      // Invalidate vendors list
-      queryClient.invalidateQueries({ queryKey: ['vendors'], exact: false });
+      // Snapshot previous values for rollback
+      const previousData = queryClient.getQueriesData({ queryKey: ['vendors'] });
+
+      // Optimistically remove from all vendor lists
+      queryClient.setQueriesData(
+        { queryKey: ['vendors'] },
+        (old: any) => {
+          if (old?.items) {
+            return {
+              ...old,
+              items: old.items.filter((vendor: any) => vendor.id !== deletedId),
+              total: old.total - 1,
+            };
+          }
+          return old;
+        }
+      );
+
+      return { previousData };
+    },
+    onSuccess: (_, deletedId) => {
+      // Remove individual vendor cache
+      queryClient.removeQueries({ queryKey: ['vendors', deletedId] });
 
       toast({
         title: 'Vendor deleted',
         description: 'The vendor has been permanently deleted.',
       });
     },
-    onError: (error: Error) => {
+    onError: (error: Error, _, context) => {
+      // Rollback on error
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
       toast({
         title: 'Failed to delete vendor',
         description: error.message || 'An unexpected error occurred.',
         variant: 'destructive',
       });
+    },
+    onSettled: () => {
+      // Refetch to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ['vendors'], exact: false });
     },
   });
 }

@@ -374,11 +374,11 @@ export default function RecurringInvoiceDetailPage({ params }: { params: { id: s
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <div className="text-2xl font-bold">{invoice.generatedCount}</div>
+                <div className="text-2xl text-white font-bold">{invoice.generatedCount}</div>
                 <div className="text-sm text-muted-foreground">Total Generated</div>
               </div>
               <div>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl text-white font-bold">
                   {formatCurrency(invoice.totalAmount * invoice.generatedCount, invoice.currency)}
                 </div>
                 <div className="text-sm text-muted-foreground">Total Value</div>

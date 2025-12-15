@@ -335,12 +335,37 @@ const fetchDocumentStats = async (_filters: ReportFilters): Promise<DocumentStat
   }
 };
 
-// Custom hooks for each report type
+// Cache configuration for different report types
+const REPORT_CACHE_CONFIG = {
+  financial: {
+    staleTime: 5 * 60 * 1000, // 5 minutes - financial data updates frequently
+    gcTime: 30 * 60 * 1000, // 30 minutes cache retention
+  },
+  tax: {
+    staleTime: 15 * 60 * 1000, // 15 minutes - tax data is more stable
+    gcTime: 60 * 60 * 1000, // 1 hour cache retention
+  },
+  clients: {
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 30 * 60 * 1000,
+  },
+  documents: {
+    staleTime: 5 * 60 * 1000, // 5 minutes - document stats can change often
+    gcTime: 30 * 60 * 1000,
+  },
+} as const;
+
+// Custom hooks for each report type with optimized caching
 export function useFinancialReport(filters: ReportFilters) {
   return useQuery({
     queryKey: ['financial-report', filters],
     queryFn: () => fetchFinancialReport(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: REPORT_CACHE_CONFIG.financial.staleTime,
+    gcTime: REPORT_CACHE_CONFIG.financial.gcTime,
+    placeholderData: (previousData) => previousData, // Keep showing old data while fetching
+    refetchOnWindowFocus: false, // Don't refetch on tab switch - reports don't need real-time updates
+    retry: 2, // Retry failed requests twice
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 }
 
@@ -348,7 +373,12 @@ export function useTaxReport(filters: ReportFilters) {
   return useQuery({
     queryKey: ['tax-report', filters],
     queryFn: () => fetchTaxReport(filters),
-    staleTime: 5 * 60 * 1000,
+    staleTime: REPORT_CACHE_CONFIG.tax.staleTime,
+    gcTime: REPORT_CACHE_CONFIG.tax.gcTime,
+    placeholderData: (previousData) => previousData,
+    refetchOnWindowFocus: false,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 }
 
@@ -356,7 +386,12 @@ export function useClientMetrics(filters: ReportFilters) {
   return useQuery({
     queryKey: ['client-metrics', filters],
     queryFn: () => fetchClientMetrics(filters),
-    staleTime: 5 * 60 * 1000,
+    staleTime: REPORT_CACHE_CONFIG.clients.staleTime,
+    gcTime: REPORT_CACHE_CONFIG.clients.gcTime,
+    placeholderData: (previousData) => previousData,
+    refetchOnWindowFocus: false,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 }
 
@@ -364,7 +399,12 @@ export function useDocumentStats(filters: ReportFilters) {
   return useQuery({
     queryKey: ['document-stats', filters],
     queryFn: () => fetchDocumentStats(filters),
-    staleTime: 5 * 60 * 1000,
+    staleTime: REPORT_CACHE_CONFIG.documents.staleTime,
+    gcTime: REPORT_CACHE_CONFIG.documents.gcTime,
+    placeholderData: (previousData) => previousData,
+    refetchOnWindowFocus: false,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
   });
 }
 

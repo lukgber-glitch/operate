@@ -78,7 +78,8 @@ export function RecordPaymentDialog({
 
   const onSubmit = async (data: PaymentFormValues) => {
     try {
-      // TODO: Call payment recording API      toast({
+      // TODO: Call payment recording API
+      toast({
         title: 'Payment recorded',
         description: 'The payment has been recorded successfully.',
       });

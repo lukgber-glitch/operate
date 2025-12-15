@@ -3,9 +3,6 @@
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 
 export function OnboardingPageClient() {
-  return (
-    <div className="w-full py-8">
-      <OnboardingWizard />
-    </div>
-  );
+  // Remove wrapper - OnboardingWizard handles its own spacing
+  return <OnboardingWizard />;
 }

@@ -17,8 +17,12 @@ import { RelationshipTrackerService } from './relationship-tracker.service';
 import { EmailSuggestionsService } from './email-suggestions.service';
 import { EmailAggregatorService } from './email-aggregator.service';
 import { BillCreatorService } from './bill-creator.service';
+import { EmailFilterService } from './email-filter.service';
+import { EmailFilterController } from './email-filter.controller';
 import { EmailIntelligenceController } from './email-intelligence.controller';
 import { EmailAggregationProcessor } from './jobs/email-aggregation.processor';
+import { ReviewQueueService } from './review-queue.service';
+import { ReviewQueueController } from './review-queue.controller';
 
 @Module({
   imports: [
@@ -28,7 +32,11 @@ import { EmailAggregationProcessor } from './jobs/email-aggregation.processor';
       name: 'email-intelligence',
     }),
   ],
-  controllers: [EmailIntelligenceController],
+  controllers: [
+    EmailIntelligenceController,
+    EmailFilterController,
+    ReviewQueueController,
+  ],
   providers: [
     EmailClassifierService,
     EntityExtractorService,
@@ -40,7 +48,9 @@ import { EmailAggregationProcessor } from './jobs/email-aggregation.processor';
     EmailSuggestionsService,
     EmailAggregatorService,
     BillCreatorService,
+    EmailFilterService,
     EmailAggregationProcessor,
+    ReviewQueueService,
   ],
   exports: [
     EmailClassifierService,
@@ -53,6 +63,8 @@ import { EmailAggregationProcessor } from './jobs/email-aggregation.processor';
     EmailSuggestionsService,
     EmailAggregatorService,
     BillCreatorService,
+    EmailFilterService,
+    ReviewQueueService,
   ],
 })
 export class EmailIntelligenceModule {}

@@ -13,69 +13,73 @@ const pricingTiers: PricingTier[] = [
     name: 'Free',
     monthlyPrice: 0,
     annualPrice: 0,
-    description: 'Perfect for trying out Operate',
+    description: 'Perfekt zum Ausprobieren von Operate',
     features: [
-      '1 bank connection',
-      '50 AI messages per month',
-      'Basic financial reports',
-      'Manual transaction entry',
-      'Community support',
+      '1 Bankverbindung',
+      '50 AI-Nachrichten pro Monat',
+      '5 Rechnungen pro Monat',
+      'Basis-Ausgabenverfolgung',
+      'Community-Support',
     ],
-    cta: 'Get Started',
+    cta: 'Kostenlos starten',
     ctaLink: '/auth/signup',
     highlighted: false,
   },
   {
     name: 'Starter',
-    monthlyPrice: 19,
-    annualPrice: 190,
-    description: 'For freelancers and solo entrepreneurs',
+    monthlyPrice: 9.90,
+    annualPrice: 95,
+    description: 'Für Freelancer und Einzelunternehmer',
     features: [
-      '3 bank connections',
-      '500 AI messages per month',
-      'Email invoice sync',
-      'Invoicing & quotes',
-      'Advanced reports',
-      'Email support',
+      '3 Bankverbindungen',
+      '200 AI-Nachrichten pro Monat',
+      'Unbegrenzte Rechnungen',
+      'E-Mail-Rechnungssynchronisierung',
+      'Basis-Berichte',
+      'DATEV-Export',
+      'E-Mail-Support',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Jetzt starten',
     ctaLink: '/auth/signup?plan=starter',
     highlighted: false,
   },
   {
     name: 'Pro',
-    monthlyPrice: 39,
-    annualPrice: 390,
-    description: 'For small businesses',
+    monthlyPrice: 19.90,
+    annualPrice: 190,
+    description: 'Für kleine Unternehmen',
+    badge: 'Am beliebtesten',
     features: [
-      '10 bank connections',
-      'Unlimited AI messages',
-      'Tax filing assistance',
-      'Cash flow predictions',
-      'Document search',
-      'Up to 3 team members',
-      'Priority email support',
+      '10 Bankverbindungen',
+      'Unbegrenzte AI-Nachrichten',
+      'Steuererklärung (UStVA, EÜR)',
+      'Cashflow-Prognosen',
+      'Dokument-OCR-Scanning',
+      'Erweiterte Berichte (BWA)',
+      'Bis zu 3 Teammitglieder',
+      'Prioritäts-Support',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Jetzt starten',
     ctaLink: '/auth/signup?plan=pro',
     highlighted: true,
   },
   {
     name: 'Business',
-    monthlyPrice: 69,
-    annualPrice: 690,
-    description: 'For growing teams',
+    monthlyPrice: 39.90,
+    annualPrice: 380,
+    description: 'Für wachsende Teams',
     features: [
-      'Unlimited bank connections',
-      'Unlimited AI messages',
-      'Everything in Pro',
-      'Unlimited team members',
-      'API access',
-      'Custom integrations',
-      'Priority support & onboarding',
+      'Unbegrenzte Bankverbindungen',
+      'Unbegrenzte AI-Nachrichten',
+      'Alle Pro-Funktionen',
+      'Unbegrenzte Teammitglieder',
+      'API-Zugang',
+      'Individuelle Integrationen',
+      'Multi-Währungsunterstützung',
+      'Dedizierter Support',
     ],
-    cta: 'Contact Sales',
-    ctaLink: 'mailto:sales@operate.guru',
+    cta: 'Jetzt starten',
+    ctaLink: '/auth/signup?plan=business',
     highlighted: false,
   },
 ];
@@ -133,15 +137,15 @@ export default function PricingPage() {
           className="text-5xl md:text-6xl font-bold mb-6"
           style={{ color: 'var(--color-text-primary)' }}
         >
-          Simple, transparent pricing
+          Einfache, transparente Preise
         </h1>
         <p
           className="text-xl md:text-2xl mb-8"
           style={{ color: 'var(--color-text-secondary)' }}
         >
-          Choose the plan that's right for your business.
+          Wählen Sie den Plan, der zu Ihrem Unternehmen passt.
           <br />
-          Start with a 14-day free trial, no credit card required.
+          Starten Sie mit einer 14-tägigen kostenlosen Testversion, keine Kreditkarte erforderlich.
         </p>
       </div>
 
@@ -151,11 +155,21 @@ export default function PricingPage() {
       {/* Pricing Cards */}
       <div
         ref={cardsContainerRef}
-        className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-24"
+        className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8"
       >
         {pricingTiers.map((tier, index) => (
           <PricingCard key={tier.name} tier={tier} isAnnual={isAnnual} index={index} />
         ))}
+      </div>
+
+      {/* VAT Note */}
+      <div className="max-w-7xl mx-auto text-center mb-24">
+        <p
+          className="text-sm"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
+          Alle Preise zzgl. MwSt.
+        </p>
       </div>
 
       {/* Feature Comparison */}
@@ -174,13 +188,13 @@ export default function PricingPage() {
             className="text-3xl md:text-4xl font-bold mb-4"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            Ready to automate your business?
+            Bereit, Ihr Geschäft zu automatisieren?
           </h2>
           <p
             className="text-lg md:text-xl mb-8"
             style={{ color: 'var(--color-text-secondary)' }}
           >
-            Join thousands of businesses already using Operate to save time and money.
+            Schließen Sie sich Tausenden von Unternehmen an, die bereits Operate nutzen, um Zeit und Geld zu sparen.
           </p>
           <a
             href="/auth/signup"
@@ -189,7 +203,7 @@ export default function PricingPage() {
               backgroundColor: 'var(--color-primary)',
             }}
           >
-            Start Your Free Trial
+            Kostenlose Testversion starten
           </a>
         </div>
       </div>

@@ -1,6 +1,8 @@
 'use client';
 
 import { use } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/animation-variants';
 import { VATReturnWizard } from '@/components/tax/uk/VATReturnWizard';
 import { useHMRCConnection } from '@/hooks/useHMRC';
 import { Button } from '@/components/ui/button';
@@ -76,7 +78,12 @@ export default function UKVATPeriodPage({ params }: PageProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex items-center gap-4"
+      >
         <Link href="/tax/vat/uk">
           <Button variant="ghost" size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -89,10 +96,17 @@ export default function UKVATPeriodPage({ params }: PageProps) {
             Period: {periodKey}
           </p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Wizard */}
-      <VATReturnWizard initialPeriodKey={periodKey} onComplete={handleComplete} />
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+      >
+        <VATReturnWizard initialPeriodKey={periodKey} onComplete={handleComplete} />
+      </motion.div>
     </div>
   );
 }

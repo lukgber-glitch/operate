@@ -11,18 +11,20 @@ interface FooterLink {
 }
 
 const legalLinks: FooterLink[] = [
-  { label: 'Terms of Service', href: '/legal/terms' },
-  { label: 'Privacy Policy', href: '/legal/privacy' },
-  { label: 'Cookie Policy', href: '/legal/cookies' },
-  { label: 'AI Disclaimer', href: '/legal/ai-disclaimer' },
-  { label: 'Impressum', href: '/legal/impressum' },
+  { label: 'Terms of Service', href: '/terms' },
+  { label: 'Privacy Policy', href: '/privacy' },
+  { label: 'Payment Terms', href: '/payment-terms' },
+  { label: 'Cookie Policy', href: '/cookies' },
+  { label: 'AI Disclaimer', href: '/ai-disclaimer' },
+  { label: 'DPA', href: '/dpa' },
+  { label: 'Impressum', href: '/impressum' },
 ];
 
 const footerLinks: FooterLink[] = [
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
-  { label: 'Help Center', href: '/help' },
-  { label: 'Status', href: 'https://status.operate.guru', external: true },
+  { label: 'FAQ', href: '/faq' },
+  { label: 'Pricing', href: '/pricing' },
+  { label: 'Acceptable Use', href: '/acceptable-use' },
+  { label: 'Contact', href: 'mailto:support@operate.guru', external: true },
 ];
 
 export function Footer() {
@@ -99,21 +101,21 @@ export function Footer() {
 
           <div className="flex items-center gap-4">
             <a
-              href="/legal/privacy"
+              href="/privacy"
               className="hover:text-foreground transition-colors hover:underline"
             >
               Privacy
             </a>
             <span aria-hidden="true">•</span>
             <a
-              href="/legal/terms"
+              href="/terms"
               className="hover:text-foreground transition-colors hover:underline"
             >
               Terms
             </a>
             <span aria-hidden="true">•</span>
             <a
-              href="/legal/cookies"
+              href="/cookies"
               className="hover:text-foreground transition-colors hover:underline"
             >
               Cookies

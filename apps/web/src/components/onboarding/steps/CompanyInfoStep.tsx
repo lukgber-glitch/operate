@@ -111,12 +111,12 @@ export function CompanyInfoStep() {
         <div className="space-y-6">
           {/* Company Name */}
           <div className="space-y-2">
-            <Label htmlFor="companyName" className="text-white">
-              Company Name <span className="text-destructive">*</span>
+            <Label htmlFor="companyName" className="sr-only">
+              Company Name
             </Label>
             <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
               id="companyName"
-              placeholder="e.g., Acme GmbH"
+              placeholder="Company Name *"
               {...register('companyInfo.name', {
                 required: 'Company name is required',
               })}
@@ -132,15 +132,15 @@ export function CompanyInfoStep() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Country */}
             <div className="space-y-2">
-              <Label htmlFor="country" className="text-white">
-                Country <span className="text-destructive">*</span>
+              <Label htmlFor="country" className="sr-only">
+                Country
               </Label>
               <Select
                 value={selectedCountry}
                 onValueChange={(value) => setValue('companyInfo.country', value)}
               >
                 <SelectTrigger id="country">
-                  <SelectValue placeholder="Select country" />
+                  <SelectValue placeholder="Country *" />
                 </SelectTrigger>
                 <SelectContent>
                   {COUNTRIES.map((country) => (
@@ -159,15 +159,15 @@ export function CompanyInfoStep() {
 
             {/* Legal Form */}
             <div className="space-y-2">
-              <Label htmlFor="legalForm" className="text-white">
-                Legal Form <span className="text-destructive">*</span>
+              <Label htmlFor="legalForm" className="sr-only">
+                Legal Form
               </Label>
               <Select
                 value={selectedLegalForm}
                 onValueChange={(value) => setValue('companyInfo.legalForm', value)}
               >
                 <SelectTrigger id="legalForm">
-                  <SelectValue placeholder="Select legal form" />
+                  <SelectValue placeholder="Legal Form *" />
                 </SelectTrigger>
                 <SelectContent>
                   {LEGAL_FORMS.map((form) => (
@@ -187,12 +187,12 @@ export function CompanyInfoStep() {
 
           {/* Tax ID */}
           <div className="space-y-2">
-            <Label htmlFor="taxId" className="text-white">
-              Tax ID / VAT Number <span className="text-destructive">*</span>
+            <Label htmlFor="taxId" className="sr-only">
+              Tax ID / VAT Number
             </Label>
             <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
               id="taxId"
-              placeholder="e.g., DE123456789"
+              placeholder="Tax ID / VAT Number *"
               {...register('companyInfo.taxId', {
                 required: 'Tax ID is required',
               })}
@@ -209,15 +209,15 @@ export function CompanyInfoStep() {
 
           {/* Industry */}
           <div className="space-y-2">
-            <Label htmlFor="industry" className="text-white">
-              Industry <span className="text-destructive">*</span>
+            <Label htmlFor="industry" className="sr-only">
+              Industry
             </Label>
             <Select
               value={selectedIndustry}
               onValueChange={(value) => setValue('companyInfo.industry', value)}
             >
               <SelectTrigger id="industry">
-                <SelectValue placeholder="Select industry" />
+                <SelectValue placeholder="Industry *" />
               </SelectTrigger>
               <SelectContent>
                 {INDUSTRIES.map((industry) => (
@@ -234,6 +234,40 @@ export function CompanyInfoStep() {
             )}
           </div>
 
+          {/* Business Model Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="businessModel" className="sr-only">
+              Who are your customers?
+            </Label>
+            <Select
+              value={watch('companyInfo.businessModel') || ''}
+              onValueChange={(value) => setValue('companyInfo.businessModel', value)}
+            >
+              <SelectTrigger id="businessModel">
+                <SelectValue placeholder="Who are your customers? *" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="B2B">
+                  Other Businesses (B2B)
+                </SelectItem>
+                <SelectItem value="B2C">
+                  Individual Consumers (B2C)
+                </SelectItem>
+                <SelectItem value="HYBRID">
+                  Both Businesses & Consumers
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-white/60">
+              This helps us customize how we process your business emails
+            </p>
+            {errors.companyInfo && typeof errors.companyInfo === 'object' && 'businessModel' in errors.companyInfo && errors.companyInfo.businessModel && (
+              <p className="text-sm text-destructive">
+                {(errors.companyInfo.businessModel as { message?: string }).message}
+              </p>
+            )}
+          </div>
+
           {/* Address Section */}
           <div className="space-y-4 pt-6">
             <h4 className="text-sm font-medium text-white">Business Address</h4>
@@ -241,12 +275,12 @@ export function CompanyInfoStep() {
             {/* Street and Number */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="street" className="text-white">
-                  Street <span className="text-destructive">*</span>
+                <Label htmlFor="street" className="sr-only">
+                  Street
                 </Label>
                 <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="street"
-                  placeholder="e.g., Hauptstraße"
+                  placeholder="Street *"
                   {...register('companyInfo.address.street', {
                     required: 'Street is required',
                   })}
@@ -259,12 +293,12 @@ export function CompanyInfoStep() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="streetNumber" className="text-white">
-                  Number <span className="text-destructive">*</span>
+                <Label htmlFor="streetNumber" className="sr-only">
+                  Number
                 </Label>
                 <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="streetNumber"
-                  placeholder="e.g., 123"
+                  placeholder="No. *"
                   {...register('companyInfo.address.streetNumber', {
                     required: 'Street number is required',
                   })}
@@ -280,12 +314,12 @@ export function CompanyInfoStep() {
             {/* Postal Code and City */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="postalCode" className="text-white">
-                  Postal Code <span className="text-destructive">*</span>
+                <Label htmlFor="postalCode" className="sr-only">
+                  Postal Code
                 </Label>
                 <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="postalCode"
-                  placeholder="e.g., 10115"
+                  placeholder="Postal Code *"
                   {...register('companyInfo.address.postalCode', {
                     required: 'Postal code is required',
                   })}
@@ -298,12 +332,12 @@ export function CompanyInfoStep() {
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="city" className="text-white">
-                  City <span className="text-destructive">*</span>
+                <Label htmlFor="city" className="sr-only">
+                  City
                 </Label>
                 <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="city"
-                  placeholder="e.g., Berlin"
+                  placeholder="City *"
                   {...register('companyInfo.address.city', {
                     required: 'City is required',
                   })}
@@ -324,13 +358,13 @@ export function CompanyInfoStep() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Business Email */}
               <div className="space-y-2">
-                <Label htmlFor="businessEmail" className="text-white">
-                  Business Email <span className="text-destructive">*</span>
+                <Label htmlFor="businessEmail" className="sr-only">
+                  Business Email
                 </Label>
                 <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="businessEmail"
                   type="email"
-                  placeholder="e.g., info@company.com"
+                  placeholder="Business Email *"
                   {...register('companyInfo.businessEmail', {
                     required: 'Business email is required',
                   })}
@@ -344,13 +378,13 @@ export function CompanyInfoStep() {
 
               {/* Business Phone */}
               <div className="space-y-2">
-                <Label htmlFor="businessPhone" className="text-white">
-                  Business Phone <span className="text-destructive">*</span>
+                <Label htmlFor="businessPhone" className="sr-only">
+                  Business Phone
                 </Label>
                 <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
                   id="businessPhone"
                   type="tel"
-                  placeholder="e.g., +49 30 123456"
+                  placeholder="Business Phone *"
                   {...register('companyInfo.businessPhone', {
                     required: 'Business phone is required',
                   })}
@@ -371,15 +405,15 @@ export function CompanyInfoStep() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Currency */}
               <div className="space-y-2">
-                <Label htmlFor="currency" className="text-white">
-                  Currency <span className="text-destructive">*</span>
+                <Label htmlFor="currency" className="sr-only">
+                  Currency
                 </Label>
                 <Select
                   value={selectedCurrency}
                   onValueChange={(value) => setValue('companyInfo.currency', value)}
                 >
                   <SelectTrigger id="currency">
-                    <SelectValue placeholder="Select currency" />
+                    <SelectValue placeholder="Currency *" />
                   </SelectTrigger>
                   <SelectContent>
                     {CURRENCIES.map((currency) => (
@@ -398,15 +432,15 @@ export function CompanyInfoStep() {
 
               {/* Fiscal Year Start */}
               <div className="space-y-2">
-                <Label htmlFor="fiscalYearStart" className="text-white">
-                  Fiscal Year Starts <span className="text-destructive">*</span>
+                <Label htmlFor="fiscalYearStart" className="sr-only">
+                  Fiscal Year Starts
                 </Label>
                 <Select
                   value={selectedFiscalYearStart}
                   onValueChange={(value) => setValue('companyInfo.fiscalYearStart', value)}
                 >
                   <SelectTrigger id="fiscalYearStart">
-                    <SelectValue placeholder="Select month" />
+                    <SelectValue placeholder="Fiscal Year Starts *" />
                   </SelectTrigger>
                   <SelectContent>
                     {FISCAL_YEAR_MONTHS.map((month) => (

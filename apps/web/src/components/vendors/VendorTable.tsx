@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useCallback, useMemo, memo } from 'react';
 
 import {
   AlertDialog,
@@ -58,12 +58,25 @@ export interface VendorTableProps {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   onSortChange: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
+  onPrefetch?: (id: string) => void;
 }
 
 const statusVariants: Record<VendorStatus, string> = {
   ACTIVE: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
   INACTIVE: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
   BLOCKED: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+};
+
+// Memoized currency formatter for performance
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'EUR',
+});
+
+// Format currency helper (using cached formatter)
+const formatCurrency = (amount?: number): string => {
+  if (amount === undefined || amount === null) return '-';
+  return currencyFormatter.format(amount);
 };
 
 export function VendorTable({
@@ -76,24 +89,34 @@ export function VendorTable({
   sortBy = 'name',
   sortOrder = 'asc',
   onSortChange,
+  onPrefetch,
 }: VendorTableProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [deleteVendorId, setDeleteVendorId] = useState<string | null>(null);
 
-  const totalPages = Math.ceil(total / pageSize);
-  const startIndex = (page - 1) * pageSize + 1;
-  const endIndex = Math.min(page * pageSize, total);
+  const totalPages = useMemo(() => Math.ceil(total / pageSize), [total, pageSize]);
+  const startIndex = useMemo(() => (page - 1) * pageSize + 1, [page, pageSize]);
+  const endIndex = useMemo(() => Math.min(page * pageSize, total), [page, pageSize, total]);
 
-  const handleSort = (column: string) => {
+  // Prefetch handler for hover optimization
+  const handleRowHover = useCallback((vendorId: string) => {
+    if (onPrefetch) {
+      onPrefetch(vendorId);
+    }
+  }, [onPrefetch]);
+
+  // Memoized sort handler to prevent unnecessary re-renders
+  const handleSort = useCallback((column: string) => {
     if (sortBy === column) {
       onSortChange(column, sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
       onSortChange(column, 'asc');
     }
-  };
+  }, [sortBy, sortOrder, onSortChange]);
 
-  const handleDelete = async () => {
+  // Memoized delete handler
+  const handleDelete = useCallback(async () => {
     if (!deleteVendorId) return;
 
     try {
@@ -102,15 +125,12 @@ export function VendorTable({
     } catch (error) {
       console.error('Error deleting vendor:', error);
     }
-  };
+  }, [deleteVendorId, onDelete]);
 
-  const formatCurrency = (amount?: number) => {
-    if (amount === undefined || amount === null) return '-';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(amount);
-  };
+  // Memoized delete trigger handler
+  const handleDeleteTrigger = useCallback((id: string) => {
+    setDeleteVendorId(id);
+  }, []);
 
   return (
     <>
@@ -163,6 +183,7 @@ export function VendorTable({
                       if ((e.target as HTMLElement).closest('button')) return;
                       router.push(`/vendors/${vendor.id}`);
                     }}
+                    onMouseEnter={() => handleRowHover(vendor.id)}
                   >
                     <TableCell className="font-medium">
                       <div>

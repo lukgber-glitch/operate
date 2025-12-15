@@ -1,5 +1,5 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsBoolean, IsOptional } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
  * Login request DTO
@@ -23,4 +23,13 @@ export class LoginDto {
   @IsNotEmpty({ message: 'Password is required' })
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
   password: string;
+
+  @ApiPropertyOptional({
+    description: 'Remember me for 30 days',
+    example: false,
+    default: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  rememberMe?: boolean;
 }

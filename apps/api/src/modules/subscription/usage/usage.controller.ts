@@ -16,6 +16,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { UsageMeteringService } from './services/usage-metering.service';
 import { UsageStripeService } from './services/usage-stripe.service';
 import { UsageLimitService } from './services/usage-limit.service';
@@ -38,6 +39,7 @@ import { PrismaService } from '../../database/prisma.service';
  * Endpoints:
  * - POST /usage/track - Track a usage event
  * - POST /usage/bulk-track - Track multiple usage events
+ * - GET /usage/limits - Get usage limits for current user (auto-detects org from JWT)
  * - GET /usage/:orgId - Get current usage summary
  * - GET /usage/:orgId/history - Get usage history
  * - GET /usage/:orgId/estimate - Get estimated costs
@@ -87,6 +89,107 @@ export class UsageController {
       dto.organizationId,
       dto.events,
     );
+  }
+
+  /**
+   * Get usage limits for current user's organization
+   * Frontend-friendly endpoint that extracts orgId from JWT
+   */
+  @Get('limits')
+  @ApiOperation({
+    summary: 'Get usage limits for current user (auto-detects organization from JWT)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Usage limits retrieved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        aiMessages: {
+          type: 'object',
+          properties: {
+            used: { type: 'number' },
+            limit: { type: 'number' },
+            percentage: { type: 'number' },
+          },
+        },
+        bankConnections: {
+          type: 'object',
+          properties: {
+            used: { type: 'number' },
+            limit: { type: 'number' },
+            percentage: { type: 'number' },
+          },
+        },
+        invoices: {
+          type: 'object',
+          properties: {
+            used: { type: 'number' },
+            limit: { type: 'number' },
+            percentage: { type: 'number' },
+          },
+        },
+        plan: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            tier: { type: 'string', enum: ['free', 'starter', 'pro', 'enterprise'] },
+          },
+        },
+      },
+    },
+  })
+  async getCurrentUserLimits(@CurrentUser() user: any): Promise<{
+    aiMessages: { used: number; limit: number; percentage: number };
+    bankConnections: { used: number; limit: number; percentage: number };
+    invoices: { used: number; limit: number; percentage: number };
+    plan: { name: string; tier: string };
+  }> {
+    const orgId = user.organisationId;
+
+    // Get limits from the service
+    const limitsData = await this.usageLimitService.getLimits(orgId);
+
+    // Transform backend format to frontend format
+    const aiMessages = limitsData.limits.find(l => l.feature === 'AI_MESSAGES') || {
+      current: 0,
+      limit: 0,
+      percentage: 0,
+    };
+
+    const bankConnections = limitsData.limits.find(l => l.feature === 'BANK_CONNECTIONS') || {
+      current: 0,
+      limit: 0,
+      percentage: 0,
+    };
+
+    const invoices = limitsData.limits.find(l => l.feature === 'INVOICES') || {
+      current: 0,
+      limit: 0,
+      percentage: 0,
+    };
+
+    return {
+      aiMessages: {
+        used: aiMessages.current,
+        limit: aiMessages.limit,
+        percentage: Math.round(aiMessages.percentage),
+      },
+      bankConnections: {
+        used: bankConnections.current,
+        limit: bankConnections.limit,
+        percentage: Math.round(bankConnections.percentage),
+      },
+      invoices: {
+        used: invoices.current,
+        limit: invoices.limit,
+        percentage: Math.round(invoices.percentage),
+      },
+      plan: {
+        name: limitsData.tier,
+        tier: limitsData.tier.toLowerCase(),
+      },
+    };
   }
 
   /**

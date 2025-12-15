@@ -1,0 +1,16 @@
+VERIFY AGENT LAUNCH
+
+Task File: .claude/tasks/verify_final_browser_test.md
+
+Instructions:
+1. Read the task file completely
+2. Test all 11 pages as specified
+3. Create VERIFY_FINAL_TEST_REPORT.json
+4. End with completion signal
+
+Working Directory: /c/Users/grube/op/operate-fresh
+Servers:
+- Web: http://localhost:3005 (running)
+- API: http://localhost:3001 (running)
+
+Launch now.

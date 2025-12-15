@@ -7,6 +7,8 @@ import {
 import { OnboardingStepStatus } from '@prisma/client';
 import { OnboardingRepository } from './onboarding.repository';
 import { OnboardingProgressDto, CompleteStepDto, UpdateProgressDto } from './dto';
+import { PrismaService } from '../database/prisma.service';
+import { EmailFilterService } from '../ai/email-intelligence/email-filter.service';
 
 /**
  * Onboarding service - handles business logic for user/organization onboarding
@@ -50,7 +52,11 @@ export class OnboardingService {
     },
   };
 
-  constructor(private readonly repository: OnboardingRepository) {}
+  constructor(
+    private readonly repository: OnboardingRepository,
+    private readonly prisma: PrismaService,
+    private readonly emailFilterService: EmailFilterService,
+  ) {}
 
   /**
    * Get onboarding progress for an organization
@@ -102,6 +108,10 @@ export class OnboardingService {
           OnboardingStepStatus.COMPLETED,
           data,
         );
+        // Update organisation business context and create email filter config
+        if (data) {
+          await this.updateOrganisationBusinessContext(orgId, data);
+        }
         break;
       case 'banking':
         updatedProgress = await this.repository.updateBankingStep(
@@ -257,6 +267,10 @@ export class OnboardingService {
     }
 
     const updatedProgress = await this.repository.markComplete(orgId);
+
+    // Sync all onboarding data to Organisation record
+    await this.syncOnboardingDataToOrganisation(orgId);
+
     return this.mapToDto(updatedProgress);
   }
 
@@ -364,5 +378,143 @@ export class OnboardingService {
     if (progress.accountingStatus === OnboardingStepStatus.COMPLETED) count++;
     if (progress.preferencesStatus === OnboardingStepStatus.COMPLETED) count++;
     return count;
+  }
+
+  /**
+   * Update organisation with business context from onboarding
+   */
+  private async updateOrganisationBusinessContext(
+    orgId: string,
+    data: Record<string, any>,
+  ): Promise<void> {
+    // Update organisation with business context
+    await this.prisma.organisation.update({
+      where: { id: orgId },
+      data: {
+        industry: data.industry || null,
+        businessModel: data.businessModel || 'B2B',
+        targetCustomerType: data.targetCustomerType || 'BUSINESS',
+      },
+    });
+
+    // Create default email filter config based on business model
+    try {
+      await this.emailFilterService.createDefaultConfig(
+        orgId,
+        data.businessModel || 'B2B',
+      );
+    } catch (error) {
+      // Config might already exist, that's fine
+      console.log(`Email filter config may already exist for org ${orgId}`);
+    }
+  }
+
+  /**
+   * Sync all onboarding data to Organisation record
+   * Called when onboarding is completed to ensure Organisation has all collected data
+   */
+  private async syncOnboardingDataToOrganisation(orgId: string): Promise<void> {
+    try {
+      const progress = await this.repository.findByOrgId(orgId);
+      if (!progress) {
+        console.log(`No onboarding progress found for org ${orgId}, skipping sync`);
+        return;
+      }
+
+      const companyInfo = progress.companyInfoData as Record<string, any> | null;
+      const preferences = progress.preferencesData as Record<string, any> | null;
+      const taxData = progress.taxData as Record<string, any> | null;
+
+      // If no data in any step, skip sync
+      if (!companyInfo && !preferences && !taxData) {
+        console.log(`No onboarding data to sync for org ${orgId}`);
+        return;
+      }
+
+      // Build update object with only defined values
+      const updateData: Record<string, any> = {};
+
+      // Sync company info fields
+      if (companyInfo) {
+        // Basic fields
+        if (companyInfo.name) updateData.name = companyInfo.name;
+        if (companyInfo.country) updateData.country = companyInfo.country;
+        if (companyInfo.currency) updateData.currency = companyInfo.currency;
+
+        // Business context (already synced in updateOrganisationBusinessContext, but include for completeness)
+        if (companyInfo.industry) updateData.industry = companyInfo.industry;
+        if (companyInfo.businessModel) updateData.businessModel = companyInfo.businessModel;
+        if (companyInfo.targetCustomerType) updateData.targetCustomerType = companyInfo.targetCustomerType;
+
+        // Company type and VAT scheme (enums - stored as strings in DB)
+        if (companyInfo.companyType) updateData.companyType = companyInfo.companyType;
+        if (companyInfo.vatScheme) updateData.vatScheme = companyInfo.vatScheme;
+
+        // Registration and tax numbers
+        if (companyInfo.companyRegistrationNumber) {
+          updateData.companyRegistrationNumber = companyInfo.companyRegistrationNumber;
+        }
+        if (companyInfo.vatNumber) updateData.vatNumber = companyInfo.vatNumber;
+        if (companyInfo.utrNumber) updateData.utrNumber = companyInfo.utrNumber;
+        if (companyInfo.payeReference) updateData.payeReference = companyInfo.payeReference;
+        if (companyInfo.taxRegistrationNumber) {
+          updateData.taxRegistrationNumber = companyInfo.taxRegistrationNumber;
+        }
+        if (companyInfo.commercialRegistration) {
+          updateData.commercialRegistration = companyInfo.commercialRegistration;
+        }
+        if (companyInfo.tradeLicenseNumber) {
+          updateData.tradeLicenseNumber = companyInfo.tradeLicenseNumber;
+        }
+      }
+
+      // Sync preferences
+      if (preferences) {
+        if (preferences.timezone) updateData.timezone = preferences.timezone;
+
+        // Use preferences currency as fallback if not set from company info
+        if (preferences.currency && !updateData.currency) {
+          updateData.currency = preferences.currency;
+        }
+
+        // Store additional preferences in settings JSON field
+        if (preferences.language || preferences.dateFormat || preferences.numberFormat) {
+          const existingSettings = updateData.settings || {};
+          updateData.settings = {
+            ...existingSettings,
+            ...(preferences.language && { language: preferences.language }),
+            ...(preferences.dateFormat && { dateFormat: preferences.dateFormat }),
+            ...(preferences.numberFormat && { numberFormat: preferences.numberFormat }),
+          };
+        }
+      }
+
+      // Sync tax data (fallback for tax IDs if not in company info)
+      if (taxData) {
+        if (taxData.vatNumber && !updateData.vatNumber) {
+          updateData.vatNumber = taxData.vatNumber;
+        }
+        if (taxData.taxRegistrationNumber && !updateData.taxRegistrationNumber) {
+          updateData.taxRegistrationNumber = taxData.taxRegistrationNumber;
+        }
+        if (taxData.utrNumber && !updateData.utrNumber) {
+          updateData.utrNumber = taxData.utrNumber;
+        }
+      }
+
+      // Only update if we have data to sync
+      if (Object.keys(updateData).length > 0) {
+        await this.prisma.organisation.update({
+          where: { id: orgId },
+          data: updateData,
+        });
+        console.log(`Successfully synced onboarding data to organisation ${orgId}`);
+      } else {
+        console.log(`No fields to sync for organisation ${orgId}`);
+      }
+    } catch (error) {
+      // Log but don't throw - onboarding should complete even if sync fails
+      console.error(`Failed to sync onboarding data to organisation ${orgId}:`, error);
+    }
   }
 }

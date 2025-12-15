@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { formatCurrency } from '@/hooks/useCashFlowData';
 import { cn } from '@/lib/utils';
 
@@ -24,7 +25,7 @@ export interface ChartTooltipProps {
  * - Formatted currency values
  * - Clean, readable design
  */
-export function ChartTooltip({ active, payload, label, currency = 'EUR' }: ChartTooltipProps) {
+function ChartTooltipComponent({ active, payload, label, currency = 'EUR' }: ChartTooltipProps) {
   if (!active || !payload || !payload.length) {
     return null;
   }
@@ -56,14 +57,14 @@ export function ChartTooltip({ active, payload, label, currency = 'EUR' }: Chart
                   className="w-3 h-3 rounded-sm shrink-0"
                   style={{ backgroundColor: entry.color }}
                 />
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-gray-300">
                   {labelMap[entry.dataKey] || entry.name}
                 </span>
               </div>
               <span
                 className={cn(
                   'text-sm font-semibold tabular-nums',
-                  isNet && isNegative ? 'text-red-600 dark:text-red-400' : 'text-foreground'
+                  isNet && isNegative ? 'text-red-400' : 'text-foreground'
                 )}
               >
                 {formatCurrency(entry.value, currency)}
@@ -81,13 +82,13 @@ export function ChartTooltip({ active, payload, label, currency = 'EUR' }: Chart
         return (
           <div className="mt-2 pt-2 border-t border-border">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Balance</span>
+              <span className="text-xs text-gray-300">Balance</span>
               <span
                 className={cn(
                   'text-xs font-medium',
                   balanceValue >= 0
-                    ? 'text-green-600 dark:text-green-400'
-                    : 'text-red-600 dark:text-red-400'
+                    ? 'text-green-400'
+                    : 'text-red-400'
                 )}
               >
                 {balanceValue >= 0 ? 'Positive' : 'Negative'}
@@ -99,3 +100,5 @@ export function ChartTooltip({ active, payload, label, currency = 'EUR' }: Chart
     </div>
   );
 }
+
+export const ChartTooltip = memo(ChartTooltipComponent);

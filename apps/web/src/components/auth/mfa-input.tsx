@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, KeyboardEvent, ClipboardEvent } from 'react';
+import { motion } from 'framer-motion';
 
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -117,26 +118,37 @@ export function MfaInput({
   return (
     <div className="flex gap-2 justify-center">
       {Array.from({ length }).map((_, index) => (
-        <Input
+        <motion.div
           key={index}
-          ref={(el) => {
-            inputRefs.current[index] = el;
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            delay: index * 0.05,
+            duration: 0.3,
+            ease: [0.22, 1, 0.36, 1],
           }}
-          type="text"
-          inputMode="numeric"
-          maxLength={1}
-          value={values[index]}
-          onChange={(e) => handleChange(index, e.target.value)}
-          onKeyDown={(e) => handleKeyDown(index, e)}
-          onPaste={handlePaste}
-          onFocus={() => handleFocus(index)}
-          disabled={disabled}
-          className={cn(
-            'w-12 h-12 text-center text-lg font-semibold',
-            'focus:ring-2 focus:ring-primary focus:border-primary'
-          )}
-          aria-label={`Digit ${index + 1}`}
-        />
+        >
+          <Input
+            ref={(el) => {
+              inputRefs.current[index] = el;
+            }}
+            type="text"
+            inputMode="numeric"
+            maxLength={1}
+            value={values[index]}
+            onChange={(e) => handleChange(index, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(index, e)}
+            onPaste={handlePaste}
+            onFocus={() => handleFocus(index)}
+            disabled={disabled}
+            className={cn(
+              'w-12 h-12 text-center text-lg font-semibold transition-all duration-200',
+              'focus:ring-2 focus:ring-primary focus:border-primary focus:scale-110',
+              values[index] && 'border-primary/50 bg-primary/5'
+            )}
+            aria-label={`Digit ${index + 1}`}
+          />
+        </motion.div>
       ))}
     </div>
   );

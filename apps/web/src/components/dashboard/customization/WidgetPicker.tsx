@@ -178,7 +178,7 @@ export function WidgetPicker({ onAddWidget, disabledWidgets = [], trigger }: Wid
                   </CardHeader>
                   <CardContent>
                     <CardDescription className="text-sm">{widget.description}</CardDescription>
-                    <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 mt-3 text-xs text-gray-300">
                       <span>Default size: {widget.defaultSize}</span>
                     </div>
                   </CardContent>
@@ -188,8 +188,8 @@ export function WidgetPicker({ onAddWidget, disabledWidgets = [], trigger }: Wid
 
             {filteredWidgets.length === 0 && (
               <div className="col-span-2 flex flex-col items-center justify-center py-12 text-center">
-                <Filter className="h-12 w-12 text-muted-foreground/50 mb-4" />
-                <p className="text-sm text-muted-foreground">No widgets found matching your criteria</p>
+                <Filter className="h-12 w-12 text-gray-300/50 mb-4" />
+                <p className="text-sm text-gray-300">No widgets found matching your criteria</p>
                 <Button variant="ghost" size="sm" className="mt-4" onClick={() => setSearchQuery('')}>
                   Clear search
                 </Button>

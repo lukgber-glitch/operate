@@ -32,3 +32,4 @@ export { RevenueChart } from './RevenueChart';
 export { ExpenseBreakdown } from './ExpenseBreakdown';
 export { UpcomingItems } from './UpcomingItems';
 export { QuickActions } from './QuickActions';
+export { EmailReviewQueue } from './EmailReviewQueue';

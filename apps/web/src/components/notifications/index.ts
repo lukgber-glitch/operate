@@ -9,3 +9,8 @@ export { NotificationList } from "./NotificationList"
 export { NotificationPreferences } from "./NotificationPreferences"
 export { NotificationSettings } from "./NotificationSettings"
 export { PushPermissionBanner } from "./PushPermissionBanner"
+export {
+  ConnectionStatusIndicator,
+  ConnectionStatusDot,
+  ConnectionStatusBanner,
+} from "./ConnectionStatusIndicator"

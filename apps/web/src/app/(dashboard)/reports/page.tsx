@@ -2,6 +2,9 @@
 
 import { Download, FileSpreadsheet, Printer, Calendar } from 'lucide-react';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/animation-variants';
+import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
 import { ClientMetrics } from '@/components/reports/ClientMetrics';
 import { DocumentStats } from '@/components/reports/DocumentStats';
@@ -9,6 +12,12 @@ import { FinancialOverview } from '@/components/reports/FinancialOverview';
 import { TaxSummary } from '@/components/reports/TaxSummary';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  FinancialReportSkeleton,
+  TaxReportSkeleton,
+  ClientMetricsSkeleton,
+  DocumentStatsSkeleton,
+} from '@/components/loading';
 import {
   Select,
   SelectContent,
@@ -19,7 +28,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useReports, useExportReport } from '@/hooks/use-reports';
 
-export default function ReportsPage() {
+function ReportsPageContent() {
   const [dateRange, setDateRange] = useState('q3-2024');
   const [activeTab, setActiveTab] = useState('financial');
   const [isExporting, setIsExporting] = useState(false);
@@ -59,9 +68,14 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Reports</h1>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Reports</h1>
           <p className="text-muted-foreground">Generate and export business reports and analytics</p>
         </div>
 
@@ -81,9 +95,15 @@ export default function ReportsPage() {
             </SelectContent>
           </Select>
         </div>
-      </div>
+      </motion.div>
 
       {/* Export Actions */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+      >
       <Card className="rounded-[24px]">
         <CardContent className="p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -129,8 +149,15 @@ export default function ReportsPage() {
         </div>
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Report Tabs */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.2 }}
+      >
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="financial">Financial</TabsTrigger>
@@ -142,16 +169,7 @@ export default function ReportsPage() {
         {/* Financial Report Tab */}
         <TabsContent value="financial" className="space-y-4">
           {isLoading || !financial.data ? (
-            <Card className="rounded-[24px]">
-              <CardContent className="p-6">
-              <div className="flex items-center justify-center py-12">
-                <div className="text-center">
-                  <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-                  <p className="text-sm text-muted-foreground">Loading financial report...</p>
-                </div>
-              </div>
-              </CardContent>
-            </Card>
+            <FinancialReportSkeleton />
           ) : financial.isError ? (
             <Card className="rounded-[24px]">
               <CardContent className="p-6">
@@ -168,16 +186,7 @@ export default function ReportsPage() {
         {/* Tax Report Tab */}
         <TabsContent value="tax" className="space-y-4">
           {isLoading || !tax.data ? (
-            <Card className="rounded-[24px]">
-              <CardContent className="p-6">
-              <div className="flex items-center justify-center py-12">
-                <div className="text-center">
-                  <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-                  <p className="text-sm text-muted-foreground">Loading tax report...</p>
-                </div>
-              </div>
-              </CardContent>
-            </Card>
+            <TaxReportSkeleton />
           ) : tax.isError ? (
             <Card className="rounded-[24px]">
               <CardContent className="p-6">
@@ -194,16 +203,7 @@ export default function ReportsPage() {
         {/* Client Metrics Tab */}
         <TabsContent value="clients" className="space-y-4">
           {isLoading || !clients.data ? (
-            <Card className="rounded-[24px]">
-              <CardContent className="p-6">
-              <div className="flex items-center justify-center py-12">
-                <div className="text-center">
-                  <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-                  <p className="text-sm text-muted-foreground">Loading client metrics...</p>
-                </div>
-              </div>
-              </CardContent>
-            </Card>
+            <ClientMetricsSkeleton />
           ) : clients.isError ? (
             <Card className="rounded-[24px]">
               <CardContent className="p-6">
@@ -220,16 +220,7 @@ export default function ReportsPage() {
         {/* Document Stats Tab */}
         <TabsContent value="documents" className="space-y-4">
           {isLoading || !documents.data ? (
-            <Card className="rounded-[24px]">
-              <CardContent className="p-6">
-              <div className="flex items-center justify-center py-12">
-                <div className="text-center">
-                  <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-                  <p className="text-sm text-muted-foreground">Loading document statistics...</p>
-                </div>
-              </div>
-              </CardContent>
-            </Card>
+            <DocumentStatsSkeleton />
           ) : documents.isError ? (
             <Card className="rounded-[24px]">
               <CardContent className="p-6">
@@ -243,6 +234,15 @@ export default function ReportsPage() {
           )}
         </TabsContent>
       </Tabs>
+      </motion.div>
     </div>
+  );
+}
+
+export default function ReportsPage() {
+  return (
+    <ErrorBoundary>
+      <ReportsPageContent />
+    </ErrorBoundary>
   );
 }

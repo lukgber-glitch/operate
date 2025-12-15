@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 import { BriefingService } from './briefing.service';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
-import { GetUser } from '@/modules/auth/decorators/get-user.decorator';
-import { GetOrganisation } from '@/modules/auth/decorators/get-organisation.decorator';
+import { CurrentUser } from '@/modules/auth/decorators/current-user.decorator';
+import { CurrentOrg } from '@/modules/auth/decorators/current-org.decorator';
 import { DailyBriefing, WeeklyBriefing, BriefingContext } from './briefing.types';
 
 /**
@@ -37,8 +37,8 @@ export class BriefingController {
    */
   @Get('daily')
   async getDailyBriefing(
-    @GetOrganisation() orgId: string,
-    @GetUser('id') userId: string,
+    @CurrentOrg() orgId: string,
+    @CurrentUser('id') userId: string,
     @Query('date') dateStr?: string,
     @Query('includeProjections') includeProjections?: string,
     @Query('includeRecommendations') includeRecommendations?: string,
@@ -76,8 +76,8 @@ export class BriefingController {
    */
   @Get('weekly')
   async getWeeklyBriefing(
-    @GetOrganisation() orgId: string,
-    @GetUser('id') userId: string,
+    @CurrentOrg() orgId: string,
+    @CurrentUser('id') userId: string,
     @Query('date') dateStr?: string,
   ): Promise<WeeklyBriefing> {
     this.logger.log(`Fetching weekly briefing for org ${orgId}`);
@@ -114,8 +114,8 @@ export class BriefingController {
    */
   @Post('generate')
   async generateBriefing(
-    @GetOrganisation() orgId: string,
-    @GetUser('id') userId: string,
+    @CurrentOrg() orgId: string,
+    @CurrentUser('id') userId: string,
     @Query('type') type: 'daily' | 'weekly' = 'daily',
     @Query('date') dateStr?: string,
   ): Promise<DailyBriefing | WeeklyBriefing> {

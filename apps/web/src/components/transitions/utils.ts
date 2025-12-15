@@ -96,8 +96,8 @@ export function getViewportTransition(): Transition {
   const isMobile = window.innerWidth < 768;
 
   return {
-    type: 'tween',
-    ease: 'easeInOut',
+    type: 'tween' as const,
+    ease: 'easeInOut' as const,
     duration: isMobile ? 0.2 : 0.3, // Faster on mobile
   };
 }

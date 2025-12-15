@@ -95,8 +95,8 @@ export function QuickActionsGrid({
         {showSettings && (
           <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <Settings className="h-4 w-4 mr-2" />
+              <Button variant="ghost" size="sm" aria-label="Customize quick actions">
+                <Settings className="h-4 w-4 mr-2" aria-hidden="true" />
                 Customize
               </Button>
             </DialogTrigger>
@@ -254,13 +254,13 @@ export function QuickActionsGrid({
       {/* Actions Grid */}
       {visibleActions.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 px-4 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
-          <Plus className="h-8 w-8 text-slate-400 mb-3" />
+          <Plus className="h-8 w-8 text-slate-400 mb-3" aria-hidden="true" />
           <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-4">
             No quick actions configured
           </p>
           {showSettings && (
-            <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>
-              <Settings className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)} aria-label="Add quick actions">
+              <Settings className="h-4 w-4 mr-2" aria-hidden="true" />
               Add Actions
             </Button>
           )}

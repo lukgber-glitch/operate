@@ -128,7 +128,7 @@ export default function EmployeeLeavePage() {
               </Link>
             </Button>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">Leave Management</h1>
+              <h1 className="text-2xl text-white font-semibold tracking-tight">Leave Management</h1>
               <p className="text-muted-foreground">View balances and manage leave requests</p>
             </div>
           </div>

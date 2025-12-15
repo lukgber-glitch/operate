@@ -237,17 +237,30 @@ export class AutomationIntegrationService {
   }>> {
     this.logger.log(`Handling bank transaction import: ${transactions.length} transactions`);
 
+    if (transactions.length === 0) {
+      return [];
+    }
+
+    // OPTIMIZATION: Batch fetch all unique bank accounts in ONE query
+    const uniqueBankAccountIds = [...new Set(transactions.map(t => t.bankAccountId))];
+    const bankAccounts = await this.prisma.bankAccount.findMany({
+      where: { id: { in: uniqueBankAccountIds } },
+      select: { id: true, orgId: true },
+    });
+
+    // Create O(1) lookup map
+    const bankAccountMap = new Map(
+      bankAccounts.map(a => [a.id, a.orgId])
+    );
+
     const results = [];
 
     for (const transaction of transactions) {
       try {
-        // Get bank account to find organisation
-        const bankAccount = await this.prisma.bankAccount.findUnique({
-          where: { id: transaction.bankAccountId },
-          select: { orgId: true },
-        });
+        // Use pre-fetched lookup (O(1) instead of O(N) queries)
+        const orgId = bankAccountMap.get(transaction.bankAccountId);
 
-        if (!bankAccount) {
+        if (!orgId) {
           this.logger.warn(`Bank account not found: ${transaction.bankAccountId}`);
           continue;
         }
@@ -263,14 +276,14 @@ export class AutomationIntegrationService {
         const confidenceScore = 0; // Placeholder - would come from matching algorithm
 
         const decision = await this.autoApprove.shouldAutoApprove({
-          organisationId: bankAccount.orgId,
+          organisationId: orgId,
           feature: 'bankReconciliation',
           confidenceScore,
           amount: Math.abs(transaction.amount),
         });
 
         await this.autoApprove.executeAutoApproval({
-          organisationId: bankAccount.orgId,
+          organisationId: orgId,
           feature: 'bankReconciliation',
           entityType: 'BankTransaction',
           entityId: transaction.id,

@@ -12,7 +12,7 @@ export async function seedSubscriptionTiers() {
   const tiers = [
     {
       name: 'free',
-      displayName: 'Free Plan',
+      displayName: 'Free',
       description: 'Perfect for trying out Operate',
       priceMonthly: 0,
       priceAnnual: 0,
@@ -20,8 +20,8 @@ export async function seedSubscriptionTiers() {
         AI_MESSAGES: 50,
         BANK_CONNECTIONS: 1,
         INVOICES: 5,
-        EMAIL_SYNCS: 10,
-        TAX_FILINGS: 1,
+        EMAIL_SYNCS: 0,
+        TAX_FILINGS: 0,
       },
       features: [
         'basic_invoicing',
@@ -34,24 +34,25 @@ export async function seedSubscriptionTiers() {
     },
     {
       name: 'starter',
-      displayName: 'Starter Plan',
-      description: 'For small businesses getting started',
-      priceMonthly: 2900, // $29.00 in cents
-      priceAnnual: 29000, // $290.00 in cents (2 months free)
+      displayName: 'Starter',
+      description: 'For freelancers and solo entrepreneurs',
+      priceMonthly: 990, // €9.90 in cents
+      priceAnnual: 9500, // €95.00 in cents
       limits: {
-        AI_MESSAGES: 500,
+        AI_MESSAGES: 200,
         BANK_CONNECTIONS: 3,
-        INVOICES: 50,
+        INVOICES: -1, // Unlimited
         EMAIL_SYNCS: 100,
-        TAX_FILINGS: 5,
+        TAX_FILINGS: 0,
       },
       features: [
         'basic_invoicing',
-        'advanced_expense_tracking',
+        'basic_expense_tracking',
         'ai_chat_assistant',
         'multi_bank_connections',
         'email_integration',
-        'basic_tax_filing',
+        'basic_reports',
+        'datev_export',
         'receipt_scanning',
       ],
       isActive: true,
@@ -59,10 +60,10 @@ export async function seedSubscriptionTiers() {
     },
     {
       name: 'pro',
-      displayName: 'Pro Plan',
-      description: 'For growing businesses with higher volume',
-      priceMonthly: 7900, // $79.00 in cents
-      priceAnnual: 79000, // $790.00 in cents (2 months free)
+      displayName: 'Pro',
+      description: 'For small businesses',
+      priceMonthly: 1990, // €19.90 in cents
+      priceAnnual: 19000, // €190.00 in cents
       limits: {
         AI_MESSAGES: -1, // Unlimited
         BANK_CONNECTIONS: 10,
@@ -77,22 +78,24 @@ export async function seedSubscriptionTiers() {
         'unlimited_ai_messages',
         'multi_bank_connections',
         'email_integration',
-        'advanced_tax_filing',
-        'receipt_scanning',
+        'basic_reports',
+        'advanced_reports',
+        'datev_export',
+        'tax_filing',
         'cash_flow_forecasting',
-        'vendor_management',
-        'bill_payments',
-        'automated_reconciliation',
+        'document_ocr',
+        'receipt_scanning',
+        'team_collaboration',
       ],
       isActive: true,
       isVisible: true,
     },
     {
       name: 'business',
-      displayName: 'Business Plan',
-      description: 'For established businesses with complex needs',
-      priceMonthly: 14900, // $149.00 in cents
-      priceAnnual: 149000, // $1,490.00 in cents (2 months free)
+      displayName: 'Business',
+      description: 'For growing teams',
+      priceMonthly: 3990, // €39.90 in cents
+      priceAnnual: 38000, // €380.00 in cents
       limits: {
         AI_MESSAGES: -1, // Unlimited
         BANK_CONNECTIONS: -1, // Unlimited
@@ -107,18 +110,19 @@ export async function seedSubscriptionTiers() {
         'unlimited_ai_messages',
         'unlimited_bank_connections',
         'email_integration',
-        'advanced_tax_filing',
-        'receipt_scanning',
+        'basic_reports',
+        'advanced_reports',
+        'datev_export',
+        'tax_filing',
         'cash_flow_forecasting',
-        'vendor_management',
-        'bill_payments',
-        'automated_reconciliation',
-        'multi_currency',
-        'multi_entity',
-        'advanced_reporting',
+        'document_ocr',
+        'receipt_scanning',
+        'team_collaboration',
+        'unlimited_team_members',
         'api_access',
+        'multi_currency',
+        'custom_integrations',
         'priority_support',
-        'dedicated_account_manager',
       ],
       isActive: true,
       isVisible: true,

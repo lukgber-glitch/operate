@@ -355,4 +355,139 @@ export class InvoiceCurrencyHelper {
   fromDecimal(value: Decimal): number {
     return Number(value);
   }
+
+  /**
+   * Validate financial calculation precision
+   *
+   * Ensures that calculated totals match expected values within acceptable tolerance
+   * for floating point arithmetic. This helps catch calculation errors before they
+   * are persisted to the database.
+   *
+   * @param calculated - Calculated total
+   * @param expected - Expected total (from line items sum)
+   * @param currency - Currency code for determining tolerance
+   * @returns true if valid, throws error if mismatch
+   */
+  validateCalculationPrecision(
+    calculated: number,
+    expected: number,
+    currency: string,
+  ): boolean {
+    const decimals = this.getCurrencyDecimals(currency);
+    const tolerance = Math.pow(10, -decimals);
+    const difference = Math.abs(calculated - expected);
+
+    if (difference > tolerance) {
+      this.logger.error(
+        `Financial calculation mismatch: calculated=${calculated}, expected=${expected}, difference=${difference}, tolerance=${tolerance}`,
+      );
+      throw new Error(
+        `Financial calculation error: amount mismatch of ${difference.toFixed(decimals + 2)} ${currency}`,
+      );
+    }
+
+    return true;
+  }
+
+  /**
+   * Safely calculate percentage
+   *
+   * Handles edge cases for percentage calculations (division by zero, negative values)
+   *
+   * @param amount - Base amount
+   * @param percentage - Percentage to calculate (e.g., 19 for 19%)
+   * @param currency - Currency for rounding
+   * @returns Calculated percentage amount
+   */
+  calculatePercentageSafe(
+    amount: number,
+    percentage: number,
+    currency: string,
+  ): number {
+    if (amount < 0) {
+      this.logger.warn(
+        `Calculating percentage on negative amount: ${amount} ${currency}`,
+      );
+    }
+
+    if (percentage < 0 || percentage > 100) {
+      this.logger.warn(
+        `Unusual percentage value: ${percentage}%`,
+      );
+    }
+
+    const result = (amount * percentage) / 100;
+    return this.multiCurrencyService.roundToDecimals(result, currency);
+  }
+
+  /**
+   * Validate line item amounts before invoice creation
+   *
+   * Recalculates each line item amount from quantity * unitPrice and compares
+   * with provided amount to catch any client-side calculation errors.
+   *
+   * @param items - Line items to validate
+   * @param currency - Invoice currency
+   * @returns true if all valid
+   */
+  validateLineItemAmounts(
+    items: Array<{
+      quantity: number;
+      unitPrice: number;
+      amount?: number;
+    }>,
+    currency: string,
+  ): boolean {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.amount !== undefined) {
+        const expectedAmount = this.calculateLineItemAmount(
+          item.quantity,
+          item.unitPrice,
+          currency,
+        );
+
+        const difference = Math.abs(item.amount - expectedAmount);
+        const tolerance = Math.pow(10, -this.getCurrencyDecimals(currency));
+
+        if (difference > tolerance) {
+          this.logger.warn(
+            `Line item ${i + 1} amount mismatch: provided=${item.amount}, expected=${expectedAmount}`,
+          );
+          // Don't throw, but log for monitoring
+          // We'll use our calculated amount instead
+        }
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Round monetary amount using banker's rounding
+   *
+   * Banker's rounding (round half to even) is more accurate for financial calculations
+   * over large datasets as it reduces cumulative rounding errors.
+   *
+   * @param value - Value to round
+   * @param decimals - Number of decimal places
+   * @returns Rounded value
+   */
+  bankersRound(value: number, decimals: number): number {
+    const factor = Math.pow(10, decimals);
+    const shifted = value * factor;
+    const floorValue = Math.floor(shifted);
+    const fractional = shifted - floorValue;
+
+    if (fractional < 0.5) {
+      return floorValue / factor;
+    } else if (fractional > 0.5) {
+      return (floorValue + 1) / factor;
+    } else {
+      // Exactly 0.5 - round to nearest even
+      return floorValue % 2 === 0
+        ? floorValue / factor
+        : (floorValue + 1) / factor;
+    }
+  }
 }

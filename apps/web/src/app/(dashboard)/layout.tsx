@@ -1,7 +1,6 @@
 'use client'
 
 import '@/app/globals.css'
-import { ChatButton } from '@/components/chat'
 import { Header } from '@/components/dashboard/header'
 import { MobileNav } from '@/components/dashboard/mobile-nav'
 import { Sidebar } from '@/components/dashboard/sidebar'
@@ -9,6 +8,7 @@ import { MobileHeader } from '@/components/mobile'
 import { PushPermissionBanner } from '@/components/notifications'
 import { TrialManager, UsageManager } from '@/components/billing'
 import { useSidebar } from '@/hooks/use-sidebar'
+import { useTimerWarning } from '@/hooks/use-timer-warning'
 import { cn } from '@/lib/utils'
 
 export default function DashboardLayout({
@@ -17,21 +17,22 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const { isOpen } = useSidebar()
+  useTimerWarning() // Warn before closing tab if timer is running
 
   return (
-    <div className="min-h-screen bg-muted relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a2540] to-[#1a3a5a] text-white relative">
 
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:block relative z-20">
+      {/* Desktop Sidebar - Fixed positioned */}
+      <div className="hidden lg:block">
         <Sidebar />
       </div>
 
-      {/* Main Content */}
+      {/* Main Content - Properly offset for fixed sidebar */}
       <div
         className={cn(
-          'min-h-screen transition-all duration-300 relative z-10',
-          'lg:pl-16', // collapsed sidebar width
-          isOpen && 'lg:pl-64' // expanded sidebar width
+          'min-h-screen transition-all duration-300',
+          'lg:ml-16', // collapsed sidebar width (use margin-left instead of padding)
+          isOpen && 'lg:ml-64' // expanded sidebar width
         )}
       >
         {/* Desktop Header - Minimal icons in top right */}
@@ -59,9 +60,6 @@ export default function DashboardLayout({
 
       {/* Mobile Bottom Navigation */}
       <MobileNav />
-
-      {/* AI Chat Assistant */}
-      <ChatButton />
     </div>
   )
 }

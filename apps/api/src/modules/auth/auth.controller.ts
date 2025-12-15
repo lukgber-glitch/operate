@@ -81,6 +81,7 @@ export class AuthController {
     // Set tokens as HTTP-only cookies if present
     if (result.accessToken && result.refreshToken) {
       this.authService.setAuthCookies(res, result.accessToken, result.refreshToken);
+      // Note: onboarding cookie not set on register - user must complete onboarding flow
     }
 
     return result;
@@ -126,6 +127,9 @@ export class AuthController {
     // Set tokens as HTTP-only cookies if present (not for MFA-pending logins)
     if (result.accessToken && result.refreshToken) {
       this.authService.setAuthCookies(res, result.accessToken, result.refreshToken);
+
+      // Check if user has completed onboarding and set cookie if true
+      await this.authService.checkAndSetOnboardingCookie(req.user, res);
     }
 
     return result;
@@ -134,6 +138,7 @@ export class AuthController {
   /**
    * Refresh access token
    * SEC-005: Implements refresh token rotation
+   * SEC-017: Validates device fingerprint for session hijacking detection
    */
   @Public()
   @Post('refresh')
@@ -166,7 +171,15 @@ export class AuthController {
     const ipAddress = req.ip || req.socket.remoteAddress;
     const userAgent = req.get('user-agent');
 
-    const result = await this.authService.refresh(refreshToken, ipAddress, userAgent);
+    // SEC-017: Generate device fingerprint for session validation
+    const deviceFingerprint = this.authService.generateDeviceFingerprint(req);
+
+    const result = await this.authService.refresh(
+      refreshToken,
+      ipAddress,
+      userAgent,
+      deviceFingerprint,
+    );
 
     // Update cookies with new tokens (including new refresh token from rotation)
     if (result.accessToken && result.refreshToken) {
@@ -263,6 +276,7 @@ export class AuthController {
   })
   async completeMfaLogin(
     @Body() completeMfaDto: CompleteMfaLoginDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthResponseDto> {
     const result = await this.authService.completeMfaLogin(
@@ -273,6 +287,13 @@ export class AuthController {
     // Set tokens as HTTP-only cookies
     if (result.accessToken && result.refreshToken) {
       this.authService.setAuthCookies(res, result.accessToken, result.refreshToken);
+
+      // Check if user has completed onboarding and set cookie if true
+      // Extract user from result since MFA completion doesn't use req.user
+      const user = { id: result.user?.id }; // Assuming result contains user info
+      if (user.id) {
+        await this.authService.checkAndSetOnboardingCookie(user, res);
+      }
     }
 
     return result;

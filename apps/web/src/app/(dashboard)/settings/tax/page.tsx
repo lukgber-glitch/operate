@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useState } from 'react';
 import Link from 'next/link';
 import {
@@ -11,6 +12,7 @@ import {
   Info,
 } from 'lucide-react';
 
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 import {
   Card,
   CardContent,
@@ -18,6 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { USJurisdictionSelector } from '@/components/tax/USJurisdictionSelector';
@@ -32,18 +35,23 @@ export default function TaxSettingsPage() {
   const { data: taxRate, isLoading } = useTaxRate(selectedAddress, 100);
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
       {/* Header */}
-      <div>
+      <motion.div variants={fadeUp}>
         <h1 className="text-3xl font-bold tracking-tight">US Tax Settings</h1>
-        <p className="text-muted-foreground">
+        <p className="text-white/70">
           Manage US sales tax configuration, nexus registrations, and exemption
           certificates
         </p>
-      </div>
+      </motion.div>
 
       {/* Info Banner */}
-      <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950">
+      <motion.div variants={fadeUp} className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950">
         <div className="flex gap-3">
           <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
           <div className="space-y-2">
@@ -57,11 +65,11 @@ export default function TaxSettingsPage() {
             </p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="hover:shadow-md transition-shadow">
+      <motion.div variants={fadeUp} className="grid gap-4 md:grid-cols-3">
+        <GlassCard className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <MapPin className="h-5 w-5 text-primary" />
@@ -79,9 +87,9 @@ export default function TaxSettingsPage() {
               </Button>
             </Link>
           </CardContent>
-        </Card>
+        </GlassCard>
 
-        <Card className="hover:shadow-md transition-shadow">
+        <GlassCard className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <FileText className="h-5 w-5 text-primary" />
@@ -99,9 +107,9 @@ export default function TaxSettingsPage() {
               </Button>
             </Link>
           </CardContent>
-        </Card>
+        </GlassCard>
 
-        <Card className="hover:shadow-md transition-shadow">
+        <GlassCard className="hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <ShieldCheck className="h-5 w-5 text-primary" />
@@ -117,11 +125,12 @@ export default function TaxSettingsPage() {
               </Button>
             </Link>
           </CardContent>
-        </Card>
-      </div>
+        </GlassCard>
+      </motion.div>
 
       {/* Tax Rate Calculator */}
-      <Card>
+      <motion.div variants={fadeUp}>
+        <GlassCard>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5" />
@@ -155,10 +164,12 @@ export default function TaxSettingsPage() {
             </div>
           )}
         </CardContent>
-      </Card>
+        </GlassCard>
+      </motion.div>
 
       {/* Configuration Status */}
-      <Card>
+      <motion.div variants={fadeUp}>
+        <GlassCard>
         <CardHeader>
           <CardTitle>Configuration Status</CardTitle>
           <CardDescription>
@@ -170,7 +181,7 @@ export default function TaxSettingsPage() {
             <div className="flex items-center justify-between py-3 border-b">
               <div>
                 <div className="font-medium">Avalara Integration</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-white/70">
                   Connected and operational
                 </div>
               </div>
@@ -180,7 +191,7 @@ export default function TaxSettingsPage() {
             <div className="flex items-center justify-between py-3 border-b">
               <div>
                 <div className="font-medium">Nexus Registrations</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-white/70">
                   States where you collect tax
                 </div>
               </div>
@@ -195,7 +206,7 @@ export default function TaxSettingsPage() {
             <div className="flex items-center justify-between py-3 border-b">
               <div>
                 <div className="font-medium">Exemption Certificates</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-white/70">
                   Customer tax exemptions
                 </div>
               </div>
@@ -210,7 +221,7 @@ export default function TaxSettingsPage() {
             <div className="flex items-center justify-between py-3">
               <div>
                 <div className="font-medium">Tax Reporting</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-white/70">
                   Generate tax reports and filings
                 </div>
               </div>
@@ -223,7 +234,8 @@ export default function TaxSettingsPage() {
             </div>
           </div>
         </CardContent>
-      </Card>
-    </div>
+        </GlassCard>
+      </motion.div>
+    </motion.div>
   );
 }

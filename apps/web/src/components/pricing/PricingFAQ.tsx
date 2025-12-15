@@ -41,6 +41,14 @@ const faqs: FAQ[] = [
     question: 'Is my financial data secure?',
     answer: 'Absolutely. We use bank-level encryption (AES-256) and never store your banking credentials. We\'re SOC 2 Type II certified and fully GDPR compliant. Your data is encrypted both in transit and at rest.',
   },
+  {
+    question: 'What unique AI features does Operate have?',
+    answer: 'Operate is the only accounting software with a conversational AI that executes 37+ actions. Ask "Create an invoice" or "Show my cash flow" and the AI performs the task. We also offer automatic commuter allowance (Pendlerpauschale) calculation, email-to-bill automation, bank transaction matching that learns from corrections, and multi-country tax filing - features no competitor offers.',
+  },
+  {
+    question: 'Does Operate support German tax features like Pendlerpauschale?',
+    answer: 'Yes! Operate automatically calculates your commuter allowance (Pendlerpauschale) for tax purposes. Enter your commute distance and working days, and we handle the calculation at the correct rates (€0.30/km first 20km, €0.38/km thereafter). This integrates directly with your tax reports and ELSTER filing.',
+  },
 ];
 
 function FAQItem({ faq, index }: { faq: FAQ; index: number }) {

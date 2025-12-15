@@ -3,6 +3,8 @@
 import { ArrowLeft, Download, Edit, Check, X, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 
 import {
   AlertDialog,
@@ -21,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import { formatCurrency } from '@/lib/utils/currency';
 
 // Placeholder data
 const expenseData = {
@@ -30,6 +33,7 @@ const expenseData = {
   vatAmount: 46.65,
   vatRate: 19,
   total: 292.15,
+  currency: 'EUR',
   category: 'Office',
   vendor: 'Office Depot GmbH',
   date: '2024-11-25',
@@ -97,9 +101,14 @@ export default function ExpenseDetailPage({
   const isManager = true; // This would come from user context
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      className="space-y-6"
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+    >
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <motion.div variants={fadeUp} className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/finance/expenses">
@@ -130,10 +139,10 @@ export default function ExpenseDetailPage({
             </Button>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Status Badge */}
-      <div className="flex items-center gap-2">
+      <motion.div variants={fadeUp} className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Status:</span>
         <Badge
           variant="secondary"
@@ -141,13 +150,13 @@ export default function ExpenseDetailPage({
         >
           {status}
         </Badge>
-      </div>
+      </motion.div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <motion.div variants={fadeUp} className="grid gap-6 lg:grid-cols-3">
         {/* Main Content */}
         <div className="space-y-6 lg:col-span-2">
           {/* Expense Details */}
-          <Card>
+          <Card className="rounded-[24px]">
             <CardHeader>
               <CardTitle>Expense Information</CardTitle>
             </CardHeader>
@@ -185,18 +194,18 @@ export default function ExpenseDetailPage({
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Amount (excl. VAT)</span>
-                  <span className="font-medium">€{expenseData.amount.toFixed(2)}</span>
+                  <span className="font-medium">{formatCurrency(expenseData.amount, expenseData.currency)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">
                     VAT ({expenseData.vatRate}%)
                   </span>
-                  <span className="font-medium">€{expenseData.vatAmount.toFixed(2)}</span>
+                  <span className="font-medium">{formatCurrency(expenseData.vatAmount, expenseData.currency)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between text-lg">
                   <span className="font-bold">Total Amount</span>
-                  <span className="font-bold">€{expenseData.total.toFixed(2)}</span>
+                  <span className="font-bold">{formatCurrency(expenseData.total, expenseData.currency)}</span>
                 </div>
               </div>
 
@@ -213,7 +222,7 @@ export default function ExpenseDetailPage({
           </Card>
 
           {/* Submitter Information */}
-          <Card>
+          <Card className="rounded-[24px]">
             <CardHeader>
               <CardTitle>Submission Details</CardTitle>
             </CardHeader>
@@ -258,7 +267,7 @@ export default function ExpenseDetailPage({
 
           {/* Approval Section - Only for managers */}
           {isManager && status === 'pending' && (
-            <Card>
+            <Card className="rounded-[24px]">
               <CardHeader>
                 <CardTitle>Approval</CardTitle>
               </CardHeader>
@@ -336,7 +345,7 @@ export default function ExpenseDetailPage({
 
         {/* Timeline Sidebar */}
         <div>
-          <Card>
+          <Card className="rounded-[24px]">
             <CardHeader>
               <CardTitle>Activity Timeline</CardTitle>
             </CardHeader>
@@ -389,7 +398,7 @@ export default function ExpenseDetailPage({
             </CardContent>
           </Card>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

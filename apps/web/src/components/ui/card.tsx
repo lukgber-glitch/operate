@@ -2,22 +2,28 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-const Card = React.forwardRef<
+/**
+ * Card component with GPU-accelerated hover effects
+ * Uses will-change for optimal animation performance
+ */
+const CardComponent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      'rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] text-card-foreground shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)] hover:border-[var(--color-secondary-light)]',
+      'rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface)] text-card-foreground shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)] hover:border-[var(--color-secondary-light)] transform-gpu will-change-[transform,box-shadow]',
       className
     )}
     {...props}
   />
 ))
-Card.displayName = 'Card'
+CardComponent.displayName = 'Card'
 
-const CardHeader = React.forwardRef<
+const Card = React.memo(CardComponent)
+
+const CardHeaderComponent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -27,9 +33,11 @@ const CardHeader = React.forwardRef<
     {...props}
   />
 ))
-CardHeader.displayName = 'CardHeader'
+CardHeaderComponent.displayName = 'CardHeader'
 
-const CardTitle = React.forwardRef<
+const CardHeader = React.memo(CardHeaderComponent)
+
+const CardTitleComponent = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
@@ -42,9 +50,11 @@ const CardTitle = React.forwardRef<
     {...props}
   />
 ))
-CardTitle.displayName = 'CardTitle'
+CardTitleComponent.displayName = 'CardTitle'
 
-const CardDescription = React.forwardRef<
+const CardTitle = React.memo(CardTitleComponent)
+
+const CardDescriptionComponent = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
@@ -54,17 +64,21 @@ const CardDescription = React.forwardRef<
     {...props}
   />
 ))
-CardDescription.displayName = 'CardDescription'
+CardDescriptionComponent.displayName = 'CardDescription'
 
-const CardContent = React.forwardRef<
+const CardDescription = React.memo(CardDescriptionComponent)
+
+const CardContentComponent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div ref={ref} className={cn('p-[var(--space-6)] pt-0', className)} {...props} />
 ))
-CardContent.displayName = 'CardContent'
+CardContentComponent.displayName = 'CardContent'
 
-const CardFooter = React.forwardRef<
+const CardContent = React.memo(CardContentComponent)
+
+const CardFooterComponent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -74,6 +88,8 @@ const CardFooter = React.forwardRef<
     {...props}
   />
 ))
-CardFooter.displayName = 'CardFooter'
+CardFooterComponent.displayName = 'CardFooter'
+
+const CardFooter = React.memo(CardFooterComponent)
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }

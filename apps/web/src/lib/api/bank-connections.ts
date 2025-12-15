@@ -64,11 +64,50 @@ export interface CompleteConnectionRequest {
 class BankConnectionsApi {
   private baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
+  /**
+   * Get organisation ID from auth context
+   * The orgId is set in window.__orgId by the useAuth hook when user authenticates
+   *
+   * NOTE: This method now returns empty string instead of throwing to prevent page crashes.
+   * The API call will handle auth errors gracefully via the fetch() error handling.
+   */
   private getOrgId(): string {
-    if (typeof window !== 'undefined' && (window as any).__orgId) {
-      return (window as any).__orgId;
+    if (typeof window !== 'undefined') {
+      if ((window as any).__orgId) {
+        console.log('[BankConnectionsAPI] Using window.__orgId:', (window as any).__orgId);
+        return (window as any).__orgId;
+      }
+
+      // Fallback: try to parse from cookie
+      const authCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('op_auth='));
+
+      if (authCookie) {
+        try {
+          const authValue = decodeURIComponent(authCookie.split('=')[1] || '');
+          console.log('[BankConnectionsAPI] Found op_auth cookie, attempting to parse...');
+          const authData = JSON.parse(authValue);
+
+          // Parse JWT to extract orgId
+          if (authData.a) {
+            const payload = JSON.parse(atob(authData.a.split('.')[1]));
+            if (payload.orgId) {
+              console.log('[BankConnectionsAPI] Extracted orgId from JWT:', payload.orgId);
+              return payload.orgId;
+            }
+          }
+        } catch (e) {
+          console.warn('[BankConnectionsAPI] Failed to parse auth cookie:', e);
+        }
+      } else {
+        console.warn('[BankConnectionsAPI] No op_auth cookie found');
+      }
     }
-    return 'default-org-id';
+
+    // Return empty string instead of throwing - let the API call handle the 401/403
+    console.warn('[BankConnectionsAPI] Organisation ID not available - returning empty string');
+    return '';
   }
 
   private async request<T>(

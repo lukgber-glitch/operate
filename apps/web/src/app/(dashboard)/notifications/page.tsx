@@ -1,5 +1,7 @@
 "use client"
 
+import { motion } from 'framer-motion';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 import {
   CheckCheck,
   Trash2,
@@ -12,6 +14,7 @@ import { useState } from 'react'
 
 import { NotificationItem } from '@/components/notifications/NotificationItem'
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences'
+import { ConnectionStatusIndicator } from '@/components/notifications/ConnectionStatusIndicator'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -25,14 +28,25 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useNotifications, NotificationType } from '@/hooks/use-notifications'
+import { useNotifications } from '@/hooks/use-notifications'
+import type { NotificationType } from '@/types/notifications'
+
 const ITEMS_PER_PAGE = 20
 
 
 
 export default function NotificationsPage() {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } =
-    useNotifications()
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    batchMarkAsRead,
+    batchDelete,
+    connectionStatus,
+    reconnect,
+  } = useNotifications()
 
   const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'preferences'>('all')
   const [typeFilter, setTypeFilter] = useState<NotificationType | 'all'>('all')
@@ -79,17 +93,19 @@ export default function NotificationsPage() {
   void handleSelectAll
 
   const handleBulkDelete = () => {
-    selectedIds.forEach((id) => deleteNotification(id))
+    const ids = Array.from(selectedIds)
+    batchDelete(ids)
     setSelectedIds(new Set())
   }
 
   const handleBulkMarkRead = () => {
-    selectedIds.forEach((id) => {
+    const unreadIds = Array.from(selectedIds).filter((id) => {
       const notification = notifications.find((n) => n.id === id)
-      if (notification && !notification.isRead) {
-        markAsRead(id)
-      }
+      return notification && !notification.isRead
     })
+    if (unreadIds.length > 0) {
+      batchMarkAsRead(unreadIds)
+    }
     setSelectedIds(new Set())
   }
 
@@ -98,7 +114,7 @@ export default function NotificationsPage() {
       <div className="space-y-6">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Notification Settings</h1>
+            <h1 className="text-2xl text-white font-semibold tracking-tight">Notification Settings</h1>
             <p className="text-muted-foreground">Manage how you receive notifications</p>
           </div>
           <Button variant="outline" onClick={() => setActiveTab('all')}>
@@ -111,11 +127,23 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
       {/* Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <motion.div variants={fadeUp} className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Notifications</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl text-white font-semibold tracking-tight">Notifications</h1>
+            <ConnectionStatusIndicator
+              status={connectionStatus}
+              onReconnect={reconnect}
+              compact
+            />
+          </div>
           <p className="text-muted-foreground">{unreadCount > 0
               ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`
               : 'All caught up!'}</p>
@@ -132,9 +160,10 @@ export default function NotificationsPage() {
             </Button>
           )}
         </div>
-      </div>
+      </motion.div>
 
-      <Card className="rounded-[24px]">
+      <motion.div variants={fadeUp}>
+        <Card className="rounded-[24px]">
         <CardContent className="p-6">
         <div className="space-y-6">
           {/* Tabs */}
@@ -294,6 +323,7 @@ export default function NotificationsPage() {
         </div>
       </CardContent>
       </Card>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

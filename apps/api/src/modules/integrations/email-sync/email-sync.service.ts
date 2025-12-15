@@ -149,6 +149,40 @@ export class EmailSyncService {
   }
 
   /**
+   * Get folders to sync based on mailbox configuration
+   */
+  private async getFoldersForMailbox(
+    connectionId: string,
+    mailboxId?: string,
+  ): Promise<{ labelIds: string[]; folderIds: string[] }> {
+    if (!mailboxId) {
+      // No specific mailbox - sync all (backwards compatible)
+      return { labelIds: [], folderIds: [] };
+    }
+
+    const mailbox = await this.prisma.emailMailbox.findUnique({
+      where: { id: mailboxId },
+    });
+
+    if (!mailbox || mailbox.scanAllFolders) {
+      return { labelIds: [], folderIds: [] }; // Empty means all folders
+    }
+
+    // Return configured folders based on provider
+    const connection = await this.prisma.emailConnection.findUnique({
+      where: { id: connectionId },
+    });
+
+    if (connection?.provider === 'GMAIL') {
+      return { labelIds: mailbox.labelIds, folderIds: [] };
+    } else if (connection?.provider === 'OUTLOOK') {
+      return { labelIds: [], folderIds: mailbox.folderIds };
+    }
+
+    return { labelIds: [], folderIds: mailbox.foldersToScan };
+  }
+
+  /**
    * Get the last sync date for a connection
    * Used for incremental syncs to only fetch new emails
    */
@@ -572,5 +606,162 @@ export class EmailSyncService {
         syncStatus: status,
       },
     });
+  }
+
+  /**
+   * Sync emails for a specific mailbox configuration
+   */
+  async syncMailbox(mailboxId: string): Promise<EmailSyncJobEntity> {
+    this.logger.log(`Syncing mailbox ${mailboxId}`);
+
+    const mailbox = await this.prisma.emailMailbox.findUnique({
+      where: { id: mailboxId },
+      include: { connection: true },
+    });
+
+    if (!mailbox || !mailbox.isActive) {
+      throw new NotFoundException(
+        `Mailbox ${mailboxId} not found or inactive`,
+      );
+    }
+
+    // Get folder configuration
+    const folders = await this.getFoldersForMailbox(
+      mailbox.connectionId,
+      mailbox.id,
+    );
+
+    // Determine sync date range
+    const syncFromDate = await this.getLastSyncDate(mailbox.connectionId);
+    const syncToDate = new Date();
+
+    // Create sync job for this mailbox
+    const syncJob = await this.prisma.emailSyncJob.create({
+      data: {
+        connectionId: mailbox.connectionId,
+        mailboxId: mailbox.id,
+        orgId: mailbox.orgId,
+        userId: mailbox.userId,
+        provider: mailbox.connection.provider,
+        syncType: EmailSyncType.INCREMENTAL,
+        status: EmailSyncStatus.PENDING,
+        syncFromDate,
+        syncToDate,
+        labelIds: folders.labelIds,
+        folderIds: folders.folderIds,
+      },
+    });
+
+    // Queue the sync job
+    await this.syncQueue.add(
+      'sync-emails',
+      {
+        jobId: syncJob.id,
+        connectionId: mailbox.connectionId,
+        mailboxId: mailbox.id,
+        provider: mailbox.connection.provider,
+        labelIds: folders.labelIds,
+        folderIds: folders.folderIds,
+      },
+      {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 5000,
+        },
+        removeOnComplete: false,
+        removeOnFail: false,
+      },
+    );
+
+    // Update mailbox last sync attempt
+    await this.prisma.emailMailbox.update({
+      where: { id: mailboxId },
+      data: { lastSyncAt: new Date() },
+    });
+
+    this.logger.log(`Mailbox sync job ${syncJob.id} queued for processing`);
+
+    return new EmailSyncJobEntity(syncJob);
+  }
+
+  /**
+   * Sync all active mailboxes for an organization
+   */
+  async syncAllMailboxes(orgId: string): Promise<EmailSyncJobEntity[]> {
+    this.logger.log(`Syncing all active mailboxes for org ${orgId}`);
+
+    const mailboxes = await this.prisma.emailMailbox.findMany({
+      where: { orgId, isActive: true },
+      include: { connection: true },
+    });
+
+    if (mailboxes.length === 0) {
+      this.logger.warn(`No active mailboxes found for org ${orgId}`);
+      return [];
+    }
+
+    const syncJobs: EmailSyncJobEntity[] = [];
+
+    for (const mailbox of mailboxes) {
+      try {
+        const job = await this.syncMailbox(mailbox.id);
+        syncJobs.push(job);
+      } catch (error) {
+        this.logger.error(
+          `Failed to sync mailbox ${mailbox.id}: ${error.message}`,
+          error,
+        );
+      }
+    }
+
+    this.logger.log(
+      `Queued ${syncJobs.length} mailbox sync jobs for org ${orgId}`,
+    );
+
+    return syncJobs;
+  }
+
+  /**
+   * Sync all active mailboxes for a connection
+   */
+  async syncMailboxesForConnection(
+    connectionId: string,
+  ): Promise<EmailSyncJobEntity[]> {
+    this.logger.log(
+      `Syncing all active mailboxes for connection ${connectionId}`,
+    );
+
+    const mailboxes = await this.prisma.emailMailbox.findMany({
+      where: { connectionId, isActive: true },
+      include: { connection: true },
+    });
+
+    if (mailboxes.length === 0) {
+      this.logger.warn(
+        `No active mailboxes found for connection ${connectionId}`,
+      );
+      return [];
+    }
+
+    const syncJobs: EmailSyncJobEntity[] = [];
+
+    for (const mailbox of mailboxes) {
+      try {
+        const job = await this.syncMailbox(mailbox.id);
+        syncJobs.push(job);
+      } catch (error) {
+        this.logger.error(
+          `Failed to sync mailbox ${mailbox.id}: ${error.message}`,
+          error,
+        );
+      }
+    }
+
+    this.logger.log(
+      `Queued ${syncJobs.length} mailbox sync jobs for connection ${connectionId}`,
+    );
+
+    return syncJobs;
   }
 }

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { TaxContextService } from '../shared/tax-context.service';
 
 /**
  * VAT Service
@@ -7,7 +8,33 @@ import { PrismaService } from '../../database/prisma.service';
  */
 @Injectable()
 export class VatService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly taxContext: TaxContextService,
+  ) {}
+
+  /**
+   * Get VAT context with country-specific information
+   */
+  async getVatContext(orgId: string) {
+    const context = await this.taxContext.getTaxContext(orgId);
+
+    return {
+      success: true,
+      data: {
+        country: context.country,
+        vatRegistered: context.vatRegistered,
+        vatNumber: context.vatNumber,
+        vatScheme: context.vatScheme,
+        taxAuthority: context.taxAuthority,
+        taxAuthorityUrl: context.taxAuthorityUrl,
+        filingFrequency: this.taxContext.getVatFilingFrequency(context.country),
+        taxYearStartMonth: this.taxContext.getTaxYearStartMonth(context.country),
+        currency: context.currency,
+        timezone: context.timezone,
+      },
+    };
+  }
 
   /**
    * Get VAT periods for an organization

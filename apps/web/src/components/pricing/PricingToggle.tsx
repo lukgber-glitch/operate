@@ -23,7 +23,7 @@ export function PricingToggle({ onToggle }: PricingToggleProps) {
         }`}
         aria-pressed={!isAnnual}
       >
-        Monthly
+        Monatlich
       </button>
 
       <div className="relative">
@@ -35,7 +35,7 @@ export function PricingToggle({ onToggle }: PricingToggleProps) {
           }}
           role="switch"
           aria-checked={isAnnual}
-          aria-label="Toggle annual pricing"
+          aria-label="Jährliche Preise anzeigen"
         >
           <span
             className="absolute left-1 top-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-200 ease-in-out"
@@ -53,12 +53,12 @@ export function PricingToggle({ onToggle }: PricingToggleProps) {
         }`}
         aria-pressed={isAnnual}
       >
-        Annual
+        Jährlich
       </button>
 
       {isAnnual && (
         <span className="ml-2 px-3 py-1 text-sm font-medium rounded-full bg-[var(--color-accent-light)] text-[var(--color-primary-dark)]">
-          Save 17%
+          ~20% sparen
         </span>
       )}
     </div>

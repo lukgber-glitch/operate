@@ -1,0 +1,27 @@
+
+VERIFY Agent - Settings Pages E2E Test
+Generated: 2025-12-15T03:43:36.441Z
+
+SUMMARY
+-------
+Total Tests: 10
+Passed: 9
+Failed: 1
+Pass Rate: 90.0%
+
+DETAILS
+-------
+✅ Settings - Overview - PASS
+❌ Settings - Profile - FAIL
+✅ Settings - Security - PASS
+✅ Settings - Billing - PASS
+✅ Settings - Notifications - PASS
+✅ Settings - Connections - PASS
+✅ Settings - Email - PASS
+✅ Settings - Exports - PASS
+✅ Settings - AI Preferences - PASS
+✅ Settings - Tax Settings - PASS
+
+SCREENSHOTS
+-----------
+All screenshots saved to: ./test-results/settings-e2e

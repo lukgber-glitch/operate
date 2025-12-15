@@ -9,8 +9,20 @@ module.exports = function (options) {
     'compression',
   ];
 
+  const isProduction = process.env.NODE_ENV === 'production';
+
   return {
     ...options,
+    // Enable persistent caching for faster rebuilds
+    cache: {
+      type: 'filesystem',
+      cacheDirectory: path.resolve(__dirname, '.webpack-cache'),
+      buildDependencies: {
+        config: [__filename],
+      },
+      // Invalidate cache on config changes
+      version: '1.0.0',
+    },
     externals: [
       nodeExternals({
         modulesDir: path.resolve(__dirname, "node_modules"),
@@ -29,6 +41,10 @@ module.exports = function (options) {
           options: {
             transpileOnly: true,
             configFile: path.resolve(__dirname, "tsconfig.json"),
+            // Enable happy pack mode for parallel compilation
+            happyPackMode: true,
+            // Use experimental watch API for faster incremental builds
+            experimentalWatchApi: true,
           },
           exclude: /node_modules/,
         },
@@ -45,6 +61,22 @@ module.exports = function (options) {
         "@operate/database": path.resolve(__dirname, "../../packages/database/src"),
         "@operate/shared": path.resolve(__dirname, "../../packages/shared/src"),
       },
+      // Enable caching for resolver
+      cache: true,
+    },
+    // Optimization settings
+    optimization: {
+      ...options.optimization,
+      // Don't minimize in development for faster builds
+      minimize: isProduction,
+      // Module IDs for better long-term caching
+      moduleIds: 'deterministic',
+    },
+    // Performance hints
+    performance: {
+      hints: isProduction ? 'warning' : false,
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000,
     },
   };
 };

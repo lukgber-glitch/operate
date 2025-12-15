@@ -50,24 +50,15 @@ export class ReconciliationService {
     }
 
     const orgId = transaction.bankAccount.bankConnection.orgId;
-    const matches: PotentialMatch[] = [];
 
-    // Find matching expenses
-    const expenseMatches = await this.findExpenseMatches(
-      orgId,
-      transaction,
-    );
-    matches.push(...expenseMatches);
+    // Run expense and invoice match queries in parallel for better performance
+    const [expenseMatches, invoiceMatches] = await Promise.all([
+      this.findExpenseMatches(orgId, transaction),
+      this.findInvoicePaymentMatches(orgId, transaction),
+    ]);
 
-    // Find matching invoice payments
-    const invoiceMatches = await this.findInvoicePaymentMatches(
-      orgId,
-      transaction,
-    );
-    matches.push(...invoiceMatches);
-
-    // Sort by confidence (highest first)
-    return matches.sort((a, b) => b.confidence - a.confidence);
+    // Combine and sort by confidence (highest first)
+    return [...expenseMatches, ...invoiceMatches].sort((a, b) => b.confidence - a.confidence);
   }
 
   /**
@@ -833,20 +824,48 @@ export class ReconciliationService {
 
   /**
    * Get reconciliation statistics
+   * Optimized: Uses groupBy aggregation instead of fetching all transactions
    */
   async getReconciliationStats(orgId: string): Promise<ReconciliationStats> {
-    const transactions = await this.prisma.bankTransactionNew.findMany({
-      where: {
-        bankAccount: {
-          bankConnection: {
-            orgId,
+    // Use parallel queries for better performance
+    const [statusStats, typeStats] = await Promise.all([
+      // Get counts and sums by status using groupBy
+      this.prisma.bankTransactionNew.groupBy({
+        by: ['reconciliationStatus'],
+        where: {
+          bankAccount: {
+            bankConnection: {
+              orgId,
+            },
           },
         },
-      },
-    });
+        _count: {
+          _all: true,
+        },
+        _sum: {
+          amount: true,
+        },
+      }),
+      // Get match type counts
+      this.prisma.bankTransactionNew.groupBy({
+        by: ['reconciliationStatus'],
+        where: {
+          bankAccount: {
+            bankConnection: {
+              orgId,
+            },
+          },
+          reconciliationStatus: ReconciliationStatus.MATCHED,
+        },
+        _count: {
+          matchedExpenseId: true,
+          matchedInvoicePaymentId: true,
+        },
+      }),
+    ]);
 
     const stats: ReconciliationStats = {
-      total: transactions.length,
+      total: 0,
       unmatched: 0,
       matched: 0,
       ignored: 0,
@@ -861,27 +880,32 @@ export class ReconciliationService {
       matchesByReason: {},
     };
 
-    for (const transaction of transactions) {
-      const amount = Math.abs(Number(transaction.amount));
+    // Process status statistics
+    for (const stat of statusStats) {
+      const count = stat._count._all;
+      const amount = Math.abs(Number(stat._sum.amount || 0));
+      stats.total += count;
 
-      switch (transaction.reconciliationStatus) {
+      switch (stat.reconciliationStatus) {
         case ReconciliationStatus.UNMATCHED:
-          stats.unmatched++;
-          stats.unmatchedValue += amount;
+          stats.unmatched = count;
+          stats.unmatchedValue = amount;
           break;
         case ReconciliationStatus.MATCHED:
-          stats.matched++;
-          stats.matchedValue += amount;
-          if (transaction.matchedExpenseId) {
-            stats.matchesByType.expense++;
-          }
-          if (transaction.matchedInvoicePaymentId) {
-            stats.matchesByType.invoicePayment++;
-          }
+          stats.matched = count;
+          stats.matchedValue = amount;
           break;
         case ReconciliationStatus.IGNORED:
-          stats.ignored++;
+          stats.ignored = count;
           break;
+      }
+    }
+
+    // Process match type statistics
+    for (const stat of typeStats) {
+      if (stat.reconciliationStatus === ReconciliationStatus.MATCHED) {
+        stats.matchesByType.expense = stat._count.matchedExpenseId || 0;
+        stats.matchesByType.invoicePayment = stat._count.matchedInvoicePaymentId || 0;
       }
     }
 

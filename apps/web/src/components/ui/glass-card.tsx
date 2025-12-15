@@ -20,7 +20,7 @@ import { useReducedMotion } from '@/hooks/use-reduced-motion';
 
 const glassCardVariants = cva(
   [
-    'relative rounded-2xl overflow-hidden',
+    'relative rounded-3xl overflow-hidden',
     'border transition-all duration-300',
   ],
   {
@@ -33,7 +33,7 @@ const glassCardVariants = cva(
           'shadow-sm',
         ],
         medium: [
-          'bg-white/60 dark:bg-slate-900/60',
+          'bg-white/40 dark:bg-slate-900/40',
           'backdrop-blur-md',
           'border-white/30 dark:border-slate-700/40',
           'shadow-md',
@@ -49,6 +49,12 @@ const glassCardVariants = cva(
           'backdrop-blur-md',
           'border-blue-200/50 dark:border-blue-800/50',
           'shadow-md shadow-blue-500/5',
+        ],
+        onDark: [
+          'bg-white/5',
+          'backdrop-blur-sm',
+          'border-white/10',
+          // No shadow - matches onboarding style
         ],
       },
       hover: {
@@ -72,19 +78,19 @@ const glassCardVariants = cva(
   }
 );
 
-// Animation variants
+// Animation variants - start visible for SSR compatibility
 const cardVariants = {
   hidden: {
-    opacity: 0,
-    y: 20,
-    scale: 0.98,
+    opacity: 1,  // Start visible for SSR
+    y: 0,
+    scale: 1,
   },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
     transition: {
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 200,
       damping: 25,
     },

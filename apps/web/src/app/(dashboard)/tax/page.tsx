@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import {
   Calculator,
   TrendingDown,
@@ -10,10 +11,13 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/animation-variants';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -37,14 +41,30 @@ const statusColors = {
 };
 
 export default function TaxPage() {
+  // These queries run in parallel - no dependencies between them
+  // Both hooks auto-fetch on mount independently for optimal performance
   const { report, isLoading: isLoadingReport } = useTaxReport('2024');
   const { deductions, isLoading: isLoadingDeductions } = useDeductions({ autoFetch: true });
+
+  // Memoize potential savings calculation
+  const potentialSavings = useMemo(() =>
+    deductions
+      .filter(d => d.status === 'SUGGESTED')
+      .reduce((sum, d) => sum + d.potentialSaving, 0),
+    [deductions]
+  );
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex items-center justify-between"
+      >
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Tax Overview</h1>
-          <p className="text-muted-foreground">Manage tax liabilities, deductions, and VAT</p>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Tax Overview</h1>
+          <p className="text-white/70">Manage tax liabilities, deductions, and VAT</p>
         </div>
         <div className="flex gap-2">
           <Button asChild>
@@ -60,20 +80,23 @@ export default function TaxPage() {
             </Link>
           </Button>
         </div>
-      </div>
+      </motion.div>
 
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6">
-          <div className="space-y-6">
-
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+        className="space-y-6"
+      >
       {/* Stats Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <GlassCard>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-white/70">
               Estimated Tax Liability
             </CardTitle>
-            <Calculator className="h-4 w-4 text-muted-foreground" />
+            <Calculator className="h-4 w-4 text-white/70" />
           </CardHeader>
           <CardContent>
             {isLoadingReport ? (
@@ -83,23 +106,23 @@ export default function TaxPage() {
               </>
             ) : (
               <>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl text-white font-bold">
                   €{report?.summary.estimatedTax.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0.00'}
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-xs text-white/70">
                   For current tax year
                 </p>
               </>
             )}
           </CardContent>
-        </Card>
+        </GlassCard>
 
-        <Card>
+        <GlassCard>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-white/70">
               Deductible Expenses
             </CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
+            <TrendingDown className="h-4 w-4 text-white/70" />
           </CardHeader>
           <CardContent>
             {isLoadingReport ? (
@@ -109,23 +132,23 @@ export default function TaxPage() {
               </>
             ) : (
               <>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl text-white font-bold">
                   €{report?.summary.totalDeductions.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0.00'}
                 </div>
-                <p className="mt-1 flex items-center text-xs text-muted-foreground">
+                <p className="mt-1 flex items-center text-xs text-white/70">
                   Total deductions claimed
                 </p>
               </>
             )}
           </CardContent>
-        </Card>
+        </GlassCard>
 
-        <Card>
+        <GlassCard>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-white/70">
               VAT Payable
             </CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <FileText className="h-4 w-4 text-white/70" />
           </CardHeader>
           <CardContent>
             {isLoadingReport ? (
@@ -135,20 +158,20 @@ export default function TaxPage() {
               </>
             ) : (
               <>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl text-white font-bold">
                   €{report?.summary.netVat.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0.00'}
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-xs text-white/70">
                   Current period
                 </p>
               </>
             )}
           </CardContent>
-        </Card>
+        </GlassCard>
 
-        <Card>
+        <GlassCard>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-white/70">
               Potential Savings
             </CardTitle>
             <TrendingDown className="h-4 w-4 text-green-600" />
@@ -161,33 +184,30 @@ export default function TaxPage() {
               </>
             ) : (
               <>
-                <div className="text-2xl font-bold text-green-600">
-                  €{deductions
-                    .filter(d => d.status === 'SUGGESTED')
-                    .reduce((sum, d) => sum + d.potentialSaving, 0)
-                    .toLocaleString('de-DE', { minimumFractionDigits: 2 })}
+                <div className="text-2xl text-white font-bold text-green-600">
+                  €{potentialSavings.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-xs text-white/70">
                   From suggested deductions
                 </p>
               </>
             )}
           </CardContent>
-        </Card>
+        </GlassCard>
       </div>
 
       {/* Deadlines and Recent Deductions */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Tax Deadlines */}
-        <Card>
+        <GlassCard>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Tax Deadlines</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-white/70 mt-1">
                 Upcoming filing and payment dates
               </p>
             </div>
-            <Calendar className="h-5 w-5 text-muted-foreground" />
+            <Calendar className="h-5 w-5 text-white/70" />
           </CardHeader>
           <CardContent>
             {isLoadingReport ? (
@@ -200,7 +220,7 @@ export default function TaxPage() {
                 ))}
               </div>
             ) : !report?.deadlines || report.deadlines.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">No upcoming deadlines</p>
+              <p className="text-white/70 text-center py-4">No upcoming deadlines</p>
             ) : (
               <div className="space-y-4">
                 {report.deadlines.slice(0, 3).map((deadline) => (
@@ -214,7 +234,7 @@ export default function TaxPage() {
                         <Badge variant="outline" className="text-xs">
                           {deadline.type}
                         </Badge>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-white/70">
                           Due: {new Date(deadline.dueDate).toLocaleDateString('de-DE')}
                         </span>
                       </div>
@@ -236,14 +256,14 @@ export default function TaxPage() {
               </Link>
             </Button>
           </CardContent>
-        </Card>
+        </GlassCard>
 
         {/* Recent Deductions */}
-        <Card>
+        <GlassCard>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Recent Deductions</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-white/70 mt-1">
                 Latest tax deduction claims
               </p>
             </div>
@@ -276,7 +296,7 @@ export default function TaxPage() {
                   ))
                 ) : deductions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    <TableCell colSpan={4} className="text-center text-white/70">
                       No recent deductions
                     </TableCell>
                   </TableRow>
@@ -311,14 +331,14 @@ export default function TaxPage() {
               </TableBody>
             </Table>
           </CardContent>
-        </Card>
+        </GlassCard>
       </div>
 
       {/* Quick Actions */}
-      <Card>
+      <GlassCard>
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-white/70">
             Common tax management tasks
           </p>
         </CardHeader>
@@ -328,7 +348,7 @@ export default function TaxPage() {
               <Link href="/tax/vat">
                 <FileText className="mb-2 h-5 w-5" />
                 <span className="font-semibold">VAT Management</span>
-                <span className="mt-1 text-xs text-muted-foreground">
+                <span className="mt-1 text-xs text-white/70">
                   View VAT periods and returns
                 </span>
               </Link>
@@ -337,8 +357,17 @@ export default function TaxPage() {
               <Link href="/tax/deductions">
                 <TrendingDown className="mb-2 h-5 w-5" />
                 <span className="font-semibold">Tax Deductions</span>
-                <span className="mt-1 text-xs text-muted-foreground">
+                <span className="mt-1 text-xs text-white/70">
                   Manage deductible expenses
+                </span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-auto flex-col items-start p-4" asChild>
+              <Link href="/tax/deductions/calculators">
+                <Calculator className="mb-2 h-5 w-5" />
+                <span className="font-semibold">Tax Calculators</span>
+                <span className="mt-1 text-xs text-white/70">
+                  Estimate deductions & savings
                 </span>
               </Link>
             </Button>
@@ -346,24 +375,15 @@ export default function TaxPage() {
               <Link href="/tax/reports">
                 <Calculator className="mb-2 h-5 w-5" />
                 <span className="font-semibold">Tax Reports</span>
-                <span className="mt-1 text-xs text-muted-foreground">
+                <span className="mt-1 text-xs text-white/70">
                   Generate tax summaries
                 </span>
               </Link>
             </Button>
-            <Button variant="outline" className="h-auto flex-col items-start p-4">
-              <AlertCircle className="mb-2 h-5 w-5" />
-              <span className="font-semibold">Tax Optimizer</span>
-              <span className="mt-1 text-xs text-muted-foreground">
-                Get savings recommendations
-              </span>
-            </Button>
           </div>
         </CardContent>
-      </Card>
-          </div>
-        </CardContent>
-      </Card>
+      </GlassCard>
+      </motion.div>
     </div>
   );
 }

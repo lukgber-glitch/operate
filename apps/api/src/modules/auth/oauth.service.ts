@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
+import * as crypto from 'crypto';
 import { PrismaService } from '../database/prisma.service';
 import { UsersRepository } from '../users/users.repository';
 import { OAuthProfile } from './dto/oauth-callback.dto';
@@ -18,6 +20,7 @@ import { AuthResponseDto, JwtPayload } from './dto/auth-response.dto';
 @Injectable()
 export class OAuthService {
   private readonly logger = new Logger(OAuthService.name);
+  private readonly MAX_SESSIONS_PER_USER = 5; // SEC-006: Session limit
 
   constructor(
     private configService: ConfigService,
@@ -25,6 +28,46 @@ export class OAuthService {
     private prisma: PrismaService,
     private usersRepository: UsersRepository,
   ) {}
+
+  /**
+   * Hash a refresh token using SHA-256
+   * SECURITY: Tokens are hashed before storing to prevent token theft from database
+   */
+  private hashRefreshToken(token: string): string {
+    return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
+  /**
+   * SEC-006: Enforce session limit per user (max 5 concurrent sessions)
+   */
+  private async enforceSessionLimit(userId: string): Promise<void> {
+    const sessionCount = await this.prisma.session.count({
+      where: {
+        userId,
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    if (sessionCount >= this.MAX_SESSIONS_PER_USER) {
+      const sessionsToDelete = await this.prisma.session.findMany({
+        where: {
+          userId,
+          expiresAt: { gt: new Date() },
+        },
+        orderBy: { createdAt: 'asc' },
+        take: sessionCount - this.MAX_SESSIONS_PER_USER + 1,
+        select: { id: true },
+      });
+
+      await this.prisma.session.deleteMany({
+        where: { id: { in: sessionsToDelete.map((s) => s.id) } },
+      });
+
+      this.logger.warn(
+        `Session limit enforced for OAuth user ${userId}: deleted ${sessionsToDelete.length} old session(s)`,
+      );
+    }
+  }
 
   /**
    * Handle OAuth callback
@@ -99,27 +142,62 @@ export class OAuthService {
         // Create new user with OAuth account
         this.logger.log(`Creating new user from ${provider} OAuth`);
 
-        user = await this.usersRepository.create({
-          email: profile.email,
-          passwordHash: null, // OAuth users don't have password
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-          avatarUrl: profile.avatarUrl,
-          locale: profile.locale || 'en',
+        // Create user, organization, membership, and OAuth account in a transaction
+        const result = await this.prisma.$transaction(async (tx) => {
+          // 1. Create user
+          const newUser = await tx.user.create({
+            data: {
+              email: profile.email,
+              passwordHash: null, // OAuth users don't have password
+              firstName: profile.firstName,
+              lastName: profile.lastName,
+              avatarUrl: profile.avatarUrl,
+              locale: profile.locale || 'en',
+            },
+          });
+
+          // 2. Create organization for the user
+          const baseSlug = `${profile.firstName.toLowerCase()}-${profile.lastName.toLowerCase()}`.replace(/[^a-z0-9-]/g, '-');
+          const uniqueSlug = `${baseSlug}-${newUser.id.slice(0, 8)}`;
+
+          const organisation = await tx.organisation.create({
+            data: {
+              name: `${profile.firstName} ${profile.lastName}'s Organisation`,
+              slug: uniqueSlug,
+              country: 'DE',
+              currency: 'EUR',
+              timezone: 'Europe/Berlin',
+              subscriptionTier: 'free',
+            },
+          });
+
+          // 3. Create membership
+          await tx.membership.create({
+            data: {
+              userId: newUser.id,
+              orgId: organisation.id,
+              role: 'OWNER',
+              acceptedAt: new Date(),
+            },
+          });
+
+          // 4. Create OAuth account
+          await tx.oAuthAccount.create({
+            data: {
+              userId: newUser.id,
+              provider,
+              providerId,
+              accessToken,
+              refreshToken,
+              expiresAt: this.calculateTokenExpiry(),
+            },
+          });
+
+          return { user: newUser, organisation };
         });
 
-        await this.prisma.oAuthAccount.create({
-          data: {
-            userId: user.id,
-            provider,
-            providerId,
-            accessToken,
-            refreshToken,
-            expiresAt: this.calculateTokenExpiry(),
-          },
-        });
-
-        this.logger.log(`User created via ${provider} OAuth: ${user.id}`);
+        user = result.user;
+        this.logger.log(`User created via ${provider} OAuth: ${user.id} with organisation: ${result.organisation.id}`);
       }
     }
 
@@ -156,14 +234,20 @@ export class OAuthService {
       expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
     });
 
-    // Store refresh token in session table
+    // SEC-005: Hash refresh token before storing (same as auth.service.ts)
+    // SECURITY: Prevents token theft from database compromise
+    const hashedRefreshToken = this.hashRefreshToken(jwtRefreshToken);
+
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+
+    // SEC-006: Enforce session limit per user
+    await this.enforceSessionLimit(user.id);
 
     await this.prisma.session.create({
       data: {
         userId: user.id,
-        token: jwtRefreshToken,
+        token: hashedRefreshToken, // Store hash, not plaintext
         expiresAt,
       },
     });
@@ -257,6 +341,47 @@ export class OAuthService {
       });
 
       this.logger.log(`Profile data synced for user: ${userId}`);
+    }
+  }
+
+  /**
+   * Check if user has completed onboarding and set cookie if true
+   * This prevents the redirect loop when onboarding is complete in DB but cookie is missing
+   */
+  async checkAndSetOnboardingCookie(user: any, res: Response): Promise<void> {
+    try {
+      // Get user's organization membership
+      const membership = await this.prisma.membership.findFirst({
+        where: {
+          userId: user.id,
+          acceptedAt: { not: null },
+        },
+        include: {
+          organisation: {
+            select: {
+              onboardingCompleted: true,
+            },
+          },
+        },
+      });
+
+      // If onboarding is complete, set the cookie
+      if (membership?.organisation?.onboardingCompleted) {
+        const isProduction = this.configService.get<string>('NODE_ENV') === 'production';
+
+        res.cookie('onboarding_complete', 'true', {
+          httpOnly: false, // Needs to be readable by frontend middleware
+          secure: isProduction,
+          sameSite: 'lax', // Allow cross-site for OAuth flows
+          path: '/',
+          maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
+        });
+
+        this.logger.log(`Onboarding cookie set for user ${user.id} on OAuth login`);
+      }
+    } catch (error) {
+      // Don't fail OAuth login if onboarding check fails
+      this.logger.error(`Failed to check onboarding status for user ${user.id}`, error.message);
     }
   }
 }

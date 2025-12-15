@@ -1,7 +1,9 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -69,24 +71,32 @@ export default function DocumentsPage() {
   const canContinue = completedRequired === requiredDocs.length;
 
   return (
-    <div className="container max-w-4xl mx-auto py-8 space-y-6">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="container max-w-4xl mx-auto py-8 space-y-6"
+    >
       {/* Progress */}
-      <VerificationProgress
-        steps={verificationSteps}
-        currentStep={1}
-        completedSteps={new Set([0])}
-      />
+      <motion.div variants={fadeUp}>
+        <VerificationProgress
+          steps={verificationSteps}
+          currentStep={1}
+          completedSteps={new Set([0])}
+        />
+      </motion.div>
 
       {/* Header */}
-      <div>
+      <motion.div variants={fadeUp}>
         <h1 className="text-3xl font-bold mb-2">Upload Documents</h1>
         <p className="text-muted-foreground">
           Please upload the required documents to verify your identity
         </p>
-      </div>
+      </motion.div>
 
       {/* Progress Alert */}
-      <Alert>
+      <motion.div variants={fadeUp}>
+        <Alert>
         <FileText className="h-4 w-4" />
         <AlertDescription>
           <div className="flex items-center justify-between">
@@ -106,10 +116,11 @@ export default function DocumentsPage() {
             )}
           </div>
         </AlertDescription>
-      </Alert>
+        </Alert>
+      </motion.div>
 
       {/* Documents Grid */}
-      <div className="space-y-6">
+      <motion.div variants={fadeUp} className="space-y-6">
         {requirements.map((requirement) => (
           <Card key={requirement.type}>
             <CardHeader>
@@ -138,10 +149,10 @@ export default function DocumentsPage() {
             </CardContent>
           </Card>
         ))}
-      </div>
+      </motion.div>
 
       {/* Navigation */}
-      <div className="flex justify-between pt-4">
+      <motion.div variants={fadeUp} className="flex justify-between pt-4">
         <Button variant="outline" onClick={handleBack}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
@@ -155,16 +166,18 @@ export default function DocumentsPage() {
           Continue to Review
           <ArrowRight className="w-4 h-4" />
         </Button>
-      </div>
+      </motion.div>
 
       {!canContinue && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Please upload all required documents before continuing
-          </AlertDescription>
-        </Alert>
+        <motion.div variants={fadeUp}>
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Please upload all required documents before continuing
+            </AlertDescription>
+          </Alert>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { handleApiError } from '@/lib/api/error-handler';
 
@@ -22,6 +22,23 @@ interface UseEmployeesState {
   error: string | null;
 }
 
+// Debounce helper for search optimization
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 export function useEmployees(initialFilters?: EmployeeFilters) {
   const { toast } = useToast();
   const [state, setState] = useState<UseEmployeesState>({
@@ -36,11 +53,32 @@ export function useEmployees(initialFilters?: EmployeeFilters) {
 
   const [filters, setFilters] = useState<EmployeeFilters>(initialFilters || {});
 
+  // Debounce search filter for performance
+  const debouncedSearch = useDebounce(filters.search, 300);
+
+  // Cache for preventing duplicate fetches
+  const fetchCacheRef = useRef<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const fetchEmployees = useCallback(async (customFilters?: EmployeeFilters) => {
+    // Abort any pending request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
+    const mergedFilters = { ...filters, ...customFilters, search: debouncedSearch };
+    const cacheKey = JSON.stringify(mergedFilters);
+
+    // Skip if same request is already cached
+    if (fetchCacheRef.current === cacheKey && state.employees.length > 0) {
+      return;
+    }
+
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
-      const mergedFilters = { ...filters, ...customFilters };
       const response = await employeeApi.getEmployees(mergedFilters);
+      fetchCacheRef.current = cacheKey;
       setState({
         employees: response.data,
         total: response.total,
@@ -51,6 +89,10 @@ export function useEmployees(initialFilters?: EmployeeFilters) {
         error: null,
       });
     } catch (error) {
+      // Ignore aborted requests
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
       const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
@@ -63,7 +105,7 @@ export function useEmployees(initialFilters?: EmployeeFilters) {
         variant: 'destructive',
       });
     }
-  }, [filters, toast]);
+  }, [filters, debouncedSearch, toast, state.employees.length]);
 
   const createEmployee = useCallback(async (data: CreateEmployeeRequest) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -156,6 +198,36 @@ export function useEmployees(initialFilters?: EmployeeFilters) {
     }
   }, [toast]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  // Memoized computed values for performance
+  const activeEmployees = useMemo(
+    () => state.employees.filter(e => e.status === 'ACTIVE'),
+    [state.employees]
+  );
+
+  const employeesByDepartment = useMemo(() => {
+    const grouped: Record<string, Employee[]> = {};
+    state.employees.forEach(emp => {
+      const dept = emp.department || 'Unassigned';
+      if (!grouped[dept]) grouped[dept] = [];
+      grouped[dept].push(emp);
+    });
+    return grouped;
+  }, [state.employees]);
+
+  // Invalidate cache when filters change
+  const invalidateCache = useCallback(() => {
+    fetchCacheRef.current = null;
+  }, []);
+
   return {
     ...state,
     filters,
@@ -164,6 +236,10 @@ export function useEmployees(initialFilters?: EmployeeFilters) {
     createEmployee,
     updateEmployee,
     deleteEmployee,
+    // Optimized computed values
+    activeEmployees,
+    employeesByDepartment,
+    invalidateCache,
   };
 }
 

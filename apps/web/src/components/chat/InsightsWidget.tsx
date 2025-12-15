@@ -1,7 +1,7 @@
 'use client';
 
 import { TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo, memo } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,7 @@ interface InsightsWidgetProps {
  * - Minimal and expanded views
  * - Type-based badges
  */
-export function InsightsWidget({ insights, className }: InsightsWidgetProps) {
+function InsightsWidgetComponent({ insights, className }: InsightsWidgetProps) {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const toggleExpanded = (id: string) => {
@@ -39,16 +39,16 @@ export function InsightsWidget({ insights, className }: InsightsWidgetProps) {
     });
   };
 
-  if (!insights || insights.length === 0) {
-    return null;
-  }
+  // Memoize insights rendering to prevent re-renders when insights array reference changes
+  const renderedInsights = useMemo(() => {
+    if (!insights || insights.length === 0) {
+      return null;
+    }
 
-  return (
-    <div className={cn('space-y-3', className)}>
-      {insights.map((insight) => {
-        const isExpanded = expandedIds.has(insight.id);
-        const TrendIcon = getTrendIcon(insight.change?.direction);
-        const trendColor = getTrendColor(insight.change?.direction);
+    return insights.map((insight) => {
+      const isExpanded = expandedIds.has(insight.id);
+      const TrendIcon = getTrendIcon(insight.change?.direction);
+      const trendColor = getTrendColor(insight.change?.direction);
 
         return (
           <Card key={insight.id} className="overflow-hidden">
@@ -127,7 +127,12 @@ export function InsightsWidget({ insights, className }: InsightsWidgetProps) {
             </CardContent>
           </Card>
         );
-      })}
+      });
+  }, [insights, expandedIds]);
+
+  return (
+    <div className={cn('space-y-3', className)}>
+      {renderedInsights}
     </div>
   );
 }
@@ -157,3 +162,5 @@ function getTrendColor(direction?: 'up' | 'down' | 'stable') {
       return 'text-muted-foreground';
   }
 }
+
+export const InsightsWidget = memo(InsightsWidgetComponent);

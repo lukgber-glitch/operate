@@ -11,15 +11,60 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   CNY: '¥',
 };
 
+/**
+ * Map of currency codes to their preferred locales
+ * This ensures locale-aware formatting (e.g., EUR uses de-DE for proper European formatting)
+ */
+const CURRENCY_LOCALES: Record<string, string> = {
+  EUR: 'de-DE',
+  USD: 'en-US',
+  GBP: 'en-GB',
+  CHF: 'de-CH',
+  CAD: 'en-CA',
+  AUD: 'en-AU',
+  NZD: 'en-NZ',
+  SGD: 'en-SG',
+  JPY: 'ja-JP',
+  CNY: 'zh-CN',
+  KRW: 'ko-KR',
+  INR: 'en-IN',
+  HKD: 'zh-HK',
+  AED: 'ar-AE',
+  SAR: 'ar-SA',
+  SEK: 'sv-SE',
+  NOK: 'nb-NO',
+  DKK: 'da-DK',
+  PLN: 'pl-PL',
+  CZK: 'cs-CZ',
+  HUF: 'hu-HU',
+  RON: 'ro-RO',
+  MXN: 'es-MX',
+  BRL: 'pt-BR',
+  RUB: 'ru-RU',
+  TRY: 'tr-TR',
+  THB: 'th-TH',
+  MYR: 'ms-MY',
+  IDR: 'id-ID',
+  PHP: 'en-PH',
+  VND: 'vi-VN',
+  ZAR: 'en-ZA',
+  NGN: 'en-NG',
+  ILS: 'he-IL',
+};
+
 export function formatCurrency(
   amount: number,
   currency: string = 'EUR',
-  locale: string = 'en-US'
+  locale?: string
 ): string {
   try {
-    return new Intl.NumberFormat(locale, {
+    const currencyCode = currency.toUpperCase();
+    // Use currency-specific locale if not provided
+    const selectedLocale = locale || CURRENCY_LOCALES[currencyCode] || 'en-US';
+
+    return new Intl.NumberFormat(selectedLocale, {
       style: 'currency',
-      currency: currency.toUpperCase(),
+      currency: currencyCode,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
@@ -33,13 +78,17 @@ export function formatCurrency(
 export function formatCurrencyCompact(
   amount: number,
   currency: string = 'EUR',
-  locale: string = 'en-US'
+  locale?: string
 ): string {
   try {
+    const currencyCode = currency.toUpperCase();
+    // Use currency-specific locale if not provided
+    const selectedLocale = locale || CURRENCY_LOCALES[currencyCode] || 'en-US';
+
     if (Math.abs(amount) >= 1000000) {
-      return new Intl.NumberFormat(locale, {
+      return new Intl.NumberFormat(selectedLocale, {
         style: 'currency',
-        currency: currency.toUpperCase(),
+        currency: currencyCode,
         notation: 'compact',
         compactDisplay: 'short',
       }).format(amount);

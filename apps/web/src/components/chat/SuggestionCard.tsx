@@ -10,7 +10,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -121,7 +121,7 @@ function extractEntityReference(suggestion: Suggestion): EntityReference {
  * - Entity navigation (clickable cards)
  * - Hover effects for interactive cards
  */
-export function SuggestionCard({
+function SuggestionCardComponent({
   suggestion,
   onApply,
   onDismiss,
@@ -129,9 +129,11 @@ export function SuggestionCard({
 }: SuggestionCardProps) {
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
-  const entityRef = extractEntityReference(suggestion);
 
-  const handleApply = (e?: React.MouseEvent) => {
+  // Memoize entity reference extraction
+  const entityRef = useMemo(() => extractEntityReference(suggestion), [suggestion]);
+
+  const handleApply = useCallback((e?: React.MouseEvent) => {
     // Prevent card click when clicking action button
     e?.stopPropagation();
 
@@ -152,9 +154,9 @@ export function SuggestionCard({
         router.push(entityRef.url);
       }
     }
-  };
+  }, [onApply, suggestion.id, entityRef.url, router]);
 
-  const handleCardClick = () => {
+  const handleCardClick = useCallback(() => {
     // CRITICAL: Only navigate when onApply is NOT provided
     // This ensures chat context is maintained when callback exists
     if (onApply) {
@@ -172,21 +174,21 @@ export function SuggestionCard({
         router.push(entityRef.url);
       }
     }
-  };
+  }, [onApply, suggestion.id, entityRef.url, router]);
 
-  const handleDismiss = (e: React.MouseEvent) => {
+  const handleDismiss = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     onDismiss?.(suggestion.id);
-  };
+  }, [onDismiss, suggestion.id]);
 
   // Card is clickable if:
   // 1. There's an onApply callback (chat context) OR
   // 2. There's a URL to navigate to (fallback navigation)
   const isClickable = !!onApply || !!entityRef.url;
 
-  // Type-based styling
-  const typeConfig = getTypeConfig(suggestion.type);
-  const priorityConfig = getPriorityConfig(suggestion.priority);
+  // Memoize type and priority configs
+  const typeConfig = useMemo(() => getTypeConfig(suggestion.type), [suggestion.type]);
+  const priorityConfig = useMemo(() => getPriorityConfig(suggestion.priority), [suggestion.priority]);
 
   // Compact card for horizontal scroll
   if (compact) {
@@ -383,3 +385,5 @@ function getPriorityConfig(priority: SuggestionPriority) {
       return { variant: 'outline' as const };
   }
 }
+
+export const SuggestionCard = memo(SuggestionCardComponent);

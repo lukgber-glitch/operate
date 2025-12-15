@@ -1,0 +1,238 @@
+/**
+ * Phase 9: Dark Mode
+ * Inverted blue palette for dark theme
+ * WCAG AAA compliant contrast ratios
+ */
+
+/* ============================================
+   DARK MODE COLOR PALETTE
+   ============================================ */
+
+.dark,
+[data-theme="dark"] {
+  /* Inverted Blue Scale */
+  --color-blue-100: #0D47A1; /* Was lightest, now darkest for bg */
+  --color-blue-200: #1565C0;
+  --color-blue-300: #1E88E5;
+  --color-blue-400: #42A5F5;
+  --color-blue-500: #64B5F6; /* Main UI on dark */
+  --color-blue-600: #90CAF9;
+  --color-blue-700: #E3F2FD; /* Text on dark backgrounds */
+
+  /* Semantic Colors (Dark) */
+  --color-brand: var(--color-blue-500);
+  --color-brand-dark: var(--color-blue-400);
+  --color-brand-darker: var(--color-blue-300);
+  --color-surface: #0a1929; /* Deep navy */
+  --color-surface-alt: #0d2137;
+
+  /* Text Colors (Dark) */
+  --color-text-primary: #E3F2FD;
+  --color-text-secondary: #90CAF9;
+  --color-text-muted: #64B5F6;
+
+  /* Background Colors */
+  --color-background: #040d19;
+  --color-background-elevated: #0a1929;
+  --color-background-overlay: rgba(4, 13, 25, 0.8);
+
+  /* Border Colors */
+  --color-border: #1565C0;
+  --color-border-subtle: #0D47A1;
+
+  /* Status Colors (Dark - adjusted for contrast) */
+  --color-success: #34D399;
+  --color-success-light: rgba(52, 211, 153, 0.15);
+  --color-warning: #FBBF24;
+  --color-warning-light: rgba(251, 191, 36, 0.15);
+  --color-error: #F87171;
+  --color-error-light: rgba(248, 113, 113, 0.15);
+
+  /* Primary/Secondary (for Shadcn compatibility) */
+  --color-primary: #64B5F6;
+  --color-primary-hover: #90CAF9;
+  --color-primary-dark: #42A5F5;
+  --color-secondary-light: #1565C0;
+  --color-secondary-dark: #0D47A1;
+  --color-accent-light: rgba(100, 181, 246, 0.1);
+
+  /* Shadows (Dark - more subtle, blue-tinted) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px 4px rgba(100, 181, 246, 0.3);
+  --shadow-focus: 0 0 0 3px rgba(100, 181, 246, 0.4);
+
+  /* Glassmorphism (Dark) */
+  --glass-bg: rgba(10, 25, 41, 0.8);
+  --glass-bg-dark: rgba(4, 13, 25, 0.9);
+  --glass-blur: 12px;
+  --glass-border: rgba(100, 181, 246, 0.2);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================
+   SHADCN/UI DARK MODE VARIABLES
+   ============================================ */
+
+.dark {
+  --background: 216 85% 5%;
+  --foreground: 210 100% 94%;
+  --card: 216 85% 8%;
+  --card-foreground: 210 100% 94%;
+  --popover: 216 85% 8%;
+  --popover-foreground: 210 100% 94%;
+  --primary: 207 89% 68%;
+  --primary-foreground: 216 85% 8%;
+  --secondary: 216 85% 12%;
+  --secondary-foreground: 210 100% 94%;
+  --muted: 216 85% 15%;
+  --muted-foreground: 207 70% 70%;
+  --accent: 207 89% 68%;
+  --accent-foreground: 216 85% 8%;
+  --destructive: 0 62.8% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 216 60% 20%;
+  --input: 216 60% 20%;
+  --ring: 207 89% 68%;
+}
+
+/* ============================================
+   COMPONENT OVERRIDES (DARK)
+   ============================================ */
+
+/* Glass Card in Dark Mode */
+.dark .glass-card,
+.dark [class*="bg-white/"] {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+}
+
+/* Animated Gradient Background (Dark) */
+.dark .animated-gradient-bg {
+  background: linear-gradient(
+    135deg,
+    var(--color-background) 0%,
+    var(--color-surface) 50%,
+    var(--color-background) 100%
+  );
+}
+
+/* Buttons in Dark Mode */
+.dark button[class*="bg-primary"],
+.dark [class*="bg-\[var\(--color-primary\)\]"] {
+  background-color: var(--color-primary);
+  color: var(--color-background);
+}
+
+.dark button[class*="bg-primary"]:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* Input Fields (Dark) */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+/* Cards and Surfaces (Dark) */
+.dark .card,
+.dark [class*="bg-card"],
+.dark [class*="bg-\[var\(--color-surface\)\]"] {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-subtle);
+}
+
+/* Progress Bar (Dark) */
+.dark [class*="bg-secondary"] {
+  background-color: var(--color-surface-alt);
+}
+
+/* Chat Messages (Dark) */
+.dark .chat-message-user {
+  background-color: var(--color-primary);
+  color: var(--color-background);
+}
+
+.dark .chat-message-assistant {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+/* ============================================
+   SYSTEM PREFERENCE DETECTION
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* Auto-apply dark mode based on system preference */
+    /* Uncomment below to enable auto-dark mode */
+    /*
+    --color-blue-100: #0D47A1;
+    --color-blue-700: #E3F2FD;
+    --color-background: #040d19;
+    --color-surface: #0a1929;
+    */
+  }
+}
+
+/* ============================================
+   DARK MODE TRANSITIONS
+   ============================================ */
+
+/* Smooth theme transitions */
+:root {
+  color-scheme: light dark;
+}
+
+html {
+  transition:
+    background-color var(--duration-short) var(--ease-smooth),
+    color var(--duration-short) var(--ease-smooth);
+}
+
+/* Disable transitions during theme switch for performance */
+html.theme-switching,
+html.theme-switching * {
+  transition: none !important;
+}
+
+/* ============================================
+   CONTRAST HELPERS
+   ============================================ */
+
+/* Ensure text contrast in dark mode */
+.dark .text-high-contrast {
+  color: #FFFFFF;
+}
+
+.dark .text-medium-contrast {
+  color: #E3F2FD;
+}
+
+.dark .text-low-contrast {
+  color: #90CAF9;
+}
+
+/* Force high contrast for critical elements */
+.dark [role="alert"],
+.dark .error-text,
+.dark .warning-text {
+  font-weight: 500;
+}

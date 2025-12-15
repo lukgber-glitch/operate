@@ -8,34 +8,51 @@
  */
 export enum SubscriptionTier {
   FREE = 'FREE',
+  STARTER = 'STARTER',
   PRO = 'PRO',
-  ENTERPRISE = 'ENTERPRISE',
+  BUSINESS = 'BUSINESS',
 }
 
 /**
  * Platform Features
  */
 export enum PlatformFeature {
-  // Core features
-  INVOICES = 'invoices',
-  EXPENSES = 'expenses',
-  BASIC_REPORTS = 'basic_reports',
+  // FREE features
+  BASIC_INVOICING = 'basic_invoicing',
+  BASIC_EXPENSE_TRACKING = 'basic_expense_tracking',
+  AI_CHAT_ASSISTANT = 'ai_chat_assistant',
+  SINGLE_BANK_CONNECTION = 'single_bank_connection',
 
-  // Pro features
-  OCR = 'ocr',
-  BANK_SYNC = 'bank_sync',
-  RECURRING_INVOICES = 'recurring',
-  ADVANCED_REPORTS = 'reports',
+  // STARTER features
+  MULTI_BANK_CONNECTIONS = 'multi_bank_connections',
+  EMAIL_INTEGRATION = 'email_integration',
+  BASIC_REPORTS = 'basic_reports',
+  DATEV_EXPORT = 'datev_export',
+  RECEIPT_SCANNING = 'receipt_scanning',
+
+  // PRO features
+  UNLIMITED_AI_MESSAGES = 'unlimited_ai_messages',
+  TAX_FILING = 'tax_filing',
+  CASH_FLOW_FORECASTING = 'cash_flow_forecasting',
+  ADVANCED_REPORTS = 'advanced_reports',
+  DOCUMENT_OCR = 'document_ocr',
+  TEAM_COLLABORATION = 'team_collaboration',
+
+  // BUSINESS features
+  UNLIMITED_BANK_CONNECTIONS = 'unlimited_bank_connections',
+  UNLIMITED_TEAM_MEMBERS = 'unlimited_team_members',
   API_ACCESS = 'api_access',
   MULTI_CURRENCY = 'multi_currency',
-
-  // Enterprise features
   CUSTOM_INTEGRATIONS = 'custom_integrations',
-  DEDICATED_SUPPORT = 'dedicated_support',
-  SSO = 'sso',
-  AUDIT_LOGS = 'audit_logs',
-  CUSTOM_ROLES = 'custom_roles',
-  WHITE_LABEL = 'white_label',
+  PRIORITY_SUPPORT = 'priority_support',
+}
+
+/**
+ * Billing Interval
+ */
+export enum BillingInterval {
+  MONTHLY = 'MONTHLY',
+  ANNUAL = 'ANNUAL',
 }
 
 /**
@@ -43,9 +60,12 @@ export enum PlatformFeature {
  */
 export interface TierConfig {
   name: SubscriptionTier;
-  price: number; // Monthly price in cents (e.g., 2900 = $29.00)
-  invoicesPerMonth: number; // -1 = unlimited
-  maxUsers: number; // -1 = unlimited
+  priceMonthly: number; // Monthly price in cents (EUR)
+  priceAnnual: number; // Annual price in cents (EUR)
+  aiMessages: number; // -1 = unlimited
+  bankConnections: number; // -1 = unlimited
+  invoices: number; // -1 = unlimited
+  teamMembers: number; // -1 = unlimited
   features: PlatformFeature[];
   displayName: string;
   description: string;
@@ -57,44 +77,87 @@ export interface TierConfig {
 export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
   [SubscriptionTier.FREE]: {
     name: SubscriptionTier.FREE,
-    price: 0,
-    invoicesPerMonth: 5,
-    maxUsers: 1,
+    priceMonthly: 0,
+    priceAnnual: 0,
+    aiMessages: 50,
+    bankConnections: 1,
+    invoices: 5,
+    teamMembers: 1,
     features: [
-      PlatformFeature.INVOICES,
-      PlatformFeature.EXPENSES,
-      PlatformFeature.BASIC_REPORTS,
+      PlatformFeature.BASIC_INVOICING,
+      PlatformFeature.BASIC_EXPENSE_TRACKING,
+      PlatformFeature.AI_CHAT_ASSISTANT,
+      PlatformFeature.SINGLE_BANK_CONNECTION,
     ],
     displayName: 'Free',
-    description: 'Perfect for getting started with basic invoicing',
+    description: 'Perfect for getting started with basic features',
+  },
+  [SubscriptionTier.STARTER]: {
+    name: SubscriptionTier.STARTER,
+    priceMonthly: 990, // €9.90/month
+    priceAnnual: 9500, // €95.00/year
+    aiMessages: 200,
+    bankConnections: 3,
+    invoices: -1, // unlimited
+    teamMembers: 1,
+    features: [
+      // All FREE features
+      PlatformFeature.BASIC_INVOICING,
+      PlatformFeature.BASIC_EXPENSE_TRACKING,
+      PlatformFeature.AI_CHAT_ASSISTANT,
+      PlatformFeature.SINGLE_BANK_CONNECTION,
+      // STARTER features
+      PlatformFeature.MULTI_BANK_CONNECTIONS,
+      PlatformFeature.EMAIL_INTEGRATION,
+      PlatformFeature.BASIC_REPORTS,
+      PlatformFeature.DATEV_EXPORT,
+      PlatformFeature.RECEIPT_SCANNING,
+    ],
+    displayName: 'Starter',
+    description: 'Essential features for small businesses',
   },
   [SubscriptionTier.PRO]: {
     name: SubscriptionTier.PRO,
-    price: 2900, // $29.00/month
-    invoicesPerMonth: 100,
-    maxUsers: 5,
+    priceMonthly: 1990, // €19.90/month
+    priceAnnual: 19000, // €190.00/year
+    aiMessages: -1, // unlimited
+    bankConnections: 10,
+    invoices: -1, // unlimited
+    teamMembers: 3,
     features: [
-      PlatformFeature.INVOICES,
-      PlatformFeature.EXPENSES,
+      // All FREE features
+      PlatformFeature.BASIC_INVOICING,
+      PlatformFeature.BASIC_EXPENSE_TRACKING,
+      PlatformFeature.AI_CHAT_ASSISTANT,
+      PlatformFeature.SINGLE_BANK_CONNECTION,
+      // All STARTER features
+      PlatformFeature.MULTI_BANK_CONNECTIONS,
+      PlatformFeature.EMAIL_INTEGRATION,
       PlatformFeature.BASIC_REPORTS,
-      PlatformFeature.OCR,
-      PlatformFeature.BANK_SYNC,
-      PlatformFeature.RECURRING_INVOICES,
+      PlatformFeature.DATEV_EXPORT,
+      PlatformFeature.RECEIPT_SCANNING,
+      // PRO features
+      PlatformFeature.UNLIMITED_AI_MESSAGES,
+      PlatformFeature.TAX_FILING,
+      PlatformFeature.CASH_FLOW_FORECASTING,
       PlatformFeature.ADVANCED_REPORTS,
-      PlatformFeature.API_ACCESS,
-      PlatformFeature.MULTI_CURRENCY,
+      PlatformFeature.DOCUMENT_OCR,
+      PlatformFeature.TEAM_COLLABORATION,
     ],
     displayName: 'Pro',
     description: 'Advanced features for growing businesses',
   },
-  [SubscriptionTier.ENTERPRISE]: {
-    name: SubscriptionTier.ENTERPRISE,
-    price: 9900, // $99.00/month
-    invoicesPerMonth: -1, // unlimited
-    maxUsers: -1, // unlimited
+  [SubscriptionTier.BUSINESS]: {
+    name: SubscriptionTier.BUSINESS,
+    priceMonthly: 3990, // €39.90/month
+    priceAnnual: 38000, // €380.00/year
+    aiMessages: -1, // unlimited
+    bankConnections: -1, // unlimited
+    invoices: -1, // unlimited
+    teamMembers: -1, // unlimited
     features: Object.values(PlatformFeature), // All features
-    displayName: 'Enterprise',
-    description: 'Unlimited access with premium support',
+    displayName: 'Business',
+    description: 'Complete solution with unlimited access and priority support',
   },
 };
 
@@ -108,15 +171,21 @@ export interface UsageMetrics {
     start: Date;
     end: Date;
   };
+  aiMessagesUsed: number;
+  bankConnectionsUsed: number;
   invoicesCreated: number;
-  activeUsers: number;
+  teamMembersActive: number;
   limits: {
-    invoicesPerMonth: number;
-    maxUsers: number;
+    aiMessages: number; // -1 = unlimited
+    bankConnections: number; // -1 = unlimited
+    invoices: number; // -1 = unlimited
+    teamMembers: number; // -1 = unlimited
   };
   percentUsed: {
+    aiMessages: number; // 0-100, -1 for unlimited
+    bankConnections: number; // 0-100, -1 for unlimited
     invoices: number; // 0-100, -1 for unlimited
-    users: number; // 0-100, -1 for unlimited
+    teamMembers: number; // 0-100, -1 for unlimited
   };
 }
 

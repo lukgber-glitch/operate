@@ -354,7 +354,7 @@ export function CompanyProfileStep() {
             <Label htmlFor="companyName" className="text-white">
               Company Name <span className="text-destructive">*</span>
             </Label>
-            <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
+            <Input
               id="companyName"
               placeholder="e.g., Acme GmbH"
               className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
@@ -754,7 +754,7 @@ export function CompanyProfileStep() {
                 <Label htmlFor="currency" className="text-white">
                   Default Currency <span className="text-destructive">*</span>
                 </Label>
-                <Input className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
+                <Input
                   id="currency"
                   value={currency || ''}
                   readOnly

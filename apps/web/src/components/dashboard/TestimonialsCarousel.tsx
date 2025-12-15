@@ -77,12 +77,12 @@ export function TestimonialsCarousel({ className }: TestimonialsCarouselProps) {
       <Card className={cn('rounded-[24px]', className)}>
         <CardContent className="p-6 text-center">
           <div className="inline-flex p-3 rounded-full bg-muted mb-4">
-            <Quote className="h-6 w-6 text-muted-foreground" />
+            <Quote className="h-6 w-6 text-gray-300" />
           </div>
           <h3 className="text-base font-semibold mb-2">
             Be the First to Share
           </h3>
-          <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-4">
+          <p className="text-sm text-gray-300 max-w-sm mx-auto mb-4">
             Help others discover how Operate can transform their business. Share your experience!
           </p>
           <Button
@@ -125,7 +125,7 @@ export function TestimonialsCarousel({ className }: TestimonialsCarouselProps) {
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-gray-300">
                   {currentIndex + 1} / {testimonials.length}
                 </span>
                 <Button
@@ -159,7 +159,7 @@ export function TestimonialsCarousel({ className }: TestimonialsCarouselProps) {
               )}
             </div>
             {(current.authorRole || current.company) && (
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-xs text-gray-300 mt-0.5">
                 {current.authorRole}
                 {current.authorRole && current.company && ' at '}
                 {current.company}
@@ -169,8 +169,8 @@ export function TestimonialsCarousel({ className }: TestimonialsCarouselProps) {
 
           {current.timeSaved && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
-              <Clock className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-              <span className="text-xs font-medium text-green-600 dark:text-green-400">
+              <Clock className="h-3.5 w-3.5 text-green-400" />
+              <span className="text-xs font-medium text-green-400">
                 {current.timeSaved}
               </span>
             </div>

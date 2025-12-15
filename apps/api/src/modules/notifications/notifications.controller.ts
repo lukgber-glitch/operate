@@ -1,10 +1,12 @@
 import {
   Controller,
   Get,
+  Post,
   Patch,
   Delete,
   Param,
   Query,
+  Body,
   UseGuards,
   Req,
   HttpCode,
@@ -16,6 +18,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiBody,
 } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
 import {
@@ -24,6 +27,13 @@ import {
   UnreadCountDto,
 } from './dto/notification-filter.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
+/**
+ * DTO for batch operations
+ */
+class BatchIdsDto {
+  ids: string[];
+}
 
 /**
  * Notifications Controller
@@ -186,5 +196,85 @@ export class NotificationsController {
   ): Promise<void> {
     const { userId } = req.user as any;
     return this.notificationsService.deleteNotification(id, userId);
+  }
+
+  /**
+   * Batch mark notifications as read
+   */
+  @Post('batch/read')
+  @ApiOperation({
+    summary: 'Batch mark as read',
+    description: 'Mark multiple notifications as read in a single request',
+  })
+  @ApiBody({
+    type: BatchIdsDto,
+    description: 'Array of notification IDs to mark as read',
+    examples: {
+      example: {
+        value: { ids: ['uuid-1', 'uuid-2', 'uuid-3'] },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Notifications marked as read',
+    schema: {
+      type: 'object',
+      properties: {
+        count: { type: 'number', example: 3 },
+        processed: { type: 'array', items: { type: 'string' } },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  async batchMarkAsRead(
+    @Req() req: Request,
+    @Body() body: BatchIdsDto,
+  ): Promise<{ count: number; processed: string[] }> {
+    const { userId, orgId } = req.user as any;
+    return this.notificationsService.batchMarkAsRead(body.ids, userId, orgId);
+  }
+
+  /**
+   * Batch delete notifications
+   */
+  @Post('batch/delete')
+  @ApiOperation({
+    summary: 'Batch delete notifications',
+    description: 'Delete multiple notifications in a single request',
+  })
+  @ApiBody({
+    type: BatchIdsDto,
+    description: 'Array of notification IDs to delete',
+    examples: {
+      example: {
+        value: { ids: ['uuid-1', 'uuid-2', 'uuid-3'] },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Notifications deleted',
+    schema: {
+      type: 'object',
+      properties: {
+        count: { type: 'number', example: 3 },
+        deleted: { type: 'array', items: { type: 'string' } },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  async batchDelete(
+    @Req() req: Request,
+    @Body() body: BatchIdsDto,
+  ): Promise<{ count: number; deleted: string[] }> {
+    const { userId, orgId } = req.user as any;
+    return this.notificationsService.batchDelete(body.ids, userId, orgId);
   }
 }

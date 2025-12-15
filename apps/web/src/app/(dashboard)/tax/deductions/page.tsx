@@ -3,10 +3,13 @@
 import { Plus, Download, Search, Filter } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/animation-variants';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -69,18 +72,30 @@ export default function DeductionsPage() {
     startIndex + pageSize
   );
 
-  const totalSavings = filteredDeductions
-    .filter((d) => d.status === 'CONFIRMED')
-    .reduce((sum, d) => sum + d.potentialSaving, 0);
+  // Memoize totals calculations
+  const totalSavings = useMemo(() =>
+    filteredDeductions
+      .filter((d) => d.status === 'CONFIRMED')
+      .reduce((sum, d) => sum + d.potentialSaving, 0),
+    [filteredDeductions]
+  );
 
-  const totalDeductions = filteredDeductions.reduce((sum, d) => sum + d.amount, 0);
+  const totalDeductions = useMemo(() =>
+    filteredDeductions.reduce((sum, d) => sum + d.amount, 0),
+    [filteredDeductions]
+  );
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Tax Deductions</h1>
-          <p className="text-muted-foreground">Manage and track your tax-deductible expenses</p>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Tax Deductions</h1>
+          <p className="text-white/70">Manage and track your tax-deductible expenses</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
@@ -94,14 +109,18 @@ export default function DeductionsPage() {
             </Link>
           </Button>
         </div>
-      </div>
+      </motion.div>
 
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6">
-        <div className="space-y-6">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+      >
+      <GlassCard padding="lg">
 
       {/* Summary Card */}
-      <Card>
+      <GlassCard>
         <CardContent className="pt-6">
           {isLoading ? (
             <div className="grid gap-4 sm:grid-cols-3">
@@ -121,30 +140,30 @@ export default function DeductionsPage() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
-                <p className="text-sm text-muted-foreground">Total Deductions</p>
-                <p className="text-2xl font-bold">
+                <p className="text-sm text-white/70">Total Deductions</p>
+                <p className="text-2xl text-white font-bold">
                   €{totalDeductions.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Potential Savings</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-sm text-white/70">Potential Savings</p>
+                <p className="text-2xl text-white font-bold text-green-600">
                   €{totalSavings.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Confirmed Deductions</p>
-                <p className="text-2xl font-bold">
+                <p className="text-sm text-white/70">Confirmed Deductions</p>
+                <p className="text-2xl text-white font-bold">
                   {filteredDeductions.filter((d) => d.status === 'CONFIRMED').length}
                 </p>
               </div>
             </div>
           )}
         </CardContent>
-      </Card>
+      </GlassCard>
 
       {/* Filters */}
-      <Card>
+      <GlassCard>
         <CardContent className="pt-6">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-4 sm:flex-row">
@@ -188,20 +207,20 @@ export default function DeductionsPage() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </GlassCard>
 
       {/* Deductions Table */}
-      <Card>
+      <GlassCard>
         <CardContent className="p-0">
           <div className="space-y-4">
             <div className="flex items-center justify-between px-6 pt-6">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-white/70">
                 Showing {displayedDeductions.length} of {filteredDeductions.length}{' '}
                 deductions
               </p>
 
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-white/70">
                   Rows per page:
                 </span>
                 <Select
@@ -254,7 +273,7 @@ export default function DeductionsPage() {
                   <TableRow>
                     <TableCell
                       colSpan={8}
-                      className="text-center text-muted-foreground"
+                      className="text-center text-white/70"
                     >
                       No deductions found
                     </TableCell>
@@ -351,10 +370,9 @@ export default function DeductionsPage() {
             )}
           </div>
         </CardContent>
-      </Card>
-        </div>
-        </CardContent>
-      </Card>
+      </GlassCard>
+      </GlassCard>
+      </motion.div>
     </div>
   );
 }

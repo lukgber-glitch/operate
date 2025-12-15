@@ -161,7 +161,7 @@ export function DashboardGrid({
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="p-4 rounded-full bg-muted mb-4">
             <svg
-              className="h-12 w-12 text-muted-foreground"
+              className="h-12 w-12 text-gray-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -175,7 +175,7 @@ export function DashboardGrid({
             </svg>
           </div>
           <h3 className="text-lg font-semibold mb-2">No widgets to display</h3>
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="text-sm text-gray-300 mb-4">
             Customize your dashboard by adding widgets
           </p>
         </div>

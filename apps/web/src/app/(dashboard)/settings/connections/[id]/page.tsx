@@ -1,9 +1,11 @@
 'use client'
 
+import { motion } from 'framer-motion'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
+import { fadeUp, staggerContainer } from '@/lib/animation-variants'
 import { ConnectionDetails, Integration } from '@/components/connections'
 import { Button } from '@/components/ui/button'
 
@@ -114,8 +116,14 @@ export default function ConnectionDetailPage({ params }: { params: { id: string 
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
+      {/* Header */}
+      <motion.div variants={fadeUp} className="flex items-center gap-4">
         <Button
           variant="ghost"
           size="icon"
@@ -127,15 +135,18 @@ export default function ConnectionDetailPage({ params }: { params: { id: string 
           <h1 className="text-3xl font-bold">Connection Details</h1>
           <p className="text-muted-foreground">View and manage this integration</p>
         </div>
-      </div>
+      </motion.div>
 
-      <ConnectionDetails
-        integration={integration}
-        syncHistory={syncHistory}
-        errorLogs={errorLogs}
-        configuration={configuration}
-      />
-    </div>
+      {/* Details */}
+      <motion.div variants={fadeUp}>
+        <ConnectionDetails
+          integration={integration}
+          syncHistory={syncHistory}
+          errorLogs={errorLogs}
+          configuration={configuration}
+        />
+      </motion.div>
+    </motion.div>
   )
 }
 

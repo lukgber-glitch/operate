@@ -1,3 +1,5 @@
+'use client';
+
 // Minimal Design System Components
 export { MinimalInput } from './minimal-input'
 export type { MinimalInputProps } from './minimal-input'
@@ -23,6 +25,33 @@ export {
   AnimatedGradientBackground,
   MeshGradientBackground,
 } from './animated-gradient-background'
+
+// Phase 7: Micro-Interactions Components
+export {
+  AnimatedButton,
+  AnimatedIconButton,
+} from './animated-button'
+export type { AnimatedButtonProps, AnimatedIconButtonProps } from './animated-button'
+
+export {
+  AnimatedCard,
+  AnimatedCardHeader,
+  AnimatedCardTitle,
+  AnimatedCardDescription,
+  AnimatedCardContent,
+  AnimatedCardFooter,
+  AnimatedCardGrid,
+} from './animated-card'
+export type { AnimatedCardProps } from './animated-card'
+
+export {
+  SuccessCheckmark,
+  ErrorIndicator,
+  WarningIndicator,
+  ConfettiBurst,
+  SuccessCelebration,
+  InlineFeedback,
+} from './celebrations'
 
 // Shadcn UI components
 export { Alert } from './alert'

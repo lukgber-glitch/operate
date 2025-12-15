@@ -1,6 +1,6 @@
 'use client';
 
-import { Metadata } from 'next';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/use-auth';
 import { useSuggestions } from '@/hooks/useSuggestions';
 import { useConversationHistory } from '@/hooks/use-conversation-history';
@@ -10,21 +10,26 @@ import { useCurrencyFormat } from '@/hooks/use-currency-format';
 import { useAIConsent } from '@/hooks/useAIConsent';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 import { ExtractionReviewStatus } from '@/types/extracted-invoice';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, Suspense, lazy } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { ChatMessage } from '@/components/chat/ChatMessage';
 import { ChatInput } from '@/components/chat/ChatInput';
-import { SuggestionCard } from '@/components/chat/SuggestionCard';
-import { SuggestionChips } from '@/components/chat/SuggestionChips';
-import { AIConsentDialog } from '@/components/consent/AIConsentDialog';
-import { GreetingHeader } from '@/components/chat/GreetingHeader';
-import { ChatHistoryDropdown } from '@/components/chat/ChatHistoryDropdown';
-import { Mail, Building2, Calendar, Mic, History, Loader2, Brain, AlertCircle } from 'lucide-react';
+import { Mail, Building2, Calendar, Mic, History, Loader2, Brain, AlertCircle, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { listExtractedInvoices } from '@/lib/api/extracted-invoices';
+import { fadeUp, staggerContainer, scaleIn } from '@/lib/animation-variants';
+import { ErrorBoundary } from '@/components/error/ErrorBoundary';
+import { useChatWizardPanel } from '@/hooks/useChatWizardPanel';
+import { WizardPanelContainer } from '@/components/panels/wizards';
+
+// Lazy load non-critical components for faster initial render
+const SuggestionChips = lazy(() => import('@/components/chat/SuggestionChips').then(m => ({ default: m.SuggestionChips })));
+const ChatHistoryDropdown = lazy(() => import('@/components/chat/ChatHistoryDropdown').then(m => ({ default: m.ChatHistoryDropdown })));
+const GreetingHeader = lazy(() => import('@/components/chat/GreetingHeader').then(m => ({ default: m.GreetingHeader })));
+const AIConsentDialog = lazy(() => import('@/components/consent/AIConsentDialog').then(m => ({ default: m.AIConsentDialog })));
 
 /**
  * Chat Landing Page Layout (S10-01)
@@ -37,8 +42,9 @@ import { listExtractedInvoices } from '@/lib/api/extracted-invoices';
  * - Three insight cards at bottom (Email, Bank, Upcoming)
  * - Responsive design (mobile-first)
  */
-export default function ChatPage() {
+function ChatPageContent() {
   const { user } = useAuth();
+  // Defer suggestions loading - not critical for initial render
   const { suggestions, dismissSuggestion } = useSuggestions({
     context: 'chat-landing',
   });
@@ -60,6 +66,18 @@ export default function ChatPage() {
     giveConsent,
     revokeConsent,
   } = useAIConsent();
+
+  // Wizard Panel Management
+  const {
+    panelState,
+    isOpen: isPanelOpen,
+    currentGuidance,
+    openPanel,
+    closePanel,
+    onStepChange: handlePanelStepChange,
+    onPanelComplete,
+    getPanelTitle,
+  } = useChatWizardPanel();
 
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -84,33 +102,32 @@ export default function ChatPage() {
     }
   }, [activeConversation]);
 
-  // Fetch data on mount
+  // Fetch data on mount - PARALLELIZED for performance
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Fetch bank accounts and transactions
-        await fetchBankAccounts();
-        await fetchTransactions();
-
-        // Fetch pending invoices
-        await fetchInvoices({ status: 'SENT' });
-
-        // Fetch extracted invoices from email
-        setExtractedLoading(true);
-        try {
-          const extracted = await listExtractedInvoices({
+        // Run all API calls in parallel for faster loading
+        const [accountsResult, transactionsResult, invoicesResult, extractedResult] = await Promise.allSettled([
+          fetchBankAccounts(),
+          fetchTransactions(),
+          fetchInvoices({ status: 'SENT' }),
+          listExtractedInvoices({
             reviewStatus: ExtractionReviewStatus.PENDING_REVIEW,
             limit: 10
-          });
-          setExtractedInvoices(extracted.items || []);
-        } catch (error) {
-          console.error('Failed to fetch extracted invoices:', error);
+          })
+        ]);
+
+        // Handle extracted invoices result
+        if (extractedResult.status === 'fulfilled') {
+          setExtractedInvoices(extractedResult.value.items || []);
+        } else {
+          console.error('Failed to fetch extracted invoices:', extractedResult.reason);
           setExtractedInvoices([]);
-        } finally {
-          setExtractedLoading(false);
         }
+        setExtractedLoading(false);
       } catch (error) {
         console.error('Failed to load chat context data:', error);
+        setExtractedLoading(false);
       }
     };
 
@@ -197,6 +214,11 @@ export default function ChatPage() {
 
       setMessages((prev) => [...prev, assistantMessage]);
       addMessage(conversationId, assistantMessage);
+
+      // Check if the action should trigger a panel wizard
+      if (assistantResp.actionType) {
+        checkForPanelTrigger(assistantResp.actionType, assistantResp.actionParams);
+      }
     } catch (error) {
       // Mark message as error
       const errorMessage = {
@@ -267,6 +289,25 @@ export default function ChatPage() {
     setActiveConversationId(id);
   };
 
+  // Detect panel triggers from AI response action types
+  const checkForPanelTrigger = (actionType?: string, actionParams?: any) => {
+    const panelTriggers: Record<string, Parameters<typeof openPanel>[0]> = {
+      'create_invoice': 'invoice_builder',
+      'create_expense': 'expense_form',
+      'create_customer': 'client_form',
+      'request_leave': 'leave_request',
+      'create_quote': 'quote_builder',
+      'create_contract': 'contract_builder',
+      'hire_employee': 'employee_onboard',
+      'create_project': 'project_create',
+    };
+
+    const panelType = panelTriggers[actionType || ''];
+    if (panelType) {
+      openPanel(panelType, { initialData: actionParams });
+    }
+  };
+
   // Handle new session from dropdown
   const handleNewSession = () => {
     createConversation();
@@ -307,25 +348,42 @@ export default function ChatPage() {
 
   const isLoadingData = accountsLoading || transactionsLoading || invoicesLoading || extractedLoading;
 
+  // Card hover animation
+  const cardHover = {
+    scale: 1.02,
+    transition: { type: 'spring' as const, stiffness: 400, damping: 17 }
+  };
+
   return (
     <>
-      {/* AI Consent Dialog */}
-      <AIConsentDialog
-        open={showConsentDialog}
-        onOpenChange={setShowConsentDialog}
-        onAccept={handleConsentAccept}
-        onDecline={handleConsentDecline}
-        isLoading={consentLoading}
-      />
+      {/* AI Consent Dialog - Lazy loaded with Suspense */}
+      <Suspense fallback={null}>
+        <AIConsentDialog
+          open={showConsentDialog}
+          onOpenChange={setShowConsentDialog}
+          onAccept={handleConsentAccept}
+          onDecline={handleConsentDecline}
+          isLoading={consentLoading}
+        />
+      </Suspense>
 
-      <>
-        {/* Greeting Header - OUTSIDE main container */}
-        <div className="mb-6 lg:mb-8">
-          <GreetingHeader />
-        </div>
+      {/* Premium Chat Interface */}
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="relative"
+      >
+        {/* Greeting Header with animation */}
+        <motion.div variants={fadeUp} className="mb-6 lg:mb-8">
+          <Suspense fallback={
+            <div className="h-12 animate-pulse bg-gradient-to-r from-slate-200 to-slate-100 rounded-lg" />
+          }>
+            <GreetingHeader />
+          </Suspense>
+        </motion.div>
 
-        <div>
-          <div className="h-[calc(100vh-8rem)] flex flex-col overflow-hidden">
+        <motion.div variants={fadeUp} className="h-[calc(100vh-8rem)] flex flex-col overflow-hidden">
             {/* Main Content Area */}
             <ScrollArea className="flex-1">
               <div
@@ -338,13 +396,17 @@ export default function ChatPage() {
                 }}
               >
 
-            {/* Chat History Dropdown */}
+            {/* Chat History Dropdown - Lazy loaded with Suspense */}
             <div className="mb-4">
-              <ChatHistoryDropdown
-                currentSessionId={activeConversationId || undefined}
-                onSelectSession={handleSelectSession}
-                onNewSession={handleNewSession}
-              />
+              <Suspense fallback={
+                <div className="h-10 animate-pulse bg-gray-200 rounded-lg" />
+              }>
+                <ChatHistoryDropdown
+                  currentSessionId={activeConversationId || undefined}
+                  onSelectSession={handleSelectSession}
+                  onNewSession={handleNewSession}
+                />
+              </Suspense>
             </div>
 
             {/* AI Consent Warning */}
@@ -418,213 +480,187 @@ export default function ChatPage() {
                   </div>
                 )}
 
+                {/* Panel Guidance Message */}
+                {isPanelOpen && currentGuidance && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex gap-3"
+                  >
+                    <div
+                      className="h-8 w-8 rounded-full flex items-center justify-center shrink-0"
+                      style={{
+                        background: 'linear-gradient(135deg, #06BF9D 0%, #059e82 100%)',
+                      }}
+                    >
+                      <Sparkles className="h-4 w-4 text-white" />
+                    </div>
+                    <div
+                      className="flex-1 rounded-2xl px-4 py-3"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(6, 191, 157, 0.08) 0%, rgba(6, 191, 157, 0.02) 100%)',
+                        border: '1px solid rgba(6, 191, 157, 0.2)',
+                      }}
+                    >
+                      <p className="text-sm text-emerald-200">{currentGuidance}</p>
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* Auto-scroll anchor */}
                 <div ref={messagesEndRef} />
               </div>
             ) : (
-              <div className="text-center py-12">
-                <p
-                  style={{
-                    fontSize: 'var(--font-size-lg)',
-                    color: 'var(--color-text-secondary)',
-                    marginBottom: 'var(--space-2)',
+              <motion.div
+                className="text-center py-12"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: 'spring' as const, stiffness: 200, damping: 25 }}
+              >
+                {/* Premium empty state with animated sparkle */}
+                <motion.div
+                  className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center mb-4"
+                  animate={{
+                    boxShadow: [
+                      '0 0 20px rgba(99, 91, 255, 0.1)',
+                      '0 0 40px rgba(99, 91, 255, 0.2)',
+                      '0 0 20px rgba(99, 91, 255, 0.1)'
+                    ]
                   }}
+                  transition={{ duration: 2, repeat: Infinity }}
                 >
+                  <Sparkles className="w-8 h-8 text-blue-500/60" />
+                </motion.div>
+                <p className="text-lg font-medium text-slate-700 dark:text-slate-200 mb-1">
                   Start a conversation
                 </p>
-                <p
-                  style={{
-                    fontSize: 'var(--font-size-sm)',
-                    color: 'var(--color-text-muted)',
-                  }}
-                >
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Ask me anything about your business
                 </p>
-              </div>
+              </motion.div>
             )}
           </div>
 
-          {/* Insight Cards - Three cards at bottom */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6">
+          {/* Insight Cards - Three premium cards at bottom */}
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+          >
             {/* Email Insights Card */}
-            <Card className="rounded-[24px]">
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <div
-                    className="p-2 rounded-md"
-                    style={{
-                      background: 'var(--color-accent-light)',
-                    }}
-                  >
-                    <Mail
-                      className="h-5 w-5"
-                      style={{ color: 'var(--color-primary)' }}
-                    />
+            <motion.div variants={fadeUp} whileHover={cardHover}>
+              <Card className="rounded-[24px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/5 dark:from-blue-400/20 dark:to-blue-500/10">
+                      <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <CardTitle className="text-base font-semibold text-slate-800 dark:text-slate-100">
+                      Email Insights
+                    </CardTitle>
                   </div>
-                  <CardTitle
-                    style={{
-                      fontSize: 'var(--font-size-base)',
-                      fontWeight: '600',
-                    }}
-                  >
-                    Email Insights
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {isLoadingData ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" style={{ color: 'var(--color-text-muted)' }} />
-                    <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
-                      Loading...
-                    </span>
-                  </div>
-                ) : (
-                  <CardDescription
-                    style={{
-                      fontSize: 'var(--font-size-sm)',
-                      color: 'var(--color-text-secondary)',
-                    }}
-                  >
-                    {totalPendingReview > 0
-                      ? `${totalPendingReview} invoice${totalPendingReview !== 1 ? 's' : ''} to review`
-                      : 'All caught up!'}
-                  </CardDescription>
-                )}
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingData ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                      <span className="text-sm text-slate-400">Loading...</span>
+                    </div>
+                  ) : (
+                    <CardDescription className="text-sm text-slate-600 dark:text-slate-300">
+                      {totalPendingReview > 0
+                        ? `${totalPendingReview} invoice${totalPendingReview !== 1 ? 's' : ''} to review`
+                        : 'All caught up!'}
+                    </CardDescription>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
 
             {/* Bank Summary Card */}
-            <Card className="rounded-[24px]">
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <div
-                    className="p-2 rounded-md"
-                    style={{
-                      background: 'var(--color-accent-light)',
-                    }}
-                  >
-                    <Building2
-                      className="h-5 w-5"
-                      style={{ color: 'var(--color-primary)' }}
-                    />
+            <motion.div variants={fadeUp} whileHover={cardHover}>
+              <Card className="rounded-[24px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 dark:from-emerald-400/20 dark:to-emerald-500/10">
+                      <Building2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <CardTitle className="text-base font-semibold text-slate-800 dark:text-slate-100">
+                      Bank Summary
+                    </CardTitle>
                   </div>
-                  <CardTitle
-                    style={{
-                      fontSize: 'var(--font-size-base)',
-                      fontWeight: '600',
-                    }}
-                  >
-                    Bank Summary
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {isLoadingData ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" style={{ color: 'var(--color-text-muted)' }} />
-                    <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
-                      Loading...
-                    </span>
-                  </div>
-                ) : accounts.length > 0 ? (
-                  <CardDescription
-                    style={{
-                      fontSize: 'var(--font-size-sm)',
-                      color: 'var(--color-text-secondary)',
-                    }}
-                  >
-                    {formatWithSymbol(totalBalance, primaryCurrency as any)} balance
-                    <br />
-                    {weeklyChange >= 0 ? '+' : ''}
-                    {formatWithSymbol(weeklyChange, primaryCurrency as any)} this week
-                  </CardDescription>
-                ) : (
-                  <CardDescription
-                    style={{
-                      fontSize: 'var(--font-size-sm)',
-                      color: 'var(--color-text-secondary)',
-                    }}
-                  >
-                    No bank accounts connected
-                  </CardDescription>
-                )}
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingData ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                      <span className="text-sm text-slate-400">Loading...</span>
+                    </div>
+                  ) : accounts.length > 0 ? (
+                    <CardDescription className="text-sm text-slate-600 dark:text-slate-300">
+                      <span className="font-medium">{formatWithSymbol(totalBalance, primaryCurrency as any)}</span> balance
+                      <br />
+                      <span className={weeklyChange >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}>
+                        {weeklyChange >= 0 ? '+' : ''}
+                        {formatWithSymbol(weeklyChange, primaryCurrency as any)}
+                      </span> this week
+                    </CardDescription>
+                  ) : (
+                    <CardDescription className="text-sm text-slate-500 dark:text-slate-400">
+                      No bank accounts connected
+                    </CardDescription>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
 
             {/* Upcoming Card */}
-            <Card className="rounded-[24px]">
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <div
-                    className="p-2 rounded-md"
-                    style={{
-                      background: 'var(--color-accent-light)',
-                    }}
-                  >
-                    <Calendar
-                      className="h-5 w-5"
-                      style={{ color: 'var(--color-primary)' }}
-                    />
+            <motion.div variants={fadeUp} whileHover={cardHover}>
+              <Card className="rounded-[24px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-600/5 dark:from-purple-400/20 dark:to-purple-500/10">
+                      <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <CardTitle className="text-base font-semibold text-slate-800 dark:text-slate-100">
+                      Upcoming
+                    </CardTitle>
                   </div>
-                  <CardTitle
-                    style={{
-                      fontSize: 'var(--font-size-base)',
-                      fontWeight: '600',
-                    }}
-                  >
-                    Upcoming
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {isLoadingData ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" style={{ color: 'var(--color-text-muted)' }} />
-                    <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
-                      Loading...
-                    </span>
-                  </div>
-                ) : upcomingInvoices.length > 0 ? (
-                  <CardDescription
-                    style={{
-                      fontSize: 'var(--font-size-sm)',
-                      color: 'var(--color-text-secondary)',
-                    }}
-                  >
-                    {upcomingInvoices.slice(0, 2).map((inv, idx) => {
-                      const daysUntil = Math.ceil(
-                        (new Date(inv.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-                      );
-                      return (
-                        <div key={inv.id}>
-                          {idx > 0 && <br />}
-                          - Invoice #{inv.number} ({daysUntil}d)
-                        </div>
-                      );
-                    })}
-                    {upcomingInvoices.length > 2 && (
-                      <>
-                        <br />
-                        <span style={{ color: 'var(--color-text-muted)' }}>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingData ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                      <span className="text-sm text-slate-400">Loading...</span>
+                    </div>
+                  ) : upcomingInvoices.length > 0 ? (
+                    <CardDescription className="text-sm text-slate-600 dark:text-slate-300">
+                      {upcomingInvoices.slice(0, 2).map((inv, idx) => {
+                        const daysUntil = Math.ceil(
+                          (new Date(inv.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+                        );
+                        return (
+                          <div key={inv.id} className={idx > 0 ? 'mt-1' : ''}>
+                            Invoice #{inv.number} <span className="text-purple-600 dark:text-purple-400 font-medium">({daysUntil}d)</span>
+                          </div>
+                        );
+                      })}
+                      {upcomingInvoices.length > 2 && (
+                        <div className="mt-1 text-slate-400">
                           +{upcomingInvoices.length - 2} more
-                        </span>
-                      </>
-                    )}
-                  </CardDescription>
-                ) : (
-                  <CardDescription
-                    style={{
-                      fontSize: 'var(--font-size-sm)',
-                      color: 'var(--color-text-secondary)',
-                    }}
-                  >
-                    No upcoming invoices
-                  </CardDescription>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                        </div>
+                      )}
+                    </CardDescription>
+                  ) : (
+                    <CardDescription className="text-sm text-slate-500 dark:text-slate-400">
+                      No upcoming invoices
+                    </CardDescription>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
         </div>
       </ScrollArea>
 
@@ -642,7 +678,7 @@ export default function ChatPage() {
             maxWidth: '800px',
           }}
         >
-          {/* Suggestion Chips - Shown when no messages */}
+          {/* Suggestion Chips - Shown when no messages - Lazy loaded with Suspense */}
           {!hasMessages && (
             <div
               className="py-4 border-b overflow-x-auto"
@@ -650,28 +686,58 @@ export default function ChatPage() {
                 borderColor: 'var(--color-border)',
               }}
             >
-              <SuggestionChips onSelect={handleSendMessage} />
+              <Suspense fallback={
+                <div className="flex gap-2 py-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-8 w-32 animate-pulse bg-gray-200 rounded-full" />
+                  ))}
+                </div>
+              }>
+                <SuggestionChips onSelect={handleSendMessage} />
+              </Suspense>
             </div>
           )}
 
           {/* Chat Input with placeholders */}
           <ChatInput
             onSend={handleSendMessage}
-            disabled={isLoading || !hasConsent}
+            disabled={isLoading || (!consentLoading && needsConsent)}
             isLoading={isLoading}
             placeholder={
-              hasConsent
-                ? "Ask anything about your business..."
-                : "Enable AI to use chat features..."
+              consentLoading
+                ? "Loading..."
+                : hasConsent
+                  ? "Ask anything about your business..."
+                  : "Enable AI to use chat features..."
             }
             showAttachment={true}
             showVoice={true}
+            showQuickActions={false}
+            showHistory={false}
           />
         </div>
       </div>
-    </div>
-    </div>
-  </>
-</>
-);
+        </motion.div>
+      </motion.div>
+    {/* Wizard Panel Container */}
+      <WizardPanelContainer
+        type={panelState.type}
+        isOpen={isPanelOpen}
+        onClose={closePanel}
+        onComplete={onPanelComplete}
+        onStepChange={handlePanelStepChange}
+        title={getPanelTitle()}
+        size={panelState.size}
+        initialData={panelState.initialData}
+      />
+    </>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <ErrorBoundary>
+      <ChatPageContent />
+    </ErrorBoundary>
+  );
 }

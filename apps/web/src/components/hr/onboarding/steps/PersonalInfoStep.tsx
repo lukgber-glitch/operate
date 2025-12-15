@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useCallback, useMemo } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ interface PersonalInfoStepProps {
   onSaveDraft?: () => void;
 }
 
-// US States
+// US States - moved outside component to prevent recreation on every render
 const US_STATES = [
   { code: 'AL', name: 'Alabama' },
   { code: 'AK', name: 'Alaska' },
@@ -70,36 +71,63 @@ const US_STATES = [
   { code: 'WY', name: 'Wyoming' },
 ];
 
-// Format SSN as XXX-XX-XXXX
-function formatSSN(value: string): string {
+// Format SSN as XXX-XX-XXXX - memoized for performance
+const formatSSN = (value: string): string => {
   const numbers = value.replace(/\D/g, '');
   if (numbers.length <= 3) return numbers;
   if (numbers.length <= 5) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
   return `${numbers.slice(0, 3)}-${numbers.slice(3, 5)}-${numbers.slice(5, 9)}`;
-}
+};
 
-export function PersonalInfoStep({ data, onNext, onSaveDraft }: PersonalInfoStepProps) {
+// Format phone number as (XXX) XXX-XXXX
+const formatPhone = (value: string): string => {
+  const numbers = value.replace(/\D/g, '');
+  if (numbers.length <= 3) return numbers;
+  if (numbers.length <= 6) return `(${numbers.slice(0, 3)}) ${numbers.slice(3)}`;
+  return `(${numbers.slice(0, 3)}) ${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`;
+};
+
+// Default form values - stable reference outside component
+const DEFAULT_VALUES: PersonalInfoFormData = {
+  firstName: '',
+  middleName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  ssn: '',
+  dateOfBirth: '',
+  street1: '',
+  street2: '',
+  city: '',
+  state: '',
+  zipCode: '',
+};
+
+function PersonalInfoStepComponent({ data, onNext, onSaveDraft }: PersonalInfoStepProps) {
+  // Memoize default values to prevent form reset on re-render
+  const defaultValues = useMemo(() => data || DEFAULT_VALUES, [data]);
+
   const form = useForm<PersonalInfoFormData>({
     resolver: zodResolver(personalInfoSchema),
-    defaultValues: data || {
-      firstName: '',
-      middleName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      ssn: '',
-      dateOfBirth: '',
-      street1: '',
-      street2: '',
-      city: '',
-      state: '',
-      zipCode: '',
-    },
+    defaultValues,
   });
 
-  const onSubmit = (formData: PersonalInfoFormData) => {
+  // Memoize submit handler
+  const onSubmit = useCallback((formData: PersonalInfoFormData) => {
     onNext(formData);
-  };
+  }, [onNext]);
+
+  // Memoize SSN change handler
+  const handleSSNChange = useCallback((e: React.ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => {
+    const formatted = formatSSN(e.target.value);
+    onChange(formatted);
+  }, []);
+
+  // Memoize phone change handler
+  const handlePhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => {
+    const formatted = formatPhone(e.target.value);
+    onChange(formatted);
+  }, []);
 
   return (
     <Form {...form}>
@@ -208,11 +236,9 @@ export function PersonalInfoStep({ data, onNext, onSaveDraft }: PersonalInfoStep
                         type="text"
                         placeholder="XXX-XX-XXXX"
                         maxLength={11}
+                        autoComplete="off"
                         {...field}
-                        onChange={(e) => {
-                          const formatted = formatSSN(e.target.value);
-                          field.onChange(formatted);
-                        }}
+                        onChange={(e) => handleSSNChange(e, field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -350,3 +376,6 @@ export function PersonalInfoStep({ data, onNext, onSaveDraft }: PersonalInfoStep
     </Form>
   );
 }
+
+// Memoized export to prevent unnecessary re-renders
+export const PersonalInfoStep = memo(PersonalInfoStepComponent);

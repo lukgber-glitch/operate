@@ -3,7 +3,11 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-const Switch = React.forwardRef<
+/**
+ * Switch component with GPU-accelerated thumb animation
+ * Uses transform for smooth toggle animation
+ */
+const SwitchComponent = React.forwardRef<
   React.ElementRef<typeof SwitchPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>
 >(({ className, ...props }, ref) => (
@@ -17,11 +21,13 @@ const Switch = React.forwardRef<
   >
     <SwitchPrimitives.Thumb
       className={cn(
-        "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+        "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform duration-200 ease-out transform-gpu will-change-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
       )}
     />
   </SwitchPrimitives.Root>
 ))
-Switch.displayName = SwitchPrimitives.Root.displayName
+SwitchComponent.displayName = SwitchPrimitives.Root.displayName
+
+const Switch = React.memo(SwitchComponent)
 
 export { Switch }

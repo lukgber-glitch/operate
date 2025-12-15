@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { Calculator, Info } from 'lucide-react';
 
 import {
@@ -18,7 +19,7 @@ interface TaxBreakdownCardProps {
   sampleAmount?: number;
 }
 
-export function TaxBreakdownCard({
+export const TaxBreakdownCard = React.memo(function TaxBreakdownCard({
   jurisdictions,
   totalRate,
   sampleAmount = 100,
@@ -134,4 +135,4 @@ export function TaxBreakdownCard({
       </CardContent>
     </Card>
   );
-}
+});

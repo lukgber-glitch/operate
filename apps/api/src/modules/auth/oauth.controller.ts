@@ -110,10 +110,16 @@ export class OAuthController {
       res.cookie('op_auth', authData, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict', // CSRF Protection: blocks cross-site requests
+        sameSite: 'lax', // Use 'lax' for OAuth compatibility (cross-site from Google)
         maxAge: 604800 * 1000, // 7 days (matches refresh token expiry)
         path: '/',
       });
+
+      // Check if user has completed onboarding and set cookie if true
+      const user = { id: oauthData.userId }; // OAuth data should contain userId
+      if (user.id) {
+        await this.oauthService.checkAndSetOnboardingCookie(user, res);
+      }
 
       // Redirect to frontend WITHOUT tokens in URL
       const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback`;
@@ -203,10 +209,16 @@ export class OAuthController {
       res.cookie('op_auth', authData, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict', // CSRF Protection: blocks cross-site requests
+        sameSite: 'lax', // Use 'lax' for OAuth compatibility (cross-site from Google)
         maxAge: 604800 * 1000, // 7 days (matches refresh token expiry)
         path: '/',
       });
+
+      // Check if user has completed onboarding and set cookie if true
+      const user = { id: oauthData.userId }; // OAuth data should contain userId
+      if (user.id) {
+        await this.oauthService.checkAndSetOnboardingCookie(user, res);
+      }
 
       // Redirect to frontend WITHOUT tokens in URL
       const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback`;

@@ -127,7 +127,7 @@ export function InsightItem({
           {insight.metric && (
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-sm font-semibold">{insight.metric.value}</span>
-              <span className="text-xs text-muted-foreground">{insight.metric.label}</span>
+              <span className="text-xs text-gray-300">{insight.metric.label}</span>
             </div>
           )}
         </CardContent>
@@ -169,14 +169,14 @@ export function InsightItem({
               {insight.metric && (
                 <div className="flex items-baseline gap-2 mb-2">
                   <span className="text-lg font-semibold">{insight.metric.value}</span>
-                  <span className="text-xs text-muted-foreground">{insight.metric.label}</span>
+                  <span className="text-xs text-gray-300">{insight.metric.label}</span>
                   {insight.metric.change && (
                     <div className={cn('flex items-center gap-1', getTrendColor(insight.metric.change.direction))}>
                       <TrendingUp className="h-3 w-3" />
                       <span className="text-xs font-medium">
                         {Math.abs(insight.metric.change.value)}%
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-gray-300">
                         {insight.metric.change.label}
                       </span>
                     </div>
@@ -210,7 +210,7 @@ export function InsightItem({
 
               {/* Expiry/Snooze info */}
               {(isExpired || isSnoozed) && (
-                <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1 mt-2 text-xs text-gray-300">
                   <Clock className="h-3 w-3" />
                   {isExpired && <span>Expired</span>}
                   {isSnoozed && (
@@ -281,7 +281,7 @@ function getCategoryConfig(category: InsightCategory) {
       return {
         icon: DollarSign,
         label: 'Tax Optimization',
-        iconColor: 'text-green-600 dark:text-green-400',
+        iconColor: 'text-green-400',
         iconBg: 'bg-green-100 dark:bg-green-950',
         borderColor: 'border-l-green-500',
       };
@@ -289,7 +289,7 @@ function getCategoryConfig(category: InsightCategory) {
       return {
         icon: AlertTriangle,
         label: 'Expense Anomaly',
-        iconColor: 'text-orange-600 dark:text-orange-400',
+        iconColor: 'text-orange-400',
         iconBg: 'bg-orange-100 dark:bg-orange-950',
         borderColor: 'border-l-orange-500',
       };
@@ -349,10 +349,10 @@ function getUrgencyConfig(urgency: InsightUrgency) {
 function getTrendColor(direction: 'up' | 'down' | 'stable') {
   switch (direction) {
     case 'up':
-      return 'text-green-600 dark:text-green-400';
+      return 'text-green-400';
     case 'down':
-      return 'text-red-600 dark:text-red-400';
+      return 'text-red-400';
     case 'stable':
-      return 'text-muted-foreground';
+      return 'text-gray-300';
   }
 }

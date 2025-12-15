@@ -86,11 +86,52 @@ export interface GetAutoCreatedEntitiesFilters {
 }
 
 class IntelligenceApi {
+  /**
+   * Get organisation ID from auth context
+   * The orgId is set in window.__orgId by the useAuth hook when user authenticates
+   *
+   * NOTE: This method now returns empty string instead of throwing to prevent page crashes.
+   * The API call will handle auth errors gracefully via the fetch() error handling.
+   */
   private getOrgId(): string {
-    if (typeof window !== 'undefined' && (window as any).__orgId) {
-      return (window as any).__orgId;
+    // Try multiple sources for orgId
+    if (typeof window !== 'undefined') {
+      // First try window.__orgId (set by useAuth)
+      if ((window as any).__orgId) {
+        console.log('[IntelligenceAPI] Using window.__orgId:', (window as any).__orgId);
+        return (window as any).__orgId;
+      }
+
+      // Fallback: try to parse from cookie
+      const authCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('op_auth='));
+
+      if (authCookie) {
+        try {
+          const authValue = decodeURIComponent(authCookie.split('=')[1] || '');
+          console.log('[IntelligenceAPI] Found op_auth cookie, attempting to parse...');
+          const authData = JSON.parse(authValue);
+
+          // Parse JWT to extract orgId
+          if (authData.a) {
+            const payload = JSON.parse(atob(authData.a.split('.')[1]));
+            if (payload.orgId) {
+              console.log('[IntelligenceAPI] Extracted orgId from JWT:', payload.orgId);
+              return payload.orgId;
+            }
+          }
+        } catch (e) {
+          console.warn('[IntelligenceAPI] Failed to parse auth cookie:', e);
+        }
+      } else {
+        console.warn('[IntelligenceAPI] No op_auth cookie found');
+      }
     }
-    throw new Error('Organisation ID not available. Please ensure you are logged in.');
+
+    // Return empty string instead of throwing - let the API call handle the 401/403
+    console.warn('[IntelligenceAPI] Organisation ID not available - returning empty string');
+    return '';
   }
 
   /**

@@ -421,5 +421,72 @@
     "workOffline": "Offline arbeiten",
     "retry": "Verbindung wiederholen",
     "dataWillSync": "Ihre Daten werden synchronisiert, sobald Sie wieder online sind"
+  },
+  "taxCalculators": {
+    "title": "Steuerabzugsrechner",
+    "subtitle": "Berechnen Sie Ihre Abzüge und sparen Sie Steuern",
+    "selectCountry": "Land auswählen",
+    "selectYear": "Steuerjahr",
+    "tabs": {
+      "commuter": "Pendlerpauschale",
+      "homeOffice": "Homeoffice",
+      "perDiem": "Tagegeld / Verpflegung",
+      "mileage": "Dienstreise-Kilometergelder",
+      "training": "Fortbildung & Weiterbildung",
+      "info": "Sätze & Infos"
+    },
+    "commuter": {
+      "distance": "Entfernung zur Arbeit (einfache Strecke)",
+      "workingDays": "Arbeitstage pro Jahr",
+      "publicTransport": "Öffentliche Verkehrsmittel nutzen",
+      "monthlyTicket": "Kosten Monatskarte",
+      "ratePerKm": "Satz pro Kilometer"
+    },
+    "homeOffice": {
+      "flatRate": "Pauschale",
+      "dedicatedRoom": "Separates Arbeitszimmer",
+      "daysWorked": "Tage im Homeoffice gearbeitet",
+      "dailyRate": "Tagessatz",
+      "maxDays": "Maximale Tage",
+      "roomSize": "Raumgröße",
+      "totalSize": "Gesamte Wohnfläche",
+      "monthlyRent": "Monatliche Miete/Hypothek",
+      "exclusiveUse": "Raum ausschließlich beruflich genutzt"
+    },
+    "perDiem": {
+      "tripStart": "Reisebeginn",
+      "tripEnd": "Reiseende",
+      "destination": "Zielort",
+      "international": "Auslandsreise",
+      "fullDayRate": "Satz für ganzen Tag",
+      "partialDayRate": "Satz für Teilzeit"
+    },
+    "mileage": {
+      "distance": "Gefahrene Strecke",
+      "vehicleType": "Fahrzeugtyp",
+      "purpose": "Reisezweck",
+      "car": "PKW",
+      "electric": "Elektroauto",
+      "motorcycle": "Motorrad",
+      "bicycle": "Fahrrad"
+    },
+    "training": {
+      "courseName": "Kurs-/Schulungsname",
+      "provider": "Anbieter",
+      "totalCost": "Gesamtkosten",
+      "trainingType": "Schulungsart"
+    },
+    "result": {
+      "originalAmount": "Ursprungsbetrag",
+      "deductibleAmount": "Absetzbarer Betrag",
+      "taxSavings": "Geschätzte Steuerersparnis",
+      "legalReference": "Rechtsgrundlage",
+      "requirements": "Erforderliche Nachweise",
+      "saveEntry": "Als Abzug speichern"
+    },
+    "info": {
+      "ratesTitle": "Aktuelle Steuerabzugssätze",
+      "disclaimer": "Die angezeigten Steuerersparnisse sind Schätzungen basierend auf einem Steuersatz von 30%. Tatsächliche Ersparnisse können variieren."
+    }
   }
 }

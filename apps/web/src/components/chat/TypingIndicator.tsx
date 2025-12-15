@@ -1,7 +1,7 @@
 'use client';
 
-import { Bot } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { GuruLoader } from '@/components/ui/guru-loader';
 import { cn } from '@/lib/utils';
 
 interface TypingIndicatorProps {
@@ -9,10 +9,10 @@ interface TypingIndicatorProps {
 }
 
 /**
- * TypingIndicator - Shows animated dots when AI is thinking/typing
+ * TypingIndicator - Shows animated logo when AI is thinking/typing
  *
  * Features:
- * - Three-dot bounce animation
+ * - Animated guru logo with spinning face arc
  * - Consistent styling with ChatMessage
  * - Accessible with aria-live
  */
@@ -27,29 +27,16 @@ export function TypingIndicator({ className }: TypingIndicatorProps) {
       aria-live="polite"
       aria-label="AI is thinking"
     >
-      {/* Avatar */}
+      {/* Avatar with animated logo */}
       <Avatar className="h-8 w-8 shrink-0">
         <AvatarFallback className="bg-muted">
-          <Bot className="h-4 w-4" aria-hidden="true" />
+          <GuruLoader size={24} aria-hidden="true" />
         </AvatarFallback>
       </Avatar>
 
-      {/* Animated dots */}
+      {/* Thinking message */}
       <div className="rounded-lg px-4 py-3 bg-muted flex items-center min-h-[44px]">
-        <div className="flex gap-1.5">
-          <span
-            className="h-2 w-2 rounded-full bg-muted-foreground/50 animate-bounce"
-            style={{ animationDelay: '0ms' }}
-          />
-          <span
-            className="h-2 w-2 rounded-full bg-muted-foreground/50 animate-bounce"
-            style={{ animationDelay: '150ms' }}
-          />
-          <span
-            className="h-2 w-2 rounded-full bg-muted-foreground/50 animate-bounce"
-            style={{ animationDelay: '300ms' }}
-          />
-        </div>
+        <span className="text-sm text-muted-foreground">Thinking...</span>
       </div>
     </div>
   );

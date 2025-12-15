@@ -3,10 +3,11 @@
 import { Plus, Download, Search, Filter, Repeat } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -26,6 +27,7 @@ import {
 import { useInvoices } from '@/hooks/use-invoices';
 import { CurrencyDisplay } from '@/components/currency/CurrencyDisplay';
 import type { CurrencyCode } from '@/types/currency';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 
 const statusColors = {
   PAID: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -55,20 +57,26 @@ export default function InvoicesPage() {
       status: statusFilter || undefined,
       search: searchTerm || undefined,
     });
-  }, [currentPage, pageSize, statusFilter, searchTerm, fetchInvoices]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, pageSize, statusFilter, searchTerm]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('de-DE');
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Invoices</h1>
-        <p className="text-muted-foreground">Manage and track your invoices</p>
-      </div>
+    <motion.div
+      className="space-y-6"
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div variants={fadeUp}>
+        <h1 className="text-2xl text-white font-semibold tracking-tight">Invoices</h1>
+        <p className="text-white/70">Manage and track your invoices</p>
+      </motion.div>
 
-      <div className="flex gap-2">
+      <motion.div variants={fadeUp} className="flex gap-2">
         <Button variant="outline" asChild>
           <Link href="/finance/invoices/recurring">
             <Repeat className="mr-2 h-4 w-4" />
@@ -85,14 +93,14 @@ export default function InvoicesPage() {
             New Invoice
           </Link>
         </Button>
-      </div>
+      </motion.div>
 
       {/* Filters */}
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6">
+      <motion.div variants={fadeUp}>
+        <GlassCard padding="lg">
           <div className="flex flex-col gap-4 sm:flex-row">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/70" />
               <Input
                 placeholder="Search by customer or invoice number..."
                 value={searchTerm}
@@ -115,17 +123,17 @@ export default function InvoicesPage() {
               </SelectContent>
             </Select>
           </div>
-        </CardContent>
-      </Card>
+        </GlassCard>
+      </motion.div>
 
       {/* Invoices Table */}
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6">
+      <motion.div variants={fadeUp}>
+        <GlassCard padding="lg">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-sm text-muted-foreground">Loading invoices...</p>
+                <p className="text-sm text-white/70">Loading invoices...</p>
               </div>
             </div>
           ) : error ? (
@@ -136,7 +144,12 @@ export default function InvoicesPage() {
                   variant="outline"
                   size="sm"
                   className="mt-4"
-                  onClick={() => fetchInvoices()}
+                  onClick={() => fetchInvoices({
+                    page: currentPage,
+                    pageSize,
+                    status: statusFilter || undefined,
+                    search: searchTerm || undefined,
+                  })}
                 >
                   Try Again
                 </Button>
@@ -145,12 +158,12 @@ export default function InvoicesPage() {
           ) : (
             <div className="space-y-4">
               <div className="flex items-center justify-between px-6 pt-6">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-white/70">
                   Showing {invoices.length} of {total} invoices
                 </p>
 
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-white/70">
                   Rows per page:
                 </span>
                 <Select
@@ -189,7 +202,7 @@ export default function InvoicesPage() {
                   <TableRow>
                     <TableCell
                       colSpan={7}
-                      className="text-center text-muted-foreground"
+                      className="text-center text-white/70"
                     >
                       No invoices found
                     </TableCell>
@@ -281,8 +294,8 @@ export default function InvoicesPage() {
             )}
             </div>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </GlassCard>
+      </motion.div>
+    </motion.div>
   );
 }

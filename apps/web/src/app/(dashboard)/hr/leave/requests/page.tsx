@@ -16,7 +16,7 @@ export default function LeaveRequestsPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">My Leave Requests</h1>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">My Leave Requests</h1>
           <p className="text-muted-foreground">View and manage your leave requests</p>
         </div>
       </div>

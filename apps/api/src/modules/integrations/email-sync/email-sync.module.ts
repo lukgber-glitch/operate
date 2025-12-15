@@ -13,6 +13,10 @@ import { AttachmentProcessorModule } from './attachment/attachment-processor.mod
 // Import Email Intelligence module for classification and suggestions
 import { EmailIntelligenceModule } from '../../ai/email-intelligence/email-intelligence.module';
 
+// Import Mailbox service and controller
+import { MailboxService } from './mailbox.service';
+import { MailboxController } from './mailbox.controller';
+
 /**
  * Email Sync Module
  * Handles synchronization of emails from Gmail and Outlook
@@ -92,11 +96,12 @@ import { EmailIntelligenceModule } from '../../ai/email-intelligence/email-intel
       },
     }),
   ],
-  controllers: [EmailSyncController],
+  controllers: [EmailSyncController, MailboxController],
   providers: [
     EmailSyncService,
     EmailSyncProcessor,
+    MailboxService,
   ],
-  exports: [EmailSyncService],
+  exports: [EmailSyncService, MailboxService],
 })
 export class EmailSyncModule {}

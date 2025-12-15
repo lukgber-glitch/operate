@@ -41,6 +41,11 @@ packages/database/prisma/*.db-journal
 *.temp
 .cache/
 
+# Build caches
+.webpack-cache/
+.turbo/
+*.tsbuildinfo
+
 # Uploads (local storage)
 uploads/
 

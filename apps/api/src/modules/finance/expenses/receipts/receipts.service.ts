@@ -4,7 +4,7 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import { PrismaService } from '../../../../common/prisma/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { MindeeService } from '../../../integrations/mindee/mindee.service';
 import { ExpensesService } from '../expenses.service';
 import {

@@ -81,7 +81,7 @@ export default function SpecificPayrollPage() {
       <div className="container mx-auto py-8 max-w-2xl">
         <div className="space-y-6">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Payroll Details</h1>
+            <h1 className="text-2xl text-white font-semibold tracking-tight">Payroll Details</h1>
             <p className="text-muted-foreground">This payroll has been {payroll.status} and cannot be edited</p>
           </div>
 
@@ -129,7 +129,7 @@ export default function SpecificPayrollPage() {
     <div className="container mx-auto py-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Edit Payroll</h1>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Edit Payroll</h1>
           <p className="text-muted-foreground">Make changes to this payroll before submission</p>
         </div>
         <Button variant="outline" onClick={() => router.push('/hr/payroll')}>

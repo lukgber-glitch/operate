@@ -230,12 +230,50 @@ export class EmailClassifierService implements OnModuleInit {
   }
 
   /**
+   * Check if classification meets organization's confidence threshold
+   */
+  async meetsConfidenceThreshold(
+    classification: ClassificationResult,
+    orgId: string,
+  ): Promise<{
+    meetsThreshold: boolean;
+    threshold: number;
+    needsReview: boolean;
+    reviewThreshold: number;
+  }> {
+    const config = await this.prisma.emailFilterConfig.findUnique({
+      where: { orgId },
+    });
+
+    const threshold = config?.minClassificationConfidence ?? 0.7;
+    const reviewThreshold = config?.lowConfidenceThreshold ?? 0.5;
+
+    return {
+      meetsThreshold: classification.confidence >= threshold,
+      threshold,
+      needsReview: classification.confidence < threshold && classification.confidence >= reviewThreshold,
+      reviewThreshold,
+    };
+  }
+
+  /**
    * Check if a classification needs human review
    */
-  needsReview(result: ClassificationResult): boolean {
-    // Review if confidence is below threshold
-    if (result.confidence < this.config.confidenceThreshold) {
-      return true;
+  async needsReview(
+    result: ClassificationResult,
+    orgId?: string,
+  ): Promise<boolean> {
+    // Use org-specific threshold if provided
+    if (orgId) {
+      const check = await this.meetsConfidenceThreshold(result, orgId);
+      if (check.needsReview) {
+        return true;
+      }
+    } else {
+      // Fallback to default threshold
+      if (result.confidence < this.config.confidenceThreshold) {
+        return true;
+      }
     }
 
     // Review critical items regardless of confidence

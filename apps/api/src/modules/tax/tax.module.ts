@@ -11,6 +11,8 @@ import { TaxCalendarModule } from './calendar/tax-calendar.module';
 import { VatReturnModule } from './vat-return/vat-return.module';
 import { TaxArchiveModule } from './archive/tax-archive.module';
 import { AustriaTaxModule } from './austria/austria-tax.module';
+import { TaxContextService } from './shared/tax-context.service';
+import { PrismaService } from '../database/prisma.service';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { AustriaTaxModule } from './austria/austria-tax.module';
     TaxArchiveModule,
     AustriaTaxModule,
   ],
+  providers: [TaxContextService, PrismaService],
   exports: [
     DeductionsModule,
     VatModule,
@@ -30,6 +33,7 @@ import { AustriaTaxModule } from './austria/austria-tax.module';
     VatReturnModule,
     TaxArchiveModule,
     AustriaTaxModule,
+    TaxContextService,
   ],
 })
 export class TaxModule {}

@@ -1,0 +1,277 @@
+/* Micro-Interactions - Phase 7 */
+/* Animation utilities for buttons, cards, and feedback states */
+
+/* ============================================
+   KEYFRAMES
+   ============================================ */
+
+/* Success checkmark draw animation */
+@keyframes checkmark-draw {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Success circle scale in */
+@keyframes success-circle {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Error shake animation */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+/* Error red flash */
+@keyframes error-flash {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Card lift animation */
+@keyframes card-lift {
+  0% {
+    transform: translateY(0) scale(1);
+    box-shadow: var(--shadow-sm);
+  }
+  100% {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* Confetti burst */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Pulse glow for attention */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(30, 136, 229, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(30, 136, 229, 0);
+  }
+}
+
+/* Ripple effect */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Bounce in */
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Slide fade in */
+@keyframes slide-fade-in {
+  0% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Button hover effects */
+.btn-hover-lift {
+  transition: transform 200ms var(--ease-out), box-shadow 200ms var(--ease-out);
+}
+
+.btn-hover-lift:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-hover-lift:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Card hover lift */
+.card-hover-lift {
+  transition: transform 300ms var(--ease-out), box-shadow 300ms var(--ease-out), border-color 300ms var(--ease-out);
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-secondary-light);
+}
+
+/* Success animation */
+.animate-success {
+  animation: success-circle 400ms var(--ease-out) forwards;
+}
+
+.animate-checkmark {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: checkmark-draw 400ms var(--ease-out) 200ms forwards;
+}
+
+/* Error animation */
+.animate-shake {
+  animation: shake 500ms var(--ease-out);
+}
+
+.animate-error-flash {
+  animation: error-flash 600ms var(--ease-out);
+}
+
+/* Confetti */
+.animate-confetti {
+  animation: confetti-fall 3s linear forwards;
+}
+
+/* Pulse glow */
+.animate-pulse-glow {
+  animation: pulse-glow 2s var(--ease-in-out) infinite;
+}
+
+/* Bounce in */
+.animate-bounce-in {
+  animation: bounce-in 500ms var(--ease-out) forwards;
+}
+
+/* Slide fade in */
+.animate-slide-fade-in {
+  animation: slide-fade-in 300ms var(--ease-out) forwards;
+}
+
+/* Ripple container */
+.ripple-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.4);
+  animation: ripple 600ms linear forwards;
+  pointer-events: none;
+}
+
+/* ============================================
+   INTERACTIVE STATES
+   ============================================ */
+
+/* Focus ring animation */
+.focus-ring-animated {
+  position: relative;
+}
+
+.focus-ring-animated:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid var(--color-primary);
+  animation: pulse-glow 1.5s var(--ease-in-out) infinite;
+}
+
+/* Loading state shimmer */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-background) 50%,
+    var(--color-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-hover-lift,
+  .card-hover-lift {
+    transition: none;
+  }
+
+  .btn-hover-lift:hover,
+  .card-hover-lift:hover {
+    transform: none;
+  }
+
+  .animate-success,
+  .animate-checkmark,
+  .animate-shake,
+  .animate-error-flash,
+  .animate-confetti,
+  .animate-pulse-glow,
+  .animate-bounce-in,
+  .animate-slide-fade-in,
+  .animate-shimmer {
+    animation: none;
+  }
+
+  .ripple {
+    display: none;
+  }
+}

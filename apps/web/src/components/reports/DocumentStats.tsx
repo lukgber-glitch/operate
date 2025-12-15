@@ -37,14 +37,14 @@ export interface DocumentStatsProps {
 export function DocumentStats({ data }: DocumentStatsProps) {
   const getAccuracyColor = (accuracy: number) => {
     if (accuracy >= 95) return 'text-green-600';
-    if (accuracy >= 85) return 'text-blue-600';
+    if (accuracy >= 85) return 'text-blue-400';
     if (accuracy >= 75) return 'text-yellow-600';
     return 'text-red-600';
   };
 
   const getAccuracyBadgeColor = (accuracy: number) => {
     if (accuracy >= 95) return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-    if (accuracy >= 85) return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+    if (accuracy >= 85) return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
     if (accuracy >= 75) return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
     return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
   };
@@ -119,7 +119,7 @@ export function DocumentStats({ data }: DocumentStatsProps) {
             <CardTitle className="text-base">Pending</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-600">
+            <div className="text-3xl font-bold text-blue-400">
               {data.pendingDocuments}
             </div>
             <p className="text-sm text-muted-foreground mt-2">
@@ -308,7 +308,7 @@ export function DocumentStats({ data }: DocumentStatsProps) {
               <div
                 className={`h-full transition-all ${
                   data.classificationAccuracy >= 95 ? 'bg-green-600' :
-                  data.classificationAccuracy >= 85 ? 'bg-blue-600' :
+                  data.classificationAccuracy >= 85 ? 'bg-blue-400' :
                   data.classificationAccuracy >= 75 ? 'bg-yellow-600' : 'bg-red-600'
                 }`}
                 style={{ width: `${data.classificationAccuracy}%` }}

@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-12-15T03:38:37.627Z",
+  "summary": {
+    "total": 5,
+    "passed": 1,
+    "failed": 4,
+    "passRate": "20.0%"
+  },
+  "tests": {
+    "login": {
+      "status": "FAIL",
+      "details": "Still on login page: http://localhost:3000/login"
+    },
+    "chatInterface": {
+      "status": "FAIL",
+      "details": "✗ Chat input NOT found\n✗ Greeting header NOT clearly visible\n✗ Suggestion chips NOT found\n✓ Quick action buttons found (5 buttons)"
+    },
+    "sendMessage": {
+      "status": "FAIL",
+      "details": "Error: Chat input not found"
+    },
+    "quickActions": {
+      "status": "PASS",
+      "details": "Clicked button: \"Select language\". See screenshot for result."
+    },
+    "chatHistory": {
+      "status": "FAIL",
+      "details": "No history button or sidebar found"
+    }
+  }
+}

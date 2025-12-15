@@ -18,7 +18,7 @@ export default function NewVendorPage() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Add New Vendor</h1>
-          <p className="text-muted-foreground">
+          <p className="text-white/70">
             Create a new vendor for accounts payable management
           </p>
         </div>

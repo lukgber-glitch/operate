@@ -1,14 +1,25 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Plus, Loader2, AlertCircle } from 'lucide-react';
+import { Plus, Loader2, AlertCircle, Mail, Settings, Trash2, Inbox, Copy } from 'lucide-react';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { EmailConnectionCard, EmailConnection } from '@/components/email/EmailConnectionCard';
 import { ConnectEmailDialog } from '@/components/email/ConnectEmailDialog';
 import { EmailSyncStatus, SyncStatus } from '@/components/email/EmailSyncStatus';
-import { EmailFilterSettings, EmailFilterConfig } from '@/components/email/EmailFilterSettings';
+import { EmailFilterSettings as BasicEmailFilterSettings, EmailFilterConfig } from '@/components/email/EmailFilterSettings';
+import { EmailFilterSettings as AdvancedEmailFilterSettings } from '@/components/settings/EmailFilterSettings';
 import { useEmailConnection, EmailProvider } from '@/hooks/use-email-connection';
 import { useAuth } from '@/hooks/use-auth';
 import {
@@ -19,6 +30,28 @@ import {
   getEmailConnections,
 } from '@/lib/api/email';
 import { useToast } from '@/components/ui/use-toast';
+
+interface Mailbox {
+  id: string;
+  email: string;
+  displayName: string;
+  purpose: 'BILLS_INVOICES' | 'INSURANCE_CONTRACTS' | 'CUSTOMER_COMMS' | 'GENERAL';
+  scanAllFolders: boolean;
+  foldersToScan: string[];
+  isActive: boolean;
+}
+
+interface ForwardingInbox {
+  id: string;
+  displayName: string;
+  inboxAddress: string;
+  emailsReceived: number;
+}
+
+interface EmailFolder {
+  id: string;
+  name: string;
+}
 
 export default function EmailSettingsPage() {
   const { user } = useAuth();
@@ -32,6 +65,18 @@ export default function EmailSettingsPage() {
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
   const [isSavingFilters, setIsSavingFilters] = useState(false);
   const [connectDialogOpen, setConnectDialogOpen] = useState(false);
+
+  // Mailbox configuration state
+  const [mailboxes, setMailboxes] = useState<Mailbox[]>([]);
+  const [forwardingInboxes, setForwardingInboxes] = useState<ForwardingInbox[]>([]);
+  const [showAddMailbox, setShowAddMailbox] = useState(false);
+  const [availableFolders, setAvailableFolders] = useState<EmailFolder[]>([]);
+  const [newMailbox, setNewMailbox] = useState<Partial<Mailbox>>({
+    purpose: 'BILLS_INVOICES',
+    displayName: '',
+    scanAllFolders: true,
+    foldersToScan: [],
+  });
 
   const emailConnection = useEmailConnection({
     userId: user?.id || '',
@@ -130,8 +175,158 @@ export default function EmailSettingsPage() {
     if (user?.id) {
       loadConnections();
       loadFilterConfig();
+      fetchMailboxes();
+      fetchForwardingInboxes();
+      fetchAvailableFolders();
     }
   }, [user?.id]);
+
+  // Fetch mailboxes
+  const fetchMailboxes = async () => {
+    try {
+      const res = await fetch('/api/email/mailboxes');
+      if (res.ok) {
+        const data = await res.json();
+        setMailboxes(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch mailboxes:', error);
+    }
+  };
+
+  // Fetch forwarding inboxes
+  const fetchForwardingInboxes = async () => {
+    try {
+      const res = await fetch('/api/email/mailboxes/forwarding');
+      if (res.ok) {
+        const data = await res.json();
+        setForwardingInboxes(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch forwarding inboxes:', error);
+    }
+  };
+
+  // Fetch available folders
+  const fetchAvailableFolders = async () => {
+    try {
+      const res = await fetch('/api/email/folders');
+      if (res.ok) {
+        const data = await res.json();
+        setAvailableFolders(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch folders:', error);
+      // Set default folders
+      setAvailableFolders([
+        { id: 'INBOX', name: 'Inbox' },
+        { id: 'SENT', name: 'Sent' },
+        { id: 'DRAFTS', name: 'Drafts' },
+        { id: 'SPAM', name: 'Spam' },
+      ]);
+    }
+  };
+
+  // Helper functions for mailbox UI
+  const getPurposeColor = (purpose: Mailbox['purpose']) => {
+    switch (purpose) {
+      case 'BILLS_INVOICES':
+        return 'bg-blue-500/10 text-blue-500';
+      case 'INSURANCE_CONTRACTS':
+        return 'bg-green-500/10 text-green-500';
+      case 'CUSTOMER_COMMS':
+        return 'bg-purple-500/10 text-purple-500';
+      case 'GENERAL':
+        return 'bg-gray-500/10 text-gray-500';
+      default:
+        return 'bg-gray-500/10 text-gray-500';
+    }
+  };
+
+  const getPurposeIcon = (purpose: Mailbox['purpose']) => {
+    return <Mail className="w-5 h-5" />;
+  };
+
+  const saveMailbox = async () => {
+    try {
+      const res = await fetch('/api/email/mailboxes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newMailbox),
+      });
+
+      if (res.ok) {
+        toast({ title: 'Mailbox saved successfully' });
+        fetchMailboxes();
+        setShowAddMailbox(false);
+        setNewMailbox({
+          purpose: 'BILLS_INVOICES',
+          displayName: '',
+          scanAllFolders: true,
+          foldersToScan: [],
+        });
+      } else {
+        throw new Error('Failed to save mailbox');
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to save mailbox',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const editMailbox = (mailbox: Mailbox) => {
+    setNewMailbox(mailbox);
+    setShowAddMailbox(true);
+  };
+
+  const deleteMailbox = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this mailbox?')) return;
+
+    try {
+      const res = await fetch(`/api/email/mailboxes/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        toast({ title: 'Mailbox deleted successfully' });
+        fetchMailboxes();
+      } else {
+        throw new Error('Failed to delete mailbox');
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete mailbox',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const createForwardingInbox = async () => {
+    try {
+      const res = await fetch('/api/email/mailboxes/forwarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ displayName: 'New Forwarding Inbox' }),
+      });
+
+      if (res.ok) {
+        toast({ title: 'Forwarding inbox created successfully' });
+        fetchForwardingInboxes();
+      } else {
+        throw new Error('Failed to create forwarding inbox');
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to create forwarding inbox',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleConnect = async (provider: EmailProvider) => {
     if (provider === 'gmail') {
@@ -310,20 +505,30 @@ export default function EmailSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
       {/* Header */}
-      <div>
+      <motion.div variants={fadeUp}>
         <h1 className="text-3xl font-bold">Email Integration</h1>
-        <p className="text-muted-foreground">
+        <p className="text-white/70">
           Connect your email accounts to automatically process invoices and receipts
         </p>
-      </div>
+      </motion.div>
 
-      <Tabs defaultValue="connections" className="space-y-6">
+      {/* Tabs */}
+      <motion.div variants={fadeUp}>
+        <Tabs defaultValue="connections" className="space-y-6">
         <TabsList>
           <TabsTrigger value="connections">Connections</TabsTrigger>
+          <TabsTrigger value="mailboxes">Mailboxes</TabsTrigger>
+          <TabsTrigger value="forwarding">Forwarding</TabsTrigger>
           <TabsTrigger value="sync">Sync Status</TabsTrigger>
-          <TabsTrigger value="filters">Filter Settings</TabsTrigger>
+          <TabsTrigger value="filters">Basic Filters</TabsTrigger>
+          <TabsTrigger value="advanced-filters">Advanced Filters</TabsTrigger>
         </TabsList>
 
         {/* Connections Tab */}
@@ -364,6 +569,112 @@ export default function EmailSettingsPage() {
           )}
         </TabsContent>
 
+        {/* Mailboxes Tab */}
+        <TabsContent value="mailboxes" className="space-y-6">
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-semibold">Email Mailboxes</h3>
+                <p className="text-sm text-muted-foreground">
+                  Configure which emails to scan and how to categorize them
+                </p>
+              </div>
+              <Button onClick={() => setShowAddMailbox(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Mailbox
+              </Button>
+            </div>
+
+            {mailboxes.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Mail className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>No mailboxes configured yet</p>
+                <p className="text-sm">Connect an email account first</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {mailboxes.map((mailbox) => (
+                  <div
+                    key={mailbox.id}
+                    className="flex items-center justify-between p-4 rounded-lg border"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`p-2 rounded-lg ${getPurposeColor(mailbox.purpose)}`}>
+                        {getPurposeIcon(mailbox.purpose)}
+                      </div>
+                      <div>
+                        <p className="font-medium">{mailbox.displayName || mailbox.email}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {mailbox.scanAllFolders ? 'All folders' : `${mailbox.foldersToScan.length} folders`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={mailbox.isActive ? 'default' : 'secondary'}>
+                        {mailbox.isActive ? 'Active' : 'Paused'}
+                      </Badge>
+                      <Button variant="ghost" size="sm" onClick={() => editMailbox(mailbox)}>
+                        <Settings className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => deleteMailbox(mailbox.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+
+        {/* Forwarding Inboxes Tab */}
+        <TabsContent value="forwarding" className="space-y-6">
+          <Card className="p-6">
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold">Forwarding Inboxes</h3>
+              <p className="text-sm text-muted-foreground">
+                Forward or CC invoices to these addresses for automatic processing
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {forwardingInboxes.map((inbox) => (
+                <div key={inbox.id} className="flex items-center justify-between p-4 rounded-lg border">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Inbox className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{inbox.displayName}</p>
+                      <code className="text-sm text-muted-foreground">{inbox.inboxAddress}</code>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">
+                      {inbox.emailsReceived} emails received
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(inbox.inboxAddress);
+                        toast({ title: 'Copied to clipboard!' });
+                      }}
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+
+              <Button variant="outline" className="w-full" onClick={createForwardingInbox}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Another Forwarding Inbox
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+
         {/* Sync Status Tab */}
         <TabsContent value="sync" className="space-y-6">
           {isLoadingConnections ? (
@@ -390,14 +701,14 @@ export default function EmailSettingsPage() {
           )}
         </TabsContent>
 
-        {/* Filter Settings Tab */}
+        {/* Basic Filter Settings Tab */}
         <TabsContent value="filters" className="space-y-6">
           {isLoadingFilters ? (
             <div className="flex h-48 items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : filterConfig ? (
-            <EmailFilterSettings
+            <BasicEmailFilterSettings
               config={filterConfig}
               onChange={setFilterConfig}
               onSave={handleSaveFilters}
@@ -412,7 +723,13 @@ export default function EmailSettingsPage() {
             </Alert>
           )}
         </TabsContent>
-      </Tabs>
+
+        {/* Advanced Filter Settings Tab */}
+        <TabsContent value="advanced-filters" className="space-y-6">
+          <AdvancedEmailFilterSettings />
+        </TabsContent>
+        </Tabs>
+      </motion.div>
 
       {/* Connect Email Dialog */}
       <ConnectEmailDialog
@@ -422,6 +739,88 @@ export default function EmailSettingsPage() {
         isConnectingGmail={emailConnection.gmail.isConnecting}
         isConnectingOutlook={emailConnection.outlook.isConnecting}
       />
-    </div>
+
+      {/* Add Mailbox Dialog */}
+      <Dialog open={showAddMailbox} onOpenChange={setShowAddMailbox}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add Email Mailbox</DialogTitle>
+            <DialogDescription>
+              Configure what this mailbox should scan for
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label>Purpose</Label>
+              <Select
+                value={newMailbox.purpose}
+                onValueChange={(v) => setNewMailbox({...newMailbox, purpose: v as Mailbox['purpose']})}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select purpose" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="BILLS_INVOICES">Bills & Invoices</SelectItem>
+                  <SelectItem value="INSURANCE_CONTRACTS">Insurance & Contracts</SelectItem>
+                  <SelectItem value="CUSTOMER_COMMS">Customer Communications</SelectItem>
+                  <SelectItem value="GENERAL">General</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Display Name</Label>
+              <Input
+                placeholder="e.g., Work Invoices"
+                value={newMailbox.displayName}
+                onChange={(e) => setNewMailbox({...newMailbox, displayName: e.target.value})}
+              />
+            </div>
+
+            <div>
+              <Label>Folders to Scan</Label>
+              <div className="flex items-center gap-2 mt-2">
+                <Switch
+                  checked={newMailbox.scanAllFolders}
+                  onCheckedChange={(v) => setNewMailbox({...newMailbox, scanAllFolders: v})}
+                />
+                <span className="text-sm">Scan all folders</span>
+              </div>
+              {!newMailbox.scanAllFolders && (
+                <div className="mt-2 space-y-2">
+                  {availableFolders.map((folder) => (
+                    <div key={folder.id} className="flex items-center gap-2">
+                      <Checkbox
+                        checked={newMailbox.foldersToScan?.includes(folder.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setNewMailbox({
+                              ...newMailbox,
+                              foldersToScan: [...(newMailbox.foldersToScan || []), folder.id]
+                            });
+                          } else {
+                            setNewMailbox({
+                              ...newMailbox,
+                              foldersToScan: (newMailbox.foldersToScan || []).filter(f => f !== folder.id)
+                            });
+                          }
+                        }}
+                      />
+                      <span className="text-sm">{folder.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddMailbox(false)}>Cancel</Button>
+            <Button onClick={saveMailbox}>Save Mailbox</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </motion.div>
   );
 }

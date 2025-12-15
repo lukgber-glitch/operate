@@ -34,7 +34,7 @@ export function TaxSummary({ data }: TaxSummaryProps) {
   const getDeadlineStatusColor = (status: TaxDeadline['status']) => {
     switch (status) {
       case 'upcoming':
-        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
       case 'due-soon':
         return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
       case 'overdue':

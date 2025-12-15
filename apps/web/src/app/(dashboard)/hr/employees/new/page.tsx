@@ -6,9 +6,12 @@ import { useRouter } from 'next/navigation';
 
 import { EmployeeForm } from '@/components/hr/employee-form';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { useToast } from '@/components/ui/use-toast';
 import { useEmployees } from '@/hooks/use-employees';
+
+// Export metadata to ensure route is recognized
+export const dynamic = 'force-dynamic';
 
 export default function NewEmployeePage() {
   const router = useRouter();
@@ -45,20 +48,18 @@ export default function NewEmployeePage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Add Employee</h1>
-          <p className="text-muted-foreground">Create a new employee record</p>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Add Employee</h1>
+          <p className="text-white/70">Create a new employee record</p>
         </div>
       </div>
 
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6">
+      <GlassCard className="p-6">
           <EmployeeForm
             onSubmit={handleSubmit}
             onCancel={handleCancel}
             isLoading={isLoading}
           />
-        </CardContent>
-      </Card>
+      </GlassCard>
     </div>
   );
 }

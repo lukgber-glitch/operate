@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 
 // Helper to store tokens in cookies (secure, httpOnly should be set by API ideally)
 // WAF/proxy only allows ONE Set-Cookie, so we combine both tokens into a JSON cookie
@@ -98,11 +98,11 @@ export default function CallbackClient() {
         clearTimeout(redirectTimeoutRef.current);
       }
 
-      // Redirect to dashboard after brief delay for UX
-      console.log('[Auth Callback] Redirecting to dashboard...');
+      // Redirect to chat after brief delay for UX
+      console.log('[Auth Callback] Redirecting to chat...');
       redirectTimeoutRef.current = setTimeout(() => {
         // Use window.location for full page navigation to ensure cookies are sent
-        window.location.href = '/dashboard';
+        window.location.href = '/chat';
       }, 1000);
 
     } catch (err) {
@@ -146,21 +146,20 @@ export default function CallbackClient() {
 
   const getSubtitle = () => {
     if (status === 'processing') return 'Completing your sign in...';
-    if (status === 'success') return 'Redirecting to dashboard...';
+    if (status === 'success') return 'Redirecting to chat...';
     return errorMessage;
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{getTitle()}</h1>
-        <p className="text-muted-foreground">{getSubtitle()}</p>
+        <h1 className="text-2xl font-semibold tracking-tight text-white">{getTitle()}</h1>
+        <p className="text-white/70">{getSubtitle()}</p>
       </div>
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6">
+      <GlassCard intensity="onDark" className="rounded-[24px] p-6">
         <div className="flex justify-center py-8">
           {status === 'processing' && (
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-white/30 border-t-white/70" />
           )}
           {status === 'success' && (
             <div className="text-green-500">
@@ -178,15 +177,14 @@ export default function CallbackClient() {
               </div>
               <button
                 onClick={() => router.push('/login')}
-                className="text-primary hover:underline font-medium"
+                className="text-white/70 hover:text-white hover:underline font-medium"
               >
                 Return to login
               </button>
             </div>
           )}
         </div>
-        </CardContent>
-      </Card>
+      </GlassCard>
     </div>
   );
 }

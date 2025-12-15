@@ -128,7 +128,7 @@ export function DashboardCustomizer({
 
             {/* Instructions */}
             <Separator className="my-4" />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-300">
               <div className="flex items-start gap-2">
                 <div className="p-1 rounded bg-primary/10 mt-0.5">
                   <Edit3 className="h-3 w-3 text-primary" />

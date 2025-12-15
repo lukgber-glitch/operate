@@ -139,7 +139,7 @@ export function useMotionConfig(): MotionConfig {
     return {
       prefersReducedMotion: false,
       spring: {
-        type: 'spring',
+        type: 'spring' as const,
         stiffness: 300,
         damping: 25,
       },

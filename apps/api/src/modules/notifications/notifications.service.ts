@@ -200,4 +200,73 @@ export class NotificationsService {
 
     return notification as NotificationResponseDto;
   }
+
+  /**
+   * Batch mark notifications as read
+   * More efficient than marking one by one
+   */
+  async batchMarkAsRead(
+    ids: string[],
+    userId: string,
+    orgId: string,
+  ): Promise<{ count: number; processed: string[] }> {
+    if (!ids || ids.length === 0) {
+      return { count: 0, processed: [] };
+    }
+
+    // Filter to only notifications owned by user
+    const result = await this.prisma.notification.updateMany({
+      where: {
+        id: { in: ids },
+        userId,
+        orgId,
+        status: 'UNREAD',
+      },
+      data: {
+        status: 'READ',
+        readAt: new Date(),
+      },
+    });
+
+    this.logger.log(
+      `Batch marked ${result.count} notifications as read for user ${userId}`,
+    );
+
+    return {
+      count: result.count,
+      processed: ids, // Return all requested IDs
+    };
+  }
+
+  /**
+   * Batch delete notifications
+   * More efficient than deleting one by one
+   */
+  async batchDelete(
+    ids: string[],
+    userId: string,
+    orgId: string,
+  ): Promise<{ count: number; deleted: string[] }> {
+    if (!ids || ids.length === 0) {
+      return { count: 0, deleted: [] };
+    }
+
+    // Delete only notifications owned by user
+    const result = await this.prisma.notification.deleteMany({
+      where: {
+        id: { in: ids },
+        userId,
+        orgId,
+      },
+    });
+
+    this.logger.log(
+      `Batch deleted ${result.count} notifications for user ${userId}`,
+    );
+
+    return {
+      count: result.count,
+      deleted: ids, // Return all requested IDs
+    };
+  }
 }

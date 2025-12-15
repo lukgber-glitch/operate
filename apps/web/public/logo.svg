@@ -2,21 +2,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 100 100">
   <defs>
     <style>
-      .cls-1 {
-        fill: #90caf9;
-      }
-
-      .cls-2 {
-        fill: #64b5f6;
-      }
-
-      .cls-3 {
-        fill: #fefefe;
-      }
-
-      .cls-4 {
-        fill: #919292;
-      }
+      .cls-1 { fill: #0D47A1; }
+      .cls-2 { fill: #1565C0; }
+      .cls-3 { fill: #ffffff; }
+      .cls-4 { fill: #1565C0; }
     </style>
   </defs>
   <g>

@@ -5,6 +5,9 @@ import {
   Building2,
   LogOut,
   Settings,
+  HelpCircle,
+  FileText,
+  Shield,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -49,15 +52,19 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="h-10 w-10 rounded-md flex items-center justify-center text-[#666666] hover:text-[#06BF9D] hover:bg-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-[#06BF9D] focus:ring-offset-2">
-          <User className="h-5 w-5" />
+        <button
+          className="h-10 w-10 rounded-md flex items-center justify-center text-white hover:text-[#06BF9D] hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-[#06BF9D] focus:ring-offset-2"
+          aria-label="User menu"
+        >
+          <User className="h-5 w-5" aria-hidden="true" />
+          <span className="sr-only">Open user menu</span>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium">{getDisplayName()}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-gray-400">
               {user?.email || ''}
             </p>
           </div>
@@ -83,6 +90,25 @@ export function UserMenu() {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
+          <Link href="/faq" className="cursor-pointer" target="_blank">
+            <HelpCircle className="mr-2 h-4 w-4" />
+            FAQ & Help
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/terms" className="cursor-pointer" target="_blank">
+            <FileText className="mr-2 h-4 w-4" />
+            Terms of Service
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/privacy" className="cursor-pointer" target="_blank">
+            <Shield className="mr-2 h-4 w-4" />
+            Privacy Policy
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
           <div className="flex items-center justify-between cursor-pointer">
             <span>Theme</span>
             <ThemeToggle />
@@ -91,7 +117,7 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleLogout}
-          className="cursor-pointer text-red-600 dark:text-red-400"
+          className="cursor-pointer text-red-400"
           disabled={isLoading}
         >
           <LogOut className="mr-2 h-4 w-4" />

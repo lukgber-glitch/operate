@@ -115,7 +115,8 @@ export function SendEmailDialog({
 
   const onSubmit = async (data: EmailFormValues) => {
     try {
-      // TODO: Call email sending API with attachments      toast({
+      // TODO: Call email sending API with attachments
+      toast({
         title: 'Email sent',
         description: 'Your email has been sent successfully.',
       });

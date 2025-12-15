@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useExpenseCategories } from '@/hooks/useDashboard';
@@ -7,12 +8,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
 
-export function ExpenseBreakdown() {
+function ExpenseBreakdownComponent() {
   const { data, isLoading, error } = useExpenseCategories();
 
   if (isLoading) {
     return (
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
         <CardHeader>
           <CardTitle>Ausgaben nach Kategorie</CardTitle>
         </CardHeader>
@@ -25,12 +26,12 @@ export function ExpenseBreakdown() {
 
   if (error || !data || data.length === 0) {
     return (
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
         <CardHeader>
           <CardTitle>Ausgaben nach Kategorie</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+          <div className="h-[300px] flex items-center justify-center text-gray-300">
             <p>Keine Ausgabendaten verfügbar</p>
           </div>
         </CardContent>
@@ -38,8 +39,14 @@ export function ExpenseBreakdown() {
     );
   }
 
+  const chartCells = useMemo(() => {
+    return data.map((entry, index) => (
+      <Cell key={entry.category} fill={COLORS[index % COLORS.length]} />
+    ));
+  }, [data]);
+
   return (
-    <Card className="rounded-[24px]">
+    <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
       <CardHeader>
         <CardTitle>Ausgaben nach Kategorie</CardTitle>
       </CardHeader>
@@ -57,9 +64,7 @@ export function ExpenseBreakdown() {
                 label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
                 labelLine={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1 }}
               >
-                {data.map((entry, index) => (
-                  <Cell key={entry.category} fill={COLORS[index % COLORS.length]} />
-                ))}
+                {chartCells}
               </Pie>
               <Tooltip
                 formatter={(value: number) => `€${value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
@@ -82,3 +87,5 @@ export function ExpenseBreakdown() {
     </Card>
   );
 }
+
+export const ExpenseBreakdown = memo(ExpenseBreakdownComponent);

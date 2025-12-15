@@ -34,8 +34,8 @@ export function GuruLoader({ size = 100, className }: GuruLoaderProps) {
         <defs>
           <style>
             {`
-              .guru-body { fill: #90caf9; }
-              .guru-overlay { fill: #64b5f6; }
+              .guru-body { fill: #0D47A1; }
+              .guru-overlay { fill: #1565C0; }
               .guru-highlight { fill: #fefefe; }
               .guru-accent { fill: #919292; }
 
@@ -45,7 +45,7 @@ export function GuruLoader({ size = 100, className }: GuruLoaderProps) {
               }
 
               .guru-face-arc {
-                fill: #90caf9;
+                fill: #0D47A1;
                 transform-origin: 50px 31px;
                 animation: spin-face 2.5s linear infinite;
               }

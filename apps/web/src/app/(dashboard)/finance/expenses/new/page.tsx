@@ -86,7 +86,7 @@ export default function NewExpensePage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">New Expense</h1>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">New Expense</h1>
           <p className="text-muted-foreground">Submit a new expense report</p>
         </div>
       </div>
@@ -309,7 +309,7 @@ export default function NewExpensePage() {
           <Card className="rounded-[24px] bg-muted/50">
             <CardContent className="p-6">
               <div className="space-y-2 text-sm text-muted-foreground">
-                <p className="font-semibold text-foreground">
+                <p className="font-semibold text-white">
                   Expense Guidelines
                 </p>
                 <ul className="list-disc list-inside space-y-1">

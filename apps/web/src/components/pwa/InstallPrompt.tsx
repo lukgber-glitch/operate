@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Download, X, Smartphone } from 'lucide-react'
 
 interface BeforeInstallPromptEvent extends Event {
@@ -9,11 +10,29 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function InstallPrompt() {
+  const pathname = usePathname()
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [showPrompt, setShowPrompt] = useState(false)
   const [isInstalled, setIsInstalled] = useState(false)
 
+  // Don't show on auth pages (login, register, onboarding, etc.)
+  const isAuthPage = pathname?.startsWith('/login') ||
+                     pathname?.startsWith('/register') ||
+                     pathname?.startsWith('/onboarding') ||
+                     pathname?.startsWith('/forgot-password') ||
+                     pathname?.startsWith('/reset-password') ||
+                     pathname?.startsWith('/verify-email') ||
+                     pathname?.startsWith('/mfa-setup') ||
+                     pathname?.startsWith('/mfa-verify') ||
+                     pathname?.startsWith('/auth/')
+
   useEffect(() => {
+    // Don't show on auth pages
+    if (isAuthPage) {
+      setShowPrompt(false)
+      return
+    }
+
     // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsInstalled(true)
@@ -56,7 +75,7 @@ export function InstallPrompt() {
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     }
-  }, [])
+  }, [isAuthPage])
 
   const handleInstall = async () => {
     if (!deferredPrompt) return
@@ -83,7 +102,8 @@ export function InstallPrompt() {
     localStorage.setItem('pwa-install-dismissed', new Date().toISOString())
   }
 
-  if (!showPrompt || isInstalled) return null
+  // Don't render on auth pages, if not showing, or if already installed
+  if (isAuthPage || !showPrompt || isInstalled) return null
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 animate-in slide-in-from-bottom-5 md:left-auto md:max-w-md">

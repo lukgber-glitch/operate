@@ -50,6 +50,17 @@ export class TinkService {
   private clientAccessToken: string | null = null;
   private clientTokenExpiresAt: Date | null = null;
 
+  // Caching layer with TTL
+  private readonly cache = new Map<string, { data: unknown; expiresAt: number }>();
+  private readonly CACHE_TTL = {
+    providers: 60 * 60 * 1000, // 1 hour - providers rarely change
+    accounts: 5 * 60 * 1000,   // 5 minutes
+    transactions: 5 * 60 * 1000, // 5 minutes
+  };
+
+  // Request deduplication
+  private readonly pendingRequests = new Map<string, Promise<unknown>>();
+
   constructor(
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
@@ -80,6 +91,10 @@ export class TinkService {
         this.logger.warn(`Tink service is disabled - ${error.message}`);
         return;
       }
+    } else {
+      // In mock mode, mark as configured immediately
+      (this as any).isConfigured = true;
+      this.logger.log('Tink Service initialized in MOCK MODE - using test data');
     }
 
     // Initialize HTTP client with TLS 1.3
@@ -506,36 +521,57 @@ export class TinkService {
 
   /**
    * Get available providers (banks)
+   * Cached for 1 hour as provider lists rarely change
    */
   async getProviders(market: string = 'DE'): Promise<TinkProvider[]> {
     if (!this.isConfigured) {
       throw new BadRequestException('Tink service is not configured. Please configure TINK_CLIENT_ID and TINK_CLIENT_SECRET environment variables.');
     }
 
-    try {
-      // Mock mode
-      if (this.config.mockMode) {
-        return TinkMockDataUtil.generateMockProviders();
-      }
+    const cacheKey = `providers:${market}`;
 
-      // Get client access token for server-to-server calls
-      const accessToken = await this.getClientAccessToken();
-
-      // Use /api/v1/providers/{market} endpoint which requires providers:read scope
-      // Include test providers for sandbox mode
-      const isSandbox = this.config.environment === 'sandbox';
-      const response = await this.httpClient.get(`/api/v1/providers/${market}`, {
-        params: isSandbox ? { includeTestProviders: true } : undefined,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      return response.data.providers || [];
-    } catch (error) {
-      this.logger.error('Failed to fetch providers', error);
-      throw new ServiceUnavailableException('Failed to fetch bank providers');
+    // Check cache first - providers rarely change
+    const cached = this.getFromCache<TinkProvider[]>(cacheKey);
+    if (cached) {
+      this.logger.debug(`Returning cached providers for market ${market} (${cached.length} providers)`);
+      return cached;
     }
+
+    // Use request deduplication
+    return this.deduplicateRequest(cacheKey, async () => {
+      try {
+        // Mock mode
+        if (this.config.mockMode) {
+          const mockProviders = TinkMockDataUtil.generateMockProviders(market);
+          this.setCache(cacheKey, mockProviders, this.CACHE_TTL.providers);
+          return mockProviders;
+        }
+
+        // Get client access token for server-to-server calls
+        const accessToken = await this.getClientAccessToken();
+
+        // Use /api/v1/providers/{market} endpoint which requires providers:read scope
+        // Include test providers for sandbox mode
+        const isSandbox = this.config.environment === 'sandbox';
+        const response = await this.httpClient.get(`/api/v1/providers/${market}`, {
+          params: isSandbox ? { includeTestProviders: true } : undefined,
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const providers = response.data.providers || [];
+
+        // Cache the result
+        this.setCache(cacheKey, providers, this.CACHE_TTL.providers);
+
+        this.logger.log(`Fetched ${providers.length} providers for market ${market}`);
+        return providers;
+      } catch (error) {
+        this.logger.error('Failed to fetch providers', error);
+        throw new ServiceUnavailableException('Failed to fetch bank providers');
+      }
+    }) as Promise<TinkProvider[]>;
   }
 
   // ==================== PRIVATE METHODS ====================
@@ -727,5 +763,79 @@ export class TinkService {
     } else {
       this.logger.error('Tink API: Request setup error', error.message);
     }
+  }
+
+  // ==================== CACHING METHODS ====================
+
+  /**
+   * Get item from cache if not expired
+   */
+  private getFromCache<T>(key: string): T | null {
+    const item = this.cache.get(key);
+    if (!item) return null;
+
+    if (Date.now() > item.expiresAt) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return item.data as T;
+  }
+
+  /**
+   * Set item in cache with TTL
+   */
+  private setCache<T>(key: string, data: T, ttl: number): void {
+    this.cache.set(key, {
+      data,
+      expiresAt: Date.now() + ttl,
+    });
+  }
+
+  /**
+   * Invalidate cache for a specific organization
+   */
+  invalidateOrgCache(organizationId: string): void {
+    for (const key of this.cache.keys()) {
+      if (key.includes(organizationId)) {
+        this.cache.delete(key);
+      }
+    }
+    this.logger.debug(`Invalidated cache for org ${organizationId}`);
+  }
+
+  /**
+   * Clear the entire providers cache
+   */
+  clearProvidersCache(): void {
+    for (const key of this.cache.keys()) {
+      if (key.startsWith('providers:')) {
+        this.cache.delete(key);
+      }
+    }
+    this.logger.debug('Cleared providers cache');
+  }
+
+  // ==================== REQUEST DEDUPLICATION ====================
+
+  /**
+   * Deduplicate concurrent identical requests
+   */
+  private async deduplicateRequest<T>(
+    key: string,
+    request: () => Promise<T>,
+  ): Promise<T> {
+    const pending = this.pendingRequests.get(key);
+    if (pending) {
+      this.logger.debug(`Deduplicating request for key: ${key}`);
+      return pending as Promise<T>;
+    }
+
+    const promise = request().finally(() => {
+      this.pendingRequests.delete(key);
+    });
+
+    this.pendingRequests.set(key, promise);
+    return promise;
   }
 }

@@ -27,8 +27,8 @@ export const test = base.extend<TestFixtures>({
    */
   testUser: async ({}, use) => {
     await use({
-      email: process.env.TEST_USER_EMAIL || 'test@operate.guru',
-      password: process.env.TEST_USER_PASSWORD || 'TestPassword123!',
+      email: process.env.TEST_USER_EMAIL || 'luk.gber@gmail.com',
+      password: process.env.TEST_USER_PASSWORD || 'Schlagzeug1@',
       name: 'Test User',
     });
   },

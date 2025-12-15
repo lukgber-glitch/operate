@@ -1,5 +1,6 @@
 "use client"
 
+import { memo, useCallback, useMemo } from 'react'
 import {
   FileText,
   CheckSquare,
@@ -106,16 +107,17 @@ const priorityColors = {
   URGENT: 'border-l-red-500',
 }
 
-export function NotificationItem({ notification, onRead, onDelete, onClick }: NotificationItemProps) {
-  const config = notificationConfig[notification.type]
+function NotificationItemComponent({ notification, onRead, onDelete, onClick }: NotificationItemProps) {
+  // Memoize config lookup
+  const config = useMemo(() => notificationConfig[notification.type], [notification.type])
   const Icon = config.icon
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (!notification.isRead) {
       onRead(notification.id)
     }
     onClick?.(notification)
-  }
+  }, [notification, onRead, onClick])
 
   return (
     <div
@@ -184,3 +186,5 @@ export function NotificationItem({ notification, onRead, onDelete, onClick }: No
     </div>
   )
 }
+
+export const NotificationItem = memo(NotificationItemComponent)

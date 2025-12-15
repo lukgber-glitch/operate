@@ -10,9 +10,12 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { EntityExtractorService } from './entity-extractor.service';
 import { CustomerMatcherService } from './matchers/customer-matcher.service';
+import { EmailFilterService } from './email-filter.service';
+import { ReviewQueueService } from './review-queue.service';
 import {
   ExtractedEntities,
   CompanyRole,
@@ -26,12 +29,16 @@ import { extractDomain, normalizeCompanyName } from './parsers/signature-parser'
 
 export interface CustomerAutoCreateResult {
   customer?: any; // Prisma Customer type
-  action: 'CREATED' | 'UPDATED' | 'MATCHED' | 'SKIPPED';
+  action: 'CREATED' | 'UPDATED' | 'MATCHED' | 'SKIPPED' | 'QUEUED_FOR_REVIEW';
   changes?: string[];
   reason?: string;
+  skipCode?: string;
+  reviewType?: string;
 }
 
 export interface EmailMessage {
+  id?: string;
+  externalId?: string;
   subject: string;
   body: string;
   from: string;
@@ -78,6 +85,8 @@ export class CustomerAutoCreatorService {
     private readonly prisma: PrismaService,
     private readonly entityExtractor: EntityExtractorService,
     private readonly customerMatcher: CustomerMatcherService,
+    private readonly emailFilterService: EmailFilterService,
+    private readonly reviewQueueService: ReviewQueueService,
   ) {}
 
   /**
@@ -88,10 +97,59 @@ export class CustomerAutoCreatorService {
     classification: ClassificationResult,
     entities: ExtractedEntities,
     orgId: string,
+    headers?: Record<string, string>,
   ): Promise<CustomerAutoCreateResult> {
     this.logger.log(
       `Processing email for customer auto-creation: "${email.subject.substring(0, 50)}..." (${classification.classification})`,
     );
+
+    // === NEW: Apply email filter ===
+    const filterResult = await this.emailFilterService.filterEmail(orgId, {
+      from: email.from,
+      to: Array.isArray(email.to) ? email.to : [email.to],
+      subject: email.subject,
+      headers,
+      classificationConfidence: classification.confidence,
+      entityConfidence: this.getAverageEntityConfidence(entities),
+    });
+
+    // Handle filter result
+    if (filterResult.action === 'SKIP') {
+      this.logger.log(`Email skipped: ${filterResult.reason}`);
+      return {
+        action: 'SKIPPED',
+        reason: filterResult.reason,
+        skipCode: filterResult.skipCode,
+      };
+    }
+
+    if (filterResult.action === 'REVIEW') {
+      // Queue for manual review
+      const senderEmail = this.extractEmail(email.from);
+      const senderDomain = this.extractDomain(senderEmail);
+
+      await this.reviewQueueService.queueForReview(orgId, {
+        emailId: email.id || email.externalId || '',
+        reviewType: filterResult.reviewType || 'MANUAL_CHECK',
+        reviewReason: filterResult.reason,
+        senderEmail: senderEmail || email.from,
+        senderDomain: senderDomain || '',
+        extractedCompany: entities.companies?.[0]?.name,
+        extractedContacts: entities.contacts,
+        classification: classification.classification,
+        confidence: filterResult.confidence,
+        suggestedAction: this.getSuggestedAction(classification),
+      });
+
+      this.logger.log(`Email queued for review: ${filterResult.reason}`);
+      return {
+        action: 'QUEUED_FOR_REVIEW',
+        reason: filterResult.reason,
+        reviewType: filterResult.reviewType,
+      };
+    }
+
+    // === Continue with existing logic ===
 
     // Check if this classification warrants customer creation
     const customerStatus = CLASSIFICATION_TO_STATUS[classification.classification];
@@ -403,5 +461,64 @@ export class CustomerAutoCreatorService {
 
     // Return first contact
     return entities.contacts[0];
+  }
+
+  // ==================== Helper Methods for Email Filtering ====================
+
+  /**
+   * Calculate average confidence from extracted entities
+   */
+  private getAverageEntityConfidence(entities: ExtractedEntities): number {
+    const confidences: number[] = [];
+
+    entities.companies?.forEach((c) => {
+      if (c.confidence !== undefined) confidences.push(c.confidence);
+    });
+    entities.contacts?.forEach((c) => {
+      if (c.confidence !== undefined) confidences.push(c.confidence);
+    });
+
+    if (confidences.length === 0) return 1.0;
+    return confidences.reduce((a, b) => a + b, 0) / confidences.length;
+  }
+
+  /**
+   * Get suggested action based on classification
+   */
+  private getSuggestedAction(
+    classification: ClassificationResult,
+  ): 'CREATE_CUSTOMER' | 'CREATE_VENDOR' | 'SKIP' {
+    const customerTypes = [
+      'QUOTE_REQUEST',
+      'CUSTOMER_INQUIRY',
+      'ORDER_CONFIRMATION',
+      'SUPPORT_REQUEST',
+    ];
+    const vendorTypes = ['INVOICE_RECEIVED', 'BILL_RECEIVED', 'VENDOR_COMMUNICATION'];
+
+    if (customerTypes.includes(classification.classification)) {
+      return 'CREATE_CUSTOMER';
+    }
+    if (vendorTypes.includes(classification.classification)) {
+      return 'CREATE_VENDOR';
+    }
+    return 'SKIP';
+  }
+
+  /**
+   * Extract email from "Name <email@example.com>" format
+   */
+  private extractEmail(from: string): string | null {
+    const match = from.match(/<([^>]+)>/) || from.match(/([^\s<>]+@[^\s<>]+)/);
+    return match ? match[1].toLowerCase() : null;
+  }
+
+  /**
+   * Extract domain from email address
+   */
+  private extractDomain(email: string | null): string | null {
+    if (!email) return null;
+    const match = email.match(/@(.+)$/);
+    return match ? match[1].toLowerCase() : null;
   }
 }

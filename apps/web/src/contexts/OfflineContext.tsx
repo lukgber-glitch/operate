@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { getDBStats, isIndexedDBSupported } from '@/lib/offline/db';
 import {
   processSyncQueue,
@@ -246,7 +246,8 @@ export function OfflineProvider({
     };
   }, [syncNow]);
 
-  const value: OfflineContextValue = {
+  // Memoize context value to prevent unnecessary re-renders of consumers
+  const value = useMemo<OfflineContextValue>(() => ({
     isOnline,
     isSupported,
     isSyncing,
@@ -260,7 +261,20 @@ export function OfflineProvider({
     setConflictResolutionStrategy,
     refreshStats,
     getPendingItems,
-  };
+  }), [
+    isOnline,
+    isSupported,
+    isSyncing,
+    syncProgress,
+    pendingSyncCount,
+    lastSyncTime,
+    dbStats,
+    syncNow,
+    cancelSync,
+    conflictResolutionStrategy,
+    refreshStats,
+    getPendingItems,
+  ]);
 
   return <OfflineContext.Provider value={value}>{children}</OfflineContext.Provider>;
 }

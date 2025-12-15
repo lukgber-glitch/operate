@@ -134,7 +134,7 @@ export default function NewInvoicePage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">New Invoice</h1>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">New Invoice</h1>
           <p className="text-muted-foreground">Create a new invoice</p>
         </div>
       </div>

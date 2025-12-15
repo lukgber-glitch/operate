@@ -1,15 +1,18 @@
 import { Skeleton } from '@/components/ui/skeleton';
+import { GuruLoader } from '@/components/ui/guru-loader';
 import { CardSkeletonGrid } from './CardSkeleton';
 import { TableSkeleton } from './TableSkeleton';
 
 /**
- * Full page loading state with spinner
+ * Full page loading state with animated guru logo
  */
 export function PageLoader() {
   return (
     <div className="flex items-center justify-center min-h-[400px]">
       <div className="text-center space-y-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
+        <div className="mx-auto">
+          <GuruLoader size={80} />
+        </div>
         <p className="text-sm text-muted-foreground">Loading...</p>
       </div>
     </div>
@@ -17,7 +20,7 @@ export function PageLoader() {
 }
 
 /**
- * Inline loading spinner
+ * Inline loading spinner - uses guru logo
  */
 interface SpinnerProps {
   size?: 'sm' | 'md' | 'lg';
@@ -25,16 +28,16 @@ interface SpinnerProps {
 }
 
 export function Spinner({ size = 'md', className = '' }: SpinnerProps) {
-  const sizeClasses = {
-    sm: 'h-4 w-4 border',
-    md: 'h-8 w-8 border-2',
-    lg: 'h-12 w-12 border-2',
+  const sizeMap = {
+    sm: 24,
+    md: 40,
+    lg: 60,
   };
 
   return (
-    <div
-      className={`animate-spin rounded-full border-b-primary ${sizeClasses[size]} ${className}`}
-    />
+    <div className={className}>
+      <GuruLoader size={sizeMap[size]} />
+    </div>
   );
 }
 

@@ -15,6 +15,8 @@ import { EMAIL_SYNC_QUEUE } from './email-sync.service';
 import { EmailClassifierService } from '../../ai/email-intelligence/email-classifier.service';
 import { EntityExtractorService } from '../../ai/email-intelligence/entity-extractor.service';
 import { EmailSuggestionsService } from '../../ai/email-intelligence/email-suggestions.service';
+import { CustomerAutoCreatorService } from '../../ai/email-intelligence/customer-auto-creator.service';
+import { VendorAutoCreatorService } from '../../ai/email-intelligence/vendor-auto-creator.service';
 
 /**
  * Email Sync Processor
@@ -73,6 +75,8 @@ export class EmailSyncProcessor {
     private readonly emailClassifier: EmailClassifierService,
     private readonly entityExtractor: EntityExtractorService,
     private readonly suggestionsService: EmailSuggestionsService,
+    private readonly customerAutoCreator: CustomerAutoCreatorService,
+    private readonly vendorAutoCreator: VendorAutoCreatorService,
   ) {}
 
   /**
@@ -240,9 +244,25 @@ export class EmailSyncProcessor {
 
         totalEmails += response.messages.length;
 
+        // OPTIMIZATION: Batch fetch existing emails in ONE query instead of N individual queries
+        const messageIds = response.messages.map((m: any) => m.id);
+        const existingEmails = await this.prisma.syncedEmail.findMany({
+          where: {
+            connectionId: syncJob.connectionId,
+            externalId: { in: messageIds },
+          },
+          select: { externalId: true },
+        });
+        const existingEmailIds = new Set(existingEmails.map(e => e.externalId));
+
         // Process each message
         for (const message of response.messages) {
           try {
+            // Skip if email already exists (O(1) lookup using pre-fetched Set)
+            if (existingEmailIds.has(message.id)) {
+              continue;
+            }
+
             // Check rate limit
             await this.checkGmailRateLimit();
 
@@ -254,17 +274,15 @@ export class EmailSyncProcessor {
 
             this.gmailRequestCount++;
 
-            // Check if email already exists
-            const existingEmail = await this.prisma.syncedEmail.findUnique({
-              where: {
-                connectionId_externalId: {
-                  connectionId: syncJob.connectionId,
-                  externalId: message.id,
-                },
-              },
-            });
+            // Email is new (already verified above), process it
+            {
+              // Extract headers for filtering
+              const headers = emailDetails.payload?.headers || [];
+              const headersMap: Record<string, string> = {};
+              headers.forEach((h: any) => {
+                headersMap[h.name] = h.value;
+              });
 
-            if (!existingEmail) {
               // Create synced email record
               const syncedEmail = await this.createSyncedEmailFromGmail(
                 emailDetails,
@@ -272,9 +290,9 @@ export class EmailSyncProcessor {
               );
               newEmails++;
 
-              // Process email intelligence (classification, extraction, suggestions)
+              // Process email intelligence (classification, extraction, suggestions, auto-creation)
               if (syncedEmail) {
-                await this.processEmailIntelligence(syncedEmail, syncJob);
+                await this.processEmailIntelligence(syncedEmail, syncJob, headersMap);
               }
             }
           } catch (error) {
@@ -371,28 +389,41 @@ export class EmailSyncProcessor {
 
         totalEmails += response.messages.length;
 
+        // OPTIMIZATION: Batch fetch existing emails in ONE query instead of N individual queries
+        const messageIds = response.messages.map((m: any) => m.id);
+        const existingEmails = await this.prisma.syncedEmail.findMany({
+          where: {
+            connectionId: syncJob.connectionId,
+            externalId: { in: messageIds },
+          },
+          select: { externalId: true },
+        });
+        const existingEmailIds = new Set(existingEmails.map(e => e.externalId));
+
         // Process each message
         for (const message of response.messages) {
           try {
-            // Check if email already exists
-            const existingEmail = await this.prisma.syncedEmail.findUnique({
-              where: {
-                connectionId_externalId: {
-                  connectionId: syncJob.connectionId,
-                  externalId: message.id,
-                },
-              },
-            });
+            // Skip if email already exists (O(1) lookup using pre-fetched Set)
+            if (existingEmailIds.has(message.id)) {
+              continue;
+            }
 
-            if (!existingEmail) {
-              // Create synced email record
-              const syncedEmail = await this.createSyncedEmailFromOutlook(message, syncJob);
-              newEmails++;
+            // Email is new, process it
+            // Extract headers from Outlook message (if available)
+            const headersMap: Record<string, string> = {};
+            if ((message as any).internetMessageHeaders) {
+              (message as any).internetMessageHeaders.forEach((h: any) => {
+                headersMap[h.name] = h.value;
+              });
+            }
 
-              // Process email intelligence (classification, extraction, suggestions)
-              if (syncedEmail) {
-                await this.processEmailIntelligence(syncedEmail, syncJob);
-              }
+            // Create synced email record
+            const syncedEmail = await this.createSyncedEmailFromOutlook(message, syncJob);
+            newEmails++;
+
+            // Process email intelligence (classification, extraction, suggestions, auto-creation)
+            if (syncedEmail) {
+              await this.processEmailIntelligence(syncedEmail, syncJob, headersMap);
             }
           } catch (error) {
             this.logger.error(
@@ -600,12 +631,13 @@ export class EmailSyncProcessor {
   }
 
   /**
-   * Process email intelligence: classification, entity extraction, and suggestions
+   * Process email intelligence: classification, entity extraction, suggestions, and auto-creation
    * This is called after a SyncedEmail record is created
    */
   private async processEmailIntelligence(
     syncedEmail: any,
     syncJob: any,
+    headers?: Record<string, string>,
   ): Promise<void> {
     try {
       this.logger.debug(
@@ -654,7 +686,56 @@ export class EmailSyncProcessor {
         `Extracted entities: ${entities.companies.length} companies, ${entities.contacts.length} contacts, ${entities.amounts.length} amounts`,
       );
 
-      // 3. Generate suggestions based on classification and entities
+      // 3. Auto-create customers/vendors based on classification
+      if (this.customerAutoCreator && this.vendorAutoCreator) {
+        const emailMessage = {
+          id: syncedEmail.id,
+          externalId: syncedEmail.externalId,
+          subject: syncedEmail.subject || '',
+          body: syncedEmail.snippet || syncedEmail.bodyPreview || '',
+          from: syncedEmail.from || '',
+          to: Array.isArray(syncedEmail.to) ? syncedEmail.to.join(', ') : '',
+          cc: syncedEmail.cc,
+          date: syncedEmail.receivedAt,
+        };
+
+        // Check if this is a customer-related email
+        const customerTypes = [
+          'QUOTE_REQUEST',
+          'CUSTOMER_INQUIRY',
+          'ORDER_CONFIRMATION',
+          'SUPPORT_REQUEST',
+        ];
+        if (customerTypes.includes(classification.classification)) {
+          const customerResult = await this.customerAutoCreator.processEmail(
+            emailMessage,
+            classification,
+            entities,
+            syncedEmail.orgId,
+            headers,
+          );
+          this.logger.debug(
+            `Customer auto-creation result: ${customerResult.action}`,
+          );
+        }
+
+        // Check if this is a vendor-related email
+        const vendorTypes = ['INVOICE_RECEIVED', 'BILL_RECEIVED'];
+        if (vendorTypes.includes(classification.classification)) {
+          // Note: VendorAutoCreator requires extractedInvoice parameter
+          // For now, passing undefined - full invoice extraction happens in a separate flow
+          const vendorResult = await this.vendorAutoCreator.processEmail(
+            emailMessage,
+            classification,
+            entities,
+            undefined, // extractedInvoice - handled separately by bill-creator
+            syncedEmail.orgId,
+          );
+          this.logger.debug(`Vendor auto-creation result: ${vendorResult.action}`);
+        }
+      }
+
+      // 4. Generate suggestions based on classification and entities
       const suggestions =
         await this.suggestionsService.generateSuggestionsForEmail(
           {

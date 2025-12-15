@@ -1,11 +1,12 @@
 /**
  * Employee Onboarding Hook
  * Custom hook for managing wizard state and navigation
+ * Optimized with debounced auto-save, memoization, and validation
  */
 
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import type {
   EmployeeOnboardingData,
   OnboardingStep,
@@ -25,6 +26,8 @@ export interface UseEmployeeOnboardingReturn {
   isFirstStep: boolean;
   isLastStep: boolean;
   progress: number;
+  isDirty: boolean;
+  isAutoSaving: boolean;
   goToStep: (step: OnboardingStep) => void;
   nextStep: () => void;
   previousStep: () => void;
@@ -36,24 +39,45 @@ export interface UseEmployeeOnboardingReturn {
   updateDocuments: (data: Documents) => void;
   saveDraft: () => Promise<void>;
   reset: () => void;
+  completedSteps: OnboardingStep[];
 }
 
 const STORAGE_KEY = 'employee-onboarding-draft';
+const AUTO_SAVE_DELAY = 1000; // 1 second debounce
+
+// Safe JSON parse with validation
+function safeParseJSON<T>(json: string | null, fallback: T): T {
+  if (!json) return fallback;
+  try {
+    const parsed = JSON.parse(json);
+    // Basic validation - must be an object
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      return fallback;
+    }
+    return parsed as T;
+  } catch {
+    return fallback;
+  }
+}
 
 export function useEmployeeOnboarding(): UseEmployeeOnboardingReturn {
-  // Load draft from localStorage if available
+  // Load draft from localStorage if available with safe parsing
   const loadDraft = (): EmployeeOnboardingData => {
     if (typeof window === 'undefined') return {};
-
-    try {
-      const draft = localStorage.getItem(STORAGE_KEY);
-      return draft ? JSON.parse(draft) : {};
-    } catch (error) {      return {};
-    }
+    return safeParseJSON<EmployeeOnboardingData>(
+      localStorage.getItem(STORAGE_KEY),
+      {}
+    );
   };
 
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('personal-info');
   const [data, setData] = useState<EmployeeOnboardingData>(loadDraft());
+  const [isDirty, setIsDirty] = useState(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+
+  // Refs for debounced auto-save
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastSavedRef = useRef<string>(JSON.stringify(data));
 
   const currentStepIndex = ONBOARDING_STEPS.findIndex(
     (step) => step.id === currentStep
@@ -110,18 +134,96 @@ export function useEmployeeOnboarding(): UseEmployeeOnboardingReturn {
     if (typeof window === 'undefined') return;
 
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch (error) {      throw error;
+      const dataString = JSON.stringify(data);
+      localStorage.setItem(STORAGE_KEY, dataString);
+      lastSavedRef.current = dataString;
+      setIsDirty(false);
+    } catch (error) {
+      // Handle quota exceeded or other storage errors gracefully
+      console.warn('Failed to save draft to localStorage:', error);
+      throw error;
     }
   }, [data]);
+
+  // Debounced auto-save effect
+  useEffect(() => {
+    const currentDataString = JSON.stringify(data);
+
+    // Skip if no changes
+    if (currentDataString === lastSavedRef.current) return;
+
+    setIsDirty(true);
+
+    // Clear existing timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+
+    // Set new debounced save
+    autoSaveTimeoutRef.current = setTimeout(async () => {
+      if (typeof window === 'undefined') return;
+
+      setIsAutoSaving(true);
+      try {
+        localStorage.setItem(STORAGE_KEY, currentDataString);
+        lastSavedRef.current = currentDataString;
+        setIsDirty(false);
+      } catch (error) {
+        console.warn('Auto-save failed:', error);
+      } finally {
+        setIsAutoSaving(false);
+      }
+    }, AUTO_SAVE_DELAY);
+
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, [data]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const reset = useCallback(() => {
     setCurrentStep('personal-info');
     setData({});
+    setIsDirty(false);
+    lastSavedRef.current = '{}';
     if (typeof window !== 'undefined') {
       localStorage.removeItem(STORAGE_KEY);
     }
   }, []);
+
+  // Compute completed steps based on data
+  const completedSteps = useMemo((): OnboardingStep[] => {
+    const completed: OnboardingStep[] = [];
+    if (data.personalInfo?.firstName && data.personalInfo?.lastName && data.personalInfo?.email) {
+      completed.push('personal-info');
+    }
+    if (data.employmentDetails?.jobTitle && data.employmentDetails?.startDate) {
+      completed.push('employment-details');
+    }
+    if (data.taxInfo?.filingStatus) {
+      completed.push('tax-info');
+    }
+    if (data.directDeposit?.routingNumber && data.directDeposit?.accountNumber) {
+      completed.push('direct-deposit');
+    }
+    if (data.benefits !== undefined) {
+      completed.push('benefits');
+    }
+    if (data.documents !== undefined) {
+      completed.push('documents');
+    }
+    return completed;
+  }, [data]);
 
   return {
     currentStep,
@@ -130,6 +232,8 @@ export function useEmployeeOnboarding(): UseEmployeeOnboardingReturn {
     isFirstStep,
     isLastStep,
     progress,
+    isDirty,
+    isAutoSaving,
     goToStep,
     nextStep,
     previousStep,
@@ -141,5 +245,6 @@ export function useEmployeeOnboarding(): UseEmployeeOnboardingReturn {
     updateDocuments,
     saveDraft,
     reset,
+    completedSteps,
   };
 }

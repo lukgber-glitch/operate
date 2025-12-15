@@ -455,7 +455,7 @@ export function DocumentViewer({ isOpen, onClose, document }: DocumentViewerProp
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{
-              type: 'spring',
+              type: 'spring' as const,
               damping: 30,
               stiffness: 300,
             }}

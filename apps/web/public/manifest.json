@@ -1,12 +1,12 @@
 {
-  "name": "Operate | CoachOS - Enterprise Business Operations",
+  "name": "Operate - Business Autopilot",
   "short_name": "Operate",
-  "description": "Enterprise SaaS platform for SME business operations, tax automation, and HR management. Streamline your business with AI-powered tools.",
-  "start_url": "/",
+  "description": "AI-powered business management for freelancers and small businesses",
+  "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0f172a",
+  "background_color": "#0D47A1",
+  "theme_color": "#0D47A1",
   "orientation": "portrait-primary",
   "categories": [
     "business",
@@ -24,13 +24,13 @@
       "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "maskable any"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "maskable any"
     },
     {
       "src": "/icon-maskable-192.png",
@@ -47,10 +47,22 @@
   ],
   "shortcuts": [
     {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "View your business dashboard and key metrics",
-      "url": "/dashboard",
+      "name": "New Invoice",
+      "short_name": "Invoice",
+      "description": "Create a new invoice",
+      "url": "/finance/invoices/new",
+      "icons": [
+        {
+          "src": "/icon.svg",
+          "sizes": "any"
+        }
+      ]
+    },
+    {
+      "name": "Log Expense",
+      "short_name": "Expense",
+      "description": "Add a new expense",
+      "url": "/finance/expenses/new",
       "icons": [
         {
           "src": "/icon.svg",
@@ -61,7 +73,7 @@
     {
       "name": "Chat",
       "short_name": "Chat",
-      "description": "AI-powered business assistant",
+      "description": "Ask your AI assistant",
       "url": "/chat",
       "icons": [
         {
@@ -71,22 +83,10 @@
       ]
     },
     {
-      "name": "Invoices",
-      "short_name": "Invoices",
-      "description": "Manage and create invoices",
-      "url": "/finance/invoices",
-      "icons": [
-        {
-          "src": "/icon.svg",
-          "sizes": "any"
-        }
-      ]
-    },
-    {
-      "name": "Tax",
-      "short_name": "Tax",
-      "description": "Access tax compliance and reporting tools",
-      "url": "/tax",
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your business dashboard",
+      "url": "/dashboard",
       "icons": [
         {
           "src": "/icon.svg",
@@ -95,10 +95,40 @@
       ]
     }
   ],
+  "share_target": {
+    "action": "/share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "receipts",
+          "accept": ["image/*", "application/pdf"]
+        }
+      ]
+    }
+  },
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard Overview"
+    },
+    {
+      "src": "/screenshots/mobile-dashboard.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile Dashboard"
+    }
+  ],
   "prefer_related_applications": false,
   "related_applications": [],
   "lang": "en-US",
-  "dir": "ltr",
-  "screenshots": [],
-  "iarc_rating_id": ""
+  "dir": "ltr"
 }

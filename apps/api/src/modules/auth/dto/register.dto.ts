@@ -7,10 +7,14 @@ import {
   Matches,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { SanitizeInput } from '../../../common/decorators/sanitize-input.decorator';
 
 /**
  * User registration DTO
  * Validates user registration data with strong password requirements
+ *
+ * SECURITY:
+ * - SEC-016: XSS sanitization on name fields
  */
 export class RegisterDto {
   @ApiProperty({
@@ -39,6 +43,7 @@ export class RegisterDto {
     description: 'User first name',
     example: 'John',
   })
+  @SanitizeInput() // SEC-016: XSS sanitization
   @IsString()
   @IsNotEmpty({ message: 'First name is required' })
   @MinLength(1)
@@ -49,6 +54,7 @@ export class RegisterDto {
     description: 'User last name',
     example: 'Doe',
   })
+  @SanitizeInput() // SEC-016: XSS sanitization
   @IsString()
   @IsNotEmpty({ message: 'Last name is required' })
   @MinLength(1)

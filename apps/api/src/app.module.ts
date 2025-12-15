@@ -5,6 +5,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { BullModule } from '@nestjs/bull';
 import { BullModule as BullMQModule } from '@nestjs/bullmq';
 import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { TenantGuard } from './common/guards/tenant.guard';
 import { CsrfGuard } from './common/guards/csrf.guard';
 import { CsrfTokenMiddleware } from './common/middleware/csrf-token.middleware';
@@ -24,6 +25,7 @@ import { GmailModule } from './modules/integrations/gmail/gmail.module';
 import { TinkModule } from './modules/integrations/tink/tink.module';
 import { StripeModule } from './modules/integrations/stripe/stripe.module';
 import { PlaidModule } from './modules/integrations/plaid/plaid.module';
+import { TrueLayerModule } from './modules/integrations/truelayer/truelayer.module';
 import { AvalaraModule } from './modules/avalara/avalara.module';
 import { QuickBooksModule } from './modules/quickbooks/quickbooks.module';
 import { XeroModule } from './modules/integrations/xero/xero.module';
@@ -31,14 +33,17 @@ import { GoCardlessModule } from './modules/integrations/gocardless/gocardless.m
 // EmailSyncModule removed - has broken dependencies (@aws-sdk/client-s3)
 import { HrModule } from './modules/hr/hr.module';
 import { FinanceModule } from './modules/finance/finance.module';
+import { QuotesModule } from './modules/quotes/quotes.module';
 import { AiModule } from './modules/ai/ai.module';
 import { ComplianceModule } from './modules/compliance/compliance.module';
 import { DeductionsModule } from './modules/tax/deductions/deductions.module';
 import { FraudPreventionModule } from './modules/tax/fraud-prevention/fraud-prevention.module';
+import { TaxAssistantModule } from './modules/tax-assistant/tax-assistant.module';
 import { DocumentsModule } from './modules/documents/documents.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { AutomationModule } from './modules/automation/automation.module';
+import { AutopilotModule } from './modules/autopilot/autopilot.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ConnectionHubModule } from './modules/connection-hub/connection-hub.module';
 import { ChatbotModule } from './modules/chatbot/chatbot.module';
@@ -50,6 +55,12 @@ import { PerformanceModule } from './modules/performance/performance.module';
 import { BulkModule } from './modules/bulk/bulk.module';
 import { FinancialAuditModule } from './modules/audit/financial-audit.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { HealthScoreModule } from './modules/health-score/health-score.module';
+import { ContractsModule } from './modules/contracts/contracts.module';
+import { MileageModule } from './modules/mileage/mileage.module';
+import { TimeTrackingModule } from './modules/time-tracking/time-tracking.module';
+import { PaymentSuggestionModule } from './modules/ai/payment-suggestion/payment-suggestion.module';
+import { BillingModule } from './modules/billing/billing.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -170,6 +181,8 @@ import configuration from './config/configuration';
     FinancialAuditModule,
     // Analytics module (cash flow forecasting, financial insights)
     AnalyticsModule,
+    // Health Score module (business health metrics)
+    HealthScoreModule,
 
 
     // Feature modules
@@ -188,6 +201,7 @@ import configuration from './config/configuration';
     TinkModule,
     StripeModule,
     PlaidModule,
+    TrueLayerModule,
     AvalaraModule,
     QuickBooksModule,
     XeroModule,
@@ -200,8 +214,14 @@ import configuration from './config/configuration';
     // Finance module
     FinanceModule,
 
+    // Quotes module
+    QuotesModule,
+
     // AI module
     AiModule,
+
+    // AI Payment Suggestion module
+    PaymentSuggestionModule,
 
     // Compliance modules (GoBD, SAF-T)
     ComplianceModule,
@@ -209,6 +229,7 @@ import configuration from './config/configuration';
     // Tax modules
     DeductionsModule,
     FraudPreventionModule,
+    TaxAssistantModule,
 
     // Documents module
     DocumentsModule,
@@ -222,8 +243,14 @@ import configuration from './config/configuration';
     // Automation module
     AutomationModule,
 
+    // AI Autopilot module
+    AutopilotModule,
+
     // Notifications module
     NotificationsModule,
+
+    // Billing module (subscription management)
+    BillingModule,
 
     // Connection Hub module (integrations, OAuth, onboarding)
     ConnectionHubModule,
@@ -238,12 +265,21 @@ import configuration from './config/configuration';
     // Costs module (cost tracking)
     CostsModule,
 
+    // Mileage tracking module
+    MileageModule,
+
+    // Time tracking module
+    TimeTrackingModule,
+
     // WebSocket module (real-time updates)
     EventsModule,
     PerformanceModule,
 
     // Bulk operations module
     BulkModule,
+
+    // Contracts module
+    ContractsModule,
 
     // QueueModule and JobsModule temporarily disabled
     // They cause startup hang due to Bull Board Redis connection issues
@@ -253,10 +289,15 @@ import configuration from './config/configuration';
     // Global guards
     // Note: Guards run in order of registration
     // 1. CsrfGuard: CSRF protection for state-changing requests
-    // 2. TenantGuard: Tenant isolation enforcement
+    // 2. JwtAuthGuard: JWT validation and populates request.user
+    // 3. TenantGuard: Tenant isolation enforcement (requires request.user)
     {
       provide: APP_GUARD,
       useClass: CsrfGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
     },
     {
       provide: APP_GUARD,

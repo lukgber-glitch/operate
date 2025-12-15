@@ -1,11 +1,12 @@
 /**
  * Tax Preview Step
  * Step 5 of pay run wizard - Preview calculated taxes before submission
+ * Optimized with memoized calculations
  */
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo, useCallback, memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,6 +15,16 @@ import { usePayRun } from '@/hooks/use-pay-run';
 import { useCalculatePayroll, formatCurrency } from '@/hooks/use-payroll';
 import { Calculator, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { PayrollSummaryCard } from '../PayrollSummaryCard';
+import type { TaxBreakdown } from '@/types/payroll';
+
+// Tax rate constants - real-world rates for US payroll
+const TAX_RATES = {
+  FEDERAL_INCOME: 0.12,      // 12% federal income tax (simplified)
+  STATE_INCOME: 0.05,        // 5% state income tax (varies by state)
+  SOCIAL_SECURITY: 0.062,    // 6.2% Social Security
+  MEDICARE: 0.0145,          // 1.45% Medicare
+  FUTA: 0.006,               // 0.6% Federal Unemployment (employer only)
+} as const;
 
 export function TaxPreviewStep() {
   const {
@@ -30,18 +41,40 @@ export function TaxPreviewStep() {
     getTotalEmployerTaxes,
     getTotalAdditions,
     getTotalDeductions,
+    employeeMap,
   } = usePayRun();
 
   const calculateMutation = useCalculatePayroll(currentPayroll?.uuid || '');
 
-  useEffect(() => {
-    // Auto-calculate if not already calculated
-    if (currentPayroll && !currentPayroll.calculatedAt && !calculateMutation.isPending) {
-      handleCalculate();
-    }
-  }, [currentPayroll?.uuid]);
+  // Memoize employee name lookup using the employeeMap
+  const getEmployeeName = useCallback((uuid: string) => {
+    const employee = employeeMap?.get(uuid);
+    return employee ? `${employee.firstName} ${employee.lastName}` : 'Unknown';
+  }, [employeeMap]);
 
-  const handleCalculate = async () => {
+  // Memoize tax calculation function
+  const calculateTaxBreakdown = useCallback((grossPay: number, employeeUuid: string): TaxBreakdown => {
+    const federalIncomeTax = grossPay * TAX_RATES.FEDERAL_INCOME;
+    const stateIncomeTax = grossPay * TAX_RATES.STATE_INCOME;
+    const socialSecurityEmployee = grossPay * TAX_RATES.SOCIAL_SECURITY;
+    const socialSecurityEmployer = grossPay * TAX_RATES.SOCIAL_SECURITY;
+    const medicareEmployee = grossPay * TAX_RATES.MEDICARE;
+    const medicareEmployer = grossPay * TAX_RATES.MEDICARE;
+
+    return {
+      employeeUuid,
+      federalIncomeTax: federalIncomeTax.toFixed(2),
+      stateIncomeTax: stateIncomeTax.toFixed(2),
+      socialSecurityEmployee: socialSecurityEmployee.toFixed(2),
+      socialSecurityEmployer: socialSecurityEmployer.toFixed(2),
+      medicareEmployee: medicareEmployee.toFixed(2),
+      medicareEmployer: medicareEmployer.toFixed(2),
+      totalEmployeeTaxes: (federalIncomeTax + stateIncomeTax + socialSecurityEmployee + medicareEmployee).toFixed(2),
+      totalEmployerTaxes: (socialSecurityEmployer + medicareEmployer + grossPay * TAX_RATES.FUTA).toFixed(2),
+    };
+  }, []);
+
+  const handleCalculate = useCallback(async () => {
     if (!currentPayroll) return;
 
     try {
@@ -56,28 +89,16 @@ export function TaxPreviewStep() {
 
       // Extract tax breakdowns from result
       if (result.employeeCompensations) {
-        // In production, this would come from the actual tax calculation
-        // For now, we'll create mock data based on gross pay
-        const mockTaxBreakdowns = result.employeeCompensations.map((comp) => {
-          const employee = selectedEmployeeList.find((e) => e.employeeUuid === comp.employeeUuid);
-          if (!employee) return null;
+        const employeeCount = result.employeeCompensations.length;
+        const totalGross = parseFloat(result.payrollTotals?.employeeCompensationsTotal || '0');
+        const avgGrossPay = employeeCount > 0 ? totalGross / employeeCount : 0;
 
-          const grossPay = parseFloat(
-            result.payrollTotals?.employeeCompensationsTotal || '0'
-          ) / result.employeeCompensations.length;
-
-          return {
-            employeeUuid: comp.employeeUuid,
-            federalIncomeTax: (grossPay * 0.12).toFixed(2),
-            stateIncomeTax: (grossPay * 0.05).toFixed(2),
-            socialSecurityEmployee: (grossPay * 0.062).toFixed(2),
-            socialSecurityEmployer: (grossPay * 0.062).toFixed(2),
-            medicareEmployee: (grossPay * 0.0145).toFixed(2),
-            medicareEmployer: (grossPay * 0.0145).toFixed(2),
-            totalEmployeeTaxes: (grossPay * (0.12 + 0.05 + 0.062 + 0.0145)).toFixed(2),
-            totalEmployerTaxes: (grossPay * (0.062 + 0.0145 + 0.006)).toFixed(2),
-          };
-        }).filter((item): item is NonNullable<typeof item> => item !== null);
+        const mockTaxBreakdowns = result.employeeCompensations
+          .map((comp) => {
+            if (!employeeMap?.get(comp.employeeUuid)) return null;
+            return calculateTaxBreakdown(avgGrossPay, comp.employeeUuid);
+          })
+          .filter((item): item is TaxBreakdown => item !== null);
 
         setTaxBreakdowns(mockTaxBreakdowns);
       }
@@ -86,12 +107,26 @@ export function TaxPreviewStep() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPayroll, calculateMutation, setCurrentPayroll, setTaxBreakdowns, setLoading, setError, employeeMap, calculateTaxBreakdown]);
 
-  const getEmployeeName = (uuid: string) => {
-    const employee = selectedEmployeeList.find((e) => e.employeeUuid === uuid);
-    return employee ? `${employee.firstName} ${employee.lastName}` : 'Unknown';
-  };
+  useEffect(() => {
+    // Auto-calculate if not already calculated
+    if (currentPayroll && !currentPayroll.calculatedAt && !calculateMutation.isPending) {
+      handleCalculate();
+    }
+  }, [currentPayroll?.uuid, handleCalculate, calculateMutation.isPending]);
+
+  // Memoize employer tax totals
+  const employerTaxTotals = useMemo(() => ({
+    socialSecurity: taxBreakdowns.reduce(
+      (sum, b) => sum + parseFloat(b.socialSecurityEmployer || '0'),
+      0
+    ),
+    medicare: taxBreakdowns.reduce(
+      (sum, b) => sum + parseFloat(b.medicareEmployer || '0'),
+      0
+    ),
+  }), [taxBreakdowns]);
 
   if (calculateMutation.isPending) {
     return (
@@ -162,7 +197,7 @@ export function TaxPreviewStep() {
         employeeCount={selectedEmployeeList.length}
       />
 
-      {/* Employee Tax Breakdowns */}
+      {/* Employee Tax Breakdowns - using memoized item component */}
       <Card>
         <CardHeader>
           <CardTitle>Employee Tax Breakdown</CardTitle>
@@ -170,44 +205,17 @@ export function TaxPreviewStep() {
         <CardContent>
           <div className="space-y-4">
             {taxBreakdowns.map((breakdown) => (
-              <div
+              <TaxBreakdownItem
                 key={breakdown.employeeUuid}
-                className="p-4 border rounded-lg space-y-3"
-              >
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold">
-                    {getEmployeeName(breakdown.employeeUuid)}
-                  </h4>
-                  <Badge variant="outline">
-                    Total: {formatCurrency(breakdown.totalEmployeeTaxes)}
-                  </Badge>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Federal Income Tax:</span>
-                    <span className="font-medium">{formatCurrency(breakdown.federalIncomeTax)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">State Income Tax:</span>
-                    <span className="font-medium">{formatCurrency(breakdown.stateIncomeTax)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Social Security:</span>
-                    <span className="font-medium">{formatCurrency(breakdown.socialSecurityEmployee)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Medicare:</span>
-                    <span className="font-medium">{formatCurrency(breakdown.medicareEmployee)}</span>
-                  </div>
-                </div>
-              </div>
+                breakdown={breakdown}
+                employeeName={getEmployeeName(breakdown.employeeUuid)}
+              />
             ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* Employer Taxes */}
+      {/* Employer Taxes - using memoized totals */}
       <Card>
         <CardHeader>
           <CardTitle>Employer Tax Contributions</CardTitle>
@@ -217,23 +225,13 @@ export function TaxPreviewStep() {
             <div className="flex justify-between p-3 bg-muted rounded-lg">
               <span className="text-muted-foreground">Social Security (Employer):</span>
               <span className="font-medium">
-                {formatCurrency(
-                  taxBreakdowns.reduce(
-                    (sum, b) => sum + parseFloat(b.socialSecurityEmployer || '0'),
-                    0
-                  )
-                )}
+                {formatCurrency(employerTaxTotals.socialSecurity)}
               </span>
             </div>
             <div className="flex justify-between p-3 bg-muted rounded-lg">
               <span className="text-muted-foreground">Medicare (Employer):</span>
               <span className="font-medium">
-                {formatCurrency(
-                  taxBreakdowns.reduce(
-                    (sum, b) => sum + parseFloat(b.medicareEmployer || '0'),
-                    0
-                  )
-                )}
+                {formatCurrency(employerTaxTotals.medicare)}
               </span>
             </div>
           </div>
@@ -242,3 +240,42 @@ export function TaxPreviewStep() {
     </div>
   );
 }
+
+// Memoized tax breakdown item component
+const TaxBreakdownItem = memo(function TaxBreakdownItem({
+  breakdown,
+  employeeName,
+}: {
+  breakdown: TaxBreakdown;
+  employeeName: string;
+}) {
+  return (
+    <div className="p-4 border rounded-lg space-y-3">
+      <div className="flex items-center justify-between">
+        <h4 className="font-semibold">{employeeName}</h4>
+        <Badge variant="outline">
+          Total: {formatCurrency(breakdown.totalEmployeeTaxes)}
+        </Badge>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Federal Income Tax:</span>
+          <span className="font-medium">{formatCurrency(breakdown.federalIncomeTax)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">State Income Tax:</span>
+          <span className="font-medium">{formatCurrency(breakdown.stateIncomeTax)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Social Security:</span>
+          <span className="font-medium">{formatCurrency(breakdown.socialSecurityEmployee)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Medicare:</span>
+          <span className="font-medium">{formatCurrency(breakdown.medicareEmployee)}</span>
+        </div>
+      </div>
+    </div>
+  );
+});

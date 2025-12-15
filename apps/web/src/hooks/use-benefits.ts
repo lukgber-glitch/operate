@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 
 import {
@@ -16,6 +16,17 @@ import {
   RetirementContribution,
   CostCalculation,
 } from '@/types/benefits';
+
+// API delay configuration - set to 0 in production with real API
+const API_DELAY = process.env.NODE_ENV === 'development' ? 100 : 0;
+
+// Pay frequency to paychecks per year mapping - defined once
+const PAY_FREQUENCY_MAP: Record<string, number> = {
+  weekly: 52,
+  biweekly: 26,
+  semimonthly: 24,
+  monthly: 12,
+} as const;
 
 // Mock API calls - replace with actual API integration
 const mockBenefitPlans: BenefitPlan[] = [
@@ -152,6 +163,7 @@ interface UseBenefitsReturn {
   enrollments: EmployeeBenefitEnrollment[];
   enrollmentPeriod: EnrollmentPeriod | null;
   dependents: Dependent[];
+  planMap: Map<string, BenefitPlan>;
 
   // State
   isLoading: boolean;
@@ -161,6 +173,7 @@ interface UseBenefitsReturn {
   fetchPlans: (type?: BenefitType) => Promise<void>;
   fetchEnrollments: (employeeId: string) => Promise<void>;
   fetchEnrollmentPeriod: () => Promise<void>;
+  fetchAllData: (employeeId: string) => Promise<void>;
   enrollInPlan: (enrollment: Partial<EmployeeBenefitEnrollment>) => Promise<void>;
   updateEnrollment: (enrollmentId: string, data: Partial<EmployeeBenefitEnrollment>) => Promise<void>;
   cancelEnrollment: (enrollmentId: string) => Promise<void>;
@@ -176,12 +189,33 @@ export function useBenefits(): UseBenefitsReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Abort controller for cleanup
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Memoized plan lookup map for O(1) access in calculateCost
+  const planMap = useMemo(() => {
+    const map = new Map<string, BenefitPlan>();
+    plans.forEach(plan => map.set(plan.id, plan));
+    return map;
+  }, [plans]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
   const fetchPlans = useCallback(async (type?: BenefitType) => {
     setIsLoading(true);
     setError(null);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Reduced delay for better UX
+      if (API_DELAY > 0) {
+        await new Promise(resolve => setTimeout(resolve, API_DELAY));
+      }
       const filteredPlans = type
         ? mockBenefitPlans.filter(p => p.type === type)
         : mockBenefitPlans;
@@ -203,8 +237,9 @@ export function useBenefits(): UseBenefitsReturn {
     setIsLoading(true);
     setError(null);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      if (API_DELAY > 0) {
+        await new Promise(resolve => setTimeout(resolve, API_DELAY));
+      }
       // Mock empty enrollments
       setEnrollments([]);
     } catch (err) {
@@ -224,8 +259,9 @@ export function useBenefits(): UseBenefitsReturn {
     setIsLoading(true);
     setError(null);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      if (API_DELAY > 0) {
+        await new Promise(resolve => setTimeout(resolve, API_DELAY));
+      }
       setEnrollmentPeriod(mockEnrollmentPeriod);
     } catch (err) {
       const errorMessage = 'Failed to fetch enrollment period';
@@ -239,6 +275,23 @@ export function useBenefits(): UseBenefitsReturn {
       setIsLoading(false);
     }
   }, [toast]);
+
+  // Parallel fetch for all data - more efficient
+  const fetchAllData = useCallback(async (employeeId: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await Promise.all([
+        fetchPlans(),
+        fetchEnrollments(employeeId),
+        fetchEnrollmentPeriod(),
+      ]);
+    } catch (err) {
+      setError('Failed to fetch benefits data');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchPlans, fetchEnrollments, fetchEnrollmentPeriod]);
 
   const enrollInPlan = useCallback(async (enrollment: Partial<EmployeeBenefitEnrollment>) => {
     setIsLoading(true);
@@ -317,12 +370,14 @@ export function useBenefits(): UseBenefitsReturn {
     }
   }, [toast]);
 
+  // Optimized calculateCost using memoized planMap for O(1) lookup
   const calculateCost = useCallback((
     planId: string,
     coverageLevel: CoverageLevel,
     payFrequency: string
   ): CostCalculation | null => {
-    const plan = plans.find(p => p.id === planId);
+    // Use O(1) map lookup instead of O(n) array find
+    const plan = planMap.get(planId);
     if (!plan) return null;
 
     const monthlyPremium = plan.employeeMonthlyPremium[coverageLevel] || 0;
@@ -330,22 +385,8 @@ export function useBenefits(): UseBenefitsReturn {
     const employeeCost = monthlyPremium;
     const annualCost = employeeCost * 12;
 
-    let paychecksPerYear = 12;
-    switch (payFrequency) {
-      case 'weekly':
-        paychecksPerYear = 52;
-        break;
-      case 'biweekly':
-        paychecksPerYear = 26;
-        break;
-      case 'semimonthly':
-        paychecksPerYear = 24;
-        break;
-      case 'monthly':
-        paychecksPerYear = 12;
-        break;
-    }
-
+    // Use constant map instead of switch statement
+    const paychecksPerYear = PAY_FREQUENCY_MAP[payFrequency] || 12;
     const costPerPaycheck = annualCost / paychecksPerYear;
 
     return {
@@ -356,20 +397,25 @@ export function useBenefits(): UseBenefitsReturn {
       employeeCost,
       annualCost,
       costPerPaycheck,
-      payFrequency: payFrequency as any,
+      payFrequency: payFrequency as 'weekly' | 'biweekly' | 'semimonthly' | 'monthly',
     };
-  }, [plans]);
+  }, [planMap]);
 
   return {
+    // Data
     plans,
     enrollments,
     enrollmentPeriod,
     dependents,
+    planMap,
+    // State
     isLoading,
     error,
+    // Methods
     fetchPlans,
     fetchEnrollments,
     fetchEnrollmentPeriod,
+    fetchAllData,
     enrollInPlan,
     updateEnrollment,
     cancelEnrollment,
@@ -428,8 +474,10 @@ export function useBenefitsEnrollment(employeeId: string) {
   const submitEnrollment = useCallback(async () => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Reduced delay for better UX
+      if (API_DELAY > 0) {
+        await new Promise(resolve => setTimeout(resolve, API_DELAY * 2));
+      }
 
       toast({
         title: 'Success',
@@ -451,6 +499,22 @@ export function useBenefitsEnrollment(employeeId: string) {
     }
   }, [toast]);
 
+  // Memoized computed values for enrollment progress
+  const isComplete = useMemo(() =>
+    state.completedSteps.length >= 6, // All required steps completed
+    [state.completedSteps]
+  );
+
+  const progress = useMemo(() =>
+    (state.completedSteps.length / 7) * 100,
+    [state.completedSteps]
+  );
+
+  const hasHealthSelection = useMemo(() =>
+    !!(state.healthPlan && state.healthCoverageLevel),
+    [state.healthPlan, state.healthCoverageLevel]
+  );
+
   return {
     state,
     updateState,
@@ -458,5 +522,9 @@ export function useBenefitsEnrollment(employeeId: string) {
     previousStep,
     goToStep,
     submitEnrollment,
+    // Computed values
+    isComplete,
+    progress,
+    hasHealthSelection,
   };
 }

@@ -115,7 +115,7 @@ export function useUpdateClient() {
 }
 
 /**
- * Delete a client
+ * Delete a client with optimistic update
  */
 export function useDeleteClient() {
   const queryClient = useQueryClient();
@@ -123,24 +123,57 @@ export function useDeleteClient() {
 
   return useMutation({
     mutationFn: (id: string) => deleteClient(id),
-    onSuccess: (_, deletedId) => {
-      // Remove from cache
-      queryClient.removeQueries({ queryKey: ['clients', deletedId] });
+    // Optimistic update - remove from list immediately
+    onMutate: async (deletedId: string) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['clients'] });
 
-      // Invalidate clients list
-      queryClient.invalidateQueries({ queryKey: ['clients'], exact: false });
+      // Snapshot previous values for rollback
+      const previousData = queryClient.getQueriesData({ queryKey: ['clients'] });
+
+      // Optimistically remove from all client lists
+      queryClient.setQueriesData(
+        { queryKey: ['clients'] },
+        (old: any) => {
+          if (old?.items) {
+            return {
+              ...old,
+              items: old.items.filter((client: any) => client.id !== deletedId),
+              total: old.total - 1,
+            };
+          }
+          return old;
+        }
+      );
+
+      return { previousData };
+    },
+    onSuccess: (_, deletedId) => {
+      // Remove individual client cache
+      queryClient.removeQueries({ queryKey: ['clients', deletedId] });
 
       toast({
         title: 'Client deleted',
         description: 'The client has been permanently deleted.',
       });
     },
-    onError: (error: Error) => {
+    onError: (error: Error, _, context) => {
+      // Rollback on error
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+
       toast({
         title: 'Failed to delete client',
         description: error.message || 'An unexpected error occurred.',
         variant: 'destructive',
       });
+    },
+    onSettled: () => {
+      // Refetch to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ['clients'], exact: false });
     },
   });
 }

@@ -85,7 +85,8 @@ export function SendReminderDialog({
     try {
       const messageWithInvoices = data.message.replace('[INVOICE_LIST]', generateInvoiceList());
 
-      // TODO: Call reminder API      toast({
+      // TODO: Call reminder API
+      toast({
         title: data.scheduledFor ? 'Reminder scheduled' : 'Reminder sent',
         description: data.scheduledFor
           ? 'The reminder has been scheduled successfully.'

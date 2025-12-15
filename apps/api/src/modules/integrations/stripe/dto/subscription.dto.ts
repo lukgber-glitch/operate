@@ -14,11 +14,13 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
  * Subscription Pricing Tier
+ * EUR pricing for DACH market
  */
 export enum SubscriptionTier {
   FREE = 'FREE',
+  STARTER = 'STARTER',
   PRO = 'PRO',
-  ENTERPRISE = 'ENTERPRISE',
+  BUSINESS = 'BUSINESS',
 }
 
 /**

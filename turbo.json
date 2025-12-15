@@ -1,30 +1,84 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local"],
+  "globalDependencies": [
+    "**/.env.*local",
+    ".env",
+    ".env.local",
+    ".env.development",
+    ".env.production"
+  ],
+  "globalEnv": [
+    "NODE_ENV",
+    "NEXT_PUBLIC_*",
+    "DATABASE_URL",
+    "API_URL"
+  ],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "build/**"]
+      "inputs": [
+        "src/**/*.{ts,tsx,js,jsx}",
+        "package.json",
+        "tsconfig.json",
+        "next.config.js",
+        "tailwind.config.js",
+        "postcss.config.js"
+      ],
+      "outputs": ["dist/**", ".next/**", "build/**"],
+      "env": ["NODE_ENV"]
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^lint"],
-      "outputs": []
+      "inputs": [
+        "src/**/*.{ts,tsx,js,jsx}",
+        ".eslintrc*",
+        "eslint.config.*"
+      ],
+      "outputs": [],
+      "cache": true
     },
     "typecheck": {
       "dependsOn": ["^typecheck"],
-      "outputs": []
+      "inputs": [
+        "src/**/*.{ts,tsx}",
+        "tsconfig.json",
+        "types/**/*.d.ts"
+      ],
+      "outputs": [],
+      "cache": true
     },
     "test": {
       "dependsOn": ["^build"],
+      "inputs": [
+        "src/**/*.{ts,tsx}",
+        "test/**/*.{ts,tsx}",
+        "__tests__/**/*.{ts,tsx}",
+        "**/*.test.{ts,tsx}",
+        "**/*.spec.{ts,tsx}",
+        "jest.config.*"
+      ],
       "outputs": ["coverage/**"],
-      "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts", "test/**/*.tsx"]
+      "cache": true
+    },
+    "test:e2e": {
+      "dependsOn": ["build"],
+      "inputs": [
+        "e2e/**/*.{ts,tsx}",
+        "playwright.config.*"
+      ],
+      "outputs": ["playwright-report/**", "test-results/**"],
+      "cache": false
     },
     "clean": {
       "cache": false
+    },
+    "generate": {
+      "inputs": ["prisma/schema.prisma"],
+      "outputs": ["node_modules/.prisma/**"],
+      "cache": true
     }
   }
 }

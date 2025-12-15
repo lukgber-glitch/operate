@@ -69,7 +69,11 @@ export class ExpensesController {
     @Param('orgId') orgId: string,
     @Query() query: ExpenseQueryDto,
   ) {
-    return this.expensesService.findAll(orgId, query);
+    try {
+      return await this.expensesService.findAll(orgId, query);
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -91,7 +95,11 @@ export class ExpensesController {
     description: 'Statistics retrieved successfully',
   })
   async getStatistics(@Param('orgId') orgId: string) {
-    return this.expensesService.getStatistics(orgId);
+    try {
+      return await this.expensesService.getStatistics(orgId);
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -113,7 +121,11 @@ export class ExpensesController {
     description: 'Pending expenses retrieved successfully',
   })
   async getPending(@Param('orgId') orgId: string) {
-    return this.expensesService.getPending(orgId);
+    try {
+      return await this.expensesService.getPending(orgId);
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -144,7 +156,11 @@ export class ExpensesController {
     description: 'Expense not found',
   })
   async findOne(@Param('id') id: string) {
-    return this.expensesService.findById(id);
+    try {
+      return await this.expensesService.findById(id);
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**

@@ -32,7 +32,7 @@ export class SubscriptionFeaturesService {
         return {
           hasAccess: false,
           reason: 'No active subscription found',
-          upgradeRequired: SubscriptionTier.PRO,
+          upgradeRequired: SubscriptionTier.STARTER,
         };
       }
 
@@ -72,18 +72,18 @@ export class SubscriptionFeaturesService {
       const usage = await this.getUsageMetrics(orgId);
 
       // Unlimited tier
-      if (usage.limits.invoicesPerMonth === -1) {
+      if (usage.limits.invoices === -1) {
         return { hasAccess: true };
       }
 
       // Check if under limit
-      if (usage.invoicesCreated < usage.limits.invoicesPerMonth) {
+      if (usage.invoicesCreated < usage.limits.invoices) {
         return { hasAccess: true };
       }
 
       return {
         hasAccess: false,
-        reason: `Monthly invoice limit reached (${usage.limits.invoicesPerMonth}). Upgrade to increase limit.`,
+        reason: `Monthly invoice limit reached (${usage.limits.invoices}). Upgrade to increase limit.`,
         upgradeRequired: this.getNextTier(usage.tier),
       };
     } catch (error) {
@@ -103,18 +103,18 @@ export class SubscriptionFeaturesService {
       const usage = await this.getUsageMetrics(orgId);
 
       // Unlimited tier
-      if (usage.limits.maxUsers === -1) {
+      if (usage.limits.teamMembers === -1) {
         return { hasAccess: true };
       }
 
       // Check if under limit
-      if (usage.activeUsers < usage.limits.maxUsers) {
+      if (usage.teamMembersActive < usage.limits.teamMembers) {
         return { hasAccess: true };
       }
 
       return {
         hasAccess: false,
-        reason: `User seat limit reached (${usage.limits.maxUsers}). Upgrade to add more users.`,
+        reason: `Team member limit reached (${usage.limits.teamMembers}). Upgrade to add more members.`,
         upgradeRequired: this.getNextTier(usage.tier),
       };
     } catch (error) {
@@ -139,26 +139,40 @@ export class SubscriptionFeaturesService {
     const periodStart = subscription?.currentPeriodStart || this.getMonthStart(now);
     const periodEnd = subscription?.currentPeriodEnd || this.getMonthEnd(now);
 
-    // Count invoices created in current period
+    // Count usage in current period
     const invoicesCreated = await this.countInvoicesInPeriod(
       orgId,
       periodStart,
       periodEnd,
     );
-
-    // Count active users
-    const activeUsers = await this.countActiveUsers(orgId);
+    const teamMembersActive = await this.countActiveUsers(orgId);
+    const aiMessagesUsed = await this.countAIMessagesInPeriod(
+      orgId,
+      periodStart,
+      periodEnd,
+    );
+    const bankConnectionsUsed = await this.countBankConnections(orgId);
 
     // Calculate percentage used
     const invoicesPercent =
-      tierConfig.invoicesPerMonth === -1
+      tierConfig.invoices === -1
         ? -1
-        : Math.round((invoicesCreated / tierConfig.invoicesPerMonth) * 100);
+        : Math.round((invoicesCreated / tierConfig.invoices) * 100);
 
-    const usersPercent =
-      tierConfig.maxUsers === -1
+    const teamMembersPercent =
+      tierConfig.teamMembers === -1
         ? -1
-        : Math.round((activeUsers / tierConfig.maxUsers) * 100);
+        : Math.round((teamMembersActive / tierConfig.teamMembers) * 100);
+
+    const aiMessagesPercent =
+      tierConfig.aiMessages === -1
+        ? -1
+        : Math.round((aiMessagesUsed / tierConfig.aiMessages) * 100);
+
+    const bankConnectionsPercent =
+      tierConfig.bankConnections === -1
+        ? -1
+        : Math.round((bankConnectionsUsed / tierConfig.bankConnections) * 100);
 
     return {
       orgId,
@@ -168,14 +182,20 @@ export class SubscriptionFeaturesService {
         end: periodEnd,
       },
       invoicesCreated,
-      activeUsers,
+      teamMembersActive,
+      aiMessagesUsed,
+      bankConnectionsUsed,
       limits: {
-        invoicesPerMonth: tierConfig.invoicesPerMonth,
-        maxUsers: tierConfig.maxUsers,
+        invoices: tierConfig.invoices,
+        teamMembers: tierConfig.teamMembers,
+        aiMessages: tierConfig.aiMessages,
+        bankConnections: tierConfig.bankConnections,
       },
       percentUsed: {
         invoices: invoicesPercent,
-        users: usersPercent,
+        teamMembers: teamMembersPercent,
+        aiMessages: aiMessagesPercent,
+        bankConnections: bankConnectionsPercent,
       },
     };
   }
@@ -196,7 +216,7 @@ export class SubscriptionFeaturesService {
       // Check if approaching limit
       const usage = await this.getUsageMetrics(orgId);
       if (
-        usage.limits.invoicesPerMonth > 0 &&
+        usage.limits.invoices > 0 &&
         usage.percentUsed.invoices >= 80
       ) {
         this.logger.warn(
@@ -224,9 +244,9 @@ export class SubscriptionFeaturesService {
 
       // Check if approaching limit
       const usage = await this.getUsageMetrics(orgId);
-      if (usage.limits.maxUsers > 0 && usage.percentUsed.users >= 80) {
+      if (usage.limits.teamMembers > 0 && usage.percentUsed.teamMembers >= 80) {
         this.logger.warn(
-          `Organization ${orgId} has used ${usage.percentUsed.users}% of user seats`,
+          `Organization ${orgId} has used ${usage.percentUsed.teamMembers}% of team member seats`,
         );
         // TODO: Send notification to org admin
       }
@@ -311,24 +331,56 @@ export class SubscriptionFeaturesService {
   }
 
   private findRequiredTierForFeature(feature: PlatformFeature): SubscriptionTier {
-    // Check each tier in order: FREE -> PRO -> ENTERPRISE
+    // Check each tier in order: FREE -> STARTER -> PRO -> BUSINESS
     for (const tier of [
       SubscriptionTier.FREE,
+      SubscriptionTier.STARTER,
       SubscriptionTier.PRO,
-      SubscriptionTier.ENTERPRISE,
+      SubscriptionTier.BUSINESS,
     ]) {
       if (SUBSCRIPTION_TIERS[tier].features.includes(feature)) {
         return tier;
       }
     }
 
-    return SubscriptionTier.ENTERPRISE;
+    return SubscriptionTier.BUSINESS;
   }
 
   private getNextTier(currentTier: SubscriptionTier): SubscriptionTier {
-    if (currentTier === SubscriptionTier.FREE) return SubscriptionTier.PRO;
-    if (currentTier === SubscriptionTier.PRO) return SubscriptionTier.ENTERPRISE;
-    return SubscriptionTier.ENTERPRISE;
+    if (currentTier === SubscriptionTier.FREE) return SubscriptionTier.STARTER;
+    if (currentTier === SubscriptionTier.STARTER) return SubscriptionTier.PRO;
+    if (currentTier === SubscriptionTier.PRO) return SubscriptionTier.BUSINESS;
+    return SubscriptionTier.BUSINESS;
+  }
+
+  private async countAIMessagesInPeriod(
+    orgId: string,
+    start: Date,
+    end: Date,
+  ): Promise<number> {
+    const result = await this.prisma.$queryRaw<any[]>`
+      SELECT COUNT(*)::int as count
+      FROM chat_messages
+      WHERE org_id = ${orgId}
+      AND role = 'assistant'
+      AND created_at >= ${start}
+      AND created_at < ${end}
+      AND deleted_at IS NULL
+    `;
+
+    return result[0]?.count || 0;
+  }
+
+  private async countBankConnections(orgId: string): Promise<number> {
+    const result = await this.prisma.$queryRaw<any[]>`
+      SELECT COUNT(*)::int as count
+      FROM bank_connections
+      WHERE org_id = ${orgId}
+      AND status = 'ACTIVE'
+      AND deleted_at IS NULL
+    `;
+
+    return result[0]?.count || 0;
   }
 
   private getMonthStart(date: Date): Date {

@@ -165,6 +165,7 @@ export function MorphTarget({
       document.addEventListener('keydown', handleEscape);
       return () => document.removeEventListener('keydown', handleEscape);
     }
+    return undefined
   }, [isOpen, onClose]);
 
   return (

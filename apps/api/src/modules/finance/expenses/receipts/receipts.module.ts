@@ -5,7 +5,6 @@ import { ReceiptsService } from './receipts.service';
 import { RbacModule } from '../../../auth/rbac/rbac.module';
 import { ExpensesModule } from '../expenses.module';
 import { MindeeModule } from '../../../integrations/mindee/mindee.module';
-import { PrismaModule } from '../../../../common/prisma/prisma.module';
 
 /**
  * Receipts Module
@@ -45,7 +44,6 @@ import { PrismaModule } from '../../../../common/prisma/prisma.module';
       },
     }),
     RbacModule,
-    PrismaModule,
     MindeeModule,
     forwardRef(() => ExpensesModule), // Use forwardRef to resolve circular dependency
   ],

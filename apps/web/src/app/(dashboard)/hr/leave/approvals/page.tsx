@@ -16,7 +16,7 @@ export default function LeaveApprovalsPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Pending Approvals</h1>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Pending Approvals</h1>
           <p className="text-muted-foreground">Review and approve team leave requests</p>
         </div>
       </div>

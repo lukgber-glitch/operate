@@ -1,12 +1,12 @@
 'use client';
 
-import { Send, Paperclip, Loader2, Upload, Mic, History } from 'lucide-react';
+import { Send, Paperclip, Loader2, Upload, History } from 'lucide-react';
 import { useRef, useState, KeyboardEvent, ChangeEvent, DragEvent } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { VoiceInput } from './VoiceInput';
+import { VoiceMorphButton } from './VoiceMorphButton';
 import { useFileUpload, type AttachedFile } from '@/hooks/use-file-upload';
 import { AttachmentPreview, AttachmentCounter } from './AttachmentPreview';
 import { QuickActionPills, type QuickAction } from './QuickActionPills';
@@ -14,12 +14,14 @@ import { QuickActionPills, type QuickAction } from './QuickActionPills';
 interface ChatInputProps {
   onSend: (message: string, files?: AttachedFile[]) => void;
   onAttachment?: (file: File) => void;
+  onHistoryClick?: () => void;
   disabled?: boolean;
   isLoading?: boolean;
   placeholder?: string;
   maxLength?: number;
   showAttachment?: boolean;
   showVoice?: boolean;
+  showHistory?: boolean;
   value?: string;
   onChange?: (value: string) => void;
   maxFiles?: number;
@@ -44,12 +46,14 @@ interface ChatInputProps {
 export function ChatInput({
   onSend,
   onAttachment,
+  onHistoryClick,
   disabled = false,
   isLoading = false,
   placeholder = 'Type your message... (Shift + Enter for new line)',
   maxLength = 2000,
   showAttachment = true,
   showVoice = false,
+  showHistory = true,
   value: controlledValue,
   onChange: controlledOnChange,
   maxFiles = 5,
@@ -207,14 +211,11 @@ export function ChatInput({
       <div
         ref={dropZoneRef}
         className={cn(
-          'border-t transition-colors relative',
+          'transition-colors relative py-4',
           isDragging && 'bg-accent/50 border-primary'
         )}
         style={{
-          padding: 'var(--space-4)',
-          background: 'var(--color-surface)',
-          boxShadow: 'var(--shadow-md)',
-          borderRadius: 'var(--radius-xl)',
+          background: 'transparent',
         }}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
@@ -287,34 +288,33 @@ export function ChatInput({
             </>
           )}
 
-          {/* Voice input */}
+          {/* Voice input with morphing states */}
           {showVoice && (
-            <VoiceInput
+            <VoiceMorphButton
               onTranscript={handleVoiceTranscript}
               disabled={disabled || isLoading}
-              className={cn(
-                'h-10 w-10 md:h-10 md:w-10 shrink-0',
-                'min-h-[44px] min-w-[44px]'
-              )}
               showTranscript
             />
           )}
 
-          {/* History button placeholder */}
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className={cn(
-              'h-10 w-10 md:h-10 md:w-10 shrink-0',
-              'min-h-[44px] min-w-[44px]'
-            )}
-            disabled={disabled || isLoading}
-            aria-label="Conversation history"
-            title="History"
-          >
-            <History className="h-4 w-4 md:h-4 md:w-4" />
-          </Button>
+          {/* History button - opens conversation history dropdown */}
+          {showHistory && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className={cn(
+                'h-10 w-10 md:h-10 md:w-10 shrink-0',
+                'min-h-[44px] min-w-[44px]'
+              )}
+              disabled={disabled || isLoading}
+              onClick={onHistoryClick}
+              aria-label="Conversation history"
+              title="History (Ctrl+K)"
+            >
+              <History className="h-4 w-4 md:h-4 md:w-4" />
+            </Button>
+          )}
         </div>
 
         {/* Textarea */}

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { UsersRepository } from '../users/users.repository';
@@ -17,15 +17,21 @@ import { AuthResponseDto, JwtPayload } from './dto/auth-response.dto';
 import { UserDto } from '../users/dto/user.dto';
 import { plainToInstance } from 'class-transformer';
 import { MfaService } from './mfa/mfa.service';
+import {
+  extractFingerprintData,
+  generateFingerprint,
+  validateSessionFingerprint,
+} from '../../common/utils/device-fingerprint.util';
 
 /**
- * Authentication Service (Enhanced with SEC-005 and SEC-006)
+ * Authentication Service (Enhanced with SEC-005, SEC-006, SEC-017)
  * Handles user authentication, JWT token generation, and session management
  *
  * SECURITY FEATURES:
  * - SEC-005: Refresh token rotation - tokens are invalidated after use
  * - SEC-006: Session limits - max 5 concurrent sessions per user
  * - SEC-007: Strong password policy with special characters
+ * - SEC-017: Device fingerprinting for session hijacking detection
  */
 @Injectable()
 export class AuthService {
@@ -49,6 +55,69 @@ export class AuthService {
    */
   private hashRefreshToken(token: string): string {
     return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
+  /**
+   * Generate a unique refresh token with retry logic
+   * Adds random bytes to ensure uniqueness even if tokens are generated in rapid succession
+   * @param payload - JWT payload for the refresh token
+   * @param maxRetries - Maximum number of retry attempts (default: 3)
+   * @returns Object containing the plaintext token and its hash
+   */
+  private async generateUniqueRefreshToken(
+    payload: JwtPayload,
+    maxRetries: number = 3,
+  ): Promise<{ token: string; hash: string }> {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      // Add random bytes to ensure uniqueness
+      const randomSuffix = crypto.randomBytes(16).toString('hex');
+      const tokenPayload = {
+        ...payload,
+        jti: randomSuffix, // JWT ID - ensures uniqueness
+      };
+
+      const token = this.jwtService.sign(tokenPayload, {
+        secret: this.configService.get<string>('jwt.refreshSecret'),
+        expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
+      });
+
+      const hash = this.hashRefreshToken(token);
+
+      // Check if this hash already exists
+      const existingSession = await this.prisma.session.findUnique({
+        where: { token: hash },
+        select: { id: true },
+      });
+
+      if (!existingSession) {
+        return { token, hash };
+      }
+
+      this.logger.warn(
+        `Token hash collision detected (attempt ${attempt + 1}/${maxRetries}) - generating new token`,
+      );
+
+      // Wait before retry with exponential backoff
+      if (attempt < maxRetries - 1) {
+        await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 100));
+      }
+    }
+
+    // This should be extremely rare - log as critical
+    this.logger.error(
+      `Failed to generate unique refresh token after ${maxRetries} attempts`,
+    );
+    throw new Error('Failed to generate unique session token');
+  }
+
+  /**
+   * SEC-017: Generate device fingerprint from request
+   */
+  generateDeviceFingerprint(req: Request): string {
+    const headers = req.headers as Record<string, string | string[] | undefined>;
+    const ip = req.ip || req.socket?.remoteAddress;
+    const fingerprintData = extractFingerprintData(headers, ip);
+    return generateFingerprint(fingerprintData);
   }
 
   /**
@@ -122,6 +191,7 @@ export class AuthService {
 
   /**
    * Register new user
+   * Creates user, organization, and membership in a transaction
    */
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
     const { email, password, firstName, lastName } = registerDto;
@@ -136,18 +206,52 @@ export class AuthService {
     const saltRounds = this.configService.get<number>('security.bcryptRounds') || 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Create user
-    const user = await this.usersRepository.create({
-      email,
-      passwordHash,
-      firstName,
-      lastName,
+    // Create user, organization, and membership in a transaction
+    // This ensures the user always has an organization context
+    const result = await this.prisma.$transaction(async (tx) => {
+      // 1. Create user
+      const user = await tx.user.create({
+        data: {
+          email,
+          passwordHash,
+          firstName,
+          lastName,
+        },
+      });
+
+      // 2. Create organization for the user
+      // Generate a unique slug from the user's name
+      const baseSlug = `${firstName.toLowerCase()}-${lastName.toLowerCase()}`.replace(/[^a-z0-9-]/g, '-');
+      const uniqueSlug = `${baseSlug}-${user.id.slice(0, 8)}`;
+
+      const organisation = await tx.organisation.create({
+        data: {
+          name: `${firstName} ${lastName}'s Organisation`,
+          slug: uniqueSlug,
+          country: 'DE', // Default to Germany, can be updated later
+          currency: 'EUR', // Default currency
+          timezone: 'Europe/Berlin', // Default timezone
+          subscriptionTier: 'free', // Start with free tier
+        },
+      });
+
+      // 3. Create membership linking user to organization as OWNER
+      await tx.membership.create({
+        data: {
+          userId: user.id,
+          orgId: organisation.id,
+          role: 'OWNER', // User owns their own organization
+          acceptedAt: new Date(), // Auto-accept for registration
+        },
+      });
+
+      return { user, organisation };
     });
 
-    this.logger.log(`User registered: ${user.id}`);
+    this.logger.log(`User registered: ${result.user.id} with organisation: ${result.organisation.id}`);
 
     // Generate tokens and create session
-    return this.login(user);
+    return this.login(result.user);
   }
 
   /**
@@ -213,22 +317,20 @@ export class AuthService {
       role: membership?.role || undefined,
     };
 
-    // Generate tokens
+    // Generate access token
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('jwt.accessSecret'),
       expiresIn: this.configService.get<string>('jwt.accessExpiresIn'),
     });
 
-    const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('jwt.refreshSecret'),
-      expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
-    });
+    // Generate unique refresh token with collision prevention
+    const { token: refreshToken, hash: hashedRefreshToken } =
+      await this.generateUniqueRefreshToken(payload);
 
     // Store HASHED refresh token in session table
     // SECURITY: Hash prevents token theft from database compromise
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
-    const hashedRefreshToken = this.hashRefreshToken(refreshToken);
 
     // SEC-006: Enforce session limit per user (max 5 concurrent sessions)
     await this.enforceSessionLimit(user.id);
@@ -256,9 +358,15 @@ export class AuthService {
 
   /**
    * SEC-005: Refresh access token using refresh token with token rotation
+   * SEC-017: Validates device fingerprint to detect session hijacking
    * Old refresh token is invalidated and a new one is issued
    */
-  async refresh(refreshToken: string, ipAddress?: string, userAgent?: string): Promise<AuthResponseDto> {
+  async refresh(
+    refreshToken: string,
+    ipAddress?: string,
+    userAgent?: string,
+    deviceFingerprint?: string,
+  ): Promise<AuthResponseDto> {
     try {
       // Verify refresh token signature and expiration
       const payload = this.jwtService.verify<JwtPayload>(refreshToken, {
@@ -291,6 +399,24 @@ export class AuthService {
         );
       }
 
+      // SEC-017: Validate device fingerprint (if stored with session)
+      if (session.deviceFingerprint && deviceFingerprint) {
+        if (!validateSessionFingerprint(session.deviceFingerprint, deviceFingerprint, 'low')) {
+          this.logger.warn(
+            `SEC-017: Device fingerprint mismatch for user ${payload.sub} - potential session hijacking`,
+          );
+          // Don't invalidate all sessions, but reject this refresh
+          // Log for security monitoring
+          await this.prisma.session.update({
+            where: { token: hashedRefreshToken },
+            data: { isUsed: true }, // Mark as used to prevent further attempts
+          });
+          throw new UnauthorizedException(
+            'Session verification failed - please login again',
+          );
+        }
+      }
+
       // Verify user still exists
       const user = await this.usersRepository.findById(payload.sub);
       if (!user || user.deletedAt) {
@@ -316,18 +442,15 @@ export class AuthService {
         role: membership?.role || undefined,
       };
 
-      // Generate new access token AND new refresh token
+      // Generate new access token
       const accessToken = this.jwtService.sign(newPayload, {
         secret: this.configService.get<string>('jwt.accessSecret'),
         expiresIn: this.configService.get<string>('jwt.accessExpiresIn'),
       });
 
-      const newRefreshToken = this.jwtService.sign(newPayload, {
-        secret: this.configService.get<string>('jwt.refreshSecret'),
-        expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
-      });
-
-      const newHashedRefreshToken = this.hashRefreshToken(newRefreshToken);
+      // Generate unique refresh token with collision prevention
+      const { token: newRefreshToken, hash: newHashedRefreshToken } =
+        await this.generateUniqueRefreshToken(newPayload);
 
       // SEC-005: Mark old token as used
       await this.prisma.session.update({
@@ -336,6 +459,7 @@ export class AuthService {
       });
 
       // SEC-005: Create new session with new refresh token
+      // SEC-017: Store device fingerprint with session
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
 
@@ -346,6 +470,7 @@ export class AuthService {
           expiresAt,
           ipAddress,
           userAgent,
+          deviceFingerprint, // SEC-017: Store fingerprint for hijacking detection
         },
       });
 
@@ -461,22 +586,20 @@ export class AuthService {
         role: membership?.role || undefined,
       };
 
-      // Generate tokens
+      // Generate access token
       const accessToken = this.jwtService.sign(jwtPayload, {
         secret: this.configService.get<string>('jwt.accessSecret'),
         expiresIn: this.configService.get<string>('jwt.accessExpiresIn'),
       });
 
-      const refreshToken = this.jwtService.sign(jwtPayload, {
-        secret: this.configService.get<string>('jwt.refreshSecret'),
-        expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
-      });
+      // Generate unique refresh token with collision prevention
+      const { token: refreshToken, hash: hashedRefreshToken } =
+        await this.generateUniqueRefreshToken(jwtPayload);
 
       // Store HASHED refresh token in session table
       // SECURITY: Hash prevents token theft from database compromise
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
-      const hashedRefreshToken = this.hashRefreshToken(refreshToken);
 
       // SEC-006: Enforce session limit per user (max 5 concurrent sessions)
       await this.enforceSessionLimit(user.id);
@@ -511,29 +634,83 @@ export class AuthService {
    * SECURITY:
    * - httpOnly: Prevents XSS attacks from stealing tokens
    * - secure: Requires HTTPS in production
-   * - sameSite: 'strict' - Prevents CSRF attacks (tokens not sent on cross-site requests)
+   * - sameSite: 'strict' in production, 'lax' in dev - Prevents CSRF attacks
+   * - domain: 'localhost' in dev (allows cookies across ports 3000/3001)
    * - path: '/' - Available to all routes
    */
   setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
     const isProduction = this.configService.get<string>('NODE_ENV') === 'production';
 
-    // Set access token cookie
-    res.cookie('access_token', accessToken, {
+    // In development, set domain to 'localhost' to allow cookies to work across ports (3000/3001)
+    // In production, omit domain to use default (exact domain match only)
+    const cookieOptions = {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'strict', // CSRF Protection: blocks cross-site requests
+      sameSite: isProduction ? ('strict' as const) : ('lax' as const),
       path: '/',
+      ...(isProduction ? {} : { domain: 'localhost' }), // Cross-port support in dev
+    };
+
+    // Set access token cookie
+    res.cookie('access_token', accessToken, {
+      ...cookieOptions,
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
     // Set refresh token cookie
     res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'strict', // CSRF Protection: blocks cross-site requests
-      path: '/',
+      ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
+  }
+
+  /**
+   * Set onboarding complete cookie
+   * This allows the frontend middleware to grant access to protected routes
+   */
+  setOnboardingCompleteCookie(res: Response): void {
+    const isProduction = this.configService.get<string>('NODE_ENV') === 'production';
+
+    res.cookie('onboarding_complete', 'true', {
+      httpOnly: false, // Needs to be readable by frontend middleware
+      secure: isProduction,
+      sameSite: 'lax', // Allow cross-site for OAuth flows
+      path: '/',
+      maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
+      ...(isProduction ? {} : { domain: 'localhost' }), // Cross-port support in dev
+    });
+  }
+
+  /**
+   * Check if user has completed onboarding and set cookie if true
+   * This prevents the redirect loop when onboarding is complete in DB but cookie is missing
+   */
+  async checkAndSetOnboardingCookie(user: any, res: Response): Promise<void> {
+    try {
+      // Get user's organization membership
+      const membership = await this.prisma.membership.findFirst({
+        where: {
+          userId: user.id,
+          acceptedAt: { not: null },
+        },
+        include: {
+          organisation: {
+            select: {
+              onboardingCompleted: true,
+            },
+          },
+        },
+      });
+
+      // If onboarding is complete, set the cookie
+      if (membership?.organisation?.onboardingCompleted) {
+        this.setOnboardingCompleteCookie(res);
+        this.logger.log(`Onboarding cookie set for user ${user.id} on login`);
+      }
+    } catch (error) {
+      // Don't fail login if onboarding check fails
+      this.logger.error(`Failed to check onboarding status for user ${user.id}`, error.message);
+    }
   }
 
   /**

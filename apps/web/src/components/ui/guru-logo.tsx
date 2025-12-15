@@ -20,8 +20,8 @@ export function GuruLogo({ size = 32, className, variant = 'colored' }: GuruLogo
   // Color definitions based on variant
   const colors = {
     colored: {
-      body: '#90caf9',
-      overlay: '#64b5f6',
+      body: '#0D47A1',
+      overlay: '#1565C0',
       highlight: '#fefefe',
       accent: '#919292',
     },

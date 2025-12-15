@@ -71,15 +71,15 @@ export class ErrorBoundary extends Component<Props, State> {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Sie können versuchen, die Seite neu zu laden oder zum Dashboard zurückzukehren.
+                Sie können versuchen, die Seite neu zu laden oder zum Chat zurückzukehren.
               </p>
             </CardContent>
             <CardFooter className="flex gap-2">
               <Button onClick={this.handleReset} variant="outline">
                 Erneut versuchen
               </Button>
-              <Button onClick={() => window.location.href = '/dashboard'} variant="outline">
-                Zum Dashboard
+              <Button onClick={() => window.location.href = '/chat'} variant="outline">
+                Zum Chat
               </Button>
               {this.state.eventId && (
                 <Button onClick={this.handleReport} variant="secondary">

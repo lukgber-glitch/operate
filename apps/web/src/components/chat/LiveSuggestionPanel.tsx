@@ -231,7 +231,7 @@ export function LiveSuggestionCounter() {
         transition={{
           duration: 2,
           repeat: Infinity,
-          ease: 'easeInOut',
+          ease: 'easeInOut' as const,
         }}
         className="absolute inset-0 bg-blue-500 rounded-full"
       />

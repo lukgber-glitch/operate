@@ -1,8 +1,10 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Plus, FileText, Calendar, Shield, Upload } from 'lucide-react';
 
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 import {
   Card,
   CardContent,
@@ -158,9 +160,14 @@ export default function ExemptionsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <motion.div variants={fadeUp} className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
             Exemption Certificates
@@ -367,10 +374,11 @@ export default function ExemptionsPage() {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
+      </motion.div>
 
       {/* Exemptions List */}
-      <Card>
+      <motion.div variants={fadeUp}>
+        <Card>
         <CardHeader>
           <CardTitle>Exemption Certificates</CardTitle>
           <CardDescription>
@@ -479,7 +487,8 @@ export default function ExemptionsPage() {
             </Table>
           )}
         </CardContent>
-      </Card>
-    </div>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }

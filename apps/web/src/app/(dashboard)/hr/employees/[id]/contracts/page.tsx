@@ -133,7 +133,7 @@ export default function EmployeeContractsPage() {
               </Link>
             </Button>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">Contracts</h1>
+              <h1 className="text-2xl text-white font-semibold tracking-tight">Contracts</h1>
               <p className="text-muted-foreground">Manage employment contracts</p>
             </div>
           </div>

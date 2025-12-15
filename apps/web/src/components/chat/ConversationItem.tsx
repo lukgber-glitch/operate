@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { MessageSquare, Trash2, MoreVertical } from 'lucide-react';
 import { ChatConversation } from '@/types/chat';
 import { cn } from '@/lib/utils';
@@ -38,7 +38,7 @@ interface ConversationItemProps {
  * - Active state highlighting
  * - Delete confirmation dialog
  */
-export function ConversationItem({
+function ConversationItemComponent({
   conversation,
   isActive,
   onSelect,
@@ -46,17 +46,17 @@ export function ConversationItem({
 }: ConversationItemProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  // Get preview text from first message
-  const getPreview = () => {
+  // Memoize preview text
+  const preview = useMemo(() => {
     const firstUserMessage = conversation.messages.find((msg) => msg.role === 'user');
     if (!firstUserMessage) return 'No messages yet';
 
-    const preview = firstUserMessage.content.trim();
-    return preview.length > 60 ? `${preview.substring(0, 60)}...` : preview;
-  };
+    const previewText = firstUserMessage.content.trim();
+    return previewText.length > 60 ? `${previewText.substring(0, 60)}...` : previewText;
+  }, [conversation.messages]);
 
-  // Format relative time
-  const getRelativeTime = () => {
+  // Memoize relative time
+  const relativeTime = useMemo(() => {
     const now = new Date();
     const updated = new Date(conversation.updatedAt);
     const diffInSeconds = Math.floor((now.getTime() - updated.getTime()) / 1000);
@@ -70,17 +70,17 @@ export function ConversationItem({
       month: 'short',
       day: 'numeric',
     });
-  };
+  }, [conversation.updatedAt]);
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDelete = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     setShowDeleteDialog(true);
-  };
+  }, []);
 
-  const confirmDelete = () => {
+  const confirmDelete = useCallback(() => {
     onDelete(conversation.id);
     setShowDeleteDialog(false);
-  };
+  }, [onDelete, conversation.id]);
 
   return (
     <>
@@ -145,11 +145,11 @@ export function ConversationItem({
           </div>
 
           <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-            {getPreview()}
+            {preview}
           </p>
 
           <p className="text-xs text-muted-foreground/70 mt-1">
-            {getRelativeTime()}
+            {relativeTime}
           </p>
         </div>
       </div>
@@ -178,3 +178,5 @@ export function ConversationItem({
     </>
   );
 }
+
+export const ConversationItem = memo(ConversationItemComponent);

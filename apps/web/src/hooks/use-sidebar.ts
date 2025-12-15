@@ -13,7 +13,7 @@ interface SidebarStore {
 export const useSidebar = create<SidebarStore>()(
   persist(
     (set) => ({
-      isOpen: true,
+      isOpen: false, // Collapsed by default - icon-only sidebar
       toggle: () => set((state) => ({ isOpen: !state.isOpen })),
       open: () => set({ isOpen: true }),
       close: () => set({ isOpen: false }),

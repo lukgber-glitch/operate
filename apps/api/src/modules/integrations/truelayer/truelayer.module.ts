@@ -6,7 +6,9 @@ import { TrueLayerService } from './truelayer.service';
 import { TrueLayerBankingService } from './services/truelayer-banking.service';
 import { TrueLayerTransactionMatcherService } from './services/truelayer-transaction-matcher.service';
 import { TrueLayerTokenRefreshService } from './services/truelayer-token-refresh.service';
+import { TrueLayerPISService } from './services/truelayer-pis.service';
 import { TrueLayerController } from './truelayer.controller';
+import { TrueLayerPISController } from './truelayer-pis.controller';
 import { TrueLayerSyncProcessor } from './jobs/truelayer-sync.job';
 import { TrueLayerBalanceRefreshProcessor } from './jobs/truelayer-balance-refresh.job';
 import { DatabaseModule } from '../../database/database.module';
@@ -25,6 +27,7 @@ import trueLayerConfig from './truelayer.config';
  * - Webhook handling for real-time updates
  * - Comprehensive audit logging
  * - Rate limiting on all endpoints
+ * - Payment Initiation Service (PIS) for Open Banking payments
  *
  * Security:
  * - OAuth2 PKCE (Proof Key for Code Exchange)
@@ -53,12 +56,13 @@ import trueLayerConfig from './truelayer.config';
       { name: 'truelayer-webhook' },
     ),
   ],
-  controllers: [TrueLayerController],
+  controllers: [TrueLayerController, TrueLayerPISController],
   providers: [
     TrueLayerService,
     TrueLayerBankingService,
     TrueLayerTransactionMatcherService,
     TrueLayerTokenRefreshService, // Token refresh scheduler
+    TrueLayerPISService, // Payment Initiation Service
     TrueLayerSyncProcessor,
     TrueLayerBalanceRefreshProcessor,
   ],
@@ -67,6 +71,7 @@ import trueLayerConfig from './truelayer.config';
     TrueLayerBankingService,
     TrueLayerTransactionMatcherService,
     TrueLayerTokenRefreshService,
+    TrueLayerPISService,
   ],
 })
 export class TrueLayerModule {}

@@ -14,7 +14,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 
 interface QuickAction {
   icon: React.ComponentType<{ className?: string }>;
@@ -109,13 +109,13 @@ export function QuickActions() {
       icon: Receipt,
       label: 'Ausgabe erfassen',
       href: '/finance/expenses/new',
-      color: 'text-orange-600 dark:text-orange-400',
+      color: 'text-orange-400',
     },
     {
       icon: TrendingUp,
       label: 'Transaktionen',
       action: handleViewTransactions,
-      color: 'text-green-600 dark:text-green-400',
+      color: 'text-green-400',
     },
     {
       icon: FileSpreadsheet,
@@ -152,7 +152,7 @@ export function QuickActions() {
   };
 
   return (
-    <Card className="rounded-[24px]">
+    <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
       <CardHeader>
         <CardTitle className="text-lg">Schnellaktionen</CardTitle>
       </CardHeader>

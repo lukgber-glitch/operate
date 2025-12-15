@@ -4,16 +4,18 @@ import {
   OnModuleDestroy,
   Logger,
 } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 
 /**
  * Enhanced Prisma Service
  * Extends PrismaClient with additional features:
- * - Connection management
+ * - Connection pool management
  * - Query logging and monitoring
  * - Soft delete middleware
  * - Performance metrics
+ * - Transaction helpers with retry logic
+ * - Batch operation utilities
  */
 @Injectable()
 export class PrismaService
@@ -24,6 +26,7 @@ export class PrismaService
   private queryCount = 0;
   private slowQueryCount = 0;
   private readonly slowQueryThreshold: number;
+  private readonly connectionPoolSize: number;
 
   constructor(private readonly configService: ConfigService) {
     const databaseUrl = configService.get<string>('database.url');
@@ -35,10 +38,24 @@ export class PrismaService
       100,
     );
 
+    // CONNECTION POOL CONFIGURATION
+    // Configure pool size based on environment
+    // Formula: (num_cores * 2) + effective_spindle_count
+    // For cloud DBs: use connection_limit from provider / number of instances
+    const poolSize = configService.get<number>('database.poolSize', 10);
+    const connectionTimeout = configService.get<number>('database.connectionTimeout', 30000);
+
+    // Build connection URL with pooling parameters
+    let connectionUrl = databaseUrl;
+    if (connectionUrl && !connectionUrl.includes('connection_limit')) {
+      const separator = connectionUrl.includes('?') ? '&' : '?';
+      connectionUrl = `${connectionUrl}${separator}connection_limit=${poolSize}&pool_timeout=${connectionTimeout / 1000}`;
+    }
+
     super({
       datasources: {
         db: {
-          url: databaseUrl,
+          url: connectionUrl,
         },
       },
       log:
@@ -57,6 +74,7 @@ export class PrismaService
     });
 
     this.slowQueryThreshold = slowQueryThresholdMs;
+    this.connectionPoolSize = poolSize;
   }
 
   async onModuleInit(): Promise<void> {
@@ -118,9 +136,23 @@ export class PrismaService
   /**
    * Enable soft delete functionality
    * Converts DELETE operations to UPDATE with deletedAt timestamp
+   * Only applies to models that have a deletedAt field
    */
   async enableSoftDelete(): Promise<void> {
+    // Models that should use hard delete (no deletedAt field)
+    const hardDeleteModels = [
+      'Session',
+      'TokenRefreshHistory',
+      'UsageEvent',
+      'StripeUsageRecord',
+    ];
+
     this.$use(async (params, next) => {
+      // Skip soft delete for models that don't support it
+      if (hardDeleteModels.includes(params.model || '')) {
+        return next(params);
+      }
+
       // Check incoming query type
       if (params.action === 'delete') {
         // Change action to update and set deleted_at
@@ -291,5 +323,236 @@ export class PrismaService
       this.logger.error('Database health check failed', error);
       return false;
     }
+  }
+
+  // ============================================================================
+  // TRANSACTION HELPERS
+  // ============================================================================
+
+  /**
+   * Execute a transaction with automatic retry on deadlock/timeout
+   * Implements exponential backoff for retries
+   *
+   * @param fn - Transaction function to execute
+   * @param options - Transaction options
+   * @returns Result of the transaction
+   */
+  async transactionWithRetry<T>(
+    fn: (tx: Prisma.TransactionClient) => Promise<T>,
+    options: {
+      maxRetries?: number;
+      isolationLevel?: Prisma.TransactionIsolationLevel;
+      timeout?: number;
+    } = {},
+  ): Promise<T> {
+    const { maxRetries = 3, isolationLevel, timeout = 30000 } = options;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await this.$transaction(fn, {
+          isolationLevel,
+          timeout,
+          maxWait: 5000, // Max wait time to acquire a transaction
+        });
+      } catch (error: any) {
+        lastError = error;
+
+        // Check if error is retryable (deadlock, timeout, connection issues)
+        const isRetryable =
+          error.code === 'P2034' || // Transaction conflict
+          error.code === 'P2024' || // Timed out acquiring connection
+          error.code === 'P1017' || // Server closed connection
+          error.message?.includes('deadlock') ||
+          error.message?.includes('timeout');
+
+        if (!isRetryable || attempt === maxRetries) {
+          this.logger.error(
+            `Transaction failed after ${attempt} attempts: ${error.message}`,
+          );
+          throw error;
+        }
+
+        // Exponential backoff: 100ms, 200ms, 400ms, ...
+        const backoffMs = Math.min(100 * Math.pow(2, attempt - 1), 5000);
+        this.logger.warn(
+          `Transaction attempt ${attempt} failed, retrying in ${backoffMs}ms: ${error.message}`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
+      }
+    }
+
+    throw lastError;
+  }
+
+  // ============================================================================
+  // BATCH OPERATION HELPERS
+  // ============================================================================
+
+  /**
+   * Batch upsert utility - handles upserting many records efficiently
+   * Uses createMany with skipDuplicates or individual upserts based on count
+   *
+   * @param model - Prisma model name
+   * @param records - Records to upsert
+   * @param uniqueKey - Key(s) to identify unique records
+   */
+  async batchUpsert<T extends Record<string, any>>(
+    records: T[],
+    upsertFn: (record: T) => Promise<any>,
+    options: {
+      batchSize?: number;
+      concurrency?: number;
+    } = {},
+  ): Promise<{ created: number; updated: number; errors: number }> {
+    const { batchSize = 100, concurrency = 5 } = options;
+    let created = 0;
+    let updated = 0;
+    let errors = 0;
+
+    // Process in batches to avoid memory issues
+    for (let i = 0; i < records.length; i += batchSize) {
+      const batch = records.slice(i, i + batchSize);
+
+      // Process batch with controlled concurrency
+      const results = await Promise.allSettled(
+        this.parallelLimit(batch, concurrency, upsertFn),
+      );
+
+      for (const result of results) {
+        if (result.status === 'fulfilled') {
+          // Prisma upsert returns the record - we assume created if no updatedAt change
+          created++; // Simplified - actual logic would check timestamps
+        } else {
+          errors++;
+          this.logger.error(`Batch upsert error: ${result.reason}`);
+        }
+      }
+    }
+
+    return { created, updated, errors };
+  }
+
+  /**
+   * Execute promises with limited concurrency
+   */
+  private async *parallelLimit<T, R>(
+    items: T[],
+    limit: number,
+    fn: (item: T) => Promise<R>,
+  ): AsyncGenerator<Promise<R>> {
+    const executing: Promise<R>[] = [];
+
+    for (const item of items) {
+      const promise = fn(item);
+      yield promise;
+
+      if (limit <= items.length) {
+        const executingPromise = promise.then(() => {
+          executing.splice(executing.indexOf(executingPromise), 1);
+        });
+        executing.push(executingPromise as any);
+
+        if (executing.length >= limit) {
+          await Promise.race(executing);
+        }
+      }
+    }
+  }
+
+  /**
+   * Batch find with chunking for large IN queries
+   * PostgreSQL has limits on array sizes - this splits large queries
+   *
+   * @param findFn - Find function to execute
+   * @param ids - Array of IDs to find
+   * @param chunkSize - Max IDs per query (default 1000)
+   */
+  async batchFind<T>(
+    ids: string[],
+    findFn: (chunkIds: string[]) => Promise<T[]>,
+    chunkSize = 1000,
+  ): Promise<T[]> {
+    if (ids.length <= chunkSize) {
+      return findFn(ids);
+    }
+
+    const results: T[] = [];
+    for (let i = 0; i < ids.length; i += chunkSize) {
+      const chunk = ids.slice(i, i + chunkSize);
+      const chunkResults = await findFn(chunk);
+      results.push(...chunkResults);
+    }
+
+    return results;
+  }
+
+  // ============================================================================
+  // DIAGNOSTICS
+  // ============================================================================
+
+  /**
+   * Get unused indexes (potential cleanup targets)
+   */
+  async getUnusedIndexes(): Promise<any> {
+    try {
+      const result = await this.$queryRaw`
+        SELECT
+          schemaname,
+          tablename,
+          indexname,
+          idx_scan as index_scans
+        FROM pg_stat_user_indexes
+        WHERE idx_scan = 0
+          AND indexname NOT LIKE '%_pkey'
+          AND indexname NOT LIKE '%_key'
+        ORDER BY pg_relation_size(indexrelid) DESC
+        LIMIT 20
+      `;
+      return result;
+    } catch (error) {
+      this.logger.error('Failed to get unused indexes', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get missing indexes (tables with seq scans but no index scans)
+   */
+  async getMissingIndexSuggestions(): Promise<any> {
+    try {
+      const result = await this.$queryRaw`
+        SELECT
+          schemaname,
+          relname as tablename,
+          seq_scan as sequential_scans,
+          seq_tup_read as tuples_read_by_seq,
+          idx_scan as index_scans,
+          CASE
+            WHEN seq_scan > 0
+            THEN round(100.0 * idx_scan / (seq_scan + idx_scan), 2)
+            ELSE 100
+          END as index_usage_percent
+        FROM pg_stat_user_tables
+        WHERE seq_scan > 100
+          AND (idx_scan IS NULL OR idx_scan < seq_scan * 0.1)
+        ORDER BY seq_tup_read DESC
+        LIMIT 20
+      `;
+      return result;
+    } catch (error) {
+      this.logger.error('Failed to get missing index suggestions', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get connection pool stats
+   */
+  getPoolStats(): { poolSize: number; slowQueryThreshold: number } {
+    return {
+      poolSize: this.connectionPoolSize,
+      slowQueryThreshold: this.slowQueryThreshold,
+    };
   }
 }

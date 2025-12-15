@@ -70,6 +70,7 @@ export class GmailService {
 
   /**
    * List messages with optional query filter
+   * Supports label filtering for mailbox configurations
    */
   async listMessages(
     connectionId: string,
@@ -78,14 +79,25 @@ export class GmailService {
     try {
       const gmail = await this.createGmailClient(connectionId);
 
+      // Apply label filtering if specified
+      // Empty array means all labels, undefined means all labels too
+      const labelIds =
+        options.labelIds && options.labelIds.length > 0
+          ? options.labelIds
+          : undefined;
+
       const response = await gmail.users.messages.list({
         userId: 'me',
         q: options.query,
         maxResults: options.maxResults || GMAIL_API_CONFIG.maxResults,
         pageToken: options.pageToken,
-        labelIds: options.labelIds,
+        labelIds: labelIds, // Filter by labels if specified
         includeSpamTrash: options.includeSpamTrash || false,
       });
+
+      this.logger.log(
+        `Listed ${response.data.messages?.length || 0} messages${labelIds ? ` with labels: ${labelIds.join(', ')}` : ''}`,
+      );
 
       return {
         messages: response.data.messages || [],
@@ -94,7 +106,9 @@ export class GmailService {
       };
     } catch (error) {
       this.logger.error('Failed to list messages', error);
-      throw new InternalServerErrorException('Failed to retrieve messages from Gmail');
+      throw new InternalServerErrorException(
+        'Failed to retrieve messages from Gmail',
+      );
     }
   }
 
@@ -162,6 +176,10 @@ export class GmailService {
 
   /**
    * Search for invoice emails
+   *
+   * Performance optimizations:
+   * - Parallel batch fetching of message details (batches of 10)
+   * - Graceful degradation on individual message failures
    */
   async searchInvoiceEmails(
     connectionId: string,
@@ -197,18 +215,33 @@ export class GmailService {
         maxResults: options.maxResults || 50,
       });
 
-      // Get full message details for each result
+      // Get full message details in parallel batches
       const messages: GmailMessage[] = [];
       if (listResponse.messages && listResponse.messages.length > 0) {
-        for (const msg of listResponse.messages) {
-          try {
-            const fullMessage = await this.getMessage(connectionId, msg.id);
-            messages.push(fullMessage);
-          } catch (error) {
-            this.logger.warn(`Failed to get message ${msg.id}, skipping`, error);
+        const BATCH_SIZE = 10; // Fetch 10 messages in parallel
+        const messageIds = listResponse.messages.map(msg => msg.id);
+
+        // Process in batches to avoid overwhelming the API
+        for (let i = 0; i < messageIds.length; i += BATCH_SIZE) {
+          const batch = messageIds.slice(i, i + BATCH_SIZE);
+
+          // Fetch all messages in this batch in parallel
+          const batchResults = await Promise.allSettled(
+            batch.map(id => this.getMessage(connectionId, id)),
+          );
+
+          // Collect successful results
+          for (const result of batchResults) {
+            if (result.status === 'fulfilled') {
+              messages.push(result.value);
+            } else {
+              this.logger.warn(`Failed to get message, skipping: ${result.reason}`);
+            }
           }
         }
       }
+
+      this.logger.log(`Found ${messages.length} invoice emails`);
 
       return {
         messages,
@@ -290,6 +323,10 @@ export class GmailService {
 
   /**
    * Extract attachments from message
+   *
+   * Performance optimization:
+   * - Parallel batch downloading of attachments (batches of 5)
+   * - Graceful handling of individual download failures
    */
   private async extractAttachments(
     connectionId: string,
@@ -330,22 +367,36 @@ export class GmailService {
     // Find all attachments
     findAttachments(message.payload);
 
-    // Download attachment data
-    for (const attachment of attachments) {
-      try {
-        const attachmentData = await this.getAttachment(
-          connectionId,
-          messageId,
-          attachment.attachmentId,
-        );
+    // Download attachments in parallel batches
+    const BATCH_SIZE = 5;
+    for (let i = 0; i < attachments.length; i += BATCH_SIZE) {
+      const batch = attachments.slice(i, i + BATCH_SIZE);
 
-        // Decode base64url data
-        attachment.data = Buffer.from(attachmentData.data, 'base64url');
-      } catch (error) {
-        this.logger.warn(
-          `Failed to download attachment ${attachment.attachmentId}, skipping`,
-          error,
-        );
+      // Download batch in parallel
+      const downloadResults = await Promise.allSettled(
+        batch.map(async (attachment) => {
+          const attachmentData = await this.getAttachment(
+            connectionId,
+            messageId,
+            attachment.attachmentId,
+          );
+          return {
+            attachmentId: attachment.attachmentId,
+            data: Buffer.from(attachmentData.data, 'base64url'),
+          };
+        }),
+      );
+
+      // Apply downloaded data to attachments
+      for (let j = 0; j < batch.length; j++) {
+        const result = downloadResults[j];
+        if (result.status === 'fulfilled') {
+          batch[j].data = result.value.data;
+        } else {
+          this.logger.warn(
+            `Failed to download attachment ${batch[j].attachmentId}, skipping: ${result.reason}`,
+          );
+        }
       }
     }
 

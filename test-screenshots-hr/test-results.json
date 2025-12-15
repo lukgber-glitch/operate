@@ -1,0 +1,74 @@
+[
+  {
+    "page": "Login",
+    "status": "PASS",
+    "url": "http://localhost:3000/onboarding"
+  },
+  {
+    "page": "/hr - Dashboard",
+    "status": "FAIL",
+    "checks": {
+      "hasHeading": true,
+      "hasStats": false
+    }
+  },
+  {
+    "page": "/hr/employees - Employee List",
+    "status": "FAIL",
+    "checks": {
+      "hasSearch": false,
+      "hasTable": false,
+      "hasAddButton": false
+    }
+  },
+  {
+    "page": "/hr/employees/new - Add Employee Form",
+    "status": "FAIL",
+    "checks": {
+      "hasForm": true,
+      "hasInputs": false,
+      "hasSubmitButton": false
+    }
+  },
+  {
+    "page": "/hr/leave - Leave Management",
+    "status": "FAIL",
+    "checks": {
+      "hasContent": false,
+      "hasCalendarOrList": false
+    }
+  },
+  {
+    "page": "/hr/leave/requests - Leave Requests",
+    "status": "FAIL",
+    "checks": {
+      "hasContent": false,
+      "hasRequestForm": true
+    }
+  },
+  {
+    "page": "/hr/leave/approvals - Leave Approvals",
+    "status": "FAIL",
+    "checks": {
+      "hasContent": false,
+      "hasTable": false
+    }
+  },
+  {
+    "page": "/hr/payroll/run - Payroll Dashboard",
+    "status": "FAIL",
+    "checks": {
+      "hasContent": false,
+      "hasWizardOrSteps": false,
+      "hasButton": true
+    }
+  },
+  {
+    "page": "/hr/benefits - Benefits Overview",
+    "status": "FAIL",
+    "checks": {
+      "hasContent": false,
+      "hasCards": false
+    }
+  }
+]

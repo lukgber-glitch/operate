@@ -7,7 +7,9 @@ import {
   Query,
   UseGuards,
   Req,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import {
   ApiTags,
   ApiOperation,
@@ -19,6 +21,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OnboardingService } from './onboarding.service';
 import { FirstAnalysisService } from './first-analysis.service';
+import { AuthService } from '../auth/auth.service';
 import {
   CompleteStepDto,
   OnboardingProgressDto,
@@ -38,6 +41,7 @@ export class OnboardingController {
   constructor(
     private readonly onboardingService: OnboardingService,
     private readonly firstAnalysisService: FirstAnalysisService,
+    private readonly authService: AuthService,
   ) {}
 
   /**
@@ -135,9 +139,17 @@ export class OnboardingController {
   })
   @ApiResponse({ status: 404, description: 'Onboarding progress not found' })
   @ApiResponse({ status: 409, description: 'Onboarding already completed' })
-  async completeOnboarding(@Req() req: any): Promise<OnboardingProgressDto> {
+  async completeOnboarding(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<OnboardingProgressDto> {
     const { orgId, userId } = req.user;
-    return this.onboardingService.completeOnboarding(orgId, userId);
+    const result = await this.onboardingService.completeOnboarding(orgId, userId);
+
+    // Set onboarding_complete cookie so middleware allows access to protected routes
+    this.authService.setOnboardingCompleteCookie(res);
+
+    return result;
   }
 
   /**

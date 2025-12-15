@@ -43,7 +43,7 @@ export function EmptyInsightsState({
       <h3 className="text-base font-semibold mb-2">
         {hasFilters ? 'No insights match your filters' : 'No insights available'}
       </h3>
-      <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+      <p className="text-sm text-gray-300 mb-6 max-w-sm">
         {hasFilters
           ? 'Try adjusting your filter settings to see more insights'
           : 'AI-generated insights will appear here as your business data is analyzed. Check back soon!'}

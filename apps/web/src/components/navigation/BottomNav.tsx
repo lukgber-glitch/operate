@@ -9,6 +9,7 @@ import {
   Settings,
   LucideIcon,
 } from 'lucide-react';
+import { memo } from 'react';
 
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/useMediaQuery';
@@ -20,14 +21,39 @@ interface NavItemProps {
   isActive: boolean;
 }
 
-function NavItem({ icon: Icon, label, href, isActive }: NavItemProps) {
+// Static navigation items - defined outside component to prevent recreation
+const bottomNavItems = [
+  {
+    icon: MessageSquare,
+    label: 'Chat',
+    href: '/chat',
+  },
+  {
+    icon: LayoutDashboard,
+    label: 'Dashboard',
+    href: '/dashboard/dashboard',
+  },
+  {
+    icon: FileText,
+    label: 'Invoices',
+    href: '/invoices',
+  },
+  {
+    icon: Settings,
+    label: 'Settings',
+    href: '/settings',
+  },
+] as const;
+
+// Memoized NavItem component to prevent unnecessary re-renders
+const NavItem = memo(function NavItem({ icon: Icon, label, href, isActive }: NavItemProps) {
   return (
     <Link
       href={href}
       className={cn(
         'flex flex-col items-center justify-center gap-1',
         'min-w-[64px] min-h-[44px] px-3 py-2',
-        'transition-colors rounded-md',
+        'transition-colors rounded-md transform-gpu',
         'active:bg-accent/50',
         isActive
           ? 'text-primary bg-primary/10'
@@ -40,7 +66,7 @@ function NavItem({ icon: Icon, label, href, isActive }: NavItemProps) {
       <span className="text-[10px] font-medium leading-none">{label}</span>
     </Link>
   );
-}
+})
 
 /**
  * BottomNav - Mobile bottom navigation bar
@@ -56,7 +82,7 @@ function NavItem({ icon: Icon, label, href, isActive }: NavItemProps) {
  * - Add to layout.tsx inside the body, outside main content
  * - Will automatically hide on desktop
  */
-export function BottomNav() {
+export const BottomNav = memo(function BottomNav() {
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
@@ -64,29 +90,6 @@ export function BottomNav() {
   if (!isMobile) {
     return null;
   }
-
-  const navItems = [
-    {
-      icon: MessageSquare,
-      label: 'Chat',
-      href: '/',
-    },
-    {
-      icon: LayoutDashboard,
-      label: 'Dashboard',
-      href: '/dashboard',
-    },
-    {
-      icon: FileText,
-      label: 'Invoices',
-      href: '/invoices',
-    },
-    {
-      icon: Settings,
-      label: 'Settings',
-      href: '/settings',
-    },
-  ];
 
   return (
     <nav
@@ -102,7 +105,7 @@ export function BottomNav() {
       aria-label="Mobile navigation"
     >
       <div className="flex items-center justify-around h-full max-w-screen-xl mx-auto px-2">
-        {navItems.map((item) => (
+        {bottomNavItems.map((item) => (
           <NavItem
             key={item.href}
             icon={item.icon}
@@ -114,4 +117,4 @@ export function BottomNav() {
       </div>
     </nav>
   );
-}
+})

@@ -142,7 +142,7 @@ export function DraggableWidget({
         {/* Hidden Indicator */}
         {!widget.visible && isEditMode && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-            <div className="flex flex-col items-center gap-2 text-muted-foreground">
+            <div className="flex flex-col items-center gap-2 text-gray-300">
               <EyeOff className="h-8 w-8" />
               <span className="text-sm font-medium">Hidden Widget</span>
             </div>

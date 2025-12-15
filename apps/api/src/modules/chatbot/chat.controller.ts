@@ -85,22 +85,26 @@ export class ChatController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
   ): Promise<PaginatedConversationsResponseDto> {
-    const limitNum = limit ? parseInt(limit, 10) : 20;
-    const offsetNum = offset ? parseInt(offset, 10) : 0;
+    try {
+      const limitNum = limit ? parseInt(limit, 10) : 20;
+      const offsetNum = offset ? parseInt(offset, 10) : 0;
 
-    const { conversations, total } = await this.chatService.listConversations(
-      req.user.id,
-      req.user.orgId,
-      { limit: limitNum, offset: offsetNum },
-    );
+      const { conversations, total } = await this.chatService.listConversations(
+        req.user.id,
+        req.user.orgId,
+        { limit: limitNum, offset: offsetNum },
+      );
 
-    return {
-      conversations: conversations.map(c => this.mapConversationToDto(c)),
-      total,
-      limit: limitNum,
-      offset: offsetNum,
-      hasMore: offsetNum + limitNum < total,
-    };
+      return {
+        conversations: conversations.map(c => this.mapConversationToDto(c)),
+        total,
+        limit: limitNum,
+        offset: offsetNum,
+        hasMore: offsetNum + limitNum < total,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -291,34 +295,42 @@ export class ChatController {
     @Query('entityId') entityId?: string,
     @Query('limit') limit?: string,
   ): Promise<any> {
-    const options: any = {
-      limit: limit ? parseInt(limit, 10) : 50,
-    };
+    try {
+      const options: any = {
+        limit: limit ? parseInt(limit, 10) : 50,
+      };
 
-    // Parse types filter (comma-separated)
-    if (types) {
-      options.types = types.split(',');
+      // Parse types filter (comma-separated)
+      if (types) {
+        options.types = types.split(',');
+      }
+
+      // Parse priority filter (comma-separated)
+      if (priority) {
+        options.priority = priority.split(',');
+      }
+
+      // Filter by entity
+      if (entityId) {
+        options.entityId = entityId;
+      }
+
+      const suggestions = await this.emailSuggestionsService.getSuggestionsForOrg(
+        req.user.orgId,
+        options,
+      );
+
+      return {
+        suggestions,
+        total: suggestions.length,
+      };
+    } catch (error) {
+      // Return empty array instead of failing the entire chat page
+      return {
+        suggestions: [],
+        total: 0,
+      };
     }
-
-    // Parse priority filter (comma-separated)
-    if (priority) {
-      options.priority = priority.split(',');
-    }
-
-    // Filter by entity
-    if (entityId) {
-      options.entityId = entityId;
-    }
-
-    const suggestions = await this.emailSuggestionsService.getSuggestionsForOrg(
-      req.user.orgId,
-      options,
-    );
-
-    return {
-      suggestions,
-      total: suggestions.length,
-    };
   }
 
   /**

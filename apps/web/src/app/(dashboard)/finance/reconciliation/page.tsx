@@ -14,7 +14,7 @@ import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import {
   Select,
   SelectContent,
@@ -57,14 +57,18 @@ export default function ReconciliationPage() {
   const { ignoreTransaction, isLoading: ignoringTransaction } = useIgnoreTransaction();
   const { runAutoReconcile, isLoading: autoReconciling } = useAutoReconcile();
 
+  // Initial load - run once on mount
   useEffect(() => {
     fetchTransactions();
     fetchStats();
-  }, [fetchTransactions, fetchStats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  // Filter change - only trigger on statusFilter change
   useEffect(() => {
     fetchTransactions({ status: statusFilter as any });
-  }, [statusFilter, fetchTransactions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter]);
 
   const handleToggleTransaction = useCallback((id: string) => {
     setSelectedTransactions((prev) =>
@@ -193,7 +197,7 @@ export default function ReconciliationPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Reconciliation</h1>
-          <p className="text-muted-foreground">
+          <p className="text-white/70">
             Match bank transactions to expenses and invoices
           </p>
         </div>
@@ -223,8 +227,7 @@ export default function ReconciliationPage() {
       <ReconciliationStats stats={stats} isLoading={statsLoading} />
 
       {/* Filters and Actions */}
-      <Card>
-        <CardContent className="pt-6">
+      <GlassCard padding="lg">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap items-center gap-2">
@@ -295,8 +298,8 @@ export default function ReconciliationPage() {
             </div>
 
             {selectedTransactions.length > 0 && (
-              <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-                <span className="text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 p-3 bg-white/10 rounded-lg">
+                <span className="text-sm text-white/70">
                   {selectedTransactions.length} selected
                 </span>
                 <Button
@@ -315,23 +318,21 @@ export default function ReconciliationPage() {
                 >
                   Clear Selection
                 </Button>
-                <span className="text-xs text-muted-foreground ml-auto">
+                <span className="text-xs text-white/70 ml-auto">
                   Press "I" to ignore selected
                 </span>
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+      </GlassCard>
 
       {/* Transactions List */}
-      <Card>
-        <CardContent className="p-0">
+      <GlassCard padding="lg">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
-                <p className="text-sm text-muted-foreground">Loading transactions...</p>
+                <p className="text-sm text-white/70">Loading transactions...</p>
               </div>
             </div>
           ) : error ? (
@@ -359,8 +360,7 @@ export default function ReconciliationPage() {
               applyingMatch={applyingMatch}
             />
           )}
-        </CardContent>
-      </Card>
+      </GlassCard>
 
       {/* Dialogs */}
       <IgnoreDialog

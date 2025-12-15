@@ -43,7 +43,7 @@ export default function PayRunPage() {
       <div className="container mx-auto py-8 max-w-4xl">
         <div className="space-y-6">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Run Payroll</h1>
+            <h1 className="text-2xl text-white font-semibold tracking-tight">Run Payroll</h1>
             <p className="text-muted-foreground">Process payroll for your employees with our step-by-step wizard</p>
           </div>
 
@@ -59,7 +59,7 @@ export default function PayRunPage() {
             <CardContent className="p-6">
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold flex items-center gap-2 mb-2">
+                <h2 className="text-2xl text-white font-bold flex items-center gap-2 mb-2">
                   <DollarSign className="h-6 w-6 text-primary" />
                   Start New Pay Run
                 </h2>
@@ -133,7 +133,7 @@ export default function PayRunPage() {
     <div className="container mx-auto py-8">
       <div className="mb-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Run Payroll</h1>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Run Payroll</h1>
           <p className="text-muted-foreground">Complete each step to process payroll for your employees</p>
         </div>
       </div>

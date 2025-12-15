@@ -31,8 +31,8 @@ export function useConversationHistory() {
 
   const loadConversations = async () => {
     try {
-      // Try to fetch from backend first
-      const response = await fetch('/api/v1/chatbot/conversations?limit=100', {
+      // Try to fetch from backend first - OPTIMIZED: Only fetch metadata, not full messages
+      const response = await fetch('/api/v1/chatbot/conversations?limit=20&includeMessages=false', {
         credentials: 'include',
       });
 
@@ -41,20 +41,7 @@ export function useConversationHistory() {
         const backendConversations = data.conversations.map((conv: any) => ({
           id: conv.id,
           title: conv.title || 'New Conversation',
-          messages: conv.messages?.map((msg: any) => ({
-            id: msg.id,
-            conversationId: msg.conversationId,
-            role: msg.role.toLowerCase() as 'user' | 'assistant' | 'system',
-            content: msg.content,
-            timestamp: new Date(msg.createdAt),
-            status: 'sent' as const,
-            metadata: {
-              actionType: msg.actionType,
-              actionParams: msg.actionParams,
-              actionResult: msg.actionResult,
-              actionStatus: msg.actionStatus,
-            },
-          })) || [],
+          messages: [], // Messages loaded on demand when conversation is opened
           createdAt: new Date(conv.createdAt),
           updatedAt: new Date(conv.updatedAt),
         }));

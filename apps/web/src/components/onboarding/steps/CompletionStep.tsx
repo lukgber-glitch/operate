@@ -24,10 +24,10 @@ import { cn } from '@/lib/utils'
 const NEXT_STEPS = [
   {
     icon: LayoutDashboard,
-    title: 'Explore Your Dashboard',
-    description: 'Get an overview of your business metrics and recent activity',
-    action: 'Go to Dashboard',
-    href: '/dashboard',
+    title: 'Start with AI Chat',
+    description: 'Your AI assistant is ready to help manage your business',
+    action: 'Open Chat',
+    href: '/chat',
   },
   {
     icon: FileText,
@@ -106,14 +106,14 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       // Clear localStorage progress
       localStorage.removeItem('operate_onboarding_progress')
 
-      // Navigate to dashboard
-      router.push('/dashboard')
+      // Navigate to chat
+      router.push('/chat')
     } catch (error) {
       console.error('Error completing onboarding:', error)
       // Still try to navigate - set cookie and go
       document.cookie = 'onboarding_complete=true; path=/; max-age=31536000; SameSite=Lax'
       localStorage.removeItem('operate_onboarding_progress')
-      router.push('/dashboard')
+      router.push('/chat')
     }
   }
 

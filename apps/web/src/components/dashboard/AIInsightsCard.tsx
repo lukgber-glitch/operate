@@ -256,10 +256,10 @@ export function AIInsightsCard({
         {!isLoading && !error && insights.length === 0 && (
           <div className="flex flex-col items-center justify-center p-8 text-center">
             <div className="rounded-full bg-muted p-4 mb-4">
-              <TrendingUp className="h-8 w-8 text-muted-foreground" />
+              <TrendingUp className="h-8 w-8 text-gray-300" />
             </div>
             <h3 className="text-sm font-medium mb-1">No insights available</h3>
-            <p className="text-xs text-muted-foreground mb-4">
+            <p className="text-xs text-gray-300 mb-4">
               {categoryFilters.length > 0 || urgencyFilters.length > 0
                 ? 'Try adjusting your filters'
                 : 'Check back later for AI-generated insights'}

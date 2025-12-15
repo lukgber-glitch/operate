@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { EmployeeFilters } from '@/components/hr/employee-filters';
 import { EmployeeTable } from '@/components/hr/employee-table';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import {
   Select,
   SelectContent,
@@ -101,8 +101,8 @@ export default function EmployeesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Employees</h1>
-          <p className="text-muted-foreground">Manage your organization's employees</p>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Employees</h1>
+          <p className="text-white/70">Manage your organization's employees</p>
         </div>
 
         <div className="flex gap-2">
@@ -119,8 +119,7 @@ export default function EmployeesPage() {
         </div>
       </div>
 
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6">
+      <GlassCard className="p-6">
           <div className="space-y-6">
             <EmployeeFilters
               filters={filters}
@@ -130,12 +129,12 @@ export default function EmployeesPage() {
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-white/70">
                   Showing {employees.length} of {total} employees
                 </p>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Rows per page:</span>
+                  <span className="text-sm text-white/70">Rows per page:</span>
                   <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
                     <SelectTrigger className="w-[80px]">
                       <SelectValue />
@@ -210,8 +209,7 @@ export default function EmployeesPage() {
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+      </GlassCard>
     </div>
   );
 }

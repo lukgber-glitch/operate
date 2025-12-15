@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { DollarSign, TrendingUp } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +13,7 @@ interface TaxRateDisplayProps {
   showBreakdown?: boolean;
 }
 
-export function TaxRateDisplay({
+export const TaxRateDisplay = React.memo(function TaxRateDisplay({
   taxRate,
   isLoading = false,
   showBreakdown = true,
@@ -126,7 +127,7 @@ export function TaxRateDisplay({
       </CardContent>
     </Card>
   );
-}
+});
 
 export function TaxRateDisplaySkeleton() {
   return (

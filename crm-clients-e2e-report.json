@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-12-15T03:47:11.600Z",
+  "summary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "successRate": "0.0%"
+  },
+  "results": [
+    {
+      "page": "/login",
+      "status": "FAIL",
+      "message": "Auth cookies set but still redirecting to login. This may be a middleware or client-side auth check issue.",
+      "timestamp": "2025-12-15T03:47:11.599Z"
+    }
+  ]
+}

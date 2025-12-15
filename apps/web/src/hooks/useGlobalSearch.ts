@@ -3,7 +3,7 @@
  * Handles search functionality across different categories
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useDebounce } from './useDebounce';
 
 export type SearchCategory =
@@ -295,14 +295,16 @@ export function useGlobalSearch(options: UseGlobalSearchOptions = {}) {
     search(debouncedQuery);
   }, [debouncedQuery, search]);
 
-  // Group results by category
-  const groupedResults = results.reduce((acc, result) => {
-    if (!acc[result.category]) {
-      acc[result.category] = [];
-    }
-    acc[result.category].push(result);
-    return acc;
-  }, {} as Record<SearchCategory, SearchResult[]>);
+  // Memoize grouped results by category
+  const groupedResults = useMemo(() => {
+    return results.reduce((acc, result) => {
+      if (!acc[result.category]) {
+        acc[result.category] = [];
+      }
+      acc[result.category].push(result);
+      return acc;
+    }, {} as Record<SearchCategory, SearchResult[]>);
+  }, [results]);
 
   return {
     query,

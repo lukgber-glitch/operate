@@ -28,6 +28,23 @@ export class VatController {
   constructor(private readonly vatService: VatService) {}
 
   /**
+   * Get VAT context with country-specific information
+   */
+  @Get('context')
+  @ApiOperation({
+    summary: 'Get VAT context',
+    description: 'Get country-specific VAT information including tax authority, filing frequency, and registration status',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'VAT context retrieved successfully',
+  })
+  async getVatContext(@CurrentUser() user: { id: string; orgId: string }) {
+    const orgId = user.orgId;
+    return this.vatService.getVatContext(orgId);
+  }
+
+  /**
    * Get VAT periods
    */
   @Get('periods')

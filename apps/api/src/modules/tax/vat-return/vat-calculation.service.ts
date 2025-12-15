@@ -160,18 +160,21 @@ export class VatCalculationService {
       }
 
       // Domestic revenue by VAT rate
-      if (vatRate === 0.19 || vatRate === 19) {
+      // Use tolerance for floating point comparison (handles 0.19, 19, 19.0, etc.)
+      const normalizedRate = vatRate > 1 ? vatRate : vatRate * 100;
+
+      if (Math.abs(normalizedRate - 19) < 0.01) {
         steuerpflichtig19 += netAmount;
         steuer19 += vatAmount;
-      } else if (vatRate === 0.07 || vatRate === 7) {
+      } else if (Math.abs(normalizedRate - 7) < 0.01) {
         steuerpflichtig7 += netAmount;
         steuer7 += vatAmount;
-      } else if (vatRate === 0) {
+      } else if (Math.abs(normalizedRate) < 0.01) {
         steuerfrei += netAmount;
       } else {
         // Unknown VAT rate - log warning
         this.logger.warn(
-          `Unknown VAT rate ${vatRate} on invoice ${invoice.id}`,
+          `Unknown VAT rate ${vatRate} (normalized: ${normalizedRate}) on invoice ${invoice.id}`,
         );
         steuerfrei += netAmount;
       }
@@ -241,78 +244,187 @@ export class VatCalculationService {
   }
 
   /**
+   * Valid period formats:
+   * - "2025-01" to "2025-12" (monthly)
+   * - "2025-Q1" to "2025-Q4" (quarterly)
+   * - "2025" (annual)
+   */
+  private readonly PERIOD_PATTERNS = {
+    monthly: /^(\d{4})-(0[1-9]|1[0-2])$/,
+    quarterly: /^(\d{4})-Q([1-4])$/i,
+    annual: /^(\d{4})$/,
+  };
+
+  /**
+   * Validate period string format
+   * @param period The period string to validate
+   * @returns Object with isValid flag and parsed components
+   */
+  private validatePeriodFormat(period: string): {
+    isValid: boolean;
+    type: 'monthly' | 'quarterly' | 'annual' | null;
+    year: number | null;
+    period: number | null;
+    error?: string;
+  } {
+    if (!period || typeof period !== 'string') {
+      return { isValid: false, type: null, year: null, period: null, error: 'Period is required' };
+    }
+
+    const trimmedPeriod = period.trim();
+
+    // Check monthly format
+    const monthlyMatch = trimmedPeriod.match(this.PERIOD_PATTERNS.monthly);
+    if (monthlyMatch) {
+      const year = parseInt(monthlyMatch[1], 10);
+      const month = parseInt(monthlyMatch[2], 10);
+      if (year >= 2000 && year <= 2100) {
+        return { isValid: true, type: 'monthly', year, period: month };
+      }
+      return { isValid: false, type: null, year: null, period: null, error: 'Year must be between 2000 and 2100' };
+    }
+
+    // Check quarterly format
+    const quarterlyMatch = trimmedPeriod.match(this.PERIOD_PATTERNS.quarterly);
+    if (quarterlyMatch) {
+      const year = parseInt(quarterlyMatch[1], 10);
+      const quarter = parseInt(quarterlyMatch[2], 10);
+      if (year >= 2000 && year <= 2100) {
+        return { isValid: true, type: 'quarterly', year, period: quarter };
+      }
+      return { isValid: false, type: null, year: null, period: null, error: 'Year must be between 2000 and 2100' };
+    }
+
+    // Check annual format
+    const annualMatch = trimmedPeriod.match(this.PERIOD_PATTERNS.annual);
+    if (annualMatch) {
+      const year = parseInt(annualMatch[1], 10);
+      if (year >= 2000 && year <= 2100) {
+        return { isValid: true, type: 'annual', year, period: null };
+      }
+      return { isValid: false, type: null, year: null, period: null, error: 'Year must be between 2000 and 2100' };
+    }
+
+    return {
+      isValid: false,
+      type: null,
+      year: null,
+      period: null,
+      error: `Invalid period format "${period}". Expected: "2025-01" (monthly), "2025-Q1" (quarterly), or "2025" (annual)`,
+    };
+  }
+
+  /**
    * Parse period string to date range
    *
-   * @param period Format: "2025-Q1" or "2025-01"
+   * @param period Format: "2025-Q1", "2025-01", or "2025"
+   * @throws Error if period format is invalid
    */
   private parsePeriod(period: string): {
     periodStart: Date;
     periodEnd: Date;
   } {
-    const parts = period.split('-');
-    const year = parseInt(parts[0], 10);
+    const validation = this.validatePeriodFormat(period);
 
-    if (parts[1].startsWith('Q')) {
-      // Quarterly
-      const quarter = parseInt(parts[1].substring(1), 10);
-      const startMonth = (quarter - 1) * 3;
-      const endMonth = startMonth + 3;
+    if (!validation.isValid) {
+      throw new Error(validation.error || 'Invalid period format');
+    }
 
-      return {
-        periodStart: new Date(year, startMonth, 1),
-        periodEnd: new Date(year, endMonth, 0, 23, 59, 59, 999),
-      };
-    } else {
-      // Monthly
-      const month = parseInt(parts[1], 10);
+    const year = validation.year!;
 
-      return {
-        periodStart: new Date(year, month - 1, 1),
-        periodEnd: new Date(year, month, 0, 23, 59, 59, 999),
-      };
+    switch (validation.type) {
+      case 'quarterly': {
+        const quarter = validation.period!;
+        const startMonth = (quarter - 1) * 3;
+        const endMonth = startMonth + 3;
+        return {
+          periodStart: new Date(year, startMonth, 1),
+          periodEnd: new Date(year, endMonth, 0, 23, 59, 59, 999),
+        };
+      }
+      case 'monthly': {
+        const month = validation.period!;
+        return {
+          periodStart: new Date(year, month - 1, 1),
+          periodEnd: new Date(year, month, 0, 23, 59, 59, 999),
+        };
+      }
+      case 'annual': {
+        return {
+          periodStart: new Date(year, 0, 1),
+          periodEnd: new Date(year, 11, 31, 23, 59, 59, 999),
+        };
+      }
+      default:
+        throw new Error('Invalid period type');
     }
   }
 
   /**
-   * Validate EU VAT ID format
+   * EU country codes and VAT ID format patterns
+   * Format: [countryCode]: { pattern: RegExp, checksum?: (vatId: string) => boolean }
+   */
+  private readonly EU_VAT_FORMATS: Record<string, { pattern: RegExp; name: string }> = {
+    AT: { pattern: /^ATU\d{8}$/, name: 'Austria' },
+    BE: { pattern: /^BE[01]\d{9}$/, name: 'Belgium' },
+    BG: { pattern: /^BG\d{9,10}$/, name: 'Bulgaria' },
+    HR: { pattern: /^HR\d{11}$/, name: 'Croatia' },
+    CY: { pattern: /^CY\d{8}[A-Z]$/, name: 'Cyprus' },
+    CZ: { pattern: /^CZ\d{8,10}$/, name: 'Czech Republic' },
+    DK: { pattern: /^DK\d{8}$/, name: 'Denmark' },
+    EE: { pattern: /^EE\d{9}$/, name: 'Estonia' },
+    FI: { pattern: /^FI\d{8}$/, name: 'Finland' },
+    FR: { pattern: /^FR[A-Z0-9]{2}\d{9}$/, name: 'France' },
+    DE: { pattern: /^DE\d{9}$/, name: 'Germany' },
+    EL: { pattern: /^EL\d{9}$/, name: 'Greece' }, // Greece uses EL, not GR
+    GR: { pattern: /^(EL|GR)\d{9}$/, name: 'Greece' }, // Accept both for compatibility
+    HU: { pattern: /^HU\d{8}$/, name: 'Hungary' },
+    IE: { pattern: /^IE(\d{7}[A-Z]{1,2}|\d[A-Z+*]\d{5}[A-Z])$/, name: 'Ireland' },
+    IT: { pattern: /^IT\d{11}$/, name: 'Italy' },
+    LV: { pattern: /^LV\d{11}$/, name: 'Latvia' },
+    LT: { pattern: /^LT(\d{9}|\d{12})$/, name: 'Lithuania' },
+    LU: { pattern: /^LU\d{8}$/, name: 'Luxembourg' },
+    MT: { pattern: /^MT\d{8}$/, name: 'Malta' },
+    NL: { pattern: /^NL\d{9}B\d{2}$/, name: 'Netherlands' },
+    PL: { pattern: /^PL\d{10}$/, name: 'Poland' },
+    PT: { pattern: /^PT\d{9}$/, name: 'Portugal' },
+    RO: { pattern: /^RO\d{2,10}$/, name: 'Romania' },
+    SK: { pattern: /^SK\d{10}$/, name: 'Slovakia' },
+    SI: { pattern: /^SI\d{8}$/, name: 'Slovenia' },
+    ES: { pattern: /^ES[A-Z0-9]\d{7}[A-Z0-9]$/, name: 'Spain' },
+    SE: { pattern: /^SE\d{12}$/, name: 'Sweden' },
+  };
+
+  /**
+   * Validate EU VAT ID format with country-specific pattern matching
+   * @param vatId The VAT ID to validate (e.g., "DE123456789", "ATU12345678")
+   * @returns true if the VAT ID matches the expected format for the country
    */
   private isValidEuVatId(vatId: string): boolean {
     if (!vatId || vatId.length < 3) {
       return false;
     }
 
-    const countryCode = vatId.substring(0, 2).toUpperCase();
-    const euCountries = [
-      'AT',
-      'BE',
-      'BG',
-      'HR',
-      'CY',
-      'CZ',
-      'DK',
-      'EE',
-      'FI',
-      'FR',
-      'DE',
-      'GR',
-      'HU',
-      'IE',
-      'IT',
-      'LV',
-      'LT',
-      'LU',
-      'MT',
-      'NL',
-      'PL',
-      'PT',
-      'RO',
-      'SK',
-      'SI',
-      'ES',
-      'SE',
-    ];
+    const upperVatId = vatId.toUpperCase().replace(/\s/g, '');
+    const countryCode = upperVatId.substring(0, 2);
 
-    return euCountries.includes(countryCode);
+    // Check if it's an EU country
+    const format = this.EU_VAT_FORMATS[countryCode];
+    if (!format) {
+      return false;
+    }
+
+    // Validate against country-specific pattern
+    return format.pattern.test(upperVatId);
+  }
+
+  /**
+   * Get the country name from a VAT ID
+   */
+  private getCountryFromVatId(vatId: string): string | null {
+    if (!vatId || vatId.length < 2) return null;
+    const countryCode = vatId.substring(0, 2).toUpperCase();
+    return this.EU_VAT_FORMATS[countryCode]?.name || null;
   }
 
   /**

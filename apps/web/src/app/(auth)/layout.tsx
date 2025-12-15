@@ -1,7 +1,6 @@
 import { cookies, headers } from 'next/headers'
 import { NextIntlClientProvider } from 'next-intl'
 
-import '@/app/globals.css'
 import { locales, defaultLocale, type Locale, isRTL } from '@/i18n'
 import { AuthLayoutClient } from './AuthLayoutClient'
 

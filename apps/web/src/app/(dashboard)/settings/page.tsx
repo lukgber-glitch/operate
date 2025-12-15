@@ -1,7 +1,11 @@
 'use client';
 
-import { Building2, Receipt, Bell, Link2, Users, Save, Sparkles, Info } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Building2, Receipt, Bell, Link2, Users, Save, Sparkles, Info, User, Shield, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
+import NextLink from 'next/link';
+
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -181,47 +186,94 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
       {/* Header */}
-      <div>
+      <motion.div variants={fadeUp}>
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">
+        <p className="text-white/70">
           Manage your organization settings and preferences
         </p>
-      </div>
+      </motion.div>
+
+      {/* Quick Access Links */}
+      <motion.div variants={fadeUp} className="grid gap-4 md:grid-cols-2">
+        <NextLink href="/settings/profile">
+          <GlassCard className="cursor-pointer transition-colors hover:bg-accent">
+            <CardContent className="flex items-center justify-between p-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <User className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Profile Settings</h3>
+                  <p className="text-sm text-white/70">
+                    Manage your personal information and preferences
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="h-5 w-5 text-white/70" />
+            </CardContent>
+          </GlassCard>
+        </NextLink>
+
+        <NextLink href="/settings/security">
+          <GlassCard className="cursor-pointer transition-colors hover:bg-accent">
+            <CardContent className="flex items-center justify-between p-6">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  <Shield className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Security Settings</h3>
+                  <p className="text-sm text-white/70">
+                    Manage passwords and authentication
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="h-5 w-5 text-white/70" />
+            </CardContent>
+          </GlassCard>
+        </NextLink>
+      </motion.div>
 
       {/* Tabs */}
-      <Tabs defaultValue="organization" className="space-y-6">
+      <motion.div variants={fadeUp}>
+        <Tabs defaultValue="organization" className="space-y-6">
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="organization">
-            <Building2 className="mr-2 h-4 w-4" />
+            <Building2 className="mr-2 h-4 w-4" aria-hidden="true" />
             Organization
           </TabsTrigger>
           <TabsTrigger value="tax">
-            <Receipt className="mr-2 h-4 w-4" />
+            <Receipt className="mr-2 h-4 w-4" aria-hidden="true" />
             Tax
           </TabsTrigger>
           <TabsTrigger value="invoices">
-            <Receipt className="mr-2 h-4 w-4" />
+            <Receipt className="mr-2 h-4 w-4" aria-hidden="true" />
             Invoices
           </TabsTrigger>
           <TabsTrigger value="notifications">
-            <Bell className="mr-2 h-4 w-4" />
+            <Bell className="mr-2 h-4 w-4" aria-hidden="true" />
             Notifications
           </TabsTrigger>
           <TabsTrigger value="automation">
-            <Sparkles className="mr-2 h-4 w-4" />
+            <Sparkles className="mr-2 h-4 w-4" aria-hidden="true" />
             Automation
           </TabsTrigger>
           <TabsTrigger value="integrations">
-            <Link2 className="mr-2 h-4 w-4" />
+            <Link2 className="mr-2 h-4 w-4" aria-hidden="true" />
             Integrations
           </TabsTrigger>
         </TabsList>
 
         {/* Organization Settings */}
         <TabsContent value="organization" className="space-y-6">
-          <Card>
+          <GlassCard>
             <CardHeader>
               <CardTitle>Organization Profile</CardTitle>
               <CardDescription>
@@ -346,18 +398,18 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex justify-end">
-                <Button onClick={handleSaveOrganization}>
-                  <Save className="mr-2 h-4 w-4" />
+                <Button onClick={handleSaveOrganization} aria-label="Save organization settings">
+                  <Save className="mr-2 h-4 w-4" aria-hidden="true" />
                   Save Changes
                 </Button>
               </div>
             </CardContent>
-          </Card>
+          </GlassCard>
         </TabsContent>
 
         {/* Tax Configuration */}
         <TabsContent value="tax" className="space-y-6">
-          <Card>
+          <GlassCard>
             <CardHeader>
               <CardTitle>Tax Configuration</CardTitle>
               <CardDescription>
@@ -486,18 +538,18 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex justify-end">
-                <Button onClick={handleSaveTax}>
-                  <Save className="mr-2 h-4 w-4" />
+                <Button onClick={handleSaveTax} aria-label="Save tax settings">
+                  <Save className="mr-2 h-4 w-4" aria-hidden="true" />
                   Save Changes
                 </Button>
               </div>
             </CardContent>
-          </Card>
+          </GlassCard>
         </TabsContent>
 
         {/* Invoice Settings */}
         <TabsContent value="invoices" className="space-y-6">
-          <Card>
+          <GlassCard>
             <CardHeader>
               <CardTitle>Invoice Settings</CardTitle>
               <CardDescription>
@@ -564,7 +616,7 @@ export default function SettingsPage() {
                       setInvoiceData({ ...invoiceData, currency: value })
                     }
                   />
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/70">
                     Default currency for invoices and transactions
                   </p>
                 </div>
@@ -625,18 +677,18 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex justify-end">
-                <Button onClick={handleSaveInvoice}>
-                  <Save className="mr-2 h-4 w-4" />
+                <Button onClick={handleSaveInvoice} aria-label="Save invoice settings">
+                  <Save className="mr-2 h-4 w-4" aria-hidden="true" />
                   Save Changes
                 </Button>
               </div>
             </CardContent>
-          </Card>
+          </GlassCard>
         </TabsContent>
 
         {/* Notification Preferences */}
         <TabsContent value="notifications" className="space-y-6">
-          <Card>
+          <GlassCard>
             <CardHeader>
               <CardTitle>Notification Preferences</CardTitle>
               <CardDescription>
@@ -650,7 +702,7 @@ export default function SettingsPage() {
                     <Label htmlFor="email-notifications">
                       Email Notifications
                     </Label>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-white/70">
                       Receive notifications via email
                     </p>
                   </div>
@@ -663,13 +715,14 @@ export default function SettingsPage() {
                         emailNotifications: checked,
                       })
                     }
+                    aria-label="Toggle email notifications"
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="invoice-reminders">Invoice Reminders</Label>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-white/70">
                       Get reminded about overdue invoices
                     </p>
                   </div>
@@ -682,13 +735,14 @@ export default function SettingsPage() {
                         invoiceReminders: checked,
                       })
                     }
+                    aria-label="Toggle invoice reminders"
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="expense-approvals">Expense Approvals</Label>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-white/70">
                       Notify when expenses need approval
                     </p>
                   </div>
@@ -707,7 +761,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="leave-requests">Leave Requests</Label>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-white/70">
                       Notify about employee leave requests
                     </p>
                   </div>
@@ -726,7 +780,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="payroll-reminders">Payroll Reminders</Label>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-white/70">
                       Get reminded about payroll deadlines
                     </p>
                   </div>
@@ -745,7 +799,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="tax-deadlines">Tax Deadlines</Label>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-white/70">
                       Alerts for upcoming tax filing deadlines
                     </p>
                   </div>
@@ -764,7 +818,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="weekly-digest">Weekly Digest</Label>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-white/70">
                       Receive a weekly summary of activities
                     </p>
                   </div>
@@ -782,13 +836,13 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex justify-end">
-                <Button onClick={handleSaveNotifications}>
-                  <Save className="mr-2 h-4 w-4" />
+                <Button onClick={handleSaveNotifications} aria-label="Save notification preferences">
+                  <Save className="mr-2 h-4 w-4" aria-hidden="true" />
                   Save Changes
                 </Button>
               </div>
             </CardContent>
-          </Card>
+          </GlassCard>
         </TabsContent>
 
         {/* Automation Settings */}
@@ -817,7 +871,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Transaction Classification */}
-          <Card>
+          <GlassCard>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -836,7 +890,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label htmlFor="classification-enabled">Enable Automation</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/70">
                     Turn on AI-powered transaction classification
                   </p>
                 </div>
@@ -889,7 +943,7 @@ export default function SettingsPage() {
                         }
                         className="cursor-pointer"
                       />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-white/70">
                         Only auto-classify when AI is at least {(automationSettings.classification.confidenceThreshold * 100).toFixed(0)}% confident
                       </p>
                     </div>
@@ -912,10 +966,10 @@ export default function SettingsPage() {
                 </>
               )}
             </CardContent>
-          </Card>
+          </GlassCard>
 
           {/* Expense Approval */}
-          <Card>
+          <GlassCard>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -934,7 +988,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label htmlFor="expense-enabled">Enable Automation</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/70">
                     Turn on AI-powered expense approval
                   </p>
                 </div>
@@ -987,7 +1041,7 @@ export default function SettingsPage() {
                         }
                         className="cursor-pointer"
                       />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-white/70">
                         Only auto-approve when AI is at least {(automationSettings.expense.confidenceThreshold * 100).toFixed(0)}% confident
                       </p>
                     </div>
@@ -1010,10 +1064,10 @@ export default function SettingsPage() {
                 </>
               )}
             </CardContent>
-          </Card>
+          </GlassCard>
 
           {/* Deduction Suggestions */}
-          <Card>
+          <GlassCard>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -1032,7 +1086,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label htmlFor="deduction-enabled">Enable Automation</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/70">
                     Turn on AI-powered deduction suggestions
                   </p>
                 </div>
@@ -1085,7 +1139,7 @@ export default function SettingsPage() {
                         }
                         className="cursor-pointer"
                       />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-white/70">
                         Only auto-apply when AI is at least {(automationSettings.deduction.confidenceThreshold * 100).toFixed(0)}% confident
                       </p>
                     </div>
@@ -1108,10 +1162,10 @@ export default function SettingsPage() {
                 </>
               )}
             </CardContent>
-          </Card>
+          </GlassCard>
 
           {/* Invoice Generation */}
-          <Card>
+          <GlassCard>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -1130,7 +1184,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label htmlFor="invoice-enabled">Enable Automation</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/70">
                     Turn on AI-powered invoice generation
                   </p>
                 </div>
@@ -1183,7 +1237,7 @@ export default function SettingsPage() {
                         }
                         className="cursor-pointer"
                       />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-white/70">
                         Only auto-generate when AI is at least {(automationSettings.invoice.confidenceThreshold * 100).toFixed(0)}% confident
                       </p>
                     </div>
@@ -1206,12 +1260,12 @@ export default function SettingsPage() {
                 </>
               )}
             </CardContent>
-          </Card>
+          </GlassCard>
 
           {/* Save Button */}
           <div className="flex justify-end">
-            <Button onClick={handleSaveAutomation}>
-              <Save className="mr-2 h-4 w-4" />
+            <Button onClick={handleSaveAutomation} aria-label="Save automation settings">
+              <Save className="mr-2 h-4 w-4" aria-hidden="true" />
               Save Automation Settings
             </Button>
           </div>
@@ -1219,7 +1273,7 @@ export default function SettingsPage() {
 
         {/* Integrations */}
         <TabsContent value="integrations" className="space-y-6">
-          <Card>
+          <GlassCard>
             <CardHeader>
               <CardTitle>Integrations</CardTitle>
               <CardDescription>
@@ -1245,11 +1299,11 @@ export default function SettingsPage() {
                         {integration.status}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-white/70">
                       {integration.description}
                     </p>
                     {integration.lastSync && (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-white/70">
                         Last synced: {integration.lastSync}
                       </p>
                     )}
@@ -1278,9 +1332,9 @@ export default function SettingsPage() {
                 </div>
               ))}
             </CardContent>
-          </Card>
+          </GlassCard>
 
-          <Card>
+          <GlassCard>
             <CardHeader>
               <CardTitle>Team Members</CardTitle>
               <CardDescription>
@@ -1294,16 +1348,17 @@ export default function SettingsPage() {
                     <Users className="h-5 w-5 text-muted-foreground" />
                     <p className="font-medium">Team Management</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/70">
                     Invite and manage team members, assign roles and permissions
                   </p>
                 </div>
                 <Button variant="outline">Manage Team</Button>
               </div>
             </CardContent>
-          </Card>
+          </GlassCard>
         </TabsContent>
       </Tabs>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

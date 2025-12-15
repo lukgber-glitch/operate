@@ -1,3 +1,21 @@
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+import * as fs from 'fs';
+
+// Find the .env file - check multiple possible locations
+const possiblePaths = [
+  path.resolve(process.cwd(), '.env'),  // Current working directory
+  path.resolve(__dirname, '../.env'),   // One level up from dist
+  path.resolve(__dirname, '../../.env'), // Two levels up
+];
+
+for (const envPath of possiblePaths) {
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+    break;
+  }
+}
+
 import { validateSecurityConfig } from './env-validation';
 
 // Validate critical security configuration on module load

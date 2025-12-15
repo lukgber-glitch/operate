@@ -1,21 +1,22 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { useRunwayData } from '@/hooks/useDashboard';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export function RunwayCard() {
+function RunwayCardComponent() {
   const { data, isLoading, error } = useRunwayData();
 
   if (isLoading) {
     return (
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardTitle className="text-sm font-medium text-gray-300">
             Runway
           </CardTitle>
-          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <Calendar className="h-4 w-4 text-gray-300" />
         </CardHeader>
         <CardContent>
           <Skeleton className="h-8 w-32 mb-2" />
@@ -27,22 +28,22 @@ export function RunwayCard() {
 
   if (error || !data) {
     return (
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardTitle className="text-sm font-medium text-gray-300">
             Runway
           </CardTitle>
-          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <Calendar className="h-4 w-4 text-gray-300" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">N/A</div>
-          <div className="text-xs text-muted-foreground">Keine Daten verfügbar</div>
+          <div className="text-2xl font-bold text-white">N/A</div>
+          <div className="text-xs text-gray-300">Keine Daten verfügbar</div>
         </CardContent>
       </Card>
     );
   }
 
-  const getStatusIcon = () => {
+  const statusIcon = useMemo(() => {
     switch (data.status) {
       case 'healthy':
         return <CheckCircle className="h-3 w-3 mr-1" />;
@@ -51,20 +52,20 @@ export function RunwayCard() {
       case 'critical':
         return <XCircle className="h-3 w-3 mr-1" />;
     }
-  };
+  }, [data.status]);
 
-  const getStatusColor = () => {
+  const statusColor = useMemo(() => {
     switch (data.status) {
       case 'healthy':
-        return 'text-green-600 dark:text-green-400';
+        return 'text-green-400';
       case 'warning':
-        return 'text-orange-600 dark:text-orange-400';
+        return 'text-orange-400';
       case 'critical':
-        return 'text-red-600 dark:text-red-400';
+        return 'text-red-400';
     }
-  };
+  }, [data.status]);
 
-  const getStatusText = () => {
+  const statusText = useMemo(() => {
     switch (data.status) {
       case 'healthy':
         return 'Gesund';
@@ -73,25 +74,27 @@ export function RunwayCard() {
       case 'critical':
         return 'Kritisch';
     }
-  };
+  }, [data.status]);
 
   return (
-    <Card className="rounded-[24px]">
+    <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className="text-sm font-medium text-gray-300">
           Runway
         </CardTitle>
-        <Calendar className="h-4 w-4 text-muted-foreground" />
+        <Calendar className="h-4 w-4 text-gray-300" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">
+        <div className="text-2xl font-bold text-white">
           {data.months.toFixed(1)} Mo.
         </div>
-        <div className={`flex items-center text-xs mt-1 ${getStatusColor()}`}>
-          {getStatusIcon()}
-          <span>{getStatusText()}</span>
+        <div className={`flex items-center text-xs mt-1 ${statusColor}`}>
+          {statusIcon}
+          <span>{statusText}</span>
         </div>
       </CardContent>
     </Card>
   );
 }
+
+export const RunwayCard = memo(RunwayCardComponent);

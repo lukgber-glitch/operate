@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { TaxContextService } from '../shared/tax-context.service';
 
 /**
  * Tax Reports Service
@@ -7,7 +8,10 @@ import { PrismaService } from '../../database/prisma.service';
  */
 @Injectable()
 export class ReportsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly taxContext: TaxContextService,
+  ) {}
 
   /**
    * Get comprehensive tax report for a year
@@ -206,22 +210,117 @@ export class ReportsService {
 
   // Helper methods
 
-  private calculateIncomeTax(taxableIncome: number): number {
-    // Simplified German income tax calculation
-    // This is a simplified version - actual calculation is more complex
-    if (taxableIncome <= 10908) return 0;
-    if (taxableIncome <= 15999) {
-      const y = (taxableIncome - 10908) / 10000;
-      return Math.round((979.18 * y + 1400) * y);
+  /**
+   * German income tax calculation (Einkommensteuer)
+   * Updated for tax year 2025
+   *
+   * Tax brackets 2025:
+   * - EUR 0 - 12,096: 0% (Grundfreibetrag)
+   * - EUR 12,097 - 17,005: 14% - 24% (first progression zone)
+   * - EUR 17,006 - 66,760: 24% - 42% (second progression zone)
+   * - EUR 66,761 - 277,825: 42% (proportional zone)
+   * - Above EUR 277,825: 45% (Reichensteuer)
+   *
+   * Source: § 32a EStG, updated annually by Bundesfinanzministerium
+   *
+   * @param taxableIncome Taxable income in cents (for precision)
+   * @param year Tax year (defaults to 2025)
+   * @returns Calculated income tax in cents
+   */
+  private calculateIncomeTax(taxableIncome: number, year: number = 2025): number {
+    // Convert from cents if needed (amount > 1M likely in cents)
+    const income = taxableIncome > 1000000 ? taxableIncome / 100 : taxableIncome;
+
+    // Tax year specific brackets
+    const brackets = this.getTaxBrackets(year);
+
+    if (income <= brackets.grundfreibetrag) {
+      return 0;
     }
-    if (taxableIncome <= 62809) {
-      const z = (taxableIncome - 15999) / 10000;
-      return Math.round((192.59 * z + 2397) * z + 966.53);
+
+    if (income <= brackets.zone1End) {
+      // First progression zone: formula (a * y + b) * y
+      const y = (income - brackets.grundfreibetrag) / 10000;
+      return Math.round((brackets.zone1A * y + brackets.zone1B) * y);
     }
-    if (taxableIncome <= 277825) {
-      return Math.round(0.42 * taxableIncome - 9972.98);
+
+    if (income <= brackets.zone2End) {
+      // Second progression zone: formula (a * z + b) * z + c
+      const z = (income - brackets.zone1End) / 10000;
+      return Math.round((brackets.zone2A * z + brackets.zone2B) * z + brackets.zone2C);
     }
-    return Math.round(0.45 * taxableIncome - 18307.73);
+
+    if (income <= brackets.zone3End) {
+      // Proportional zone: 42%
+      return Math.round(0.42 * income - brackets.zone3Subtract);
+    }
+
+    // Reichensteuer: 45%
+    return Math.round(0.45 * income - brackets.zone4Subtract);
+  }
+
+  /**
+   * Get tax brackets for a specific year
+   * Source: Bundesfinanzministerium (BMF)
+   */
+  private getTaxBrackets(year: number): {
+    grundfreibetrag: number;
+    zone1End: number;
+    zone1A: number;
+    zone1B: number;
+    zone2End: number;
+    zone2A: number;
+    zone2B: number;
+    zone2C: number;
+    zone3End: number;
+    zone3Subtract: number;
+    zone4Subtract: number;
+  } {
+    // German income tax brackets by year
+    const brackets: Record<number, any> = {
+      2025: {
+        grundfreibetrag: 12096,
+        zone1End: 17005,
+        zone1A: 922.98,
+        zone1B: 1400,
+        zone2End: 66760,
+        zone2A: 181.19,
+        zone2B: 2397,
+        zone2C: 1025.38,
+        zone3End: 277825,
+        zone3Subtract: 10602.13,
+        zone4Subtract: 18936.88,
+      },
+      2024: {
+        grundfreibetrag: 11604,
+        zone1End: 17005,
+        zone1A: 932.30,
+        zone1B: 1400,
+        zone2End: 66760,
+        zone2A: 181.19,
+        zone2B: 2397,
+        zone2C: 991.21,
+        zone3End: 277825,
+        zone3Subtract: 10636.31,
+        zone4Subtract: 18971.06,
+      },
+      2023: {
+        grundfreibetrag: 10908,
+        zone1End: 15999,
+        zone1A: 979.18,
+        zone1B: 1400,
+        zone2End: 62809,
+        zone2A: 192.59,
+        zone2B: 2397,
+        zone2C: 966.53,
+        zone3End: 277825,
+        zone3Subtract: 9972.98,
+        zone4Subtract: 18307.73,
+      },
+    };
+
+    // Default to 2025 if year not found
+    return brackets[year] || brackets[2025];
   }
 
   private groupDeductionsByCategory(deductions: any[]) {

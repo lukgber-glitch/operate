@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { ReactNode } from 'react';
+import { ReactNode, memo } from 'react';
 
 interface PageTransitionProps {
   children: ReactNode;
@@ -13,6 +13,7 @@ interface PageTransitionProps {
   pageKey?: string;
 }
 
+// Page variants defined outside component for optimal performance
 const pageVariants = {
   initial: {
     opacity: 0,
@@ -26,13 +27,13 @@ const pageVariants = {
     opacity: 0,
     y: -20,
   },
-};
+} as const;
 
 const pageTransition = {
   type: 'tween' as const,
   ease: 'easeInOut' as const,
   duration: 0.3,
-};
+} as const;
 
 /**
  * PageTransition Component
@@ -53,7 +54,7 @@ const pageTransition = {
  * }
  * ```
  */
-export function PageTransition({ children, className, pageKey }: PageTransitionProps) {
+export const PageTransition = memo(function PageTransition({ children, className, pageKey }: PageTransitionProps) {
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -69,7 +70,7 @@ export function PageTransition({ children, className, pageKey }: PageTransitionP
       </motion.div>
     </AnimatePresence>
   );
-}
+})
 
 /**
  * FadeTransition Component
@@ -91,7 +92,7 @@ interface FadeTransitionProps {
   duration?: number;
 }
 
-export function FadeTransition({
+export const FadeTransition = memo(function FadeTransition({
   children,
   show,
   className,
@@ -104,7 +105,7 @@ export function FadeTransition({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration, ease: 'easeInOut' }}
+          transition={{ duration, ease: 'easeInOut' as const }}
           className={className}
         >
           {children}
@@ -112,4 +113,4 @@ export function FadeTransition({
       )}
     </AnimatePresence>
   );
-}
+})

@@ -1,0 +1,98 @@
+{
+  "timestamp": "2025-12-15T03:41:29.605Z",
+  "passed": 0,
+  "failed": 8,
+  "pages": [
+    {
+      "name": "Tax Dashboard",
+      "url": "/tax",
+      "status": "WARN",
+      "elements": {
+        ".tax-summary": false,
+        ".tax-cards": false
+      },
+      "errors": [],
+      "screenshot": "test-results\\tax-module\\tax-dashboard.png",
+      "title": "Welcome to Operate | Setup Your Account"
+    },
+    {
+      "name": "VAT Overview",
+      "url": "/tax/vat",
+      "status": "WARN",
+      "elements": {
+        ".vat-summary": false
+      },
+      "errors": [],
+      "screenshot": "test-results\\tax-module\\vat-overview.png",
+      "title": "Welcome to Operate | Setup Your Account"
+    },
+    {
+      "name": "ELSTER Wizard",
+      "url": "/tax/germany",
+      "status": "WARN",
+      "elements": {
+        ".elster-wizard": false,
+        ".wizard-steps": false
+      },
+      "errors": [],
+      "screenshot": "test-results\\tax-module\\elster-wizard.png",
+      "title": "Welcome to Operate | Setup Your Account"
+    },
+    {
+      "name": "UVA Wizard",
+      "url": "/tax/austria",
+      "status": "WARN",
+      "elements": {
+        ".uva-wizard": false,
+        ".wizard-steps": false
+      },
+      "errors": [],
+      "screenshot": "test-results\\tax-module\\uva-wizard.png",
+      "title": "Welcome to Operate | Setup Your Account"
+    },
+    {
+      "name": "UK MTD",
+      "url": "/tax/vat/uk",
+      "status": "WARN",
+      "elements": {
+        ".vat-obligations": false
+      },
+      "errors": [],
+      "screenshot": "test-results\\tax-module\\uk-mtd.png",
+      "title": "Welcome to Operate | Setup Your Account"
+    },
+    {
+      "name": "Tax Reports",
+      "url": "/tax/reports",
+      "status": "WARN",
+      "elements": {
+        ".tax-reports": false
+      },
+      "errors": [],
+      "screenshot": "test-results\\tax-module\\tax-reports.png",
+      "title": "Welcome to Operate | Setup Your Account"
+    },
+    {
+      "name": "Deductions",
+      "url": "/tax/deductions",
+      "status": "WARN",
+      "elements": {
+        ".deductions-list": false
+      },
+      "errors": [],
+      "screenshot": "test-results\\tax-module\\deductions.png",
+      "title": "Welcome to Operate | Setup Your Account"
+    },
+    {
+      "name": "Filing Wizard",
+      "url": "/tax/filing",
+      "status": "WARN",
+      "elements": {
+        ".filing-wizard": false
+      },
+      "errors": [],
+      "screenshot": "test-results\\tax-module\\filing-wizard.png",
+      "title": "Welcome to Operate | Setup Your Account"
+    }
+  ]
+}

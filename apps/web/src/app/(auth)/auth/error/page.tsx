@@ -3,7 +3,7 @@
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 
 const errorMessages: Record<string, string> = {
   oauth_failed: 'OAuth authentication failed. Please try again.',
@@ -24,14 +24,13 @@ export default function AuthErrorPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Authentication Error</h1>
-        <p className="text-muted-foreground">{displayMessage}</p>
+        <h1 className="text-2xl font-semibold tracking-tight text-white">Authentication Error</h1>
+        <p className="text-white/70">{displayMessage}</p>
       </div>
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6">
+      <GlassCard intensity="onDark" className="rounded-[24px] p-6">
           <div className="space-y-4">
             {errorDescription && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-white/70">
                 {errorDescription}
               </p>
             )}
@@ -60,8 +59,7 @@ export default function AuthErrorPage() {
               </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+      </GlassCard>
     </div>
   );
 }

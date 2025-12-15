@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo, memo } from 'react';
 import {
   Area,
   AreaChart,
@@ -38,7 +39,7 @@ export interface CashFlowChartProps {
  * - Custom tooltip
  * - Formatted axes
  */
-export function CashFlowChart({
+function CashFlowChartComponent({
   data,
   chartType,
   period,
@@ -48,41 +49,44 @@ export function CashFlowChart({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Chart colors
-  const colors = {
+  // Memoize chart colors
+  const colors = useMemo(() => ({
     income: isDark ? 'hsl(142, 76%, 45%)' : 'hsl(142, 76%, 36%)', // Green
     expenses: isDark ? 'hsl(0, 84%, 60%)' : 'hsl(0, 84%, 50%)', // Red
     net: isDark ? 'hsl(221, 83%, 63%)' : 'hsl(221, 83%, 53%)', // Blue
     grid: isDark ? 'hsl(217, 33%, 17%)' : 'hsl(214, 32%, 91%)',
     text: isDark ? 'hsl(215, 20%, 65%)' : 'hsl(215, 16%, 47%)',
-  };
+  }), [isDark]);
 
-  // Format data for display
-  const chartData = data.map((point) => ({
-    ...point,
-    displayDate: formatDate(point.date, period),
-  }));
+  // Memoize optimized data transformation
+  const optimizedData = useMemo(() => {
+    const chartData = data.map((point) => ({
+      ...point,
+      displayDate: formatDate(point.date, period),
+    }));
 
-  // Reduce number of data points for better performance and readability
-  const maxPoints = 50;
-  const step = Math.ceil(chartData.length / maxPoints);
-  const optimizedData = chartData.filter((_, index) => index % step === 0);
+    // Reduce number of data points for better performance and readability
+    const maxPoints = 50;
+    const step = Math.ceil(chartData.length / maxPoints);
+    return chartData.filter((_, index) => index % step === 0);
+  }, [data, period]);
 
-  // Common chart props
-  const commonProps = {
+  // Memoize common chart props
+  const commonProps = useMemo(() => ({
     data: optimizedData,
     margin: { top: 10, right: 10, left: 0, bottom: 0 },
-  };
+  }), [optimizedData]);
 
-  const xAxisProps = {
+  // Memoize axis props
+  const xAxisProps = useMemo(() => ({
     dataKey: 'displayDate',
     stroke: colors.text,
     fontSize: 12,
     tickLine: false,
     axisLine: false,
-  };
+  }), [colors.text]);
 
-  const yAxisProps = {
+  const yAxisProps = useMemo(() => ({
     stroke: colors.text,
     fontSize: 12,
     tickLine: false,
@@ -93,18 +97,20 @@ export function CashFlowChart({
       }
       return `€${value}`;
     },
-  };
+  }), [colors.text]);
 
-  const tooltipProps = {
+  // Memoize tooltip props
+  const tooltipProps = useMemo(() => ({
     content: <ChartTooltip currency={currency} />,
     cursor: { fill: isDark ? 'hsl(217, 33%, 17%)' : 'hsl(214, 32%, 91%)', opacity: 0.5 },
-  };
+  }), [currency, isDark]);
 
-  const gridProps = {
+  // Memoize grid props
+  const gridProps = useMemo(() => ({
     stroke: colors.grid,
     strokeDasharray: '3 3',
     vertical: false,
-  };
+  }), [colors.grid]);
 
   // Render based on chart type
   switch (chartType) {
@@ -203,3 +209,5 @@ export function CashFlowChart({
       return null;
   }
 }
+
+export const CashFlowChart = memo(CashFlowChartComponent);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 import { authApi, type LoginRequest, type RegisterRequest, type MfaVerifyRequest } from '@/lib/auth';
 
@@ -45,6 +45,9 @@ export function useAuth() {
     requiresMfa: false,
     error: null,
   });
+
+  // Expose orgId directly from user state
+  const orgId = state.user?.orgId || null;
 
   // Initialize auth state on mount
   useEffect(() => {
@@ -246,12 +249,15 @@ export function useAuth() {
     setState(prev => ({ ...prev, error: null }));
   }, []);
 
-  return {
+  // Memoize the return object to prevent unnecessary re-renders in consumers
+  // This ensures stable references for all callbacks and derived values
+  return useMemo(() => ({
     ...state,
+    orgId,
     login,
     register,
     logout,
     verifyMfa,
     clearError,
-  };
+  }), [state, orgId, login, register, logout, verifyMfa, clearError]);
 }

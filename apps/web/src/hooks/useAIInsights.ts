@@ -1,9 +1,14 @@
 /**
  * useAIInsights Hook
  * Fetches and manages AI-generated insights for the dashboard
+ *
+ * OPTIMIZATIONS:
+ * - AbortController for cleanup on unmount
+ * - Stable filter dependencies using JSON serialization
+ * - Memoized return object
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from './use-auth';
 import {
   AIInsight,
@@ -18,6 +23,7 @@ interface UseAIInsightsOptions {
   filters?: InsightFilters;
   autoRefresh?: boolean;
   refreshInterval?: number; // in milliseconds
+  enabled?: boolean; // Allow disabling automatic fetching
 }
 
 interface UseAIInsightsReturn {
@@ -35,12 +41,18 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 export function useAIInsights(
   options: UseAIInsightsOptions = {}
 ): UseAIInsightsReturn {
-  const { filters, autoRefresh = false, refreshInterval = 300000 } = options; // 5 min default
+  const { filters, autoRefresh = false, refreshInterval = 300000, enabled = true } = options; // 5 min default
   const { user, isAuthenticated } = useAuth();
 
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+
+  // AbortController ref for cleanup
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Serialize filters to stable string for dependency comparison
+  const filterKey = useMemo(() => JSON.stringify(filters || {}), [filters]);
 
   /**
    * Fetch insights from API
@@ -52,23 +64,31 @@ export function useAIInsights(
       return;
     }
 
+    // Cancel any in-flight request
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = new AbortController();
+    const { signal } = abortControllerRef.current;
+
     try {
       setIsLoading(true);
       setError(null);
 
+      // Parse filters from stable key
+      const parsedFilters: InsightFilters = filterKey ? JSON.parse(filterKey) : {};
+
       // Build query params
       const params = new URLSearchParams();
-      if (filters?.categories) {
-        params.append('categories', filters.categories.join(','));
+      if (parsedFilters.categories) {
+        params.append('categories', parsedFilters.categories.join(','));
       }
-      if (filters?.urgency) {
-        params.append('urgency', filters.urgency.join(','));
+      if (parsedFilters.urgency) {
+        params.append('urgency', parsedFilters.urgency.join(','));
       }
-      if (filters?.limit) {
-        params.append('limit', filters.limit.toString());
+      if (parsedFilters.limit) {
+        params.append('limit', parsedFilters.limit.toString());
       }
-      if (filters?.dismissed !== undefined) {
-        params.append('dismissed', filters.dismissed.toString());
+      if (parsedFilters.dismissed !== undefined) {
+        params.append('dismissed', parsedFilters.dismissed.toString());
       }
 
       // Fetch suggestions
@@ -78,6 +98,7 @@ export function useAIInsights(
         headers: {
           'Content-Type': 'application/json',
         },
+        signal,
       });
 
       if (!suggestionsResponse.ok) {
@@ -94,6 +115,7 @@ export function useAIInsights(
         headers: {
           'Content-Type': 'application/json',
         },
+        signal,
       });
 
       let rawInsights: Insight[] = [];
@@ -110,13 +132,13 @@ export function useAIInsights(
       const allInsights = [...convertedSuggestions, ...convertedInsights]
         .filter((insight) => {
           // Apply filters
-          if (filters?.categories && !filters.categories.includes(insight.category)) {
+          if (parsedFilters.categories && !parsedFilters.categories.includes(insight.category)) {
             return false;
           }
-          if (filters?.urgency && !filters.urgency.includes(insight.urgency)) {
+          if (parsedFilters.urgency && !parsedFilters.urgency.includes(insight.urgency)) {
             return false;
           }
-          if (filters?.dismissed === false && insight.isDismissed) {
+          if (parsedFilters.dismissed === false && insight.isDismissed) {
             return false;
           }
           return true;
@@ -131,19 +153,23 @@ export function useAIInsights(
         });
 
       // Apply limit
-      const limitedInsights = filters?.limit
-        ? allInsights.slice(0, filters.limit)
+      const limitedInsights = parsedFilters.limit
+        ? allInsights.slice(0, parsedFilters.limit)
         : allInsights;
 
       setInsights(limitedInsights);
     } catch (err) {
+      // Ignore abort errors
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
       console.error('Error fetching AI insights:', err);
       setError(err instanceof Error ? err : new Error('Unknown error'));
       setInsights([]);
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, user?.orgId, filters]);
+  }, [isAuthenticated, user?.orgId, filterKey]);
 
   /**
    * Dismiss an insight
@@ -226,10 +252,21 @@ export function useAIInsights(
     await fetchInsights();
   }, [fetchInsights]);
 
-  // Initial fetch
+  // Cleanup on unmount
   useEffect(() => {
-    fetchInsights();
-  }, [fetchInsights]);
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
+
+  // Initial fetch - only if enabled
+  useEffect(() => {
+    if (enabled) {
+      fetchInsights();
+    } else {
+      setIsLoading(false);
+    }
+  }, [fetchInsights, enabled]);
 
   // Auto-refresh
   useEffect(() => {
@@ -242,7 +279,8 @@ export function useAIInsights(
     return () => clearInterval(interval);
   }, [autoRefresh, refreshInterval, fetchInsights]);
 
-  return {
+  // Memoize return object to prevent unnecessary re-renders
+  return useMemo(() => ({
     insights,
     isLoading,
     error,
@@ -250,5 +288,5 @@ export function useAIInsights(
     dismissInsight,
     snoozeInsight,
     clearDismissed,
-  };
+  }), [insights, isLoading, error, refresh, dismissInsight, snoozeInsight, clearDismissed]);
 }

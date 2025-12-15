@@ -1,7 +1,9 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -95,9 +97,14 @@ export default function StartVerificationPage() {
   };
 
   return (
-    <div className="container max-w-4xl mx-auto py-8 space-y-6">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="container max-w-4xl mx-auto py-8 space-y-6"
+    >
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <motion.div variants={fadeUp} className="flex items-center gap-3">
         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
           <Shield className="w-6 h-6 text-primary" />
         </div>
@@ -107,19 +114,22 @@ export default function StartVerificationPage() {
             Choose your verification level and begin the process
           </p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Info Alert */}
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>
-          Have your identification documents ready. The process is secure and your
-          information is encrypted. Verification typically takes 1-2 business days.
-        </AlertDescription>
-      </Alert>
+      <motion.div variants={fadeUp}>
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            Have your identification documents ready. The process is secure and your
+            information is encrypted. Verification typically takes 1-2 business days.
+          </AlertDescription>
+        </Alert>
+      </motion.div>
 
       {/* Verification Levels */}
-      <Card>
+      <motion.div variants={fadeUp}>
+        <Card>
         <CardHeader>
           <CardTitle>Choose Verification Level</CardTitle>
           <CardDescription>
@@ -209,10 +219,11 @@ export default function StartVerificationPage() {
             </div>
           </RadioGroup>
         </CardContent>
-      </Card>
+        </Card>
+      </motion.div>
 
       {/* Actions */}
-      <div className="flex justify-between">
+      <motion.div variants={fadeUp} className="flex justify-between">
         <Button
           variant="outline"
           onClick={() => router.push('/settings/verification')}
@@ -229,7 +240,7 @@ export default function StartVerificationPage() {
           {isSubmitting ? 'Starting...' : 'Continue to Documents'}
           <ArrowRight className="w-4 h-4" />
         </Button>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

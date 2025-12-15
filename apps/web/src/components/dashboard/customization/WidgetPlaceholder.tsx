@@ -37,7 +37,7 @@ export function WidgetPlaceholder({ id, isEditMode, label = 'Drop widget here', 
           isOver && 'bg-primary/10 border-primary scale-105 shadow-lg'
         )}
       >
-        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+        <div className="flex flex-col items-center gap-2 text-gray-300">
           <Plus className={cn('h-6 w-6', isOver && 'text-primary')} />
           <span className={cn('text-sm font-medium', isOver && 'text-primary')}>{label}</span>
         </div>

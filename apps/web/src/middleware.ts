@@ -24,6 +24,7 @@ const nonLocalePaths = [
   '/mfa-setup',
   '/mfa-verify',
   '/onboarding',
+  '/chat', // Chat page
   '/dashboard',
   '/finance',
   '/hr',
@@ -36,8 +37,32 @@ const nonLocalePaths = [
   '/notifications',
   '/admin',
   '/integrations',
+  '/vendors', // Vendors management
+  '/intelligence', // AI Intelligence features
+  '/demo', // Demo pages
   '/offline',
   '/auth', // OAuth callback and error pages
+  // New routes - Phase 16
+  '/profile', // User profile
+  '/developer', // Developer portal
+  '/api-docs', // API documentation
+  '/inbox', // Notification inbox
+  '/tasks', // Task management
+  '/calendar', // Calendar view
+  '/search', // Global search
+  '/help', // Help center
+  '/feedback', // Feedback form
+  '/billing', // Billing & subscription
+  // Legal and marketing pages (public, no auth required)
+  '/pricing',
+  '/faq',
+  '/privacy',
+  '/terms',
+  '/cookies',
+  '/acceptable-use',
+  '/ai-disclaimer',
+  '/impressum',
+  '/dpa',
 ]
 
 // Public routes that don't require authentication
@@ -48,6 +73,16 @@ const publicRoutes = [
   '/reset-password',
   '/verify-email',
   '/auth', // OAuth callback and error pages
+  // Legal and marketing pages (public)
+  '/pricing',
+  '/faq',
+  '/privacy',
+  '/terms',
+  '/cookies',
+  '/acceptable-use',
+  '/ai-disclaimer',
+  '/impressum',
+  '/dpa',
 ]
 
 // Routes that require authentication but not onboarding
@@ -60,6 +95,7 @@ const authOnlyRoutes = [
 // Protected routes that require both auth and completed onboarding
 const protectedRoutes = [
   '/',
+  '/chat', // SECURITY FIX: Chat requires authentication
   '/dashboard',
   '/finance',
   '/hr',
@@ -72,6 +108,20 @@ const protectedRoutes = [
   '/notifications',
   '/admin',
   '/integrations',
+  '/vendors',
+  '/intelligence',
+  '/demo',
+  // New routes - Phase 16
+  '/profile',
+  '/developer',
+  '/api-docs',
+  '/inbox',
+  '/tasks',
+  '/calendar',
+  '/search',
+  '/help',
+  '/feedback',
+  '/billing',
 ]
 
 /**
@@ -151,8 +201,8 @@ export default async function middleware(request: NextRequest) {
     const authCookie = request.cookies.get('op_auth')
 
     if (authCookie?.value) {
-      // Cookie already set by backend - just redirect to dashboard
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      // Cookie already set by backend - redirect to chat (main app interface)
+      return NextResponse.redirect(new URL('/chat', request.url))
     }
 
     // Fallback for legacy URL-based tokens (backwards compatibility)
@@ -161,7 +211,7 @@ export default async function middleware(request: NextRequest) {
     const refreshToken = searchParams.get('refreshToken')
 
     if (accessToken) {
-      const response = NextResponse.redirect(new URL('/dashboard', request.url))
+      const response = NextResponse.redirect(new URL('/chat', request.url))
 
       // Set cookie from URL params (legacy path)
       const authData = JSON.stringify({
@@ -206,7 +256,7 @@ export default async function middleware(request: NextRequest) {
       if (!onboardingDone) {
         return NextResponse.redirect(new URL('/onboarding', request.url))
       }
-      return NextResponse.redirect(new URL('/', request.url))
+      return NextResponse.redirect(new URL('/chat', request.url))
     }
     return NextResponse.next()
   }

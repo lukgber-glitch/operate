@@ -89,7 +89,7 @@ export default function EditEmployeePage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Edit Employee</h1>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Edit Employee</h1>
           <p className="text-muted-foreground">Update {employee.firstName} {employee.lastName}&apos;s information</p>
         </div>
       </div>

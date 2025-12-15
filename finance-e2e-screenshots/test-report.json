@@ -1,0 +1,58 @@
+{
+  "timestamp": "2025-12-15T03:39:35.810Z",
+  "tests": [
+    {
+      "name": "Login",
+      "status": "FAIL",
+      "timestamp": "2025-12-15T03:39:55.603Z",
+      "message": "Still on login page: http://localhost:3000/login"
+    },
+    {
+      "name": "Invoice List - Layout",
+      "status": "FAIL",
+      "timestamp": "2025-12-15T03:39:58.299Z",
+      "message": "Table: false, New Button: false, Search: false",
+      "checks": {
+        "table": false,
+        "newButton": false,
+        "searchFilter": false
+      }
+    },
+    {
+      "name": "Invoice Form - Fields",
+      "status": "FAIL",
+      "timestamp": "2025-12-15T03:40:01.124Z",
+      "message": "Client: false, Line Items: false, Tax: false, Due Date: false",
+      "checks": {
+        "clientSelector": false,
+        "lineItems": false,
+        "taxField": false,
+        "dueDate": false
+      }
+    },
+    {
+      "name": "Expenses List",
+      "status": "FAIL",
+      "timestamp": "2025-12-15T03:40:03.876Z",
+      "message": "No expenses content found"
+    },
+    {
+      "name": "Receipt Scanner",
+      "status": "FAIL",
+      "timestamp": "2025-12-15T03:40:06.527Z",
+      "message": "No upload area found"
+    },
+    {
+      "name": "Banking",
+      "status": "FAIL",
+      "timestamp": "2025-12-15T03:40:09.251Z",
+      "message": "No banking content found"
+    },
+    {
+      "name": "Reconciliation",
+      "status": "FAIL",
+      "timestamp": "2025-12-15T03:40:11.743Z",
+      "message": "No reconciliation content found"
+    }
+  ]
+}

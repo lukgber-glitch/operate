@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/animation-variants';
 import { HMRCConnectionStatus } from '@/components/tax/uk/HMRCConnectionStatus';
 import { VATObligationsList } from '@/components/tax/uk/VATObligationsList';
 import { VATReturnWizard } from '@/components/tax/uk/VATReturnWizard';
@@ -23,7 +25,7 @@ export default function UKVATPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">File UK VAT Return</h1>
+            <h1 className="text-2xl text-white font-semibold tracking-tight">File UK VAT Return</h1>
             <p className="text-muted-foreground">Submit your VAT return to HMRC Making Tax Digital</p>
           </div>
           <Button
@@ -47,9 +49,14 @@ export default function UKVATPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex items-center justify-between"
+      >
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl text-white font-semibold tracking-tight flex items-center gap-3">
             UK VAT
             <Badge variant="outline" className="text-xs">
               Making Tax Digital
@@ -72,8 +79,14 @@ export default function UKVATPage() {
             File Return
           </Button>
         </div>
-      </div>
+      </motion.div>
 
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+      >
       <Card className="rounded-[24px]">
         <CardContent className="p-6">
           <div className="space-y-6">
@@ -105,7 +118,7 @@ export default function UKVATPage() {
               <Card>
                 <CardHeader className="pb-3">
                   <CardDescription>VAT Registration</CardDescription>
-                  <CardTitle className="text-2xl">{connection.vrn || 'N/A'}</CardTitle>
+                  <CardTitle className="text-2xl text-white">{connection.vrn || 'N/A'}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-xs text-muted-foreground">
@@ -224,6 +237,7 @@ export default function UKVATPage() {
           </div>
         </CardContent>
       </Card>
+      </motion.div>
     </div>
   );
 }

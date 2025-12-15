@@ -12,6 +12,8 @@ import { BankSyncModule } from '../finance/bank-sync/bank-sync.module';
 import { TinkModule } from '../integrations/tink/tink.module';
 import { EventsModule } from '../../websocket/events.module';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from '../auth/auth.module';
+import { EmailIntelligenceModule } from '../ai/email-intelligence/email-intelligence.module';
 
 /**
  * Onboarding Module
@@ -26,6 +28,8 @@ import { ConfigModule } from '@nestjs/config';
     TinkModule,
     EventsModule,
     ConfigModule,
+    EmailIntelligenceModule,
+    forwardRef(() => AuthModule), // Use forwardRef to avoid circular dependency
   ],
   controllers: [OnboardingController],
   providers: [

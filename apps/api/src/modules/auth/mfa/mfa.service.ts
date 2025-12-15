@@ -15,11 +15,21 @@ import { PrismaService } from '../../database/prisma.service';
  * MFA Service
  * Handles TOTP-based Multi-Factor Authentication
  * Provides methods for setup, verification, and backup code management
+ *
+ * SECURITY FEATURES:
+ * - SEC-009: MFA attempt rate limiting (5 attempts per 5 minutes)
+ * - SEC-010: Failed MFA attempt logging for security monitoring
  */
 @Injectable()
 export class MfaService {
   private readonly logger = new Logger(MfaService.name);
   private readonly appName: string;
+
+  // SEC-009: In-memory rate limiting for MFA attempts
+  // Key: userId, Value: { attempts: number, resetTime: Date }
+  private readonly mfaAttempts = new Map<string, { attempts: number; resetTime: Date }>();
+  private readonly MAX_MFA_ATTEMPTS = 5;
+  private readonly MFA_LOCKOUT_MINUTES = 5;
 
   constructor(
     private prisma: PrismaService,
@@ -31,6 +41,65 @@ export class MfaService {
     authenticator.options = {
       window: 1, // Allow 1 step before/after for time sync issues
     };
+
+    // Clean up expired rate limit entries every 10 minutes
+    setInterval(() => this.cleanupExpiredAttempts(), 10 * 60 * 1000);
+  }
+
+  /**
+   * SEC-009: Check if user is rate limited for MFA attempts
+   */
+  private isRateLimited(userId: string): boolean {
+    const record = this.mfaAttempts.get(userId);
+    if (!record) return false;
+
+    // Check if lockout period has expired
+    if (new Date() > record.resetTime) {
+      this.mfaAttempts.delete(userId);
+      return false;
+    }
+
+    return record.attempts >= this.MAX_MFA_ATTEMPTS;
+  }
+
+  /**
+   * SEC-009: Record a failed MFA attempt
+   */
+  private recordFailedAttempt(userId: string): void {
+    const now = new Date();
+    const resetTime = new Date(now.getTime() + this.MFA_LOCKOUT_MINUTES * 60 * 1000);
+
+    const record = this.mfaAttempts.get(userId);
+    if (record && now < record.resetTime) {
+      record.attempts++;
+    } else {
+      this.mfaAttempts.set(userId, { attempts: 1, resetTime });
+    }
+
+    // SEC-010: Log failed attempt for security monitoring
+    const attempts = this.mfaAttempts.get(userId)?.attempts || 1;
+    this.logger.warn(
+      `SEC-010: Failed MFA attempt for user ${userId} (attempt ${attempts}/${this.MAX_MFA_ATTEMPTS})`,
+    );
+  }
+
+  /**
+   * SEC-009: Clear rate limit after successful verification
+   */
+  private clearRateLimit(userId: string): void {
+    this.mfaAttempts.delete(userId);
+  }
+
+  /**
+   * Cleanup expired rate limit entries
+   */
+  private cleanupExpiredAttempts(): void {
+    const now = new Date();
+    for (const [userId, record] of this.mfaAttempts.entries()) {
+      if (now > record.resetTime) {
+        this.mfaAttempts.delete(userId);
+      }
+    }
   }
 
   /**
@@ -340,11 +409,27 @@ export class MfaService {
   /**
    * Verify MFA during login
    * Accepts either TOTP token or backup code
+   *
+   * SECURITY:
+   * - SEC-009: Rate limited to prevent brute force attacks
+   * - SEC-010: Failed attempts are logged for monitoring
+   *
    * @param userId User ID
    * @param token TOTP code or backup code
    * @returns True if verification succeeds
+   * @throws UnauthorizedException if rate limited
    */
   async verifyMfaForLogin(userId: string, token: string): Promise<boolean> {
+    // SEC-009: Check rate limiting
+    if (this.isRateLimited(userId)) {
+      this.logger.warn(
+        `SEC-009: MFA verification blocked for user ${userId} - rate limit exceeded`,
+      );
+      throw new UnauthorizedException(
+        `Too many failed MFA attempts. Please try again in ${this.MFA_LOCKOUT_MINUTES} minutes.`,
+      );
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -356,6 +441,7 @@ export class MfaService {
     });
 
     if (!user || !user.mfaEnabled || !user.mfaSecret) {
+      this.recordFailedAttempt(userId);
       return false;
     }
 
@@ -363,6 +449,9 @@ export class MfaService {
     if (token.length === 6 && /^\d{6}$/.test(token)) {
       const isValid = this.verifyToken(user.mfaSecret, token);
       if (isValid) {
+        // SEC-009: Clear rate limit on success
+        this.clearRateLimit(userId);
+        this.logger.log(`SEC-010: Successful MFA login for user ${userId}`);
         return true;
       }
     }
@@ -381,12 +470,18 @@ export class MfaService {
             data: { backupCodes: updatedBackupCodes },
           });
 
-          this.logger.log(`Backup code used for login: ${userId}`);
+          // SEC-009: Clear rate limit on success
+          this.clearRateLimit(userId);
+          this.logger.log(
+            `SEC-010: Backup code used for login: ${userId}, remaining: ${updatedBackupCodes.length}`,
+          );
           return true;
         }
       }
     }
 
+    // SEC-009: Record failed attempt
+    this.recordFailedAttempt(userId);
     return false;
   }
 }

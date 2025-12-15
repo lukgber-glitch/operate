@@ -42,6 +42,7 @@ export class OutlookService {
 
   /**
    * List messages from Outlook inbox
+   * Supports folder filtering for mailbox configurations
    */
   async listMessages(dto: ListMessagesDto): Promise<{
     messages: EmailMessageDto[];
@@ -73,19 +74,31 @@ export class OutlookService {
         params.$skip = dto.skip;
       }
 
+      // Determine endpoint - use specific folder if provided
+      let endpoint = '/me/messages';
+      if (dto.folderId) {
+        endpoint = `/me/mailFolders/${dto.folderId}/messages`;
+        this.logger.log(`Listing messages from folder: ${dto.folderId}`);
+      }
+
       const response = await this.graphRequest(
         accessToken,
-        '/me/messages',
+        endpoint,
         'GET',
         params,
       );
 
       await this.createAuditLog(dto.userId, dto.orgId, {
         action: 'EMAIL_READ',
-        endpoint: '/me/messages',
+        endpoint,
         statusCode: 200,
         success: true,
+        metadata: { folderId: dto.folderId },
       });
+
+      this.logger.log(
+        `Listed ${response.value?.length || 0} messages${dto.folderId ? ` from folder ${dto.folderId}` : ''}`,
+      );
 
       return {
         messages: response.value || [],

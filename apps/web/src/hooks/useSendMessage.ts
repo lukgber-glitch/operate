@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { api } from '@/lib/api/client';
 import type { ChatMessage, MessageStatus, Attachment } from '@/types/chat';
 
@@ -321,14 +321,26 @@ export function useSendMessage(
 
   /**
    * Get combined pending and failed messages for display
+   * Memoized to prevent recalculation on every render
    */
-  const getAllOptimisticMessages = useCallback((): OptimisticMessage[] => {
+  const allOptimisticMessages = useMemo((): OptimisticMessage[] => {
     return [...pendingMessages, ...failedMessages].sort(
       (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
     );
   }, [pendingMessages, failedMessages]);
 
-  return {
+  // Cleanup on unmount - abort all pending requests
+  useEffect(() => {
+    return () => {
+      abortControllersRef.current.forEach((controller) => {
+        controller.abort();
+      });
+      abortControllersRef.current.clear();
+    };
+  }, []);
+
+  // Memoize return object to prevent unnecessary re-renders
+  return useMemo(() => ({
     // State
     pendingMessages,
     failedMessages,
@@ -340,7 +352,18 @@ export function useSendMessage(
     cancelMessage,
     clearFailedMessages,
 
-    // Utilities
-    getAllOptimisticMessages,
-  };
+    // Utilities - expose as memoized value directly
+    allOptimisticMessages,
+    // Also keep a getter for backwards compatibility
+    getAllOptimisticMessages: () => allOptimisticMessages,
+  }), [
+    pendingMessages,
+    failedMessages,
+    isSending,
+    sendMessage,
+    retryMessage,
+    cancelMessage,
+    clearFailedMessages,
+    allOptimisticMessages,
+  ]);
 }

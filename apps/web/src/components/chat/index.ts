@@ -1,6 +1,11 @@
 /**
  * Chat Component Exports
  * Comprehensive AI assistant chat interface
+ *
+ * Performance Optimizations:
+ * - Memoized components (ChatMessage)
+ * - Error boundaries for graceful error handling
+ * - Lazy loading ready (use dynamic imports)
  */
 
 // Phase 3: Chat-Centric Landing Components
@@ -16,6 +21,9 @@ export { ChatInput } from './ChatInput';
 export { ChatInterface } from './ChatInterface';
 export { ChatMessage, LoadingMessage } from './ChatMessage';
 export { GreetingHeader } from './GreetingHeader';
+
+// Error handling
+export { ChatErrorBoundary, useChatErrorHandler } from './ChatErrorBoundary';
 export {
   MessageActions,
   detectContextualActions,

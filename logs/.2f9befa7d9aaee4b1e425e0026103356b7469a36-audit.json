@@ -6,19 +6,9 @@
     "auditLog": "C:\\Users\\grube\\op\\operate-fresh\\logs\\.2f9befa7d9aaee4b1e425e0026103356b7469a36-audit.json",
     "files": [
         {
-            "date": 1765046501980,
-            "name": "C:\\Users\\grube\\op\\operate-fresh\\logs\\mcp-puppeteer-2025-12-06.log",
-            "hash": "3d7bb75d58dfa7ed9f65e7335bad74fd0e8b6cd1aa48c8881b80cacada2249aa"
-        },
-        {
-            "date": 1765111990222,
-            "name": "C:\\Users\\grube\\op\\operate-fresh\\logs\\mcp-puppeteer-2025-12-07.log",
-            "hash": "8c69aa124de7bb85aeb3089177e6684837e2861437a196125b76be44242d502b"
-        },
-        {
-            "date": 1765151835098,
-            "name": "C:\\Users\\grube\\op\\operate-fresh\\logs\\mcp-puppeteer-2025-12-08.log",
-            "hash": "b6f0ed17891896412cb947e47e53f2da12afcc6775add4710bb76f7bccc6d010"
+            "date": 1765781780177,
+            "name": "C:\\Users\\grube\\op\\operate-fresh\\logs\\mcp-puppeteer-2025-12-15.log",
+            "hash": "967e0e2400c8a6968cb26820f1ad95e15d74284901ae2d29989bb242caa0de95"
         }
     ],
     "hashType": "sha256"

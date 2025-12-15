@@ -140,7 +140,7 @@ export function ConnectionStatus({
               state === 'connecting'
                 ? {
                     rotate: 360,
-                    transition: { duration: 1, repeat: Infinity, ease: 'linear' },
+                    transition: { duration: 1, repeat: Infinity, ease: 'linear' as const },
                   }
                 : {}
             }
@@ -177,7 +177,7 @@ export function ConnectionStatus({
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                ease: 'easeInOut',
+                ease: 'easeInOut' as const,
               }}
               className="w-2 h-2 rounded-full bg-green-500"
             />
@@ -216,13 +216,13 @@ export function ConnectionBadge({ state }: { state: ConnectionState }) {
             ? {
                 duration: 2,
                 repeat: Infinity,
-                ease: 'easeInOut',
+                ease: 'easeInOut' as const,
               }
             : state === 'connecting'
             ? {
                 duration: 1,
                 repeat: Infinity,
-                ease: 'linear',
+                ease: 'linear' as const,
               }
             : {}
         }

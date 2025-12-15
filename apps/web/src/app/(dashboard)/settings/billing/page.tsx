@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { CreditCard, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSubscription, type BillingCycle, type PlanTier } from '@/hooks/use-subscription';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 import { CurrentPlanCard } from '@/components/billing/CurrentPlanCard';
 import { UsageOverview } from '@/components/billing/UsageOverview';
 import { PlanComparison } from '@/components/billing/PlanComparison';
@@ -84,26 +86,36 @@ export default function BillingSettingsPage() {
   };
 
   return (
-    <div className="space-y-6 pb-16">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6 pb-16"
+    >
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Billing & Subscription</h1>
-        <p className="text-muted-foreground">
+      <motion.div variants={fadeUp}>
+        <h1 className="text-2xl text-white font-semibold tracking-tight">Billing & Subscription</h1>
+        <p className="text-white/70">
           Manage your subscription, payment methods, and billing history
         </p>
-      </div>
+      </motion.div>
 
       {/* Current Plan */}
+      <motion.div variants={fadeUp}>
       <CurrentPlanCard
         subscription={subscription}
         usage={usage}
         onChangePlan={() => setShowPlanDialog(true)}
       />
+      </motion.div>
 
       {/* Usage Overview */}
+      <motion.div variants={fadeUp}>
       <UsageOverview subscription={subscription} usage={usage} />
+      </motion.div>
 
       {/* Payment Methods */}
+      <motion.div variants={fadeUp}>
       <PaymentMethods
         paymentMethods={paymentMethods}
         onAdd={addPaymentMethod}
@@ -111,12 +123,15 @@ export default function BillingSettingsPage() {
         onSetDefault={setDefaultPaymentMethod}
         isLoading={isLoading}
       />
+      </motion.div>
 
       {/* Billing History */}
+      <motion.div variants={fadeUp}>
       <BillingHistory invoices={invoices} isLoading={isLoading} />
+      </motion.div>
 
       {/* Subscription Actions */}
-      <div className="space-y-4">
+      <motion.div variants={fadeUp} className="space-y-4">
         {/* Switch Billing Cycle */}
         {subscription && subscription.planTier !== 'FREE' && (
           <div className="rounded-lg border bg-card p-6">
@@ -127,7 +142,7 @@ export default function BillingSettingsPage() {
                 </div>
                 <div>
                   <h3 className="font-medium mb-1">Switch Billing Cycle</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-white/70">
                     {subscription.billingCycle === 'MONTHLY'
                       ? 'Save up to 17% by switching to annual billing'
                       : 'Switch to monthly billing for more flexibility'}
@@ -197,7 +212,7 @@ export default function BillingSettingsPage() {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Plan Comparison Dialog */}
       <Dialog open={showPlanDialog} onOpenChange={setShowPlanDialog}>
@@ -231,6 +246,6 @@ export default function BillingSettingsPage() {
         onConfirm={handleCancelSubscription}
         isLoading={isLoading}
       />
-    </div>
+    </motion.div>
   );
 }

@@ -12,6 +12,7 @@ export interface PricingTier {
   cta: string;
   ctaLink: string;
   highlighted?: boolean;
+  badge?: string;
 }
 
 interface PricingCardProps {
@@ -22,8 +23,22 @@ interface PricingCardProps {
 
 export function PricingCard({ tier, isAnnual, index }: PricingCardProps) {
   const price = isAnnual ? tier.annualPrice : tier.monthlyPrice;
-  const priceDisplay = price === 0 ? 'Free' : `€${price}`;
-  const period = price === 0 ? '' : isAnnual ? '/year' : '/month';
+
+  // Format price with German number format (comma instead of period)
+  const formatGermanPrice = (num: number): string => {
+    if (num === 0) return 'Kostenlos';
+    // Check if it's a whole number or has decimals
+    const hasDecimals = num % 1 !== 0;
+    return `€${hasDecimals ? num.toFixed(2).replace('.', ',') : num}`;
+  };
+
+  const priceDisplay = formatGermanPrice(price);
+  const period = price === 0 ? '' : isAnnual ? '/Jahr' : '/Monat';
+
+  // Calculate savings for annual plans
+  const annualSavings = tier.monthlyPrice > 0 && isAnnual
+    ? Math.round(((tier.monthlyPrice * 12 - tier.annualPrice) / (tier.monthlyPrice * 12)) * 100)
+    : 0;
 
   return (
     <div
@@ -38,11 +53,11 @@ export function PricingCard({ tier, isAnnual, index }: PricingCardProps) {
       }}
       data-index={index}
     >
-      {tier.highlighted && (
+      {tier.highlighted && tier.badge && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-sm font-semibold text-white"
           style={{ backgroundColor: 'var(--color-primary)' }}
         >
-          Most Popular
+          {tier.badge}
         </div>
       )}
 
@@ -65,10 +80,17 @@ export function PricingCard({ tier, isAnnual, index }: PricingCardProps) {
               </span>
             )}
           </div>
-          {isAnnual && price > 0 && (
-            <p className="text-sm mt-2" style={{ color: 'var(--color-text-muted)' }}>
-              €{(price / 12).toFixed(2)}/month billed annually
-            </p>
+          {isAnnual && price > 0 && annualSavings > 0 && (
+            <div className="mt-2 flex items-center gap-2">
+              <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold text-white"
+                style={{ backgroundColor: 'var(--color-success)' }}
+              >
+                ~{annualSavings}% sparen
+              </span>
+              <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+                {formatGermanPrice(price / 12)}/Monat, jährlich abgerechnet
+              </p>
+            </div>
           )}
         </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { MessageCircle, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -17,7 +17,7 @@ import { ChatContainer } from './ChatContainer';
  * - Accessible with keyboard navigation
  * - Responsive positioning
  */
-export function ChatBubble() {
+function ChatBubbleComponent() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -47,3 +47,5 @@ export function ChatBubble() {
     </>
   );
 }
+
+export const ChatBubble = memo(ChatBubbleComponent);

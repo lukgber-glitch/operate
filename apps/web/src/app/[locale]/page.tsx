@@ -1,10 +1,6 @@
 import { redirect } from 'next/navigation'
 
-export default function RootPage({
-  params: { locale },
-}: {
-  params: { locale: string }
-}) {
-  // Redirect to the dashboard
-  redirect(`/${locale}/dashboard`)
+export default function RootPage() {
+  // Redirect to chat (the primary interface)
+  redirect('/chat')
 }

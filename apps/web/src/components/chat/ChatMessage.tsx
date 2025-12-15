@@ -1,10 +1,11 @@
 'use client';
 
-import { Bot, User, AlertCircle, CheckCircle } from 'lucide-react';
-import { useMemo, useRef, useLayoutEffect } from 'react';
+import { User, AlertCircle, CheckCircle, Bot } from 'lucide-react';
+import { useMemo, useRef, useLayoutEffect, memo, useCallback } from 'react';
 import gsap from 'gsap';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { GuruLogo } from '@/components/ui/guru-logo';
 import { cn } from '@/lib/utils';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 
@@ -20,7 +21,62 @@ interface ChatMessageProps {
   message: ChatMessageType;
   onRetry?: (messageId: string) => void;
   onAction?: (messageId: string, action: ActionType) => void;
+  /** Skip animation for performance (e.g., when loading history) */
+  skipAnimation?: boolean;
 }
+
+// ============================================
+// Markdown Formatting Utilities (memoized)
+// ============================================
+
+// Precompiled regex patterns for better performance
+const CODE_BLOCK_REGEX = /```(\w+)?\n([\s\S]*?)```/g;
+const INLINE_CODE_REGEX = /`([^`]+)`/g;
+const BOLD_REGEX = /\*\*([^*]+)\*\*/g;
+const ITALIC_REGEX = /\*([^*]+)\*/g;
+const NEWLINE_REGEX = /\n/g;
+
+/**
+ * Format message content with markdown-like syntax
+ * Optimized with precompiled regex patterns
+ */
+function formatMessageContent(content: string): string {
+  // Apply formatting in order of precedence
+  return content
+    // Code blocks with ```
+    .replace(
+      CODE_BLOCK_REGEX,
+      '<pre class="bg-muted p-3 rounded-md my-2 overflow-x-auto"><code>$2</code></pre>'
+    )
+    // Inline code with `
+    .replace(
+      INLINE_CODE_REGEX,
+      '<code class="bg-muted px-1.5 py-0.5 rounded text-sm">$1</code>'
+    )
+    // Bold with **
+    .replace(BOLD_REGEX, '<strong>$1</strong>')
+    // Italic with *
+    .replace(ITALIC_REGEX, '<em>$1</em>')
+    // Line breaks
+    .replace(NEWLINE_REGEX, '<br/>');
+}
+
+// ============================================
+// Time Formatting (stable reference)
+// ============================================
+
+const TIME_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
+  hour: '2-digit',
+  minute: '2-digit',
+};
+
+function formatTimestamp(date: Date): string {
+  return date.toLocaleTimeString([], TIME_FORMAT_OPTIONS);
+}
+
+// ============================================
+// Main Component
+// ============================================
 
 /**
  * ChatMessage - Individual message display component
@@ -35,8 +91,19 @@ interface ChatMessageProps {
  * - Interactive action buttons (assistant messages)
  * - Streaming cursor animation
  * - Accessible markup with aria-live for streaming
+ *
+ * Performance optimizations:
+ * - Memoized with React.memo
+ * - Precompiled regex patterns
+ * - Animation runs only on mount
+ * - Stable callback references
  */
-export function ChatMessage({ message, onRetry, onAction }: ChatMessageProps) {
+function ChatMessageComponent({
+  message,
+  onRetry,
+  onAction,
+  skipAnimation = false,
+}: ChatMessageProps) {
   const isUser = message.role === 'user';
   const isAssistant = message.role === 'assistant';
   const isError = message.status === 'error';
@@ -45,10 +112,15 @@ export function ChatMessage({ message, onRetry, onAction }: ChatMessageProps) {
 
   // Animation ref
   const messageRef = useRef<HTMLDivElement>(null);
+  // Track if animation has run (prevents re-running on re-renders)
+  const hasAnimatedRef = useRef(false);
 
-  // GSAP appear animation
+  // GSAP appear animation - only runs on initial mount
   useLayoutEffect(() => {
-    if (!messageRef.current) return;
+    if (!messageRef.current || skipAnimation || hasAnimatedRef.current) return;
+
+    // Mark as animated
+    hasAnimatedRef.current = true;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -71,41 +143,30 @@ export function ChatMessage({ message, onRetry, onAction }: ChatMessageProps) {
     });
 
     return () => ctx.revert();
-  }, [isUser]);
+  }, []); // Empty dependency - run only on mount
 
-  // Simple markdown-like formatting
-  const formattedContent = useMemo(() => {
-    let content = message.content;
+  // Memoized formatted content
+  const formattedContent = useMemo(
+    () => formatMessageContent(message.content),
+    [message.content]
+  );
 
-    // Code blocks with ```
-    content = content.replace(
-      /```(\w+)?\n([\s\S]*?)```/g,
-      '<pre class="bg-muted p-3 rounded-md my-2 overflow-x-auto"><code>$2</code></pre>'
-    );
-
-    // Inline code with `
-    content = content.replace(
-      /`([^`]+)`/g,
-      '<code class="bg-muted px-1.5 py-0.5 rounded text-sm">$1</code>'
-    );
-
-    // Bold with **
-    content = content.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-
-    // Italic with *
-    content = content.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-
-    // Line breaks
-    content = content.replace(/\n/g, '<br/>');
-
-    return content;
-  }, [message.content]);
+  // Memoized timestamp
+  const formattedTime = useMemo(
+    () => formatTimestamp(message.timestamp),
+    [message.timestamp]
+  );
 
   // Detect contextual actions for assistant messages
   const contextualActions = useMemo(() => {
     if (!isAssistant) return [];
     return detectContextualActions(message.content);
   }, [isAssistant, message.content]);
+
+  // Stable retry handler
+  const handleRetry = useCallback(() => {
+    onRetry?.(message.id);
+  }, [onRetry, message.id]);
 
   return (
     <div
@@ -128,7 +189,7 @@ export function ChatMessage({ message, onRetry, onAction }: ChatMessageProps) {
           {isUser ? (
             <User className="h-4 w-4" aria-hidden="true" />
           ) : (
-            <Bot className="h-4 w-4" aria-hidden="true" />
+            <GuruLogo size={20} aria-hidden="true" />
           )}
         </AvatarFallback>
       </Avatar>
@@ -238,7 +299,7 @@ export function ChatMessage({ message, onRetry, onAction }: ChatMessageProps) {
                 />
                 {onRetry && (
                   <button
-                    onClick={() => onRetry(message.id)}
+                    onClick={handleRetry}
                     className={cn(
                       'text-xs underline hover:no-underline',
                       isUser ? 'text-primary-foreground/90' : 'text-foreground'
@@ -258,10 +319,7 @@ export function ChatMessage({ message, onRetry, onAction }: ChatMessageProps) {
                 isUser ? 'text-primary-foreground/70' : 'text-muted-foreground'
               )}
             >
-              {message.timestamp.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
+              {formattedTime}
             </span>
           </div>
 
@@ -287,6 +345,22 @@ export function ChatMessage({ message, onRetry, onAction }: ChatMessageProps) {
     </div>
   );
 }
+
+/**
+ * Memoized ChatMessage component
+ * Only re-renders when message props actually change
+ */
+export const ChatMessage = memo(ChatMessageComponent, (prevProps, nextProps) => {
+  // Custom comparison for better performance
+  return (
+    prevProps.message.id === nextProps.message.id &&
+    prevProps.message.content === nextProps.message.content &&
+    prevProps.message.status === nextProps.message.status &&
+    prevProps.skipAnimation === nextProps.skipAnimation
+  );
+});
+
+ChatMessage.displayName = 'ChatMessage';
 
 /**
  * LoadingMessage - Typing indicator component with GSAP animation

@@ -15,7 +15,7 @@ import { ActionConfirmationDialog } from './ActionConfirmationDialog';
 import { ActionResultCard } from './ActionResultCard';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { ChatMessage as ChatMessageType, ActionIntent } from '@/types/chat';
+import { ChatMessage as ChatMessageType, ActionIntent, ActionType } from '@/types/chat';
 
 interface ChatInterfaceProps {
   className?: string;
@@ -179,9 +179,10 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
       // Check if the response contains an action that needs confirmation
       if (assistantResp.actionType && assistantResp.actionParams) {
         const action: ActionIntent = {
-          type: assistantResp.actionType,
-          params: assistantResp.actionParams,
+          type: assistantResp.actionType as ActionType,
+          parameters: assistantResp.actionParams,
           confirmationRequired: assistantResp.actionStatus === 'pending',
+          description: `${assistantResp.actionType} action`,
         };
         if (action.confirmationRequired) {
           setPending(assistantResp.id, action);
@@ -244,7 +245,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
       await executeSuggestion(id);
 
       // Create new conversation with suggestion
-      const newConversation = createConversation();
+      const newConversation = await createConversation();
 
       // Add suggestion as a user message to start conversation
       const suggestionMessage: ChatMessageType = {

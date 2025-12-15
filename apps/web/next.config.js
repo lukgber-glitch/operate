@@ -196,8 +196,42 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@operate/shared'],
 
+  // Security: Remove X-Powered-By header
+  poweredByHeader: false,
+
+  // Enable gzip compression
+  compress: true,
+
+  // Disable source maps in production for smaller bundles
+  productionBrowserSourceMaps: false,
+
+  // Image optimization configuration
+  images: {
+    // Use modern formats for better compression
+    formats: ['image/avif', 'image/webp'],
+    // Minimize sizes for most common use cases
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    // Cache optimized images for 30 days
+    minimumCacheTTL: 2592000,
+    // Allow remote images from common CDNs
+    remotePatterns: [
+      { protocol: 'https', hostname: '**.googleusercontent.com' },
+      { protocol: 'https', hostname: '**.gravatar.com' },
+    ],
+  },
+
+  // Compiler optimizations (SWC)
+  compiler: {
+    // Remove console.logs in production
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+
   // Performance optimizations
   experimental: {
+    // Tree-shake specific packages for smaller bundles
     optimizePackageImports: [
       '@operate/shared',
       'lucide-react',
@@ -207,18 +241,47 @@ const nextConfig = {
       '@radix-ui/react-select',
       '@radix-ui/react-tabs',
       '@radix-ui/react-toast',
+      '@radix-ui/react-tooltip',
+      '@radix-ui/react-avatar',
+      '@radix-ui/react-checkbox',
+      '@radix-ui/react-label',
+      '@radix-ui/react-progress',
+      '@radix-ui/react-scroll-area',
+      '@radix-ui/react-separator',
+      '@radix-ui/react-slider',
+      '@radix-ui/react-switch',
+      '@radix-ui/react-collapsible',
+      '@radix-ui/react-alert-dialog',
+      '@radix-ui/react-radio-group',
       'recharts',
+      'date-fns',
+      'zod',
+      'framer-motion',
+      'gsap',
+      '@tanstack/react-query',
+      '@dnd-kit/core',
+      '@dnd-kit/sortable',
+      '@hookform/resolvers',
+      'react-hook-form',
+      'clsx',
+      'tailwind-merge',
     ],
   },
 
   // Webpack optimizations
-  webpack: (config, { isServer }) => {
-    // Split vendor chunks
-    if (!isServer) {
+  webpack: (config, { isServer, dev }) => {
+    // Only apply optimizations in production
+    if (!isServer && !dev) {
       config.optimization = {
         ...config.optimization,
+        // Enable module concatenation (scope hoisting)
+        concatenateModules: true,
         splitChunks: {
           chunks: 'all',
+          // Increase min size to reduce number of chunks
+          minSize: 20000,
+          maxAsyncRequests: 30,
+          maxInitialRequests: 25,
           cacheGroups: {
             // React and core libraries
             react: {
@@ -226,6 +289,7 @@ const nextConfig = {
               name: 'react-vendor',
               priority: 40,
               reuseExistingChunk: true,
+              enforce: true,
             },
             // Radix UI components
             radix: {
@@ -234,18 +298,32 @@ const nextConfig = {
               priority: 35,
               reuseExistingChunk: true,
             },
+            // Animation libraries (GSAP + Framer Motion)
+            animation: {
+              test: /[\\/]node_modules[\\/](gsap|framer-motion)[\\/]/,
+              name: 'animation-vendor',
+              priority: 33,
+              reuseExistingChunk: true,
+            },
             // Chart library (heavy)
             recharts: {
-              test: /[\\/]node_modules[\\/]recharts[\\/]/,
+              test: /[\\/]node_modules[\\/](recharts|d3-.*)[\\/]/,
               name: 'recharts-vendor',
               priority: 30,
               reuseExistingChunk: true,
             },
             // TanStack Query
             query: {
-              test: /[\\/]node_modules[\\/]@tanstack[\\/]react-query[\\/]/,
+              test: /[\\/]node_modules[\\/]@tanstack[\\/]/,
               name: 'query-vendor',
               priority: 25,
+              reuseExistingChunk: true,
+            },
+            // Form libraries
+            forms: {
+              test: /[\\/]node_modules[\\/](react-hook-form|@hookform|zod)[\\/]/,
+              name: 'forms-vendor',
+              priority: 22,
               reuseExistingChunk: true,
             },
             // Other vendor libraries
@@ -254,8 +332,19 @@ const nextConfig = {
               name: 'vendor',
               priority: 10,
               reuseExistingChunk: true,
+              minChunks: 2,
             },
           },
+        },
+      }
+    }
+
+    // Enable filesystem caching for faster rebuilds
+    if (!dev) {
+      config.cache = {
+        type: 'filesystem',
+        buildDependencies: {
+          config: [__filename],
         },
       }
     }

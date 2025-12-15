@@ -76,7 +76,11 @@ export class InvoicesController {
     @Param('orgId') orgId: string,
     @Query() query: InvoiceQueryDto,
   ) {
-    return this.invoicesService.findAll(orgId, query);
+    try {
+      return await this.invoicesService.findAll(orgId, query);
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -98,7 +102,11 @@ export class InvoicesController {
     description: 'Statistics retrieved successfully',
   })
   async getStatistics(@Param('orgId') orgId: string) {
-    return this.invoicesService.getStatistics(orgId);
+    try {
+      return await this.invoicesService.getStatistics(orgId);
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -120,7 +128,11 @@ export class InvoicesController {
     description: 'Overdue invoices retrieved successfully',
   })
   async getOverdue(@Param('orgId') orgId: string) {
-    return this.invoicesService.getOverdue(orgId);
+    try {
+      return await this.invoicesService.getOverdue(orgId);
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -151,7 +163,11 @@ export class InvoicesController {
     description: 'Invoice not found',
   })
   async findOne(@Param('id') id: string) {
-    return this.invoicesService.findById(id);
+    try {
+      return await this.invoicesService.findById(id);
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**

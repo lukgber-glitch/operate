@@ -124,7 +124,7 @@ export default function RecurringInvoicesPage() {
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="rounded-[24px]">
         <CardContent className="pt-6">
           <div className="flex flex-col gap-4 sm:flex-row">
             <div className="relative flex-1">
@@ -157,7 +157,7 @@ export default function RecurringInvoicesPage() {
       </Card>
 
       {/* Table */}
-      <Card>
+      <Card className="rounded-[24px]">
         <CardContent className="p-0">
           <Table>
             <TableHeader>

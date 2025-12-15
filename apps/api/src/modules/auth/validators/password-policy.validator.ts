@@ -7,6 +7,31 @@ import {
 } from 'class-validator';
 
 /**
+ * SEC-012: Common passwords list (top 100 most used)
+ * These are blocked to prevent weak password usage
+ * Source: OWASP, Have I Been Pwned leaked password lists
+ */
+const COMMON_PASSWORDS = new Set([
+  'password', 'password1', 'password123', '123456', '12345678', '123456789',
+  '1234567890', 'qwerty', 'abc123', 'monkey', 'letmein', 'dragon', 'master',
+  'login', 'admin', 'welcome', 'football', 'baseball', 'iloveyou', 'princess',
+  'sunshine', 'shadow', 'passw0rd', 'P@ssw0rd', 'P@ssword1', 'Password1',
+  'Password123', 'qwerty123', 'qwertyuiop', 'trustno1', 'mustang', 'access',
+  'starwars', 'harley', 'batman', 'superman', 'michael', 'jessica', 'charlie',
+  'ashley', 'daniel', 'thomas', 'andrew', 'joshua', 'matthew', 'jennifer',
+  'hunter', 'killer', 'george', 'asshole', 'fuckyou', 'tigger', 'pepper',
+  'buster', 'ginger', 'cookie', 'summer', 'bailey', 'soccer', 'hockey',
+  'rangers', 'yankees', 'cheese', 'chicken', 'burger', 'coffee', 'thunder',
+  'internet', 'computer', 'whatever', 'nothing', 'secret', 'private',
+  'freedom', 'forever', 'biteme', 'enter', 'hello', 'cocacola', 'jordan',
+  'diamond', 'maggie', 'mickey', 'godzilla', 'slipknot', 'guitar', 'austin',
+  'london', 'berlin', 'paris', 'newyork', 'testing', 'test123', 'test1234',
+  'changeme', 'default', 'temp123', 'temp1234', 'guest123', 'user123',
+  'admin123', 'root123', 'pass123', 'pass1234', 'qweasd', 'zxcvbn', 'asdfgh',
+  'zaq12wsx', '1qaz2wsx', 'operate', 'operate123', 'Operate123!',
+]);
+
+/**
  * SEC-007: Password Policy Configuration
  *
  * Default policy enforces:
@@ -15,6 +40,7 @@ import {
  * - At least one lowercase letter (a-z)
  * - At least one number (0-9)
  * - At least one special character
+ * - SEC-012: Not a common password
  */
 export interface PasswordPolicyOptions {
   minLength?: number;
@@ -23,6 +49,7 @@ export interface PasswordPolicyOptions {
   requireNumber?: boolean;
   requireSpecialChar?: boolean;
   specialChars?: string;
+  blockCommonPasswords?: boolean;
 }
 
 /**
@@ -35,7 +62,29 @@ export const DEFAULT_PASSWORD_POLICY: Required<PasswordPolicyOptions> = {
   requireNumber: true,
   requireSpecialChar: true,
   specialChars: '@$!%*?&#^()_+=-[]{}|;:\'",.<>/\\',
+  blockCommonPasswords: true, // SEC-012: Block common passwords
 };
+
+/**
+ * SEC-012: Check if password is in common passwords list
+ */
+export function isCommonPassword(password: string): boolean {
+  // Check exact match (case-insensitive)
+  const lowerPassword = password.toLowerCase();
+  if (COMMON_PASSWORDS.has(lowerPassword)) {
+    return true;
+  }
+
+  // Check if password starts with a common pattern
+  const commonPatterns = ['password', 'qwerty', 'admin', 'user', 'test', 'guest'];
+  for (const pattern of commonPatterns) {
+    if (lowerPassword.startsWith(pattern) && lowerPassword.length < 12) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 /**
  * SEC-007: Password Policy Validator
@@ -94,6 +143,11 @@ export class PasswordPolicyConstraint implements ValidatorConstraintInterface {
       }
     }
 
+    // SEC-012: Check for common passwords
+    if (options.blockCommonPasswords && isCommonPassword(password)) {
+      return false;
+    }
+
     return true;
   }
 
@@ -121,6 +175,10 @@ export class PasswordPolicyConstraint implements ValidatorConstraintInterface {
 
     if (options.requireSpecialChar) {
       requirements.push(`one special character (${options.specialChars})`);
+    }
+
+    if (options.blockCommonPasswords) {
+      requirements.push('not be a commonly used password');
     }
 
     return `Password must contain ${requirements.join(', ')}`;
@@ -175,7 +233,7 @@ export function PasswordPolicy(
  */
 export interface PasswordStrengthResult {
   valid: boolean;
-  score: number; // 0-5
+  score: number; // 0-6
   feedback: string[];
   requirements: {
     minLength: boolean;
@@ -183,6 +241,7 @@ export interface PasswordStrengthResult {
     hasLowercase: boolean;
     hasNumber: boolean;
     hasSpecialChar: boolean;
+    notCommon: boolean; // SEC-012
   };
 }
 
@@ -210,6 +269,7 @@ export function checkPasswordStrength(
     hasSpecialChar: new RegExp(
       `[${policy.specialChars.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}]`,
     ).test(password),
+    notCommon: !isCommonPassword(password), // SEC-012
   };
 
   const feedback: string[] = [];
@@ -243,6 +303,13 @@ export function checkPasswordStrength(
   if (policy.requireSpecialChar && !requirements.hasSpecialChar) {
     feedback.push('Password must contain at least one special character');
   } else if (requirements.hasSpecialChar) {
+    score++;
+  }
+
+  // SEC-012: Check for common passwords
+  if (policy.blockCommonPasswords && !requirements.notCommon) {
+    feedback.push('Password is too common. Please choose a more unique password');
+  } else if (requirements.notCommon) {
     score++;
   }
 

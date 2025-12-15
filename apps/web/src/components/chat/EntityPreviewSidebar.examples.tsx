@@ -224,17 +224,17 @@ export function MultipleEntityTypesExample() {
 // Extract entity reference from message text
 function extractEntityReference(message: string): { type: EntityType; id: string } | null {
   const invoiceMatch = message.match(/invoice\s+#?([A-Z0-9-]+)/i);
-  if (invoiceMatch) {
+  if (invoiceMatch && invoiceMatch[1]) {
     return { type: 'invoice', id: invoiceMatch[1] };
   }
 
   const expenseMatch = message.match(/expense\s+#?([A-Z0-9-]+)/i);
-  if (expenseMatch) {
+  if (expenseMatch && expenseMatch[1]) {
     return { type: 'expense', id: expenseMatch[1] };
   }
 
   const clientMatch = message.match(/client\s+([A-Z0-9-]+)/i);
-  if (clientMatch) {
+  if (clientMatch && clientMatch[1]) {
     return { type: 'client', id: clientMatch[1] };
   }
 

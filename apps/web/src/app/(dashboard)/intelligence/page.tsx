@@ -8,7 +8,7 @@ export default function IntelligencePage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-3">
+        <h1 className="text-2xl text-white font-semibold tracking-tight flex items-center gap-3">
           <Brain className="h-8 w-8 text-purple-600" />
           Intelligence
         </h1>

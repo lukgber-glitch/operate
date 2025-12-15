@@ -35,6 +35,22 @@ import {
   DeductionCategoryDto,
   ApplyDeductionDto,
 } from './dto/index';
+import {
+  CommuterCalculatorInput,
+  HomeOfficeFlatCalculatorInput,
+  HomeOfficeRoomCalculatorInput,
+  PerDiemCalculatorInput,
+  MileageCalculatorInput,
+  TrainingCalculatorInput,
+  DeductionResultDto,
+} from './dto/calculators';
+import {
+  CommuterCalculatorService,
+  HomeOfficeCalculatorService,
+  PerDiemCalculatorService,
+  MileageCalculatorService,
+  TrainingCalculatorService,
+} from './calculators';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 
@@ -50,7 +66,203 @@ export class DeductionsController {
   constructor(
     private readonly deductionsService: DeductionsService,
     private readonly analyzerService: DeductionAnalyzerService,
+    private readonly commuterCalc: CommuterCalculatorService,
+    private readonly homeOfficeCalc: HomeOfficeCalculatorService,
+    private readonly perDiemCalc: PerDiemCalculatorService,
+    private readonly mileageCalc: MileageCalculatorService,
+    private readonly trainingCalc: TrainingCalculatorService,
   ) {}
+
+  // ========================================
+  // Calculator Endpoints
+  // ========================================
+
+  /**
+   * Calculate commuter allowance deduction
+   */
+  @Post('calculate/commuter')
+  @ApiOperation({
+    summary: 'Calculate commuter allowance',
+    description:
+      'Calculate tax-deductible commuter allowance based on distance and working days',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Calculation completed successfully',
+    type: DeductionResultDto,
+  })
+  async calculateCommuter(
+    @Body() input: CommuterCalculatorInput,
+  ): Promise<DeductionResultDto> {
+    return this.commuterCalc.calculate(input);
+  }
+
+  /**
+   * Calculate home office flat rate deduction
+   */
+  @Post('calculate/home-office-flat')
+  @ApiOperation({
+    summary: 'Calculate home office flat rate',
+    description: 'Calculate home office deduction using flat daily rate method',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Calculation completed successfully',
+    type: DeductionResultDto,
+  })
+  async calculateHomeOfficeFlat(
+    @Body() input: HomeOfficeFlatCalculatorInput,
+  ): Promise<DeductionResultDto> {
+    return this.homeOfficeCalc.calculateFlat(input);
+  }
+
+  /**
+   * Calculate home office room-based deduction
+   */
+  @Post('calculate/home-office-room')
+  @ApiOperation({
+    summary: 'Calculate home office room deduction',
+    description: 'Calculate home office deduction based on actual room costs',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Calculation completed successfully',
+    type: DeductionResultDto,
+  })
+  async calculateHomeOfficeRoom(
+    @Body() input: HomeOfficeRoomCalculatorInput,
+  ): Promise<DeductionResultDto> {
+    return this.homeOfficeCalc.calculateRoom(input);
+  }
+
+  /**
+   * Calculate per diem meal allowance
+   */
+  @Post('calculate/per-diem')
+  @ApiOperation({
+    summary: 'Calculate per diem allowance',
+    description: 'Calculate meal allowance for business trips based on duration',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Calculation completed successfully',
+    type: DeductionResultDto,
+  })
+  async calculatePerDiem(
+    @Body() input: PerDiemCalculatorInput,
+  ): Promise<DeductionResultDto> {
+    return this.perDiemCalc.calculate(input);
+  }
+
+  /**
+   * Calculate business mileage deduction
+   */
+  @Post('calculate/mileage')
+  @ApiOperation({
+    summary: 'Calculate mileage deduction',
+    description: 'Calculate business mileage deduction based on distance and vehicle type',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Calculation completed successfully',
+    type: DeductionResultDto,
+  })
+  async calculateMileage(
+    @Body() input: MileageCalculatorInput,
+  ): Promise<DeductionResultDto> {
+    return this.mileageCalc.calculate(input);
+  }
+
+  /**
+   * Calculate training/education deduction
+   */
+  @Post('calculate/training')
+  @ApiOperation({
+    summary: 'Calculate training deduction',
+    description: 'Calculate deduction for professional training and education expenses',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Calculation completed successfully',
+    type: DeductionResultDto,
+  })
+  async calculateTraining(
+    @Body() input: TrainingCalculatorInput,
+  ): Promise<DeductionResultDto> {
+    return this.trainingCalc.calculate(input);
+  }
+
+  /**
+   * Get country-specific tax deduction rates
+   */
+  @Get('rates/:countryCode')
+  @ApiOperation({
+    summary: 'Get country rates',
+    description: 'Get all tax deduction rates for a specific country',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Rates retrieved successfully',
+  })
+  async getCountryRates(@Param('countryCode') countryCode: string) {
+    const year = new Date().getFullYear();
+
+    const [commuter, homeOffice, perDiem, mileage, training] = await Promise.all([
+      this.commuterCalc.getCountryRates(countryCode, year),
+      this.homeOfficeCalc.getCountryRates(countryCode, year),
+      this.perDiemCalc.getCountryRates(countryCode, year),
+      this.mileageCalc.getCountryRates(countryCode, year),
+      this.trainingCalc.getEducationRules(countryCode, year),
+    ]);
+
+    return {
+      countryCode,
+      year,
+      commuter,
+      homeOffice,
+      perDiem,
+      mileage,
+      training,
+    };
+  }
+
+  /**
+   * Get rates for a specific deduction category
+   */
+  @Get('rates/:countryCode/:category')
+  @ApiOperation({
+    summary: 'Get category rates',
+    description: 'Get tax deduction rates for a specific category',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Category rates retrieved successfully',
+  })
+  async getCategoryRates(
+    @Param('countryCode') countryCode: string,
+    @Param('category') category: string,
+  ) {
+    const year = new Date().getFullYear();
+
+    switch (category) {
+      case 'commuter':
+        return this.commuterCalc.getCountryRates(countryCode, year);
+      case 'home-office':
+        return this.homeOfficeCalc.getCountryRates(countryCode, year);
+      case 'per-diem':
+        return this.perDiemCalc.getCountryRates(countryCode, year);
+      case 'mileage':
+        return this.mileageCalc.getCountryRates(countryCode, year);
+      case 'training':
+        return this.trainingCalc.getEducationRules(countryCode, year);
+      default:
+        throw new Error(`Unknown category: ${category}`);
+    }
+  }
+
+  // ========================================
+  // Existing Endpoints (unchanged)
+  // ========================================
 
   /**
    * Get all deductions (suggestions and confirmed)

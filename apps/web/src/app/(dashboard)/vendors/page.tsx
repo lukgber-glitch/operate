@@ -1,12 +1,13 @@
 'use client';
 
-import { Plus, Download, Search } from 'lucide-react';
+import { Plus, Download, Search, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
 import { VendorTable } from '@/components/vendors/VendorTable';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -16,11 +17,34 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useVendors, useDeleteVendor } from '@/hooks/useVendors';
-import type { VendorFilters as VendorFilterType } from '@/lib/api/vendors';
+import { useVendors, useDeleteVendor, usePrefetchVendor } from '@/hooks/useVendors';
+import type { VendorFilters as VendorFilterType, VendorStatus } from '@/lib/api/vendors';
+
+// Custom debounce hook for search optimization
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 export default function VendorsPage() {
   const router = useRouter();
+  const prefetchVendor = usePrefetchVendor();
+
+  // Separate search input state for debouncing
+  const [searchInput, setSearchInput] = useState('');
+  const debouncedSearch = useDebounce(searchInput, 300);
+
   const [filters, setFilters] = useState<VendorFilterType>({
     page: 1,
     pageSize: 50,
@@ -28,17 +52,34 @@ export default function VendorsPage() {
     sortOrder: 'asc',
   });
 
+  // Sync debounced search to filters
+  useEffect(() => {
+    if (debouncedSearch !== filters.search) {
+      setFilters((prev) => ({
+        ...prev,
+        search: debouncedSearch || undefined,
+        page: 1, // Reset to first page on search
+      }));
+    }
+  }, [debouncedSearch, filters.search]);
+
   const { data: vendorsData, isLoading, error } = useVendors(filters);
   const deleteMutation = useDeleteVendor();
 
-  const handleFilterChange = (newFilters: Partial<VendorFilterType>) => {
+  // Memoized filter change handler for non-search filters
+  const handleFilterChange = useCallback((newFilters: Partial<VendorFilterType>) => {
     setFilters((prev) => ({
       ...prev,
       ...newFilters,
-      // Reset to page 1 when filters change
-      page: newFilters.search !== undefined || newFilters.status !== undefined ? 1 : prev.page,
+      // Reset to page 1 when status changes
+      page: newFilters.status !== undefined ? 1 : (newFilters.page ?? prev.page),
     }));
-  };
+  }, []);
+
+  // Memoized status change handler with proper typing
+  const handleStatusChange = useCallback((value: string) => {
+    handleFilterChange({ status: value === 'all' ? undefined : (value as VendorStatus) });
+  }, [handleFilterChange]);
 
   const handleDeleteVendor = async (id: string) => {
     await deleteMutation.mutateAsync(id);
@@ -88,16 +129,14 @@ export default function VendorsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Vendors</h1>
-          <p className="text-muted-foreground">Manage your vendor relationships</p>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Vendors</h1>
+          <p className="text-white/70">Manage your vendor relationships</p>
         </div>
-        <Card className="rounded-[24px]">
-          <CardContent className="p-6">
+        <GlassCard padding="lg">
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <p className="text-destructive mb-4">Error loading vendors. Please try again.</p>
             </div>
-          </CardContent>
-        </Card>
+        </GlassCard>
       </div>
     );
   }
@@ -107,8 +146,8 @@ export default function VendorsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Vendors</h1>
-          <p className="text-muted-foreground">Manage suppliers and accounts payable</p>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Vendors</h1>
+          <p className="text-white/70">Manage suppliers and accounts payable</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportCSV} disabled={!vendorsData?.items?.length}>
@@ -123,27 +162,33 @@ export default function VendorsPage() {
       </div>
 
       {/* Filters */}
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6">
-          <div className="space-y-6">
+      <GlassCard padding="lg">
           <div className="flex flex-col gap-4 md:flex-row md:items-center">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/70" />
                 <Input
                   placeholder="Search vendors by name, email..."
-                  value={filters.search || ''}
-                  onChange={(e) => handleFilterChange({ search: e.target.value })}
-                  className="pl-9"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="pl-9 pr-9"
                 />
+                {searchInput && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                    onClick={() => setSearchInput('')}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
             <div className="flex gap-2">
               <Select
                 value={filters.status || 'all'}
-                onValueChange={(value) =>
-                  handleFilterChange({ status: value === 'all' ? undefined : (value as any) })
-                }
+                onValueChange={handleStatusChange}
               >
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Status" />
@@ -157,9 +202,7 @@ export default function VendorsPage() {
               </Select>
             </div>
           </div>
-          </div>
-        </CardContent>
-      </Card>
+      </GlassCard>
 
       {/* Data Table */}
       {isLoading ? (
@@ -183,6 +226,7 @@ export default function VendorsPage() {
           onSortChange={(sortBy, sortOrder) =>
             handleFilterChange({ sortBy: sortBy as VendorFilterType['sortBy'], sortOrder })
           }
+          onPrefetch={prefetchVendor}
         />
       )}
     </div>

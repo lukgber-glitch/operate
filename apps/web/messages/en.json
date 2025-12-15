@@ -421,5 +421,72 @@
     "workOffline": "Work Offline",
     "retry": "Retry Connection",
     "dataWillSync": "Your data will sync when you're back online"
+  },
+  "taxCalculators": {
+    "title": "Tax Deduction Calculators",
+    "subtitle": "Calculate your deductions and save on taxes",
+    "selectCountry": "Select Country",
+    "selectYear": "Tax Year",
+    "tabs": {
+      "commuter": "Commuter Allowance",
+      "homeOffice": "Home Office",
+      "perDiem": "Per Diem / Meals",
+      "mileage": "Business Mileage",
+      "training": "Training & Education",
+      "info": "Rates & Info"
+    },
+    "commuter": {
+      "distance": "Distance to work (one-way)",
+      "workingDays": "Working days per year",
+      "publicTransport": "Use public transport instead",
+      "monthlyTicket": "Monthly ticket cost",
+      "ratePerKm": "Rate per kilometer"
+    },
+    "homeOffice": {
+      "flatRate": "Flat Rate",
+      "dedicatedRoom": "Dedicated Room",
+      "daysWorked": "Days worked from home",
+      "dailyRate": "Daily rate",
+      "maxDays": "Maximum days",
+      "roomSize": "Room size",
+      "totalSize": "Total home size",
+      "monthlyRent": "Monthly rent/mortgage",
+      "exclusiveUse": "Room used exclusively for work"
+    },
+    "perDiem": {
+      "tripStart": "Trip start date",
+      "tripEnd": "Trip end date",
+      "destination": "Destination",
+      "international": "International trip",
+      "fullDayRate": "Full day rate",
+      "partialDayRate": "Partial day rate"
+    },
+    "mileage": {
+      "distance": "Distance traveled",
+      "vehicleType": "Vehicle type",
+      "purpose": "Trip purpose",
+      "car": "Car",
+      "electric": "Electric car",
+      "motorcycle": "Motorcycle",
+      "bicycle": "Bicycle"
+    },
+    "training": {
+      "courseName": "Course/training name",
+      "provider": "Provider",
+      "totalCost": "Total cost",
+      "trainingType": "Training type"
+    },
+    "result": {
+      "originalAmount": "Original amount",
+      "deductibleAmount": "Deductible amount",
+      "taxSavings": "Estimated tax savings",
+      "legalReference": "Legal reference",
+      "requirements": "Required documentation",
+      "saveEntry": "Save as Deduction Entry"
+    },
+    "info": {
+      "ratesTitle": "Current Tax Deduction Rates",
+      "disclaimer": "Tax savings shown are estimates based on a 30% tax rate. Actual savings may vary."
+    }
   }
 }

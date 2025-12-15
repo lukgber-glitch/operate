@@ -63,7 +63,7 @@ export function VendorStats({ stats, isLoading }: VendorStatsProps) {
       value: stats.totalBills.toString(),
       description: 'All time',
       icon: FileText,
-      iconColor: 'text-blue-600',
+      iconColor: 'text-blue-400',
     },
     {
       title: 'Outstanding',

@@ -20,6 +20,9 @@ import {
   Filter
 } from 'lucide-react';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/animation-variants';
+import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -181,17 +184,17 @@ const mockDocuments: Document[] = [
 ];
 
 const documentTypeConfig = {
-  CONTRACT: { color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: FileText },
-  INVOICE: { color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', icon: Receipt },
-  RECEIPT: { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400', icon: Receipt },
-  REPORT: { color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400', icon: FileBarChart },
-  POLICY: { color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400', icon: FileCheck },
-  FORM: { color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400', icon: FileCog },
-  CERTIFICATE: { color: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400', icon: Award },
-  OTHER: { color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400', icon: File },
+  CONTRACT: { color: 'text-white/70', icon: FileText },
+  INVOICE: { color: 'text-white/70', icon: Receipt },
+  RECEIPT: { color: 'text-white/70', icon: Receipt },
+  REPORT: { color: 'text-white/70', icon: FileBarChart },
+  POLICY: { color: 'text-white/70', icon: FileCheck },
+  FORM: { color: 'text-white/70', icon: FileCog },
+  CERTIFICATE: { color: 'text-white/70', icon: Award },
+  OTHER: { color: 'text-white/70', icon: File },
 };
 
-export default function DocumentsPage() {
+function DocumentsPageContent() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<DocumentType | 'ALL'>('ALL');
@@ -261,9 +264,14 @@ export default function DocumentsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Documents</h1>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Documents</h1>
           <p className="text-muted-foreground">Manage and organize your business documents</p>
         </div>
 
@@ -277,9 +285,15 @@ export default function DocumentsPage() {
             Upload Document
           </Button>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+        className="flex flex-col lg:flex-row gap-6"
+      >
         {/* Folders Sidebar */}
         <aside className="lg:w-64 flex-shrink-0">
           <Card className="rounded-[24px]">
@@ -517,7 +531,7 @@ export default function DocumentsPage() {
             </Card>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Upload Dialog */}
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
@@ -703,5 +717,13 @@ export default function DocumentsPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function DocumentsPage() {
+  return (
+    <ErrorBoundary>
+      <DocumentsPageContent />
+    </ErrorBoundary>
   );
 }

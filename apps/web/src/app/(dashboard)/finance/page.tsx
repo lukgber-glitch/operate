@@ -10,10 +10,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import {
   Table,
   TableBody,
@@ -25,6 +26,8 @@ import {
 import { useExpenses } from '@/hooks/use-expenses';
 import { useFinanceStats } from '@/hooks/use-finance-stats';
 import { useInvoices } from '@/hooks/use-invoices';
+import { formatCurrency } from '@/lib/utils/currency';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 
 const statusColors = {
   PAID: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -47,26 +50,24 @@ export default function FinancePage() {
     fetchStats();
     fetchInvoices({ pageSize: 4 });
     fetchExpenses({ pageSize: 4 });
-  }, [fetchStats, fetchInvoices, fetchExpenses]);
-
-  const formatCurrency = (amount: number, currency: string = 'EUR') => {
-    return new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency,
-    }).format(amount);
-  };
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount
 
   const isLoading = statsLoading || invoicesLoading || expensesLoading;
   const hasError = statsError || invoicesError || expensesError;
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Finance</h1>
-        <p className="text-muted-foreground">Manage invoices, expenses, and banking</p>
-      </div>
+    <motion.div
+      className="space-y-6"
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div variants={fadeUp}>
+        <h1 className="text-2xl text-white font-semibold tracking-tight">Finance</h1>
+        <p className="text-white/70">Manage invoices, expenses, and banking</p>
+      </motion.div>
 
-      <div className="flex gap-2">
+      <motion.div variants={fadeUp} className="flex gap-2">
         <Button asChild>
           <Link href="/finance/invoices/new">
             <Plus className="mr-2 h-4 w-4" />
@@ -79,13 +80,13 @@ export default function FinancePage() {
             New Expense
           </Link>
         </Button>
-      </div>
+      </motion.div>
 
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-sm text-muted-foreground">Loading finance overview...</p>
+            <p className="text-sm text-white/70">Loading finance overview...</p>
           </div>
         </div>
       ) : hasError ? (
@@ -110,84 +111,84 @@ export default function FinancePage() {
         <>
           {/* Stats Grid */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="rounded-[24px]">
-              <CardContent className="p-6">
-                <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <div className="text-sm font-medium text-muted-foreground">
-                    Total Revenue
+            <motion.div variants={fadeUp}>
+              <GlassCard padding="lg">
+                  <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <div className="text-sm font-medium text-white/70">
+                      Total Revenue
+                    </div>
+                    <Euro className="h-4 w-4 text-white/70" />
                   </div>
-                  <Euro className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="text-2xl font-bold">
-                  {stats ? formatCurrency(stats.totalRevenue, stats.currency) : '-'}
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Year to date
-                </p>
-              </CardContent>
-            </Card>
+                  <div className="text-2xl text-white font-bold">
+                    {stats ? formatCurrency(stats.totalRevenue, stats.currency) : '-'}
+                  </div>
+                  <p className="mt-1 text-xs text-white/70">
+                    Year to date
+                  </p>
+              </GlassCard>
+            </motion.div>
 
-            <Card className="rounded-[24px]">
-              <CardContent className="p-6">
-                <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <div className="text-sm font-medium text-muted-foreground">
-                    Outstanding
+            <motion.div variants={fadeUp}>
+              <GlassCard padding="lg">
+                  <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <div className="text-sm font-medium text-white/70">
+                      Outstanding
+                    </div>
+                    <TrendingUp className="h-4 w-4 text-white/70" />
                   </div>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="text-2xl font-bold">
-                  {stats ? formatCurrency(stats.outstandingInvoices, stats.currency) : '-'}
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Pending invoices
-                </p>
-              </CardContent>
-            </Card>
+                  <div className="text-2xl text-white font-bold">
+                    {stats ? formatCurrency(stats.outstandingInvoices, stats.currency) : '-'}
+                  </div>
+                  <p className="mt-1 text-xs text-white/70">
+                    Pending invoices
+                  </p>
+              </GlassCard>
+            </motion.div>
 
-            <Card className="rounded-[24px]">
-              <CardContent className="p-6">
-                <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <div className="text-sm font-medium text-muted-foreground">
-                    Overdue
+            <motion.div variants={fadeUp}>
+              <GlassCard padding="lg">
+                  <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <div className="text-sm font-medium text-white/70">
+                      Overdue
+                    </div>
+                    <AlertCircle className="h-4 w-4 text-white/70" />
                   </div>
-                  <AlertCircle className="h-4 w-4 text-red-600" />
-                </div>
-                <div className="text-2xl font-bold text-red-600">
-                  {stats ? formatCurrency(stats.overdueInvoices, stats.currency) : '-'}
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Overdue invoices
-                </p>
-              </CardContent>
-            </Card>
+                  <div className="text-2xl text-white font-bold text-red-400">
+                    {stats ? formatCurrency(stats.overdueInvoices, stats.currency) : '-'}
+                  </div>
+                  <p className="mt-1 text-xs text-white/70">
+                    Overdue invoices
+                  </p>
+              </GlassCard>
+            </motion.div>
 
-            <Card className="rounded-[24px]">
-              <CardContent className="p-6">
-                <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <div className="text-sm font-medium text-muted-foreground">
-                    Total Expenses
+            <motion.div variants={fadeUp}>
+              <GlassCard padding="lg">
+                  <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <div className="text-sm font-medium text-white/70">
+                      Total Expenses
+                    </div>
+                    <Receipt className="h-4 w-4 text-white/70" />
                   </div>
-                  <Receipt className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="text-2xl font-bold">
-                  {stats ? formatCurrency(stats.totalExpenses, stats.currency) : '-'}
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {stats ? formatCurrency(stats.pendingExpenses, stats.currency) : '-'} pending
-                </p>
-              </CardContent>
-            </Card>
+                  <div className="text-2xl text-white font-bold">
+                    {stats ? formatCurrency(stats.totalExpenses, stats.currency) : '-'}
+                  </div>
+                  <p className="mt-1 text-xs text-white/70">
+                    {stats ? formatCurrency(stats.pendingExpenses, stats.currency) : '-'} pending
+                  </p>
+              </GlassCard>
+            </motion.div>
           </div>
 
       {/* Recent Invoices and Expenses */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Invoices */}
-        <Card className="rounded-[24px]">
-          <CardContent className="p-6">
+        <motion.div variants={fadeUp}>
+          <GlassCard padding="lg">
             <div className="flex flex-row items-center justify-between pb-3">
             <div>
               <div className="text-lg font-semibold">Recent Invoices</div>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-white/70 mt-1">
                 Latest invoice activity
               </p>
             </div>
@@ -210,7 +211,7 @@ export default function FinancePage() {
               <TableBody>
                 {invoices.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    <TableCell colSpan={4} className="text-center text-white/70">
                       No invoices found
                     </TableCell>
                   </TableRow>
@@ -240,16 +241,16 @@ export default function FinancePage() {
                 )}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
+        </GlassCard>
+        </motion.div>
 
         {/* Recent Expenses */}
-        <Card className="rounded-[24px]">
-          <CardContent className="p-6">
+        <motion.div variants={fadeUp}>
+          <GlassCard padding="lg">
             <div className="flex flex-row items-center justify-between pb-3">
             <div>
               <div className="text-lg font-semibold">Recent Expenses</div>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-white/70 mt-1">
                 Latest expense submissions
               </p>
             </div>
@@ -272,7 +273,7 @@ export default function FinancePage() {
               <TableBody>
                 {expenses.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    <TableCell colSpan={4} className="text-center text-white/70">
                       No expenses found
                     </TableCell>
                   </TableRow>
@@ -304,11 +305,11 @@ export default function FinancePage() {
                 )}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
+        </GlassCard>
+        </motion.div>
       </div>
         </>
       )}
-    </div>
+    </motion.div>
   );
 }

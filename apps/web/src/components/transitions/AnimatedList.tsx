@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, Variants } from 'framer-motion';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo, memo } from 'react';
 
 interface AnimatedListProps {
   children: ReactNode;
@@ -14,16 +14,7 @@ interface AnimatedListProps {
   itemVariants?: Variants;
 }
 
-const defaultContainerVariants: Variants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
+// Default item variants defined outside component to prevent recreation
 const defaultItemVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -33,12 +24,12 @@ const defaultItemVariants: Variants = {
     opacity: 1,
     y: 0,
     transition: {
-      type: 'tween',
-      ease: 'easeOut',
+      type: 'tween' as const,
+      ease: 'easeOut' as const,
       duration: 0.3,
     },
   },
-};
+} as const;
 
 /**
  * AnimatedList Component
@@ -63,12 +54,13 @@ const defaultItemVariants: Variants = {
  * }
  * ```
  */
-export function AnimatedList({
+export const AnimatedList = memo(function AnimatedList({
   children,
   className,
   staggerDelay = 0.1,
 }: AnimatedListProps) {
-  const containerVariants: Variants = {
+  // Memoize container variants to prevent recreation on each render
+  const containerVariants = useMemo<Variants>(() => ({
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -76,7 +68,7 @@ export function AnimatedList({
         staggerChildren: staggerDelay,
       },
     },
-  };
+  }), [staggerDelay]);
 
   return (
     <motion.div
@@ -88,7 +80,7 @@ export function AnimatedList({
       {children}
     </motion.div>
   );
-}
+})
 
 /**
  * AnimatedListItem Component
@@ -102,7 +94,7 @@ interface AnimatedListItemProps {
   variants?: Variants;
 }
 
-export function AnimatedListItem({
+export const AnimatedListItem = memo(function AnimatedListItem({
   children,
   className,
   variants = defaultItemVariants,
@@ -115,7 +107,7 @@ export function AnimatedListItem({
       {children}
     </motion.div>
   );
-}
+})
 
 /**
  * AnimatedGrid Component
@@ -141,13 +133,13 @@ interface AnimatedGridProps {
   staggerDelay?: number;
 }
 
-export function AnimatedGrid({
+export const AnimatedGrid = memo(function AnimatedGrid({
   children,
   className,
-  pattern = 'sequential',
   staggerDelay = 0.05,
 }: AnimatedGridProps) {
-  const containerVariants: Variants = {
+  // Memoize container variants
+  const containerVariants = useMemo<Variants>(() => ({
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -156,7 +148,7 @@ export function AnimatedGrid({
         delayChildren: 0.1,
       },
     },
-  };
+  }), [staggerDelay]);
 
   return (
     <motion.div
@@ -168,42 +160,60 @@ export function AnimatedGrid({
       {children}
     </motion.div>
   );
-}
+})
+
+// Grid item variants - defined outside component
+const gridItemVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.8,
+  },
+  show: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: 'spring' as const,
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+} as const;
 
 /**
  * AnimatedGridItem Component
  *
  * Grid item with scale + fade animation.
  */
-export function AnimatedGridItem({
+export const AnimatedGridItem = memo(function AnimatedGridItem({
   children,
   className
 }: { children: ReactNode; className?: string }) {
-  const itemVariants: Variants = {
-    hidden: {
-      opacity: 0,
-      scale: 0.8,
-    },
-    show: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        type: 'spring',
-        stiffness: 100,
-        damping: 15,
-      },
-    },
-  };
-
   return (
     <motion.div
-      variants={itemVariants}
+      variants={gridItemVariants}
       className={className}
     >
       {children}
     </motion.div>
   );
-}
+})
+
+// Scale list item variants - defined outside component
+const scaleListItemVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.9,
+  },
+  show: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: 'spring' as const,
+      stiffness: 200,
+      damping: 20,
+    },
+  },
+} as const;
 
 /**
  * ScaleList Component
@@ -222,12 +232,13 @@ export function AnimatedGridItem({
  * </ScaleList>
  * ```
  */
-export function ScaleList({
+export const ScaleList = memo(function ScaleList({
   children,
   className,
   staggerDelay = 0.08,
 }: AnimatedListProps) {
-  const containerVariants: Variants = {
+  // Memoize container variants
+  const containerVariants = useMemo<Variants>(() => ({
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -235,7 +246,7 @@ export function ScaleList({
         staggerChildren: staggerDelay,
       },
     },
-  };
+  }), [staggerDelay]);
 
   return (
     <motion.div
@@ -247,34 +258,18 @@ export function ScaleList({
       {children}
     </motion.div>
   );
-}
+})
 
-export function ScaleListItem({
+export const ScaleListItem = memo(function ScaleListItem({
   children,
   className
 }: { children: ReactNode; className?: string }) {
-  const itemVariants: Variants = {
-    hidden: {
-      opacity: 0,
-      scale: 0.9,
-    },
-    show: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        type: 'spring',
-        stiffness: 200,
-        damping: 20,
-      },
-    },
-  };
-
   return (
     <motion.div
-      variants={itemVariants}
+      variants={scaleListItemVariants}
       className={className}
     >
       {children}
     </motion.div>
   );
-}
+})

@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useCallback, useMemo, memo } from 'react';
 
 import { ClientStatusBadge } from './ClientStatusBadge';
 import {
@@ -49,7 +49,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/components/ui/use-toast';
-import type { Client } from '@/lib/api/clients';
+import type { Client, UpdateClientDto } from '@/lib/api/clients';
 
 export interface ClientDataTableProps {
   data: Client[];
@@ -58,10 +58,11 @@ export interface ClientDataTableProps {
   pageSize: number;
   onPageChange: (page: number) => void;
   onDelete: (id: string) => Promise<void>;
-  onBulkUpdate: (clientIds: string[], updates: any) => Promise<void>;
+  onBulkUpdate: (clientIds: string[], updates: UpdateClientDto) => Promise<void>;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   onSortChange: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
+  onPrefetch?: (id: string) => void;
 }
 
 const typeVariants: Record<string, string> = {
@@ -72,6 +73,36 @@ const typeVariants: Record<string, string> = {
   PROSPECT: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
   PARTNER: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
   VENDOR: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
+};
+
+// Memoized currency formatter for performance
+const currencyFormatter = new Intl.NumberFormat('de-DE', {
+  style: 'currency',
+  currency: 'EUR',
+});
+
+// Memoized date formatter options
+const dateFormatOptions: Intl.DateTimeFormatOptions = {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+};
+
+// Format currency helper (using cached formatter)
+const formatCurrency = (amount?: number): string => {
+  if (!amount) return currencyFormatter.format(0);
+  return currencyFormatter.format(amount);
+};
+
+// Format date helper
+const formatDate = (date?: string): string => {
+  if (!date) return 'Never';
+  return new Date(date).toLocaleDateString('en-GB', dateFormatOptions);
+};
+
+// Helper to get client number
+const getClientNumber = (client: Client): string => {
+  return (client as any).clientNumber || client.id.slice(0, 8).toUpperCase();
 };
 
 export function ClientDataTable({
@@ -85,6 +116,7 @@ export function ClientDataTable({
   sortBy = 'name',
   sortOrder = 'asc',
   onSortChange,
+  onPrefetch,
 }: ClientDataTableProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -101,34 +133,40 @@ export function ClientDataTable({
     lastActivity: true,
   });
 
-  const totalPages = Math.ceil(total / pageSize);
+  const totalPages = useMemo(() => Math.ceil(total / pageSize), [total, pageSize]);
 
-  const handleSort = (column: string) => {
+  // Memoized sort handler
+  const handleSort = useCallback((column: string) => {
     if (sortBy === column) {
       onSortChange(column, sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
       onSortChange(column, 'asc');
     }
-  };
+  }, [sortBy, sortOrder, onSortChange]);
 
-  const handleSelectAll = (checked: boolean) => {
+  // Memoized select all handler
+  const handleSelectAll = useCallback((checked: boolean) => {
     setSelectedIds(checked ? data.map((client) => client.id) : []);
-  };
+  }, [data]);
 
-  const handleSelectOne = (id: string, checked: boolean) => {
+  // Memoized select one handler
+  const handleSelectOne = useCallback((id: string, checked: boolean) => {
     setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((cid) => cid !== id)));
-  };
+  }, []);
 
-  const handleRowClick = (clientId: string) => {
+  // Memoized row click handler
+  const handleRowClick = useCallback((clientId: string) => {
     router.push(`/clients/${clientId}`);
-  };
+  }, [router]);
 
-  const handleDeleteClick = (e: React.MouseEvent, clientId: string) => {
+  // Memoized delete click handler
+  const handleDeleteClick = useCallback((e: React.MouseEvent, clientId: string) => {
     e.stopPropagation();
     setDeleteClientId(clientId);
-  };
+  }, []);
 
-  const handleConfirmDelete = async () => {
+  // Memoized confirm delete handler
+  const handleConfirmDelete = useCallback(async () => {
     if (deleteClientId) {
       try {
         await onDelete(deleteClientId);
@@ -138,28 +176,14 @@ export function ClientDataTable({
         console.error('Delete failed:', error);
       }
     }
-  };
+  }, [deleteClientId, onDelete]);
 
-  const formatCurrency = (amount?: number) => {
-    if (!amount) return '€0.00';
-    return new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(amount);
-  };
-
-  const formatDate = (date?: string) => {
-    if (!date) return 'Never';
-    return new Date(date).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
-
-  const getClientNumber = (client: Client) => {
-    return (client as any).clientNumber || client.id.slice(0, 8).toUpperCase();
-  };
+  // Prefetch handler for hover optimization
+  const handleRowHover = useCallback((clientId: string) => {
+    if (onPrefetch) {
+      onPrefetch(clientId);
+    }
+  }, [onPrefetch]);
 
   if (data.length === 0) {
     return (
@@ -337,6 +361,7 @@ export function ClientDataTable({
                 key={client.id}
                 className="cursor-pointer hover:bg-muted/50"
                 onClick={() => handleRowClick(client.id)}
+                onMouseEnter={() => handleRowHover(client.id)}
               >
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <Checkbox

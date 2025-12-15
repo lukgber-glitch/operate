@@ -12,6 +12,7 @@ import { RecordPaymentDto } from './dto/record-payment.dto';
 import { Prisma, BillStatus, PaymentStatus, AuditEntityType, AuditAction } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 import { FinancialAuditService } from '../../audit/financial-audit.service';
+import { PrismaService } from '../../database/prisma.service';
 
 /**
  * Bills Service
@@ -24,6 +25,7 @@ export class BillsService {
   constructor(
     private readonly billsRepository: BillsRepository,
     private readonly auditService: FinancialAuditService,
+    private readonly prisma: PrismaService,
   ) {}
 
   /**
@@ -669,27 +671,36 @@ export class BillsService {
 
   /**
    * Batch mark overdue bills (to be called by scheduled job)
+   * Optimized: Uses single updateMany instead of individual updates
    */
   async batchMarkOverdue(organisationId: string) {
+    const where = {
+      organisationId,
+      dueDate: { lt: new Date() },
+      paymentStatus: { not: PaymentStatus.COMPLETED },
+      status: { notIn: [BillStatus.OVERDUE, BillStatus.CANCELLED] },
+    };
+
+    // Get bill IDs for return value before updating
     const overdueBills = await this.billsRepository.findAll({
-      where: {
-        organisationId,
-        dueDate: { lt: new Date() },
-        paymentStatus: { not: PaymentStatus.COMPLETED },
-        status: { not: BillStatus.OVERDUE },
+      where,
+      select: { id: true },
+    });
+
+    // Use batch update for better performance
+    const updateResult = await this.prisma.bill.updateMany({
+      where,
+      data: {
+        status: BillStatus.OVERDUE,
       },
     });
 
-    for (const bill of overdueBills) {
-      await this.markOverdue(bill.id);
-    }
-
     this.logger.log(
-      `Marked ${overdueBills.length} bills as overdue for organisation ${organisationId}`,
+      `Marked ${updateResult.count} bills as overdue for organisation ${organisationId}`,
     );
 
     return {
-      count: overdueBills.length,
+      count: updateResult.count,
       billIds: overdueBills.map((b) => b.id),
     };
   }

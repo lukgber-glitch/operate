@@ -70,13 +70,13 @@ function getCategoryConfig(category: InsightCategory) {
       return {
         icon: DollarSign,
         label: 'Tax Optimization',
-        colorClass: 'text-green-600 dark:text-green-400 border-green-500',
+        colorClass: 'text-green-400 border-green-500',
       };
     case 'EXPENSE_ANOMALY':
       return {
         icon: AlertTriangle,
         label: 'Expense Anomaly',
-        colorClass: 'text-orange-600 dark:text-orange-400 border-orange-500',
+        colorClass: 'text-orange-400 border-orange-500',
       };
     case 'CASH_FLOW':
       return {

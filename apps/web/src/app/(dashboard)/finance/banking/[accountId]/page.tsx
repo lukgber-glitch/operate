@@ -3,6 +3,8 @@
 import { ArrowLeft, Download, Filter, RefreshCw, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,6 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { formatCurrency } from '@/lib/utils/currency';
 
 // Placeholder data
 const accountData = {
@@ -164,13 +167,6 @@ export default function AccountTransactionsPage({
     startIndex + pageSize
   );
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(Math.abs(amount));
-  };
-
   const toggleTransaction = (id: string) => {
     setSelectedTransactions((prev) =>
       prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
@@ -196,9 +192,14 @@ export default function AccountTransactionsPage({
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      className="space-y-6"
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+    >
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <motion.div variants={fadeUp} className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/finance/banking">
@@ -223,24 +224,24 @@ export default function AccountTransactionsPage({
             Export
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Account Summary */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      <motion.div variants={fadeUp} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="rounded-[24px]">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Current Balance
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">
-              {formatCurrency(accountData.balance)}
+            <p className="text-2xl text-white font-bold">
+              {formatCurrency(accountData.balance, accountData.currency)}
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-[24px]">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Account Number
@@ -251,7 +252,7 @@ export default function AccountTransactionsPage({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-[24px]">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               BIC/SWIFT
@@ -262,7 +263,7 @@ export default function AccountTransactionsPage({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-[24px]">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Account Type
@@ -272,10 +273,11 @@ export default function AccountTransactionsPage({
             <Badge variant="outline">{accountData.type}</Badge>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
 
       {/* Filters */}
-      <Card>
+      <motion.div variants={fadeUp}>
+        <Card className="rounded-[24px]">
         <CardContent className="pt-6">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-4 sm:flex-row">
@@ -352,9 +354,11 @@ export default function AccountTransactionsPage({
           </div>
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Transactions Table */}
-      <Card>
+      <motion.div variants={fadeUp}>
+        <Card className="rounded-[24px]">
         <CardContent className="p-0">
           <div className="space-y-4">
             <div className="flex items-center justify-between px-6 pt-6">
@@ -445,7 +449,7 @@ export default function AccountTransactionsPage({
                         }`}
                       >
                         {txn.type === 'credit' ? '+' : '-'}
-                        {formatCurrency(txn.amount)}
+                        {formatCurrency(Math.abs(txn.amount), accountData.currency)}
                       </TableCell>
                       <TableCell>
                         {txn.reconciled ? (
@@ -524,6 +528,7 @@ export default function AccountTransactionsPage({
           </div>
         </CardContent>
       </Card>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

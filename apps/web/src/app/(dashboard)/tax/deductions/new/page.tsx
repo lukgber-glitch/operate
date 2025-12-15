@@ -4,6 +4,8 @@ import { ArrowLeft, Save } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/animation-variants';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -96,18 +98,29 @@ export default function NewDeductionPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex items-center gap-4"
+      >
         <Button variant="ghost" size="icon" asChild>
           <Link href="/tax/deductions">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Add Tax Deduction</h1>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Add Tax Deduction</h1>
           <p className="text-muted-foreground">Create a new tax-deductible expense claim</p>
         </div>
-      </div>
+      </motion.div>
 
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+      >
       <Card className="rounded-[24px]">
         <CardContent className="p-6">
         <div className="grid gap-6 lg:grid-cols-3">
@@ -293,7 +306,7 @@ export default function NewDeductionPage() {
                 </div>
                 <div className="pt-4 border-t">
                   <p className="text-sm text-muted-foreground">Estimated Saving</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-2xl text-white font-bold text-green-600">
                     €{calculatePotentialSaving()}
                   </p>
                 </div>
@@ -339,6 +352,7 @@ export default function NewDeductionPage() {
         </div>
         </CardContent>
       </Card>
+      </motion.div>
     </div>
   );
 }

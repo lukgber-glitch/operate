@@ -45,6 +45,31 @@ import { TaxConsultationHandler } from './handlers/tax-consultation.handler';
 import { CreateCustomerHandler } from './handlers/create-customer.handler';
 import { GetBankBalanceHandler } from './handlers/get-bank-balance.handler';
 import { GetBankTransactionsHandler } from './handlers/get-bank-transactions.handler';
+// Quotes handlers
+import { CreateQuoteHandler } from './handlers/create-quote.handler';
+import { SendQuoteHandler } from './handlers/send-quote.handler';
+import { GetQuoteStatusHandler } from './handlers/get-quote-status.handler';
+import { ConvertQuoteToInvoiceHandler } from './handlers/convert-quote-to-invoice.handler';
+// Time tracking handlers
+import { StartTimerHandler } from './handlers/start-timer.handler';
+import { StopTimerHandler } from './handlers/stop-timer.handler';
+import { GetTimeSummaryHandler } from './handlers/get-time-summary.handler';
+import { LogTimeHandler } from './handlers/log-time.handler';
+// Mileage handlers
+import { LogMileageHandler } from './handlers/log-mileage.handler';
+import { GetMileageSummaryHandler } from './handlers/get-mileage-summary.handler';
+// Contract handlers
+import { CreateContractHandler } from './handlers/create-contract.handler';
+import { SendContractHandler } from './handlers/send-contract.handler';
+import { GetContractStatusHandler } from './handlers/get-contract-status.handler';
+// Health score handlers
+import { GetBusinessHealthHandler } from './handlers/get-business-health.handler';
+import { GetHealthRecommendationsHandler } from './handlers/get-health-recommendations.handler';
+// Project handlers
+import { CreateProjectHandler } from './handlers/create-project.handler';
+import { GetProjectStatusHandler } from './handlers/get-project-status.handler';
+// Payment initiation handlers
+import { InitiatePaymentHandler } from './handlers/initiate-payment.handler';
 import { ActionStatus } from '@prisma/client';
 
 @Injectable()
@@ -84,6 +109,31 @@ export class ActionExecutorService {
     private createCustomerHandler: CreateCustomerHandler,
     private getBankBalanceHandler: GetBankBalanceHandler,
     private getBankTransactionsHandler: GetBankTransactionsHandler,
+    // Quotes handlers
+    private createQuoteHandler: CreateQuoteHandler,
+    private sendQuoteHandler: SendQuoteHandler,
+    private getQuoteStatusHandler: GetQuoteStatusHandler,
+    private convertQuoteToInvoiceHandler: ConvertQuoteToInvoiceHandler,
+    // Time tracking handlers
+    private startTimerHandler: StartTimerHandler,
+    private stopTimerHandler: StopTimerHandler,
+    private getTimeSummaryHandler: GetTimeSummaryHandler,
+    private logTimeHandler: LogTimeHandler,
+    // Mileage handlers
+    private logMileageHandler: LogMileageHandler,
+    private getMileageSummaryHandler: GetMileageSummaryHandler,
+    // Contract handlers
+    private createContractHandler: CreateContractHandler,
+    private sendContractHandler: SendContractHandler,
+    private getContractStatusHandler: GetContractStatusHandler,
+    // Health score handlers
+    private getBusinessHealthHandler: GetBusinessHealthHandler,
+    private getHealthRecommendationsHandler: GetHealthRecommendationsHandler,
+    // Project handlers
+    private createProjectHandler: CreateProjectHandler,
+    private getProjectStatusHandler: GetProjectStatusHandler,
+    // Payment initiation handlers
+    private initiatePaymentHandler: InitiatePaymentHandler,
   ) {
     this.registerHandlers();
   }
@@ -115,6 +165,31 @@ export class ActionExecutorService {
     this.handlers.set(ActionType.CREATE_CUSTOMER, this.createCustomerHandler);
     this.handlers.set(ActionType.GET_BANK_BALANCE, this.getBankBalanceHandler);
     this.handlers.set(ActionType.GET_BANK_TRANSACTIONS, this.getBankTransactionsHandler);
+    // Quotes handlers
+    this.handlers.set(ActionType.CREATE_QUOTE, this.createQuoteHandler);
+    this.handlers.set(ActionType.SEND_QUOTE, this.sendQuoteHandler);
+    this.handlers.set(ActionType.GET_QUOTE_STATUS, this.getQuoteStatusHandler);
+    this.handlers.set(ActionType.CONVERT_QUOTE_TO_INVOICE, this.convertQuoteToInvoiceHandler);
+    // Time tracking handlers
+    this.handlers.set(ActionType.START_TIMER, this.startTimerHandler);
+    this.handlers.set(ActionType.STOP_TIMER, this.stopTimerHandler);
+    this.handlers.set(ActionType.GET_TIME_SUMMARY, this.getTimeSummaryHandler);
+    this.handlers.set(ActionType.LOG_TIME, this.logTimeHandler);
+    // Mileage handlers
+    this.handlers.set(ActionType.LOG_MILEAGE, this.logMileageHandler);
+    this.handlers.set(ActionType.GET_MILEAGE_SUMMARY, this.getMileageSummaryHandler);
+    // Contract handlers
+    this.handlers.set(ActionType.CREATE_CONTRACT, this.createContractHandler);
+    this.handlers.set(ActionType.SEND_CONTRACT, this.sendContractHandler);
+    this.handlers.set(ActionType.GET_CONTRACT_STATUS, this.getContractStatusHandler);
+    // Health score handlers
+    this.handlers.set(ActionType.GET_BUSINESS_HEALTH, this.getBusinessHealthHandler);
+    this.handlers.set(ActionType.GET_HEALTH_RECOMMENDATIONS, this.getHealthRecommendationsHandler);
+    // Project handlers
+    this.handlers.set(ActionType.CREATE_PROJECT, this.createProjectHandler);
+    this.handlers.set(ActionType.GET_PROJECT_STATUS, this.getProjectStatusHandler);
+    // Payment initiation handlers
+    this.handlers.set(ActionType.INITIATE_PAYMENT, this.initiatePaymentHandler);
 
     this.logger.log(`Registered ${this.handlers.size} action handlers`);
   }

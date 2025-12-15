@@ -1,7 +1,9 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -105,36 +107,46 @@ export default function ReviewPage() {
   const allRequiredComplete = completedRequired === requiredDocs.length;
 
   return (
-    <div className="container max-w-4xl mx-auto py-8 space-y-6">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="container max-w-4xl mx-auto py-8 space-y-6"
+    >
       {/* Progress */}
-      <VerificationProgress
-        steps={verificationSteps}
-        currentStep={2}
-        completedSteps={new Set([0, 1])}
-      />
+      <motion.div variants={fadeUp}>
+        <VerificationProgress
+          steps={verificationSteps}
+          currentStep={2}
+          completedSteps={new Set([0, 1])}
+        />
+      </motion.div>
 
       {/* Header */}
-      <div>
+      <motion.div variants={fadeUp}>
         <h1 className="text-3xl font-bold mb-2">Review & Submit</h1>
         <p className="text-muted-foreground">
           Please review your information before submitting for verification
         </p>
-      </div>
+      </motion.div>
 
       {/* Warning if not all required docs uploaded */}
       {!allRequiredComplete && (
-        <Alert variant="destructive">
+        <motion.div variants={fadeUp}>
+          <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Missing Required Documents</AlertTitle>
           <AlertDescription>
             You have not uploaded all required documents. Please go back and complete
             the document upload before submitting.
           </AlertDescription>
-        </Alert>
+          </Alert>
+        </motion.div>
       )}
 
       {/* Verification Summary */}
-      <Card>
+      <motion.div variants={fadeUp}>
+        <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="w-5 h-5" />
@@ -158,10 +170,12 @@ export default function ReviewPage() {
             </div>
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </motion.div>
 
       {/* Documents Summary */}
-      <Card>
+      <motion.div variants={fadeUp}>
+        <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
@@ -202,10 +216,12 @@ export default function ReviewPage() {
             ))}
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </motion.div>
 
       {/* Important Information */}
-      <Alert>
+      <motion.div variants={fadeUp}>
+        <Alert>
         <Info className="h-4 w-4" />
         <AlertTitle>What happens next?</AlertTitle>
         <AlertDescription>
@@ -216,10 +232,12 @@ export default function ReviewPage() {
             <li>You can check the status anytime in your verification dashboard</li>
           </ul>
         </AlertDescription>
-      </Alert>
+        </Alert>
+      </motion.div>
 
       {/* Terms Agreement */}
-      <Card>
+      <motion.div variants={fadeUp}>
+        <Card>
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
             <Checkbox
@@ -243,10 +261,11 @@ export default function ReviewPage() {
             </div>
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </motion.div>
 
       {/* Navigation */}
-      <div className="flex justify-between pt-4">
+      <motion.div variants={fadeUp} className="flex justify-between pt-4">
         <Button variant="outline" onClick={handleBack} disabled={isSubmitting}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
@@ -260,7 +279,7 @@ export default function ReviewPage() {
           <Send className="w-4 h-4" />
           {isSubmitting ? 'Submitting...' : 'Submit for Review'}
         </Button>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

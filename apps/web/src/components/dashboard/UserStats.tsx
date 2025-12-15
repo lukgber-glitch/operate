@@ -95,8 +95,8 @@ function StatCard({ icon: Icon, label, value, suffix, trend, isLoading, isEmpty 
           className={cn(
             'flex items-center gap-1 text-xs mt-1',
             trend.isPositive
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
+              ? 'text-green-400'
+              : 'text-red-400'
           )}
         >
           <TrendingUp
@@ -197,7 +197,7 @@ export function UserStats({ className }: UserStatsProps) {
 
         {!isLoading && !hasData && (
           <div className="mt-4 p-3 rounded-lg bg-muted border border-border">
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-xs text-gray-300 text-center">
               Connect your bank or upload documents to see your stats
             </p>
           </div>

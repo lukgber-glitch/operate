@@ -7,7 +7,12 @@ export * from './entity-extractor.service';
 export * from './relationship-tracker.service';
 export * from './email-aggregator.service';
 export * from './bill-creator.service';
+export * from './email-filter.service';
+export * from './email-filter.controller';
+export * from './review-queue.service';
+export * from './review-queue.controller';
 export * from './email-intelligence.module';
+export * from './utils/header-analyzer';
 
 // Export types separately to avoid conflicts
 export type {

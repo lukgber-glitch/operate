@@ -6,6 +6,7 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 import type { ChatMessage, ChatConversation, MessageStatus } from '../types/chat';
 import type { Suggestion } from '../types/suggestions';
 
@@ -391,18 +392,18 @@ export const useActiveConversation = () =>
 
 /**
  * Hook to get active messages (including pending)
+ * OPTIMIZED: Uses useShallow for stable array reference
  */
 export const useActiveMessages = () => {
-  const messages = useChatStore((state) => state.getActiveMessages());
-  const activeConversationId = useChatStore((state) => state.activeConversationId);
-  const pendingMessages = useChatStore((state) =>
-    activeConversationId
+  return useChatStore(useShallow((state) => {
+    const messages = state.getActiveMessages();
+    const activeConversationId = state.activeConversationId;
+    const pendingMessages = activeConversationId
       ? state.getPendingMessagesForConversation(activeConversationId)
-      : []
-  );
-
-  // Combine real and pending messages
-  return [...messages, ...pendingMessages];
+      : [];
+    // Combine real and pending messages
+    return [...messages, ...pendingMessages];
+  }));
 };
 
 /**
@@ -425,14 +426,15 @@ export const useHasConversations = () =>
 
 /**
  * Hook to get chat UI state
+ * OPTIMIZED: Uses useShallow to prevent unnecessary re-renders
  */
 export const useChatUIState = () =>
-  useChatStore((state) => ({
+  useChatStore(useShallow((state) => ({
     isLoading: state.isLoading,
     isSending: state.isSending,
     isTyping: state.isTyping,
     error: state.error,
-  }));
+  })));
 
 /**
  * Hook to get suggestions
@@ -441,9 +443,11 @@ export const useSuggestions = () => useChatStore((state) => state.suggestions);
 
 /**
  * Hook to get chat actions
+ * OPTIMIZED: Uses useShallow to prevent re-renders when actions reference changes
+ * Note: Zustand actions are stable, but the wrapper object needs shallow comparison
  */
 export const useChatActions = () =>
-  useChatStore((state) => ({
+  useChatStore(useShallow((state) => ({
     // Conversation actions
     setActiveConversation: state.setActiveConversation,
     addConversation: state.addConversation,
@@ -477,4 +481,4 @@ export const useChatActions = () =>
     // Bulk operations
     resetStore: state.resetStore,
     hydrateConversations: state.hydrateConversations,
-  }));
+  })));

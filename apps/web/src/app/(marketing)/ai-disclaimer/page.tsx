@@ -32,7 +32,7 @@ export default function AIDisclaimerPage() {
             className="text-lg"
             style={{ color: 'var(--color-text-secondary)' }}
           >
-            Last updated: December 7, 2025
+            Last updated: December 14, 2025
           </p>
         </div>
 
@@ -191,9 +191,64 @@ export default function AIDisclaimerPage() {
             </div>
           </section>
 
+          {/* AI-Assisted Payments */}
+          <section>
+            <h2 className="text-2xl font-bold mb-4">4. AI-Assisted Payments</h2>
+            <div
+              className="p-6 rounded-[var(--radius-lg)]"
+              style={{ backgroundColor: 'var(--color-error-bg)', borderLeft: '4px solid var(--color-error)' }}
+            >
+              <h3 className="text-xl font-semibold mb-3" style={{ color: 'var(--color-error)' }}>
+                CRITICAL: AI Does NOT Authorize Payments
+              </h3>
+              <p className="mb-4" style={{ color: 'var(--color-text-secondary)' }}>
+                When the AI assistant suggests or helps initiate payments, you must understand:
+              </p>
+              <ul className="list-disc pl-6 space-y-2" style={{ color: 'var(--color-text-secondary)' }}>
+                <li>
+                  <strong>The AI provides information and facilitates requests</strong> - it does NOT authorize payments on your behalf
+                </li>
+                <li>
+                  <strong>All payment authorizations require YOUR confirmation</strong> in your banking app using Strong Customer Authentication (SCA)
+                </li>
+                <li>
+                  <strong>You are responsible for verifying payment details</strong> before confirming in your bank app
+                </li>
+                <li>
+                  <strong>The AI may make errors</strong> in extracting or suggesting payment amounts, recipient details, or invoice data
+                </li>
+                <li>
+                  <strong>Always verify:</strong> recipient name, account number, amount, currency, and payment reference
+                </li>
+              </ul>
+            </div>
+
+            <div
+              className="p-6 rounded-[var(--radius-lg)] mt-4"
+              style={{ backgroundColor: 'var(--color-warning-bg)', borderLeft: '4px solid var(--color-warning)' }}
+            >
+              <h3 className="text-xl font-semibold mb-3" style={{ color: 'var(--color-warning)' }}>
+                Examples of AI Payment Errors
+              </h3>
+              <p className="mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+                The AI might:
+              </p>
+              <ul className="list-disc pl-6 space-y-2" style={{ color: 'var(--color-text-secondary)' }}>
+                <li>Extract the wrong amount from an invoice (e.g., reading subtotal instead of total)</li>
+                <li>Misidentify the vendor or recipient</li>
+                <li>Suggest paying an invoice that was already paid</li>
+                <li>Confuse similar vendor names or account numbers</li>
+                <li>Misread currencies (e.g., confusing $ with €)</li>
+              </ul>
+              <p className="mt-4 font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                YOU are the final authority. ALWAYS double-check before authorizing in your bank app.
+              </p>
+            </div>
+          </section>
+
           {/* User Responsibility */}
           <section>
-            <h2 className="text-2xl font-bold mb-4">4. Your Responsibility</h2>
+            <h2 className="text-2xl font-bold mb-4">5. Your Responsibility</h2>
             <div
               className="p-6 rounded-[var(--radius-lg)]"
               style={{ backgroundColor: 'var(--color-surface)' }}
@@ -228,7 +283,7 @@ export default function AIDisclaimerPage() {
 
           {/* No Liability */}
           <section>
-            <h2 className="text-2xl font-bold mb-4">5. Limitation of Liability</h2>
+            <h2 className="text-2xl font-bold mb-4">6. Limitation of Liability</h2>
             <div
               className="p-8 rounded-[var(--radius-lg)]"
               style={{ backgroundColor: 'var(--color-error-bg)', borderLeft: '6px solid var(--color-error)' }}
@@ -254,7 +309,7 @@ export default function AIDisclaimerPage() {
 
           {/* Professional Advice */}
           <section>
-            <h2 className="text-2xl font-bold mb-4">6. When to Seek Professional Advice</h2>
+            <h2 className="text-2xl font-bold mb-4">7. When to Seek Professional Advice</h2>
             <p className="mb-4" style={{ color: 'var(--color-text-secondary)' }}>
               You should <strong>ALWAYS</strong> consult with licensed professionals for:
             </p>
@@ -319,7 +374,7 @@ export default function AIDisclaimerPage() {
               className="p-8 rounded-[var(--radius-lg)]"
               style={{ backgroundColor: 'var(--color-primary)', color: 'white' }}
             >
-              <h2 className="text-2xl font-bold mb-4">7. Your Acknowledgment</h2>
+              <h2 className="text-2xl font-bold mb-4">8. Your Acknowledgment</h2>
               <p className="text-lg">
                 By using the AI features in Operate, you acknowledge that:
               </p>
@@ -336,7 +391,7 @@ export default function AIDisclaimerPage() {
 
           {/* Contact */}
           <section>
-            <h2 className="text-2xl font-bold mb-4">8. Questions or Concerns</h2>
+            <h2 className="text-2xl font-bold mb-4">9. Questions or Concerns</h2>
             <p className="mb-4" style={{ color: 'var(--color-text-secondary)' }}>
               If you have questions about AI features or this disclaimer:
             </p>

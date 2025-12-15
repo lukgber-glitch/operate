@@ -10,3 +10,28 @@ export {
   DashboardPageSkeleton,
   FormPageSkeleton,
 } from './PageLoader';
+
+// Document skeletons
+export {
+  DocumentCardSkeleton,
+  DocumentRowSkeleton,
+  DocumentGridSkeleton,
+  DocumentListSkeleton,
+  FolderSidebarSkeleton,
+  DocumentsPageSkeleton,
+  DocumentUploadSkeleton,
+  UploadProgressSkeleton,
+} from './DocumentSkeleton';
+
+// Report skeletons
+export {
+  ReportStatCardSkeleton,
+  ReportStatsSkeleton,
+  ReportChartSkeleton,
+  ReportTableSkeleton,
+  FinancialReportSkeleton,
+  TaxReportSkeleton,
+  ClientMetricsSkeleton,
+  DocumentStatsSkeleton,
+  ReportsPageSkeleton,
+} from './ReportSkeleton';

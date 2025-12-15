@@ -61,6 +61,31 @@ import { TaxConsultationHandler } from './actions/handlers/tax-consultation.hand
 import { CreateCustomerHandler } from './actions/handlers/create-customer.handler';
 import { GetBankBalanceHandler } from './actions/handlers/get-bank-balance.handler';
 import { GetBankTransactionsHandler } from './actions/handlers/get-bank-transactions.handler';
+// Quotes handlers
+import { CreateQuoteHandler } from './actions/handlers/create-quote.handler';
+import { SendQuoteHandler } from './actions/handlers/send-quote.handler';
+import { GetQuoteStatusHandler } from './actions/handlers/get-quote-status.handler';
+import { ConvertQuoteToInvoiceHandler } from './actions/handlers/convert-quote-to-invoice.handler';
+// Time tracking handlers
+import { StartTimerHandler } from './actions/handlers/start-timer.handler';
+import { StopTimerHandler } from './actions/handlers/stop-timer.handler';
+import { GetTimeSummaryHandler } from './actions/handlers/get-time-summary.handler';
+import { LogTimeHandler } from './actions/handlers/log-time.handler';
+// Mileage handlers
+import { LogMileageHandler } from './actions/handlers/log-mileage.handler';
+import { GetMileageSummaryHandler } from './actions/handlers/get-mileage-summary.handler';
+// Contract handlers
+import { CreateContractHandler } from './actions/handlers/create-contract.handler';
+import { SendContractHandler } from './actions/handlers/send-contract.handler';
+import { GetContractStatusHandler } from './actions/handlers/get-contract-status.handler';
+// Health score handlers
+import { GetBusinessHealthHandler } from './actions/handlers/get-business-health.handler';
+import { GetHealthRecommendationsHandler } from './actions/handlers/get-health-recommendations.handler';
+// Project handlers
+import { CreateProjectHandler } from './actions/handlers/create-project.handler';
+import { GetProjectStatusHandler } from './actions/handlers/get-project-status.handler';
+// Payment initiation handlers
+import { InitiatePaymentHandler } from './actions/handlers/initiate-payment.handler';
 
 // Import dependent modules for action handlers
 import { InvoicesModule } from '../finance/invoices/invoices.module';
@@ -75,8 +100,15 @@ import { EmailIntelligenceModule } from '../ai/email-intelligence/email-intellig
 import { UsageModule } from '../subscription/usage/usage.module';
 import { HrModule } from '../hr/hr.module';
 import { TinkModule } from '../integrations/tink/tink.module';
+import { TrueLayerModule } from '../integrations/truelayer/truelayer.module';
 import { StripeModule } from '../integrations/stripe/stripe.module';
 import { CrmModule } from '../crm/crm.module';
+// New feature modules
+import { QuotesModule } from '../quotes/quotes.module';
+import { TimeTrackingModule } from '../time-tracking/time-tracking.module';
+import { MileageModule } from '../mileage/mileage.module';
+import { ContractsModule } from '../contracts/contracts.module';
+import { HealthScoreModule } from '../health-score/health-score.module';
 
 // Proactive suggestions
 import { ProactiveSuggestionsService } from './suggestions/proactive-suggestions.service';
@@ -113,10 +145,17 @@ import { ChatScenarioExtension } from './chat-scenario.extension';
     HrModule,
     // Banking integrations for chatbot access to bank data
     TinkModule,
-    // Payment integrations for chatbot payment functionality
+    // Payment integrations for chatbot payment and PIS functionality
+    TrueLayerModule,
     StripeModule,
     // CRM for customer management in chatbot
     CrmModule,
+    // New feature modules
+    QuotesModule,
+    TimeTrackingModule,
+    MileageModule,
+    ContractsModule,
+    HealthScoreModule,
     // Rate limiting: 50 messages per hour per user
     ThrottlerModule.forRoot([
       {
@@ -177,6 +216,31 @@ import { ChatScenarioExtension } from './chat-scenario.extension';
     CreateCustomerHandler,
     GetBankBalanceHandler,
     GetBankTransactionsHandler,
+    // Quotes handlers
+    CreateQuoteHandler,
+    SendQuoteHandler,
+    GetQuoteStatusHandler,
+    ConvertQuoteToInvoiceHandler,
+    // Time tracking handlers
+    StartTimerHandler,
+    StopTimerHandler,
+    GetTimeSummaryHandler,
+    LogTimeHandler,
+    // Mileage handlers
+    LogMileageHandler,
+    GetMileageSummaryHandler,
+    // Contract handlers
+    CreateContractHandler,
+    SendContractHandler,
+    GetContractStatusHandler,
+    // Health score handlers
+    GetBusinessHealthHandler,
+    GetHealthRecommendationsHandler,
+    // Project handlers
+    CreateProjectHandler,
+    GetProjectStatusHandler,
+    // Payment initiation handlers
+    InitiatePaymentHandler,
 
     // Proactive suggestions
     ProactiveSuggestionsService,

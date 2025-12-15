@@ -4,6 +4,7 @@ import { ArrowLeft, Download, Edit, Send, Check, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 
 import {
   AlertDialog,
@@ -43,6 +44,8 @@ import {
   type EInvoiceFormat,
   type EInvoiceOptions,
 } from '@/components/e-invoice';
+import { formatCurrency } from '@/lib/utils/currency';
+import { fadeUp, staggerContainer } from '@/lib/animation-variants';
 
 // Placeholder data
 const invoiceData = {
@@ -62,6 +65,7 @@ const invoiceData = {
   issueDate: '2024-11-15',
   dueDate: '2024-12-15',
   paymentTerms: 'Net 30',
+  currency: 'EUR',
   lineItems: [
     {
       id: '1',
@@ -187,8 +191,13 @@ export default function InvoiceDetailPage({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <motion.div
+      className="space-y-6"
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div variants={fadeUp} className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/finance/invoices">
@@ -196,7 +205,7 @@ export default function InvoiceDetailPage({
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{invoiceData.number}</h1>
+            <h1 className="text-2xl text-white font-semibold tracking-tight">{invoiceData.number}</h1>
             <p className="text-muted-foreground">Invoice details</p>
           </div>
         </div>
@@ -259,10 +268,10 @@ export default function InvoiceDetailPage({
             </Button>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Status Badge */}
-      <div className="flex items-center gap-2">
+      <motion.div variants={fadeUp} className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Status:</span>
         <Badge
           variant="secondary"
@@ -270,10 +279,11 @@ export default function InvoiceDetailPage({
         >
           {status}
         </Badge>
-      </div>
+      </motion.div>
 
       {/* Invoice Details */}
-      <Card className="rounded-[24px]">
+      <motion.div variants={fadeUp}>
+        <Card className="rounded-[24px]">
         <CardContent className="p-6">
         <div className="space-y-8">
             {/* Header Information */}
@@ -353,13 +363,13 @@ export default function InvoiceDetailPage({
                         {item.quantity}
                       </TableCell>
                       <TableCell className="text-right">
-                        €{item.unitPrice.toFixed(2)}
+                        {formatCurrency(item.unitPrice, invoiceData.currency)}
                       </TableCell>
                       <TableCell className="text-right">
                         {item.taxRate}%
                       </TableCell>
                       <TableCell className="text-right font-medium">
-                        €{item.amount.toFixed(2)}
+                        {formatCurrency(item.amount, invoiceData.currency)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -370,7 +380,7 @@ export default function InvoiceDetailPage({
                       Subtotal
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      €{calculateSubtotal().toFixed(2)}
+                      {formatCurrency(calculateSubtotal(), invoiceData.currency)}
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -378,7 +388,7 @@ export default function InvoiceDetailPage({
                       Tax
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      €{calculateTax().toFixed(2)}
+                      {formatCurrency(calculateTax(), invoiceData.currency)}
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -386,7 +396,7 @@ export default function InvoiceDetailPage({
                       Total
                     </TableCell>
                     <TableCell className="text-right text-lg font-bold">
-                      €{calculateTotal().toFixed(2)}
+                      {formatCurrency(calculateTotal(), invoiceData.currency)}
                     </TableCell>
                   </TableRow>
                 </TableFooter>
@@ -410,10 +420,12 @@ export default function InvoiceDetailPage({
         </div>
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Actions */}
       {status !== 'paid' && (
-        <Card className="rounded-[24px]">
+        <motion.div variants={fadeUp}>
+          <Card className="rounded-[24px]">
           <CardContent className="p-6">
           <div className="text-lg font-semibold mb-4">Actions</div>
             <AlertDialog>
@@ -444,7 +456,8 @@ export default function InvoiceDetailPage({
             </AlertDialog>
           </CardContent>
         </Card>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }

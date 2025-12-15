@@ -30,7 +30,7 @@
  * }, []);
  */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { Socket } from 'socket.io-client';
 import { connectSocket, disconnectSocket, isSocketConnected } from '@/lib/websocket/socket-client';
 import { WebSocketEvent, WebSocketPayload } from '@operate/shared';
@@ -247,13 +247,14 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
     };
   }, [autoConnect, connect]);
 
-  return {
+  // Memoize return object to prevent unnecessary re-renders in consumers
+  return useMemo(() => ({
     connected,
     subscribe,
     connect,
     disconnect,
     emit,
-  };
+  }), [connected, subscribe, connect, disconnect, emit]);
 };
 
 /**

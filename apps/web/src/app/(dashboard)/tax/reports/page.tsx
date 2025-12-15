@@ -2,10 +2,13 @@
 
 import { Download, FileText, Calendar, TrendingUp, TrendingDown, Calculator } from 'lucide-react';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/animation-variants';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -47,10 +50,15 @@ export default function TaxReportsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Tax Reports</h1>
-          <p className="text-muted-foreground">Generate and view comprehensive tax reports</p>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">Tax Reports</h1>
+          <p className="text-white/70">Generate and view comprehensive tax reports</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleGenerateReport}>
@@ -62,13 +70,18 @@ export default function TaxReportsPage() {
             Generate Report
           </Button>
         </div>
-      </div>
+      </motion.div>
 
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6 space-y-6">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+      >
+      <GlassCard padding="lg" className="space-y-6">
 
       {/* Report Filters */}
-      <Card>
+      <GlassCard>
         <CardContent className="pt-6">
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-2">
@@ -115,16 +128,16 @@ export default function TaxReportsPage() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </GlassCard>
 
       {/* Tax Summary Stats */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <GlassCard>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-white/70">
               Total Income
             </CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <TrendingUp className="h-4 w-4 text-white/70" />
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -134,20 +147,20 @@ export default function TaxReportsPage() {
               </>
             ) : (
               <>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl text-white font-bold">
                   €{report?.summary.totalIncome.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0.00'}
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-xs text-white/70">
                   Tax year {report?.summary.year || selectedYear}
                 </p>
               </>
             )}
           </CardContent>
-        </Card>
+        </GlassCard>
 
-        <Card>
+        <GlassCard>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-white/70">
               Total Deductions
             </CardTitle>
             <TrendingDown className="h-4 w-4 text-green-600" />
@@ -160,23 +173,23 @@ export default function TaxReportsPage() {
               </>
             ) : (
               <>
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl text-white font-bold text-green-600">
                   €{report?.summary.totalDeductions.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0.00'}
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-xs text-white/70">
                   Reducing taxable income
                 </p>
               </>
             )}
           </CardContent>
-        </Card>
+        </GlassCard>
 
-        <Card>
+        <GlassCard>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-white/70">
               Estimated Tax
             </CardTitle>
-            <Calculator className="h-4 w-4 text-muted-foreground" />
+            <Calculator className="h-4 w-4 text-white/70" />
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -186,20 +199,20 @@ export default function TaxReportsPage() {
               </>
             ) : (
               <>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl text-white font-bold">
                   €{report?.summary.estimatedTax.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0.00'}
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-xs text-white/70">
                   Total tax liability
                 </p>
               </>
             )}
           </CardContent>
-        </Card>
+        </GlassCard>
 
-        <Card>
+        <GlassCard>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-white/70">
               VAT Payable
             </CardTitle>
             <Calendar className="h-4 w-4 text-red-600" />
@@ -212,25 +225,25 @@ export default function TaxReportsPage() {
               </>
             ) : (
               <>
-                <div className="text-2xl font-bold text-red-600">
+                <div className="text-2xl text-white font-bold text-red-600">
                   €{report?.summary.netVat.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0.00'}
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-xs text-white/70">
                   Current period
                 </p>
               </>
             )}
           </CardContent>
-        </Card>
+        </GlassCard>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Deductions by Category */}
         <div className="lg:col-span-2">
-          <Card>
+          <GlassCard>
             <CardHeader>
               <CardTitle>Deductions by Category</CardTitle>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-white/70">
                 Breakdown of tax-deductible expenses for {selectedYear}
               </p>
             </CardHeader>
@@ -256,7 +269,7 @@ export default function TaxReportsPage() {
                     ))
                   ) : !report?.deductionsByCategory || report.deductionsByCategory.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center text-muted-foreground">
+                      <TableCell colSpan={4} className="text-center text-white/70">
                         No deductions found
                       </TableCell>
                     </TableRow>
@@ -303,12 +316,12 @@ export default function TaxReportsPage() {
                 </TableBody>
               </Table>
             </CardContent>
-          </Card>
+          </GlassCard>
         </div>
 
         {/* Tax Summary Breakdown */}
         <div>
-          <Card>
+          <GlassCard>
             <CardHeader>
               <CardTitle>Tax Calculation</CardTitle>
             </CardHeader>
@@ -322,7 +335,7 @@ export default function TaxReportsPage() {
               ) : report ? (
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total Income:</span>
+                    <span className="text-white/70">Total Income:</span>
                     <span className="font-medium">
                       €{report.summary.totalIncome.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                     </span>
@@ -341,13 +354,13 @@ export default function TaxReportsPage() {
                   </div>
                   <div className="border-t pt-2">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Income Tax:</span>
+                      <span className="text-white/70">Income Tax:</span>
                       <span className="font-medium">
                         €{report.summary.estimatedTax.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                       </span>
                     </div>
                     <div className="flex justify-between mt-2">
-                      <span className="text-muted-foreground">VAT Payable:</span>
+                      <span className="text-white/70">VAT Payable:</span>
                       <span className="font-medium">
                         €{report.summary.netVat.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                       </span>
@@ -355,12 +368,12 @@ export default function TaxReportsPage() {
                   </div>
                 </div>
               ) : (
-                <p className="text-muted-foreground text-center">No data available</p>
+                <p className="text-white/70 text-center">No data available</p>
               )}
             </CardContent>
-          </Card>
+          </GlassCard>
 
-          <Card className="mt-6">
+          <GlassCard className="mt-6">
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
@@ -378,15 +391,15 @@ export default function TaxReportsPage() {
                 VAT Report
               </Button>
             </CardContent>
-          </Card>
+          </GlassCard>
         </div>
       </div>
 
       {/* Upcoming Deadlines */}
-      <Card>
+      <GlassCard>
         <CardHeader>
           <CardTitle>Upcoming Tax Deadlines</CardTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-white/70">
             Important filing and payment dates for {selectedYear}
           </p>
         </CardHeader>
@@ -414,7 +427,7 @@ export default function TaxReportsPage() {
                 ))
               ) : !report?.deadlines || report.deadlines.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center text-white/70">
                     No upcoming deadlines
                   </TableCell>
                 </TableRow>
@@ -443,9 +456,9 @@ export default function TaxReportsPage() {
             </TableBody>
           </Table>
         </CardContent>
-      </Card>
-        </CardContent>
-      </Card>
+      </GlassCard>
+      </GlassCard>
+      </motion.div>
     </div>
   );
 }

@@ -145,7 +145,7 @@ export default function EmployeeDocumentsPage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Documents</h1>
+            <h1 className="text-2xl text-white font-semibold tracking-tight">Documents</h1>
             <p className="text-muted-foreground">Upload and manage employee documents</p>
           </div>
         </div>

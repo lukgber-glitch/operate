@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
 import { useToast } from '@/components/ui/use-toast';
 import { handleApiError } from '@/lib/api/error-handler';
@@ -22,6 +22,23 @@ interface UseInvoicesState {
   error: string | null;
 }
 
+// Debounce hook for optimized filter changes
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 export function useInvoices(initialFilters?: InvoiceFilters) {
   const { toast } = useToast();
   const [state, setState] = useState<UseInvoicesState>({
@@ -36,7 +53,21 @@ export function useInvoices(initialFilters?: InvoiceFilters) {
 
   const [filters, setFilters] = useState<InvoiceFilters>(initialFilters || {});
 
+  // Abort controller for cancelling in-flight requests
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
+
   const fetchInvoices = useCallback(async (customFilters?: InvoiceFilters) => {
+    // Cancel any in-flight request
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = new AbortController();
+
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
       const mergedFilters = { ...filters, ...customFilters };
@@ -50,7 +81,9 @@ export function useInvoices(initialFilters?: InvoiceFilters) {
         isLoading: false,
         error: null,
       });
-    } catch (error) {
+    } catch (error: any) {
+      // Ignore abort errors
+      if (error?.name === 'AbortError') return;
       const errorMessage = handleApiError(error);
       setState(prev => ({
         ...prev,
@@ -246,7 +279,30 @@ export function useInvoices(initialFilters?: InvoiceFilters) {
     }
   }, [toast]);
 
-  return {
+  // Memoized computed values for performance
+  const invoiceSummary = useMemo(() => {
+    if (state.invoices.length === 0) {
+      return { totalAmount: 0, paidCount: 0, draftCount: 0, overdueCount: 0 };
+    }
+
+    return state.invoices.reduce(
+      (acc, invoice) => ({
+        totalAmount: acc.totalAmount + (invoice.totalAmount || 0),
+        paidCount: acc.paidCount + (invoice.status === 'PAID' ? 1 : 0),
+        draftCount: acc.draftCount + (invoice.status === 'DRAFT' ? 1 : 0),
+        overdueCount: acc.overdueCount + (invoice.status === 'OVERDUE' ? 1 : 0),
+      }),
+      { totalAmount: 0, paidCount: 0, draftCount: 0, overdueCount: 0 }
+    );
+  }, [state.invoices]);
+
+  // Find invoice by ID from cached list (avoid API call if already loaded)
+  const getInvoiceById = useCallback((id: string): Invoice | undefined => {
+    return state.invoices.find(invoice => invoice.id === id);
+  }, [state.invoices]);
+
+  // Memoize return object to prevent unnecessary re-renders
+  return useMemo(() => ({
     ...state,
     filters,
     setFilters,
@@ -257,7 +313,22 @@ export function useInvoices(initialFilters?: InvoiceFilters) {
     sendInvoice,
     markInvoiceAsPaid,
     cancelInvoice,
-  };
+    // Additional computed values
+    invoiceSummary,
+    getInvoiceById,
+  }), [
+    state,
+    filters,
+    fetchInvoices,
+    createInvoice,
+    updateInvoice,
+    deleteInvoice,
+    sendInvoice,
+    markInvoiceAsPaid,
+    cancelInvoice,
+    invoiceSummary,
+    getInvoiceById,
+  ]);
 }
 
 export function useInvoice(id: string) {
@@ -266,13 +337,29 @@ export function useInvoice(id: string) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Abort controller for cleanup
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
+
   const fetchInvoice = useCallback(async () => {
+    // Cancel any in-flight request
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = new AbortController();
+
     setIsLoading(true);
     setError(null);
     try {
       const data = await financeApi.getInvoice(id);
       setInvoice(data);
-    } catch (error) {
+    } catch (error: any) {
+      // Ignore abort errors
+      if (error?.name === 'AbortError') return;
       const errorMessage = handleApiError(error);
       setError(errorMessage);
       toast({
@@ -310,11 +397,12 @@ export function useInvoice(id: string) {
     }
   }, [id, toast]);
 
-  return {
+  // Memoize return object to prevent unnecessary re-renders
+  return useMemo(() => ({
     invoice,
     isLoading,
     error,
     fetchInvoice,
     updateInvoice,
-  };
+  }), [invoice, isLoading, error, fetchInvoice, updateInvoice]);
 }

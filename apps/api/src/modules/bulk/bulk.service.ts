@@ -264,6 +264,7 @@ export class BulkService {
 
   /**
    * Bulk categorize transactions
+   * OPTIMIZED: Uses updateMany for single DB operation instead of N individual updates
    */
   async bulkCategorizeTransactions(
     accountId: string,
@@ -276,23 +277,29 @@ export class BulkService {
     // Verify all transactions belong to the account and organization
     await this.verifyTransactionsOwnership(accountId, orgId, dto.ids);
 
-    // Process each transaction
-    for (const id of dto.ids) {
-      try {
-        await this.prisma.bankTransaction.update({
-          where: { id },
-          data: {
-            category: dto.category,
-            subcategory: dto.subcategory || undefined,
-          },
-        });
+    try {
+      // OPTIMIZATION: Single updateMany call instead of N individual updates
+      const updateResult = await this.prisma.bankTransaction.updateMany({
+        where: {
+          id: { in: dto.ids },
+        },
+        data: {
+          category: dto.category,
+          subcategory: dto.subcategory || null,
+        },
+      });
 
-        builder.addSuccess(id);
-      } catch (error) {
-        builder.addError(id, error.message, {
-          code: error.status || 500,
-        });
-      }
+      // Mark all as successful (updateMany doesn't give individual results)
+      dto.ids.forEach(id => builder.addSuccess(id));
+
+      this.logger.log(
+        `Bulk categorize: Updated ${updateResult.count} transactions`,
+      );
+    } catch (error) {
+      // If updateMany fails, all transactions failed
+      dto.ids.forEach(id =>
+        builder.addError(id, error.message, { code: error.status || 500 })
+      );
     }
 
     const result = builder
@@ -313,6 +320,7 @@ export class BulkService {
 
   /**
    * Bulk reconcile transactions
+   * OPTIMIZED: Uses updateMany for single DB operation instead of N individual updates
    */
   async bulkReconcileTransactions(
     accountId: string,
@@ -325,24 +333,31 @@ export class BulkService {
     // Verify all transactions belong to the account and organization
     await this.verifyTransactionsOwnership(accountId, orgId, dto.ids);
 
-    // Process each transaction
-    for (const id of dto.ids) {
-      try {
-        await this.prisma.bankTransaction.update({
-          where: { id },
-          data: {
-            isReconciled: true,
-            reconciledAt: new Date(),
-            reconciledNotes: dto.notes || undefined,
-          },
-        });
+    try {
+      // OPTIMIZATION: Single updateMany call instead of N individual updates
+      const reconciledAt = new Date();
+      const updateResult = await this.prisma.bankTransaction.updateMany({
+        where: {
+          id: { in: dto.ids },
+        },
+        data: {
+          isReconciled: true,
+          reconciledAt,
+          reconciledNotes: dto.notes || null,
+        },
+      });
 
-        builder.addSuccess(id);
-      } catch (error) {
-        builder.addError(id, error.message, {
-          code: error.status || 500,
-        });
-      }
+      // Mark all as successful
+      dto.ids.forEach(id => builder.addSuccess(id));
+
+      this.logger.log(
+        `Bulk reconcile: Updated ${updateResult.count} transactions`,
+      );
+    } catch (error) {
+      // If updateMany fails, all transactions failed
+      dto.ids.forEach(id =>
+        builder.addError(id, error.message, { code: error.status || 500 })
+      );
     }
 
     const result = builder

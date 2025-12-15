@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { getDB, setLastSyncTime } from '@/lib/offline/db';
 import type { EntityType } from '@/lib/offline/sync-queue';
 
@@ -236,32 +236,53 @@ export function useOfflineQuery<T extends { id: string; updatedAt: string }>(
     }
   }, [entityType, fetch]);
 
-  // Initial fetch
+  // Track if component is mounted to prevent state updates after unmount
+  const isMountedRef = useRef(true);
   useEffect(() => {
-    if (refetchOnMount) {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  // Serialize queryKey to stable string for dependency comparison
+  const queryKeyString = useMemo(() => JSON.stringify(queryKey), [queryKey]);
+
+  // Initial fetch - dependencies properly listed
+  useEffect(() => {
+    if (refetchOnMount && isMountedRef.current) {
       fetch();
     }
-  }, [refetchOnMount, queryKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [refetchOnMount, queryKeyString, fetch]);
 
   // Refetch when coming back online
+  // Track previous online state to detect transition
+  const wasOfflineRef = useRef(!isOnline);
   useEffect(() => {
-    if (isOnline && data && isCached) {
+    const wasOffline = wasOfflineRef.current;
+    wasOfflineRef.current = !isOnline;
+
+    // Only refetch if we just came back online and have cached data
+    if (isOnline && wasOffline && data && isCached && isMountedRef.current) {
       fetch();
     }
-  }, [isOnline]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOnline, data, isCached, fetch]);
 
   // Periodic refetch
   useEffect(() => {
     if (!refetchInterval || !isOnline) return;
 
     const interval = setInterval(() => {
-      fetch();
+      if (isMountedRef.current) {
+        fetch();
+      }
     }, refetchInterval);
 
     return () => clearInterval(interval);
-  }, [refetchInterval, isOnline]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [refetchInterval, isOnline, fetch]);
 
-  return {
+  // Memoize return object to prevent unnecessary re-renders
+  return useMemo(() => ({
     data,
     isLoading,
     isError,
@@ -271,5 +292,5 @@ export function useOfflineQuery<T extends { id: string; updatedAt: string }>(
     lastSyncedAt,
     refetch,
     invalidate,
-  };
+  }), [data, isLoading, isError, error, isOnline, isCached, lastSyncedAt, refetch, invalidate]);
 }

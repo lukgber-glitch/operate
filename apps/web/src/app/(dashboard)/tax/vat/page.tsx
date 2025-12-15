@@ -2,10 +2,13 @@
 
 import { FileText, Download, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
 import { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp } from '@/lib/animation-variants';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Progress } from '@/components/ui/progress';
 import {
   Select,
@@ -58,10 +61,15 @@ export default function VATPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">VAT Management</h1>
-          <p className="text-muted-foreground">Track and manage your VAT returns and payments</p>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">VAT Management</h1>
+          <p className="text-white/70">Track and manage your VAT returns and payments</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
@@ -73,13 +81,18 @@ export default function VATPage() {
             File Return
           </Button>
         </div>
-      </div>
+      </motion.div>
 
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6 space-y-6">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+      >
+      <GlassCard padding="lg" className="space-y-6">
 
       {/* Current Period Overview */}
-      <Card>
+      <GlassCard>
         <CardHeader>
           {isLoadingCurrent ? (
             <div>
@@ -90,7 +103,7 @@ export default function VATPage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle>Current VAT Period</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-white/70 mt-1">
                   {currentPeriod.period} ({new Date(currentPeriod.startDate).toLocaleDateString('de-DE')} to{' '}
                   {new Date(currentPeriod.endDate).toLocaleDateString('de-DE')})
                 </p>
@@ -105,7 +118,7 @@ export default function VATPage() {
           ) : (
             <div>
               <CardTitle>Current VAT Period</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">No active period</p>
+              <p className="text-sm text-white/70 mt-1">No active period</p>
             </div>
           )}
         </CardHeader>
@@ -128,38 +141,38 @@ export default function VATPage() {
               {/* VAT Summary */}
               <div className="grid gap-4 sm:grid-cols-3">
                 <div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm text-white/70">
                     <TrendingDown className="h-4 w-4 text-green-600" />
                     Input VAT
                   </div>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl text-white font-bold">
                     €{currentPeriod.vatRecoverable.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-white/70 mt-1">
                     VAT paid on purchases
                   </p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm text-white/70">
                     <TrendingUp className="h-4 w-4 text-blue-600" />
                     Output VAT
                   </div>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl text-white font-bold">
                     €{currentPeriod.vatOwed.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-white/70 mt-1">
                     VAT charged to customers
                   </p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm text-white/70">
                     <Calendar className="h-4 w-4" />
                     Net VAT Payable
                   </div>
-                  <p className="text-2xl font-bold text-red-600">
+                  <p className="text-2xl text-white font-bold text-red-600">
                     €{currentPeriod.netVat.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-white/70 mt-1">
                     Due: {new Date(currentPeriod.dueDate).toLocaleDateString('de-DE')}
                   </p>
                 </div>
@@ -168,28 +181,28 @@ export default function VATPage() {
               {/* Period Progress */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Period Progress</span>
+                  <span className="text-white/70">Period Progress</span>
                   <span className="font-medium">{Math.round(progressPercentage)}%</span>
                 </div>
                 <Progress value={progressPercentage} className="h-2" />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-white/70">
                   {transactions.length} transactions recorded
                 </p>
               </div>
             </div>
           ) : (
-            <p className="text-muted-foreground text-center py-4">No data available</p>
+            <p className="text-white/70 text-center py-4">No data available</p>
           )}
         </CardContent>
-      </Card>
+      </GlassCard>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent VAT Transactions */}
         <div className="lg:col-span-2">
-          <Card>
+          <GlassCard>
             <CardHeader>
               <CardTitle>Recent VAT Transactions</CardTitle>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-white/70">
                 Latest input and output VAT from current period
               </p>
             </CardHeader>
@@ -219,7 +232,7 @@ export default function VATPage() {
                     ))
                   ) : transactions.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground">
+                      <TableCell colSpan={6} className="text-center text-white/70">
                         No transactions found
                       </TableCell>
                     </TableRow>
@@ -253,12 +266,12 @@ export default function VATPage() {
                 </TableBody>
               </Table>
             </CardContent>
-          </Card>
+          </GlassCard>
         </div>
 
         {/* VAT Breakdown */}
         <div>
-          <Card>
+          <GlassCard>
             <CardHeader>
               <CardTitle>VAT Breakdown</CardTitle>
             </CardHeader>
@@ -288,21 +301,21 @@ export default function VATPage() {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </GlassCard>
 
-          <Card className="mt-6">
+          <GlassCard className="mt-6">
             <CardHeader>
               <CardTitle>Filing Reminder</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <Calendar className="h-4 w-4 text-white/70" />
                   <span className="text-sm font-medium">
                     Due: {currentPeriod ? new Date(currentPeriod.dueDate).toLocaleDateString('de-DE') : 'N/A'}
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-white/70">
                   VAT return must be filed and payment made by this date to avoid
                   penalties.
                 </p>
@@ -312,16 +325,16 @@ export default function VATPage() {
                 </Button>
               </div>
             </CardContent>
-          </Card>
+          </GlassCard>
         </div>
       </div>
 
       {/* VAT Periods History */}
-      <Card>
+      <GlassCard>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>VAT Periods</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-white/70 mt-1">
               Historical VAT return periods
             </p>
           </div>
@@ -366,7 +379,7 @@ export default function VATPage() {
                 ))
               ) : filteredPeriods.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center text-white/70">
                     No VAT periods found
                   </TableCell>
                 </TableRow>
@@ -400,9 +413,9 @@ export default function VATPage() {
             </TableBody>
           </Table>
         </CardContent>
-      </Card>
-        </CardContent>
-      </Card>
+      </GlassCard>
+      </GlassCard>
+      </motion.div>
     </div>
   );
 }

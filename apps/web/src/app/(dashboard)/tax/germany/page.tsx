@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 
-import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { ELSTERWizard } from '@/components/tax/elster';
 
 export const metadata: Metadata = {
@@ -13,19 +13,17 @@ export default function GermanTaxFilingPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">German VAT Filing (USt-VA)</h1>
-          <p className="text-muted-foreground">Submit your German VAT return (Umsatzsteuer-Voranmeldung) via ELSTER</p>
+          <h1 className="text-2xl text-white font-semibold tracking-tight">German VAT Filing (USt-VA)</h1>
+          <p className="text-white/70">Submit your German VAT return (Umsatzsteuer-Voranmeldung) via ELSTER</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-2xl">🇩🇪</span>
+          <span className="text-2xl text-white">🇩🇪</span>
         </div>
       </div>
 
-      <Card className="rounded-[24px]">
-        <CardContent className="p-6">
-          <ELSTERWizard />
-        </CardContent>
-      </Card>
+      <GlassCard padding="lg">
+        <ELSTERWizard />
+      </GlassCard>
     </div>
   );
 }
