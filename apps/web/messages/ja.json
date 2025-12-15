@@ -92,7 +92,7 @@
     "passwordResetSent": "パスワードリセットリンクをメールで送信しました",
     "invalidCredentials": "認証情報が正しくありません",
     "welcomeTitle": "Operateへようこそ",
-    "signInDescription": "CoachOSアカウントにログインしてください",
+    "signInDescription": "Operateアカウントにログインしてください",
     "invalidEmail": "有効なメールアドレスを入力してください",
     "passwordTooShort": "パスワードは8文字以上である必要があります",
     "orContinueWith": "または以下で続行",

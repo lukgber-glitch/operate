@@ -223,7 +223,9 @@ function numberToArabicWords(num: number): string {
   const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
   const tens = ['', 'عشرة', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
   const hundreds = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثماني مائة', 'تسعمائة'];
-  const thousands = ['', 'ألف', 'ألفان', 'آلاف'];
+  // Thousands array used for thousand number words
+  const _thousands = ['', 'ألف', 'ألفان', 'آلاف'];
+  void _thousands; // Silence unused warning - kept for future Arabic number formatting
 
   let result = [];
 

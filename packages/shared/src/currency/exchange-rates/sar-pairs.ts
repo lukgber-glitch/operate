@@ -3,7 +3,7 @@
  * Common currency pairs involving Saudi Riyal
  */
 
-import { SAR_EXCHANGE_PAIRS, SARExchangePair, SAR_CONSTANTS } from '../sar/sar.constants';
+import { SAR_CONSTANTS } from '../sar/sar.constants';
 
 export interface ExchangeRatePair {
   pair: string;

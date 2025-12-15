@@ -1,0 +1,27 @@
+# Security Policy for Operate.guru
+# This file follows RFC 9116 (https://www.rfc-editor.org/rfc/rfc9116)
+
+# Contact information for security researchers
+Contact: mailto:security@operate.guru
+Contact: https://operate.guru/security
+
+# Preferred languages for communication
+Preferred-Languages: en, de
+
+# Expiration date (1 year from creation, update annually)
+Expires: 2026-12-15T00:00:00.000Z
+
+# Our security policy page
+Policy: https://operate.guru/security-policy
+
+# Acknowledgments page for security researchers
+Acknowledgments: https://operate.guru/security/acknowledgments
+
+# Canonical URL for this security.txt
+Canonical: https://operate.guru/.well-known/security.txt
+
+# Hiring information for security professionals
+Hiring: https://operate.guru/careers
+
+# Encryption key for secure communication (optional, can be added later)
+# Encryption: https://operate.guru/.well-known/pgp-key.txt

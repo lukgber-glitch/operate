@@ -92,7 +92,7 @@
     "passwordResetSent": "Password reset link sent to your email",
     "invalidCredentials": "Invalid credentials",
     "welcomeTitle": "Welcome to Operate",
-    "signInDescription": "Sign in to your CoachOS account",
+    "signInDescription": "Sign in to your Operate account",
     "invalidEmail": "Please enter a valid email address",
     "passwordTooShort": "Password must be at least 8 characters",
     "orContinueWith": "OR CONTINUE WITH",

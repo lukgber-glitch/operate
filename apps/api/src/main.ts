@@ -23,8 +23,56 @@ async function bootstrap(): Promise<void> {
   const port = configService.get<number>('port', 3000);
   const environment = configService.get<string>('nodeEnv', 'development');
 
-  // Security
-  app.use(helmet());
+  // Security - Production-grade Helmet configuration
+  const isProduction = environment === 'production';
+
+  app.use(
+    helmet({
+      // Content Security Policy - API doesn't serve HTML, but add basic protection
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:'],
+          connectSrc: ["'self'"],
+          fontSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          frameSrc: ["'none'"],
+          frameAncestors: ["'none'"],
+          formAction: ["'self'"],
+          baseUri: ["'self'"],
+          upgradeInsecureRequests: isProduction ? [] : null,
+        },
+      },
+      // HTTP Strict Transport Security
+      strictTransportSecurity: {
+        maxAge: 31536000, // 1 year
+        includeSubDomains: true,
+        preload: true,
+      },
+      // Prevent clickjacking
+      frameguard: { action: 'deny' },
+      // Prevent MIME type sniffing
+      noSniff: true,
+      // XSS Protection (legacy but still useful)
+      xssFilter: true,
+      // Hide X-Powered-By header
+      hidePoweredBy: true,
+      // DNS Prefetch Control
+      dnsPrefetchControl: { allow: false },
+      // IE No Open
+      ieNoOpen: true,
+      // Referrer Policy
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+      // Cross-Origin settings
+      crossOriginEmbedderPolicy: false, // Disable for API compatibility
+      crossOriginOpenerPolicy: { policy: 'same-origin' },
+      crossOriginResourcePolicy: { policy: 'same-origin' },
+      // Permissions Policy (Feature-Policy successor)
+      permittedCrossDomainPolicies: { permittedPolicies: 'none' },
+    }),
+  );
 
   // Cookie parser
   app.use(cookieParser());

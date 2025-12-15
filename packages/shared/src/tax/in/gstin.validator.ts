@@ -180,7 +180,10 @@ export class GSTINValidator {
     // Process each character
     for (let i = 0; i < gstinWithoutCheckDigit.length; i++) {
       const char = gstinWithoutCheckDigit[i];
-      let digit = CHAR_TO_DIGIT[char];
+      if (char === undefined) {
+        throw new Error(`Invalid character at position ${i}`);
+      }
+      const digit = CHAR_TO_DIGIT[char];
 
       if (digit === undefined) {
         throw new Error(`Invalid character in GSTIN: ${char}`);
@@ -202,7 +205,11 @@ export class GSTINValidator {
 
     // Calculate check digit
     const checkDigitValue = (36 - (sum % 36)) % 36;
-    return DIGIT_TO_CHAR[checkDigitValue];
+    const checkChar = DIGIT_TO_CHAR[checkDigitValue];
+    if (checkChar === undefined) {
+      throw new Error(`Invalid check digit value: ${checkDigitValue}`);
+    }
+    return checkChar;
   }
 
   /**

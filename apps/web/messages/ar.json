@@ -92,7 +92,7 @@
     "passwordResetSent": "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني",
     "invalidCredentials": "بيانات الاعتماد غير صحيحة",
     "welcomeTitle": "مرحباً بك في Operate",
-    "signInDescription": "سجل الدخول إلى حساب CoachOS الخاص بك",
+    "signInDescription": "سجل الدخول إلى حساب Operate الخاص بك",
     "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
     "passwordTooShort": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
     "orContinueWith": "أو تابع مع",

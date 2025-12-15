@@ -92,7 +92,7 @@
     "passwordResetSent": "पासवर्ड रीसेट लिंक आपके ईमेल पर भेजा गया है",
     "invalidCredentials": "अमान्य क्रेडेंशियल",
     "welcomeTitle": "Operate में आपका स्वागत है",
-    "signInDescription": "अपने CoachOS खाते में साइन इन करें",
+    "signInDescription": "अपने Operate खाते में साइन इन करें",
     "invalidEmail": "कृपया एक वैध ईमेल पता दर्ज करें",
     "passwordTooShort": "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए",
     "orContinueWith": "या इसके साथ जारी रखें",

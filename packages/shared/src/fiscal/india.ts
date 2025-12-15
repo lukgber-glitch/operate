@@ -211,7 +211,7 @@ export function getMonthlyGSTReturnPeriods(financialYear: string): GSTReturnPeri
 export function getQuarterlyGSTReturnPeriods(financialYear: string): GSTReturnPeriod[] {
   const quarters = getQuarters(financialYear);
 
-  return quarters.map((q, index) => {
+  return quarters.map((q) => {
     // Due date is 18th of month following the quarter
     const dueDate = new Date(q.endDate);
     dueDate.setMonth(dueDate.getMonth() + 1);

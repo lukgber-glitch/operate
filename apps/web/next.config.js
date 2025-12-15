@@ -205,6 +205,134 @@ const nextConfig = {
   // Disable source maps in production for smaller bundles
   productionBrowserSourceMaps: false,
 
+  // Comprehensive Security Headers
+  async headers() {
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // Content Security Policy
+    // Strict but allows necessary resources for the app
+    const cspDirectives = [
+      "default-src 'self'",
+      // Scripts: self, inline (needed for Next.js), eval (needed for some libs), and CDNs
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.sentry.io https://js.stripe.com https://accounts.google.com https://apis.google.com",
+      // Styles: self, inline (needed for styled-components/emotion), Google Fonts
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      // Fonts: self and Google Fonts
+      "font-src 'self' https://fonts.gstatic.com data:",
+      // Images: self, data URIs, HTTPS sources, and common CDNs
+      "img-src 'self' data: blob: https: http://localhost:*",
+      // Connect (API calls): self, API, Sentry, Stripe, Google
+      `connect-src 'self' ${isProduction ? 'https://operate.guru' : 'http://localhost:*'} https://*.sentry.io https://api.stripe.com https://accounts.google.com https://www.googleapis.com wss://*.pusher.com`,
+      // Frames: Stripe, Google OAuth
+      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://accounts.google.com",
+      // Frame ancestors: none (prevent clickjacking)
+      "frame-ancestors 'none'",
+      // Form action: self only
+      "form-action 'self' https://accounts.google.com",
+      // Base URI: self only
+      "base-uri 'self'",
+      // Object: none (no plugins)
+      "object-src 'none'",
+      // Upgrade insecure requests in production
+      ...(isProduction ? ["upgrade-insecure-requests"] : []),
+    ].join('; ');
+
+    const securityHeaders = [
+      // Strict Transport Security (HSTS)
+      // max-age=1 year, include subdomains, preload ready
+      {
+        key: 'Strict-Transport-Security',
+        value: 'max-age=31536000; includeSubDomains; preload',
+      },
+      // Content Security Policy
+      {
+        key: 'Content-Security-Policy',
+        value: cspDirectives,
+      },
+      // Prevent clickjacking
+      {
+        key: 'X-Frame-Options',
+        value: 'DENY',
+      },
+      // Prevent MIME type sniffing
+      {
+        key: 'X-Content-Type-Options',
+        value: 'nosniff',
+      },
+      // Referrer Policy - send origin only for cross-origin requests
+      {
+        key: 'Referrer-Policy',
+        value: 'strict-origin-when-cross-origin',
+      },
+      // Permissions Policy - disable unnecessary browser features
+      {
+        key: 'Permissions-Policy',
+        value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+      },
+      // XSS Protection (legacy browsers)
+      {
+        key: 'X-XSS-Protection',
+        value: '1; mode=block',
+      },
+      // DNS Prefetch Control
+      {
+        key: 'X-DNS-Prefetch-Control',
+        value: 'on',
+      },
+    ];
+
+    return [
+      // Apply security headers to all routes
+      {
+        source: '/:path*',
+        headers: securityHeaders,
+      },
+      // Static assets - immutable caching (1 year) for hashed files
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Fonts - long cache
+      {
+        source: '/fonts/:path*',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Images - moderate cache with revalidation
+      {
+        source: '/images/:path*',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+      // Block source maps in production
+      {
+        source: '/:path*.map',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
+          },
+        ],
+      },
+    ];
+  },
+
   // Image optimization configuration
   images: {
     // Use modern formats for better compression

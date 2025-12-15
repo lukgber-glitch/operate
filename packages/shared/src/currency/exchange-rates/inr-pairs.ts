@@ -3,7 +3,8 @@
  * Common currency pairs involving Indian Rupee
  */
 
-import { INR_EXCHANGE_PAIRS, INRExchangePair } from '../inr/inr.constants';
+// Re-export types for external use (imports removed as they're not used locally)
+export type { INRExchangePair } from '../inr/inr.constants';
 
 export interface ExchangeRatePair {
   pair: string;

@@ -1,0 +1,72 @@
+# robots.txt for Operate.guru
+# https://www.robotstxt.org/
+
+# Allow all search engines to index public content
+User-agent: *
+
+# Public pages - allowed
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /pricing
+Allow: /features
+Allow: /about
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+
+# Protected areas - disallowed
+Disallow: /dashboard
+Disallow: /api/
+Disallow: /settings
+Disallow: /profile
+Disallow: /transactions
+Disallow: /accounts
+Disallow: /invoices
+Disallow: /documents
+Disallow: /reports
+Disallow: /chat
+Disallow: /onboarding
+
+# System paths - disallowed
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /internal/
+
+# Prevent indexing of query strings on sensitive pages
+Disallow: /*?token=*
+Disallow: /*?code=*
+Disallow: /*?session=*
+
+# Sitemap location
+Sitemap: https://operate.guru/sitemap.xml
+
+# Crawl delay to be respectful of server resources
+Crawl-delay: 1
+
+# Google-specific directives
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /settings
+
+# Bing-specific directives
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /settings
+
+# Block aggressive/malicious bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /

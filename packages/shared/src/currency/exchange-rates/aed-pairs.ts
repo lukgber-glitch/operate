@@ -3,7 +3,7 @@
  * Common currency pairs involving UAE Dirham
  */
 
-import { AED_EXCHANGE_PAIRS, AEDExchangePair, AED_CONSTANTS } from '../aed/aed.constants';
+import { AED_CONSTANTS } from '../aed/aed.constants';
 
 export interface ExchangeRatePair {
   pair: string;
