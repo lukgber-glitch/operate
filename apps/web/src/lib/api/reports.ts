@@ -184,7 +184,9 @@ class ReportsApi {
   private getOrgId(): string {
     if (typeof window !== 'undefined') {
       if ((window as any).__orgId) {
-        console.log('[ReportsAPI] Using window.__orgId:', (window as any).__orgId);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[ReportsAPI] Using window.__orgId:', (window as any).__orgId);
+        }
         return (window as any).__orgId;
       }
 
@@ -196,27 +198,37 @@ class ReportsApi {
       if (authCookie) {
         try {
           const authValue = decodeURIComponent(authCookie.split('=')[1] || '');
-          console.log('[ReportsAPI] Found op_auth cookie, attempting to parse...');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[ReportsAPI] Found op_auth cookie, attempting to parse...');
+          }
           const authData = JSON.parse(authValue);
 
           // Parse JWT to extract orgId
           if (authData.a) {
             const payload = JSON.parse(atob(authData.a.split('.')[1]));
             if (payload.orgId) {
-              console.log('[ReportsAPI] Extracted orgId from JWT:', payload.orgId);
+              if (process.env.NODE_ENV === 'development') {
+                console.log('[ReportsAPI] Extracted orgId from JWT:', payload.orgId);
+              }
               return payload.orgId;
             }
           }
         } catch (e) {
-          console.warn('[ReportsAPI] Failed to parse auth cookie:', e);
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('[ReportsAPI] Failed to parse auth cookie:', e);
+          }
         }
       } else {
-        console.warn('[ReportsAPI] No op_auth cookie found');
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[ReportsAPI] No op_auth cookie found');
+        }
       }
     }
 
     // Return empty string instead of throwing - let the API call handle the 401/403
-    console.warn('[ReportsAPI] Organisation ID not available - returning empty string');
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[ReportsAPI] Organisation ID not available - returning empty string');
+    }
     return '';
   }
 

@@ -167,12 +167,16 @@ class MileageApi {
             }
           }
         } catch (e) {
-          console.warn('[MileageAPI] Failed to parse auth cookie:', e);
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('[MileageAPI] Failed to parse auth cookie:', e);
+          }
         }
       }
     }
 
-    console.warn('[MileageAPI] Organisation ID not available');
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[MileageAPI] Organisation ID not available');
+    }
     return '';
   }
 

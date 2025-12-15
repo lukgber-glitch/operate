@@ -139,11 +139,11 @@ Uses design system tokens:
 
 ## Testing
 
-Test page available at `/test-chat-dropdown` for development.
+For testing, integrate the component directly into your development pages.
 
-Example usage in demo:
+Example usage:
 ```tsx
-import ChatHistoryDropdownExample from '@/components/chat/ChatHistoryDropdown.example';
+import { ChatHistoryDropdown } from '@/components/chat/ChatHistoryDropdown';
 ```
 
 ## Difference from ChatHistory

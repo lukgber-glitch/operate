@@ -37,6 +37,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/components/ui/use-toast';
 
 // Mock data for roles and permissions
 const permissions = [
@@ -104,6 +105,7 @@ const mockRoles = [
 ];
 
 export default function AdminRolesPage() {
+  const { toast } = useToast();
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
   const handleDeleteRole = (roleId: string, roleName: string) => {
@@ -111,9 +113,16 @@ export default function AdminRolesPage() {
     console.log('Delete role:', roleId);
     const role = mockRoles.find((r) => r.id === roleId);
     if (role?.isSystem) {
-      alert(`Cannot delete system role: ${roleName}`);
+      toast({
+        title: 'Cannot Delete System Role',
+        description: `Cannot delete system role: ${roleName}`,
+        variant: 'destructive',
+      });
     } else {
-      alert(`Delete role functionality would be implemented here for: ${roleName}`);
+      toast({
+        title: 'Feature Coming Soon',
+        description: `Delete role functionality would be implemented here for: ${roleName}`,
+      });
     }
   };
 

@@ -196,7 +196,9 @@ class EmployeeApi {
   private getOrgId(): string {
     if (typeof window !== 'undefined') {
       if ((window as any).__orgId) {
-        console.log('[EmployeeAPI] Using window.__orgId:', (window as any).__orgId);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[EmployeeAPI] Using window.__orgId:', (window as any).__orgId);
+        }
         return (window as any).__orgId;
       }
 
@@ -208,27 +210,37 @@ class EmployeeApi {
       if (authCookie) {
         try {
           const authValue = decodeURIComponent(authCookie.split('=')[1] || '');
-          console.log('[EmployeeAPI] Found op_auth cookie, attempting to parse...');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[EmployeeAPI] Found op_auth cookie, attempting to parse...');
+          }
           const authData = JSON.parse(authValue);
 
           // Parse JWT to extract orgId
           if (authData.a) {
             const payload = JSON.parse(atob(authData.a.split('.')[1]));
             if (payload.orgId) {
-              console.log('[EmployeeAPI] Extracted orgId from JWT:', payload.orgId);
+              if (process.env.NODE_ENV === 'development') {
+                console.log('[EmployeeAPI] Extracted orgId from JWT:', payload.orgId);
+              }
               return payload.orgId;
             }
           }
         } catch (e) {
-          console.warn('[EmployeeAPI] Failed to parse auth cookie:', e);
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('[EmployeeAPI] Failed to parse auth cookie:', e);
+          }
         }
       } else {
-        console.warn('[EmployeeAPI] No op_auth cookie found');
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[EmployeeAPI] No op_auth cookie found');
+        }
       }
     }
 
     // Return empty string instead of throwing - let the API call handle the 401/403
-    console.warn('[EmployeeAPI] Organisation ID not available - returning empty string');
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[EmployeeAPI] Organisation ID not available - returning empty string');
+    }
     return '';
   }
 

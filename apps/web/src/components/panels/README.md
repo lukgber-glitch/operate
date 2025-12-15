@@ -282,7 +282,7 @@ On screens < 768px:
 
 ## Examples
 
-See `SidePanelDemo.tsx` for complete integration examples.
+Refer to the usage examples in the sections above for integration patterns.
 
 ## Notes
 

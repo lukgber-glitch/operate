@@ -220,12 +220,10 @@ const { clearDismissed } = useAIInsights();
 1. Add the component to your dashboard
 2. Test with different configurations
 3. Customize action handlers for your workflow
-4. See `insights-demo.tsx` for more examples
-5. Read the full documentation in `README.md`
+4. Read the full documentation in `README.md`
 
 ## Support
 
 For issues or questions:
 1. Check the full documentation: `apps/web/src/components/dashboard/insights/README.md`
-2. View the demo page: `apps/web/src/app/dashboard/insights-demo.tsx`
-3. Review the completion report: `TASK_W35-T1_COMPLETION.md`
+2. Review the implementation examples in this guide

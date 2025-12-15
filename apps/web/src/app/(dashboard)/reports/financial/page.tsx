@@ -29,8 +29,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useFinancialReport, useExportReport } from '@/hooks/use-reports';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function FinancialReportPage() {
+  const { toast } = useToast();
   const [dateRange, setDateRange] = useState('q3-2024');
   const [isExporting, setIsExporting] = useState(false);
 
@@ -41,9 +43,16 @@ export default function FinancialReportPage() {
     setIsExporting(true);
     try {
       const response = await exportReport('financial', format, { dateRange });
-      alert(`Report export initiated! Your ${format.toUpperCase()} will be ready in ${response.estimatedCompletionTime}.`);
+      toast({
+        title: 'Export Initiated',
+        description: `Your ${format.toUpperCase()} will be ready in ${response.estimatedCompletionTime}.`,
+      });
     } catch (error) {
-      alert('Failed to export report. Please try again.');
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to export report. Please try again.',
+        variant: 'destructive',
+      });
       console.error('Export error:', error);
     } finally {
       setIsExporting(false);

@@ -291,28 +291,11 @@ Tests cover:
 - ARIA labels
 - Responsive rendering
 
-## Demo Components
-
-### Context Demo
-```tsx
-import { QuickActionPillsContextDemo } from '@/components/chat/QuickActionPills.context-demo';
-```
-
-Shows all available contexts with a context selector.
-
-### Original Example
-```tsx
-import { QuickActionPillsExample } from '@/components/chat/QuickActionPills.example';
-```
-
-Shows conversation-based contextual actions.
-
 ## Files
 
 - `QuickActionPills.tsx` - Main component
 - `QuickActionPills.test.tsx` - Unit tests
 - `QuickActionPills.example.tsx` - Conversation-based example
-- `QuickActionPills.context-demo.tsx` - Context selection demo
 - `QuickActionPills.README.md` - This documentation
 
 ## Implementation Details

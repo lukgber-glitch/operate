@@ -48,6 +48,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/components/ui/use-toast';
 
 // Mock data for demonstration
 const mockUsers = [
@@ -96,6 +97,7 @@ const mockUsers = [
 const roles = ['All Roles', 'Admin', 'Manager', 'User'];
 
 export default function AdminUsersPage() {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('All Roles');
   const [currentPage, setCurrentPage] = useState(1);
@@ -122,13 +124,19 @@ export default function AdminUsersPage() {
   const handleDeleteUser = (userId: string) => {
     // Placeholder for delete functionality
     console.log('Delete user:', userId);
-    alert('Delete user functionality would be implemented here');
+    toast({
+      title: 'Feature Coming Soon',
+      description: 'Delete user functionality would be implemented here',
+    });
   };
 
   const handleEditUser = (userId: string) => {
     // Placeholder for edit functionality
     console.log('Edit user:', userId);
-    alert('Edit user functionality would be implemented here');
+    toast({
+      title: 'Feature Coming Soon',
+      description: 'Edit user functionality would be implemented here',
+    });
   };
 
   return (

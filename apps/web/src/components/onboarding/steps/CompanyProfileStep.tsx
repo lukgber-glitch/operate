@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/use-toast'
 
 /**
  * Country configurations with currency, VAT settings, and locale defaults
@@ -245,6 +246,8 @@ export function CompanyProfileStep() {
     trigger,
   } = useFormContext()
 
+  const { toast } = useToast()
+
   const selectedCountry = watch('companyInfo.country')
   const selectedLegalForm = watch('companyInfo.legalForm')
   const selectedIndustry = watch('companyInfo.industry')
@@ -287,13 +290,21 @@ export function CompanyProfileStep() {
     // Validate file type
     const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml']
     if (!validTypes.includes(file.type)) {
-      alert('Please upload a PNG, JPG, or SVG file')
+      toast({
+        title: 'Invalid file type',
+        description: 'Please upload a PNG, JPG, or SVG file',
+        variant: 'destructive',
+      })
       return
     }
 
     // Validate file size (2MB)
     if (file.size > 2 * 1024 * 1024) {
-      alert('File size must be less than 2MB')
+      toast({
+        title: 'File too large',
+        description: 'File size must be less than 2MB',
+        variant: 'destructive',
+      })
       return
     }
 

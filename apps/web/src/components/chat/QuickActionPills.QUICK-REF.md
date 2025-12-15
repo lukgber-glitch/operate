@@ -74,7 +74,6 @@ const custom = [
 - `QuickActionPills.tsx` - Component
 - `QuickActionPills.README.md` - Full docs
 - `QuickActionPills.test.tsx` - Tests
-- `QuickActionPills.context-demo.tsx` - Demo
 - `QuickActionPills.ARCHITECTURE.md` - Architecture
 
 ## Testing

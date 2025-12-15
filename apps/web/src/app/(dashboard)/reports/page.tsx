@@ -27,8 +27,10 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useReports, useExportReport } from '@/hooks/use-reports';
+import { useToast } from '@/components/ui/use-toast';
 
 function ReportsPageContent() {
+  const { toast } = useToast();
   const [dateRange, setDateRange] = useState('q3-2024');
   const [activeTab, setActiveTab] = useState('financial');
   const [isExporting, setIsExporting] = useState(false);
@@ -49,12 +51,19 @@ function ReportsPageContent() {
       const response = await exportReport(reportType, normalizedFormat, { dateRange });
 
       // Show success message
-      alert(`Report export initiated! Your ${format.toUpperCase()} will be ready in ${response.estimatedCompletionTime}.`);
+      toast({
+        title: 'Export Initiated',
+        description: `Your ${format.toUpperCase()} will be ready in ${response.estimatedCompletionTime}.`,
+      });
 
       // In a production app, you would trigger a download here
       // window.open(response.downloadUrl, '_blank');
     } catch (error) {
-      alert('Failed to export report. Please try again.');
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to export report. Please try again.',
+        variant: 'destructive',
+      });
       console.error('Export error:', error);
     } finally {
       setIsExporting(false);
