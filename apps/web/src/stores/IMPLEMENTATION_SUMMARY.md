@@ -4,7 +4,7 @@
 
 ### ✅ Completed
 
-Created a comprehensive Zustand store for managing chat state in the Operate/CoachOS application.
+Created a comprehensive Zustand store for managing chat state in the Operate application.
 
 ## Files Created
 

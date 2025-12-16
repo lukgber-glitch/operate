@@ -1,4 +1,4 @@
-# PWA Quick Start - Operate/CoachOS
+# PWA Quick Start - Operate
 
 ## 🚀 Quick Reference
 

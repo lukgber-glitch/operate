@@ -1,6 +1,6 @@
 # Service Worker Implementation Summary - W17-T2
 
-## Task Completed: Create Service Worker for Operate/CoachOS
+## Task Completed: Create Service Worker for Operate
 
 ### Status: COMPLETED ✓
 

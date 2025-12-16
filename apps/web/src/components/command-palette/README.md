@@ -1,6 +1,6 @@
 # Command Palette (Cmd+K)
 
-Global search and command palette component for Operate/CoachOS.
+Global search and command palette component for Operate.
 
 ## Features
 
@@ -244,4 +244,4 @@ apps/web/src/
 
 ## License
 
-Part of Operate/CoachOS - Internal use only
+Part of Operate - Internal use only

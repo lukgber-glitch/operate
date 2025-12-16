@@ -1,6 +1,6 @@
 # Email Integration - Onboarding Step
 
-This document describes the Email Connection Step implementation for the Operate/CoachOS onboarding wizard.
+This document describes the Email Connection Step implementation for the Operate onboarding wizard.
 
 ## Overview
 

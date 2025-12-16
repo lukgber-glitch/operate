@@ -1,0 +1,358 @@
+{
+  "test_type": "Finance Pages Browser Test",
+  "test_date": "2025-12-15",
+  "base_url": "https://operate.guru",
+  "authentication_tested": false,
+  "authentication_required": true,
+  "summary": {
+    "total_pages": 13,
+    "pages_accessible_without_auth": 0,
+    "pages_requiring_auth": 13,
+    "critical_issues": 0,
+    "high_issues": 0,
+    "medium_issues": 0,
+    "low_issues": 0
+  },
+  "automated_test_results": {
+    "redirect_test": {
+      "status": "PASSED",
+      "description": "All finance pages correctly redirect to login when accessed without authentication",
+      "details": "All 13 pages return 307 redirect to /login with proper return URL parameter"
+    },
+    "http_availability_test": {
+      "status": "PASSED",
+      "description": "All pages are reachable and respond correctly",
+      "details": "No 404, 500, or timeout errors detected"
+    }
+  },
+  "pages_tested": [
+    {
+      "path": "/finance",
+      "name": "Finance Dashboard",
+      "status": "requires_auth",
+      "redirect_to": "/login?from=%2Ffinance",
+      "http_code": 307,
+      "issues": []
+    },
+    {
+      "path": "/finance/invoices",
+      "name": "Invoice List",
+      "status": "requires_auth",
+      "redirect_to": "/login?from=%2Ffinance%2Finvoices",
+      "http_code": 307,
+      "issues": []
+    },
+    {
+      "path": "/finance/invoices/new",
+      "name": "Create Invoice",
+      "status": "requires_auth",
+      "redirect_to": "/login?from=%2Ffinance%2Finvoices%2Fnew",
+      "http_code": 307,
+      "issues": []
+    },
+    {
+      "path": "/finance/invoices/recurring",
+      "name": "Recurring Invoices",
+      "status": "requires_auth",
+      "redirect_to": "/login?from=%2Ffinance%2Finvoices%2Frecurring",
+      "http_code": 307,
+      "issues": []
+    },
+    {
+      "path": "/finance/expenses",
+      "name": "Expense List",
+      "status": "requires_auth",
+      "redirect_to": "/login?from=%2Ffinance%2Fexpenses",
+      "http_code": 307,
+      "issues": []
+    },
+    {
+      "path": "/finance/expenses/new",
+      "name": "Create Expense",
+      "status": "requires_auth",
+      "redirect_to": "/login?from=%2Ffinance%2Fexpenses%2Fnew",
+      "http_code": 307,
+      "issues": []
+    },
+    {
+      "path": "/finance/expenses/scan",
+      "name": "Receipt Scanning",
+      "status": "requires_auth",
+      "redirect_to": "/login?from=%2Ffinance%2Fexpenses%2Fscan",
+      "http_code": 307,
+      "issues": []
+    },
+    {
+      "path": "/finance/transactions",
+      "name": "Transaction List",
+      "status": "requires_auth",
+      "redirect_to": "/login?from=%2Ffinance%2Ftransactions",
+      "http_code": 307,
+      "issues": []
+    },
+    {
+      "path": "/finance/bank-accounts",
+      "name": "Bank Connections",
+      "status": "requires_auth",
+      "redirect_to": "/login?from=%2Ffinance%2Fbank-accounts",
+      "http_code": 307,
+      "issues": []
+    },
+    {
+      "path": "/finance/banking",
+      "name": "Banking Dashboard",
+      "status": "requires_auth",
+      "redirect_to": "/login?from=%2Ffinance%2Fbanking",
+      "http_code": 307,
+      "issues": []
+    },
+    {
+      "path": "/finance/accounts",
+      "name": "Chart of Accounts",
+      "status": "requires_auth",
+      "redirect_to": "/login?from=%2Ffinance%2Faccounts",
+      "http_code": 307,
+      "issues": []
+    },
+    {
+      "path": "/finance/payments",
+      "name": "Payments List",
+      "status": "requires_auth",
+      "redirect_to": "/login?from=%2Ffinance%2Fpayments",
+      "http_code": 307,
+      "issues": []
+    },
+    {
+      "path": "/finance/reconciliation",
+      "name": "Bank Reconciliation",
+      "status": "requires_auth",
+      "redirect_to": "/login?from=%2Ffinance%2Freconciliation",
+      "http_code": 307,
+      "issues": []
+    }
+  ],
+  "issues": [],
+  "manual_testing_required": {
+    "reason": "Google OAuth authentication requires manual interaction (2FA, security checks)",
+    "checklist": [
+      {
+        "category": "Authentication",
+        "tests": [
+          "Login with Google OAuth (luk.gber@gmail.com)",
+          "Verify redirect back to requested page after login",
+          "Test logout functionality",
+          "Test session persistence across page reloads"
+        ]
+      },
+      {
+        "category": "Finance Dashboard (/finance)",
+        "tests": [
+          "Page loads without JavaScript errors",
+          "Dashboard widgets display data correctly",
+          "Charts and graphs render properly",
+          "Currency formatting is correct",
+          "Date formatting is correct",
+          "Navigation links work",
+          "Responsive design works on mobile",
+          "Loading states appear during data fetch"
+        ]
+      },
+      {
+        "category": "Invoice List (/finance/invoices)",
+        "tests": [
+          "Table displays invoices correctly",
+          "Pagination works",
+          "Search/filter functionality works",
+          "Sort by columns works",
+          "Click to view invoice details",
+          "Status badges display correctly",
+          "Amount formatting is correct",
+          "Empty state shows when no invoices",
+          "Edit/delete actions work"
+        ]
+      },
+      {
+        "category": "Create Invoice (/finance/invoices/new)",
+        "tests": [
+          "Form loads correctly",
+          "All form fields are present",
+          "Client dropdown works",
+          "Add line items works",
+          "Calculate totals correctly",
+          "Date picker works",
+          "Currency selector works",
+          "Form validation works",
+          "Submit creates invoice",
+          "Error handling displays properly"
+        ]
+      },
+      {
+        "category": "Recurring Invoices (/finance/invoices/recurring)",
+        "tests": [
+          "List displays recurring invoices",
+          "Schedule information is clear",
+          "Next run date displays correctly",
+          "Enable/disable toggle works",
+          "Edit recurring invoice works",
+          "Delete confirmation works"
+        ]
+      },
+      {
+        "category": "Expense List (/finance/expenses)",
+        "tests": [
+          "Table displays expenses correctly",
+          "Pagination works",
+          "Search/filter functionality works",
+          "Category filtering works",
+          "Date range filtering works",
+          "Amount formatting is correct",
+          "Receipt attachment indicators show",
+          "Click to view expense details"
+        ]
+      },
+      {
+        "category": "Create Expense (/finance/expenses/new)",
+        "tests": [
+          "Form loads correctly",
+          "Category dropdown works",
+          "Amount input validates correctly",
+          "Date picker works",
+          "Description field works",
+          "File upload for receipts works",
+          "Form validation works",
+          "Submit creates expense",
+          "Redirect after creation works"
+        ]
+      },
+      {
+        "category": "Receipt Scanning (/finance/expenses/scan)",
+        "tests": [
+          "File upload area displays",
+          "Drag and drop works",
+          "Click to upload works",
+          "Image preview shows",
+          "OCR processing indicator shows",
+          "Extracted data displays correctly",
+          "Edit extracted data works",
+          "Save scanned expense works"
+        ]
+      },
+      {
+        "category": "Transaction List (/finance/transactions)",
+        "tests": [
+          "Table displays transactions correctly",
+          "Bank account filter works",
+          "Date range filter works",
+          "Category filter works",
+          "Search works",
+          "Pagination works",
+          "Click to categorize transaction",
+          "Bulk actions work"
+        ]
+      },
+      {
+        "category": "Bank Connections (/finance/bank-accounts)",
+        "tests": [
+          "Connected accounts display",
+          "Account balances show correctly",
+          "Last sync time displays",
+          "Sync now button works",
+          "Add new bank account button works",
+          "Bank connection flow works (TrueLayer/Tink/Plaid)",
+          "Disconnect account works with confirmation",
+          "Error states display properly"
+        ]
+      },
+      {
+        "category": "Banking Dashboard (/finance/banking)",
+        "tests": [
+          "Account balances display",
+          "Recent transactions show",
+          "Account overview widgets work",
+          "Charts render correctly",
+          "Quick actions work",
+          "Navigation to detailed views works"
+        ]
+      },
+      {
+        "category": "Chart of Accounts (/finance/accounts)",
+        "tests": [
+          "Account tree/list displays",
+          "Account categories organize correctly",
+          "Add new account works",
+          "Edit account works",
+          "Account types display correctly",
+          "Account numbers format correctly",
+          "Delete with confirmation works"
+        ]
+      },
+      {
+        "category": "Payments List (/finance/payments)",
+        "tests": [
+          "Payment records display",
+          "Payment status shows correctly",
+          "Date sorting works",
+          "Amount displays correctly",
+          "Payment method shows",
+          "Filter by status works",
+          "View payment details works"
+        ]
+      },
+      {
+        "category": "Bank Reconciliation (/finance/reconciliation)",
+        "tests": [
+          "Reconciliation interface loads",
+          "Unmatched transactions show",
+          "Match suggestions display",
+          "Manual matching works",
+          "Confirm match works",
+          "Unmatch works",
+          "Mark as reconciled works",
+          "Balance calculations are correct"
+        ]
+      },
+      {
+        "category": "Cross-Page Functionality",
+        "tests": [
+          "Navigation between finance pages works",
+          "Breadcrumbs work correctly",
+          "Back button behavior is correct",
+          "Data persists across navigation",
+          "No console errors across pages",
+          "All pages work in dark mode (if applicable)",
+          "All pages are responsive on mobile",
+          "All pages handle slow network gracefully"
+        ]
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "priority": "high",
+      "recommendation": "Implement automated E2E tests using Playwright with authentication token injection",
+      "reason": "Avoid Google OAuth 2FA issues in automated testing"
+    },
+    {
+      "priority": "medium",
+      "recommendation": "Add visual regression testing for finance pages",
+      "reason": "Ensure UI consistency across updates"
+    },
+    {
+      "priority": "medium",
+      "recommendation": "Implement automated accessibility testing",
+      "reason": "Ensure WCAG compliance for all finance features"
+    },
+    {
+      "priority": "low",
+      "recommendation": "Add performance monitoring for page load times",
+      "reason": "Track and optimize user experience"
+    }
+  ],
+  "notes": [
+    "All finance pages correctly implement authentication requirements",
+    "No broken links or missing pages detected",
+    "Server responds quickly (< 1 second for redirects)",
+    "Return URL parameter is properly set for post-login redirect",
+    "Manual testing with authenticated session is required for full validation"
+  ]
+}

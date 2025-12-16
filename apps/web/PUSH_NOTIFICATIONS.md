@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Operate/CoachOS platform now includes a comprehensive push notification system that enables real-time notifications for important business events such as invoice reminders, payment confirmations, tax deadlines, and system updates.
+The Operate platform now includes a comprehensive push notification system that enables real-time notifications for important business events such as invoice reminders, payment confirmations, tax deadlines, and system updates.
 
 ## Architecture
 

@@ -271,5 +271,5 @@ Backend endpoints needed:
 
 **Completed by**: PRISM Agent  
 **Date**: December 4, 2024  
-**Project**: Operate/CoachOS  
+**Project**: Operate  
 **Sprint**: W35 (Week 35)

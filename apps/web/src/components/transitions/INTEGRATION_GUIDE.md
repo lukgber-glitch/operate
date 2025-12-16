@@ -2,7 +2,7 @@
 
 ## Task W40-T2: Smooth Page Transitions - COMPLETED ✅
 
-All transition components have been implemented and are ready to use across the Operate/CoachOS web application.
+All transition components have been implemented and are ready to use across the Operate web application.
 
 ---
 

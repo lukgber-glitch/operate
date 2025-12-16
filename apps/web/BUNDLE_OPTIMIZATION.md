@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the bundle optimization strategies implemented for the Operate/CoachOS web application to improve performance and reduce initial load times.
+This document describes the bundle optimization strategies implemented for the Operate web application to improve performance and reduce initial load times.
 
 ## Optimization Strategies
 

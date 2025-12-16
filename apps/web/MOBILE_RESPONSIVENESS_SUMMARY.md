@@ -437,4 +437,4 @@ For questions or issues:
 ---
 
 **Delivered by AURORA** 🎨
-*UI/UX Design Agent for Operate/CoachOS*
+*UI/UX Design Agent for Operate*

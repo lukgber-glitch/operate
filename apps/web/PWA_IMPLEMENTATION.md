@@ -2,7 +2,7 @@
 
 ## Summary
 
-Successfully added comprehensive Progressive Web App (PWA) support to Operate/CoachOS with full offline capability, installability, and push notification foundation.
+Successfully added comprehensive Progressive Web App (PWA) support to Operate with full offline capability, installability, and push notification foundation.
 
 ## What Was Added
 

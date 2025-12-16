@@ -1,6 +1,6 @@
 # Navigation Components
 
-User profile dropdown and related navigation components for the Operate/CoachOS platform.
+User profile dropdown and related navigation components for the Operate platform.
 
 ## Components
 

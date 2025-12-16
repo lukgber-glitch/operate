@@ -1,0 +1,110 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - document [ref=e3]:
+    - link "Skip to main content" [ref=e4] [cursor=pointer]:
+      - /url: "#main-content"
+    - complementary "Product features" [ref=e8]:
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - link "Operate Guru - Go to homepage" [ref=e11] [cursor=pointer]:
+            - /url: /
+            - img "Operate logo" [ref=e12]
+          - paragraph [ref=e25]: operate.guru
+          - paragraph [ref=e26]: AI-Powered Business Automation
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - heading "Everything you need to run your business" [level=2] [ref=e29]
+            - paragraph [ref=e30]: Join thousands of businesses automating their finances
+          - generic [ref=e31]:
+            - generic [ref=e32]:
+              - img [ref=e34]
+              - generic [ref=e36]:
+                - heading "AI Business Assistant" [level=3] [ref=e37]
+                - paragraph [ref=e38]: Ask anything about your finances, invoices, or taxes
+            - generic [ref=e39]:
+              - img [ref=e41]
+              - generic [ref=e45]:
+                - heading "Bank Connections" [level=3] [ref=e46]
+                - paragraph [ref=e47]: Connect 10,000+ banks across EU, UK & US
+            - generic [ref=e48]:
+              - img [ref=e50]
+              - generic [ref=e53]:
+                - heading "Smart Invoicing" [level=3] [ref=e54]
+                - paragraph [ref=e55]: Create, send & track invoices automatically
+            - generic [ref=e56]:
+              - img [ref=e58]
+              - generic [ref=e60]:
+                - heading "Tax Compliance" [level=3] [ref=e61]
+                - paragraph [ref=e62]: VAT returns for Germany, Austria & UK
+            - generic [ref=e63]:
+              - img [ref=e65]
+              - generic [ref=e68]:
+                - heading "Multi-Currency" [level=3] [ref=e69]
+                - paragraph [ref=e70]: Handle transactions in any currency
+            - generic [ref=e71]:
+              - img [ref=e73]
+              - generic [ref=e75]:
+                - heading "Autopilot Mode" [level=3] [ref=e76]
+                - paragraph [ref=e77]: AI handles routine tasks while you focus on growth
+    - main [ref=e78]:
+      - region "Authentication" [ref=e79]:
+        - generic [ref=e80]:
+          - generic [ref=e83]:
+            - button "Select language" [ref=e85] [cursor=pointer]:
+              - img [ref=e86]
+              - generic [ref=e89]: Select language
+            - generic [ref=e90]:
+              - heading "Welcome to Operate" [level=1] [ref=e91]
+              - paragraph [ref=e92]: Sign in to your Operate account
+            - generic [ref=e93]:
+              - generic [ref=e94]:
+                - link "Sign in with Google" [ref=e95] [cursor=pointer]:
+                  - /url: https://operate.guru/api/v1/auth/google
+                  - img [ref=e96]
+                  - generic [ref=e101]: Google
+                - link "Sign in with Microsoft" [ref=e102] [cursor=pointer]:
+                  - /url: https://operate.guru/api/v1/auth/microsoft
+                  - img [ref=e103]
+                  - generic [ref=e108]: Microsoft
+              - generic [ref=e109]:
+                - generic [ref=e110]:
+                  - text: Email
+                  - textbox "Email" [ref=e112]:
+                    - /placeholder: you@example.com
+                - generic [ref=e113]:
+                  - generic [ref=e114]:
+                    - generic [ref=e115]:
+                      - text: Password
+                      - generic [ref=e116]: ", minimum 8 characters"
+                    - link "Forgot Password?" [ref=e117] [cursor=pointer]:
+                      - /url: /forgot-password
+                  - generic [ref=e118]:
+                    - textbox "Password , minimum 8 characters" [ref=e119]:
+                      - /placeholder: Enter your password
+                    - button "Show password" [ref=e120] [cursor=pointer]:
+                      - img [ref=e121]
+                - generic [ref=e124]:
+                  - checkbox "Remember me for 30 days" [ref=e125] [cursor=pointer]
+                  - checkbox
+                  - generic [ref=e126] [cursor=pointer]: Remember me for 30 days
+                - button "Sign In" [ref=e127] [cursor=pointer]:
+                  - generic [ref=e130]:
+                    - text: Sign In
+                    - img [ref=e131]
+              - generic [ref=e133]:
+                - generic [ref=e134]: Don't have an account?
+                - link "Create one now" [ref=e135] [cursor=pointer]:
+                  - /url: /register
+          - generic [ref=e136]:
+            - generic [ref=e137]:
+              - img [ref=e138]
+              - generic [ref=e140]: 256-bit encryption
+            - generic [ref=e141]:
+              - img [ref=e142]
+              - generic [ref=e145]: SOC 2 compliant
+  - alert [ref=e146]
+```

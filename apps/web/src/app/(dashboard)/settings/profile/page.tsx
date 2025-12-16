@@ -148,6 +148,7 @@ export default function ProfileSettingsPage() {
               <Label htmlFor="first-name">First Name</Label>
               <Input
                 id="first-name"
+                name="name"
                 value={userData.firstName}
                 onChange={(e) =>
                   setUserData({ ...userData, firstName: e.target.value })
@@ -159,6 +160,7 @@ export default function ProfileSettingsPage() {
               <Label htmlFor="last-name">Last Name</Label>
               <Input
                 id="last-name"
+                name="lastName"
                 value={userData.lastName}
                 onChange={(e) =>
                   setUserData({ ...userData, lastName: e.target.value })
@@ -175,6 +177,7 @@ export default function ProfileSettingsPage() {
               </Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
                 value={userData.email}
                 onChange={(e) =>
@@ -197,6 +200,7 @@ export default function ProfileSettingsPage() {
               </Label>
               <Input
                 id="phone"
+                name="phone"
                 type="tel"
                 value={userData.phone}
                 onChange={(e) =>
@@ -214,6 +218,7 @@ export default function ProfileSettingsPage() {
               </Label>
               <Input
                 id="job-title"
+                name="jobTitle"
                 value={userData.jobTitle}
                 onChange={(e) =>
                   setUserData({ ...userData, jobTitle: e.target.value })
@@ -225,6 +230,7 @@ export default function ProfileSettingsPage() {
               <Label htmlFor="department">Department</Label>
               <Input
                 id="department"
+                name="department"
                 value={userData.department}
                 onChange={(e) =>
                   setUserData({ ...userData, department: e.target.value })
@@ -241,6 +247,7 @@ export default function ProfileSettingsPage() {
               </Label>
               <Input
                 id="location"
+                name="location"
                 value={userData.location}
                 onChange={(e) =>
                   setUserData({ ...userData, location: e.target.value })
@@ -253,6 +260,7 @@ export default function ProfileSettingsPage() {
               <Label htmlFor="bio">Bio</Label>
               <Textarea
                 id="bio"
+                name="bio"
                 value={userData.bio}
                 onChange={(e) =>
                   setUserData({ ...userData, bio: e.target.value })

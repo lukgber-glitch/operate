@@ -1,6 +1,6 @@
 # Offline-First Data Layer
 
-Complete offline functionality for Operate/CoachOS, enabling the app to work seamlessly when internet connectivity is unavailable.
+Complete offline functionality for Operate, enabling the app to work seamlessly when internet connectivity is unavailable.
 
 ## Features
 

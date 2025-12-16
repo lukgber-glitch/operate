@@ -1,0 +1,185 @@
+{
+  "timestamp": "2025-12-15T15:56:02.576Z",
+  "pages": [
+    {
+      "name": "Login Page - Desktop",
+      "url": "https://operate.guru/login",
+      "data": {
+        "url": "https://operate.guru/login",
+        "title": "Operate - Business Autopilot",
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "structure": {
+          "hasNav": false,
+          "hasHeader": false,
+          "hasMain": false,
+          "hasFooter": false
+        },
+        "elements": {
+          "logos": 2,
+          "googleButton": {
+            "found": true,
+            "text": "Google",
+            "tag": "A",
+            "hasAriaLabel": true,
+            "classes": "inline-flex items-center justify-center whitespace-nowrap font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 transform-gpu will-change-transform border hover:scale-[1.01] active:scale-[0.99] min-h-[44px] h-11 px-6 text-base rounded-[var(--radius-md)] border-white/30 bg-transparent text-white/90 hover:text-white hover:bg-white/5 hover:border-white/50 no-underline no-underline hover:no-underline flex items-center"
+          }
+        },
+        "forms": [
+          {
+            "action": "https://operate.guru/login",
+            "method": "get",
+            "inputs": [
+              {
+                "type": "email",
+                "name": "email",
+                "placeholder": "ihre@email.de",
+                "hasLabel": true,
+                "required": false
+              },
+              {
+                "type": "password",
+                "name": "password",
+                "placeholder": "Passwort eingeben",
+                "hasLabel": true,
+                "required": false
+              },
+              {
+                "type": "checkbox",
+                "name": "",
+                "placeholder": "",
+                "hasLabel": false,
+                "required": false
+              }
+            ]
+          }
+        ],
+        "links": [],
+        "images": [],
+        "accessibility": {
+          "imagesWithoutAlt": 0,
+          "buttonsWithoutLabel": 1,
+          "headings": [
+            {
+              "level": "H1",
+              "text": "operate.guru"
+            },
+            {
+              "level": "H2",
+              "text": "Everything you need to run your business"
+            },
+            {
+              "level": "H3",
+              "text": "AI Business Assistant"
+            },
+            {
+              "level": "H3",
+              "text": "Bank Connections"
+            },
+            {
+              "level": "H3",
+              "text": "Smart Invoicing"
+            },
+            {
+              "level": "H3",
+              "text": "Tax Compliance"
+            },
+            {
+              "level": "H3",
+              "text": "Multi-Currency"
+            },
+            {
+              "level": "H3",
+              "text": "Autopilot Mode"
+            },
+            {
+              "level": "H1",
+              "text": "operate.guru"
+            },
+            {
+              "level": "H1",
+              "text": "Willkommen bei Operate"
+            }
+          ]
+        },
+        "visibleText": "Skip to main content\noperate.guru\n\nAI-Powered Business Automation\n\nEverything you need to run your business\n\nJoin thousands of businesses automating their finances\n\nAI Business Assistant\n\nAsk anything about your finances, invoices, or taxes\n\nBank Connections\n\nConnect 10,000+ banks across EU, UK & US\n\nSmart Invoicing\n\nCreate, send & track invoices automatically\n\nTax Compliance\n\nVAT returns for Germany, Austria & UK\n\nMulti-Currency\n\nHandle transactions in any currency\n\nAutopilot Mode\n\nAI handles routine tasks while you focus on growth\n\nSelect language\nWillkommen bei Operate\n\nMelden Sie sich bei Ihrem CoachOS-Konto an\n\nGoogle\nMicrosoft\nE-Mail\nPasswort\n, minimum 8 characters\nPasswort vergessen?\n30 Tage angemeldet bleiben\nSign In\nSie haben noch kein Konto? Jetzt registrieren\n256-bit encryption\nSOC 2 compliant"
+      }
+    },
+    {
+      "name": "Login Page - Mobile",
+      "url": "https://operate.guru/login",
+      "data": {
+        "viewport": {
+          "width": 375,
+          "height": 667
+        },
+        "isResponsive": true,
+        "hasHamburgerMenu": true,
+        "visibleElements": {
+          "nav": false,
+          "logo": false
+        }
+      }
+    },
+    {
+      "name": "Landing Page",
+      "url": "https://operate.guru/",
+      "data": {
+        "url": "https://operate.guru/login?from=%2F",
+        "title": "Operate - Business Autopilot",
+        "h1": "operate.guru",
+        "hero": {
+          "found": false,
+          "hasCtaButton": true
+        },
+        "sections": 0,
+        "ctaButtons": [
+          {
+            "text": "Select language",
+            "href": null
+          },
+          {
+            "text": "",
+            "href": null
+          },
+          {
+            "text": "",
+            "href": null
+          },
+          {
+            "text": "Sign In",
+            "href": null
+          }
+        ],
+        "visibleText": "Skip to main content\noperate.guru\n\nAI-Powered Business Automation\n\nEverything you need to run your business\n\nJoin thousands of businesses automating their finances\n\nAI Business Assistant\n\nAsk anything about your finances, invoices, or taxes\n\nBank Connections\n\nConnect 10,000+ banks across EU, UK & US\n\nSmart Invoicing\n\nCreate, send & track invoices automatically\n\nTax Compliance\n\nVAT returns for Germany, Austria & UK\n\nMulti-Currency\n\nHandle transactions in any currency\n\nAutopilot Mode\n\nAI handles routine tasks while you focus on growth\n\nSelect language\nWillkommen bei Operate\n\nMelden Sie sich bei Ihrem CoachOS-Konto an\n\nGoogle\nMicrosoft\nE-Mail\nPasswort\n, minimum 8 characters\nPasswort vergessen?\n30 Tage angemeldet bleiben\nSign In\nSie haben noch kein Konto? Jetzt registrieren\n256-bit encryption\nSOC 2 compliant"
+      }
+    }
+  ],
+  "consoleMessages": [
+    {
+      "type": "warn",
+      "text": "<meta name=\"apple-mobile-web-app-capable\" content=\"yes\"> is deprecated. Please include <meta name=\"mobile-web-app-capable\" content=\"yes\">"
+    },
+    {
+      "type": "warn",
+      "text": "<meta name=\"apple-mobile-web-app-capable\" content=\"yes\"> is deprecated. Please include <meta name=\"mobile-web-app-capable\" content=\"yes\">"
+    }
+  ],
+  "pageErrors": [],
+  "failedRequests": [
+    {
+      "url": "https://operate.guru/login?from=%2F",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://operate.guru/register?_rsc=10x2f",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "https://operate.guru/forgot-password?_rsc=10x2f",
+      "failure": "net::ERR_ABORTED"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Dashboard Customization System
 
-Complete drag-and-drop dashboard customization system for Operate/CoachOS.
+Complete drag-and-drop dashboard customization system for Operate.
 
 ## Features
 

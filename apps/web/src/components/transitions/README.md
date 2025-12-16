@@ -1,6 +1,6 @@
 # Transition Components
 
-Smooth, polished animations powered by Framer Motion for the Operate/CoachOS web app.
+Smooth, polished animations powered by Framer Motion for the Operate web app.
 
 ## Installation
 

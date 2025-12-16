@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `useSuggestionStream` hook provides Server-Sent Events (SSE) integration for real-time suggestions, notifications, and updates in the Operate/CoachOS platform.
+The `useSuggestionStream` hook provides Server-Sent Events (SSE) integration for real-time suggestions, notifications, and updates in the Operate platform.
 
 ## Features
 

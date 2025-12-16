@@ -264,7 +264,7 @@ For issues or questions:
 
 ## License
 
-Part of Operate/CoachOS - Internal use only
+Part of Operate - Internal use only
 
 ---
 

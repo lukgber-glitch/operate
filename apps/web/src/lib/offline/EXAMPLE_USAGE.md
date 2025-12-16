@@ -1,6 +1,6 @@
 # Offline Data Layer - Example Usage
 
-Complete examples for implementing offline functionality in Operate/CoachOS.
+Complete examples for implementing offline functionality in Operate.
 
 ## Table of Contents
 

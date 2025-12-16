@@ -114,7 +114,7 @@ export const metadata: Metadata = {
     statusBarStyle: 'black-translucent',
     title: 'Operate',
   },
-  applicationName: 'Operate | CoachOS',
+  applicationName: 'Operate',
 }
 ```
 

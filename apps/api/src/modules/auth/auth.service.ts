@@ -827,4 +827,153 @@ export class AuthService {
 
     return user ? user.passwordHash !== null : false;
   }
+
+  /**
+   * TEST-ONLY: Create test session for automated testing
+   * SECURITY:
+   * - Only works in development/test environments (NOT production)
+   * - Requires TEST_AUTH_SECRET environment variable
+   * - Logs all test auth attempts for security monitoring
+   *
+   * @param email - Test user email
+   * @param testSecret - Must match TEST_AUTH_SECRET env var
+   * @returns Auth tokens and session
+   */
+  async createTestSession(email: string, testSecret: string): Promise<AuthResponseDto> {
+    // CRITICAL: Only allow in non-production environments
+    const nodeEnv = this.configService.get<string>('NODE_ENV');
+    if (nodeEnv === 'production') {
+      this.logger.error('TEST AUTH ATTEMPTED IN PRODUCTION - BLOCKED');
+      throw new UnauthorizedException('Test authentication not available in production');
+    }
+
+    // Validate test secret
+    const expectedSecret = this.configService.get<string>('TEST_AUTH_SECRET');
+    if (!expectedSecret) {
+      this.logger.error('TEST_AUTH_SECRET not configured - test auth disabled');
+      throw new UnauthorizedException('Test authentication not configured');
+    }
+
+    if (testSecret !== expectedSecret) {
+      this.logger.warn(`Test auth failed: Invalid secret for email ${email}`);
+      throw new UnauthorizedException('Invalid test secret');
+    }
+
+    // Log test auth attempt for security monitoring
+    this.logger.warn(`TEST AUTH: Creating test session for ${email} in ${nodeEnv} environment`);
+
+    // Find or create test user
+    let user = await this.usersRepository.findByEmail(email);
+
+    if (!user || user.deletedAt) {
+      // Create test user with minimal data
+      this.logger.log(`Creating test user: ${email}`);
+
+      // Create user, organization, and membership in a transaction
+      const result = await this.prisma.$transaction(async (tx) => {
+        // 1. Create user
+        const newUser = await tx.user.create({
+          data: {
+            email,
+            firstName: 'Test',
+            lastName: 'User',
+            // No password hash - OAuth-only test user
+          },
+        });
+
+        // 2. Create organization for the user
+        const uniqueSlug = `test-user-${newUser.id.slice(0, 8)}`;
+
+        const organisation = await tx.organisation.create({
+          data: {
+            name: `${email}'s Test Organisation`,
+            slug: uniqueSlug,
+            country: 'DE', // Default to Germany
+            currency: 'EUR',
+            timezone: 'Europe/Berlin',
+            subscriptionTier: 'free',
+            onboardingCompleted: true, // Auto-complete onboarding for tests
+          },
+        });
+
+        // 3. Create membership linking user to organization as OWNER
+        await tx.membership.create({
+          data: {
+            userId: newUser.id,
+            orgId: organisation.id,
+            role: 'OWNER',
+            acceptedAt: new Date(),
+          },
+        });
+
+        return { user: newUser, organisation };
+      });
+
+      user = result.user;
+      this.logger.log(`Test user created: ${user.id} with organisation: ${result.organisation.id}`);
+    } else {
+      this.logger.log(`Using existing test user: ${user.id}`);
+    }
+
+    // Update last login timestamp
+    await this.usersService.updateLastLogin(user.id);
+
+    // Get user's primary organization and role
+    const membership = await this.prisma.membership.findFirst({
+      where: {
+        userId: user.id,
+        acceptedAt: { not: null },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
+    // Create JWT payload
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      orgId: membership?.orgId || undefined,
+      role: membership?.role || undefined,
+    };
+
+    // Generate access token
+    const accessToken = this.jwtService.sign(payload, {
+      secret: this.configService.get<string>('jwt.accessSecret'),
+      expiresIn: this.configService.get<string>('jwt.accessExpiresIn'),
+    });
+
+    // Generate unique refresh token with collision prevention
+    const { token: refreshToken, hash: hashedRefreshToken } =
+      await this.generateUniqueRefreshToken(payload);
+
+    // Store HASHED refresh token in session table
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+
+    // SEC-006: Enforce session limit per user
+    await this.enforceSessionLimit(user.id);
+
+    await this.prisma.session.create({
+      data: {
+        userId: user.id,
+        token: hashedRefreshToken,
+        expiresAt,
+        ipAddress: '127.0.0.1', // Test environment
+        userAgent: 'TEST-AUTH',
+      },
+    });
+
+    this.logger.log(`Test session created for user: ${user.id}`);
+
+    // Return tokens
+    return new AuthResponseDto(
+      accessToken,
+      refreshToken,
+      15 * 60, // 15 minutes in seconds
+      false,
+      undefined,
+      'Test login successful',
+    );
+  }
 }

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the complete RTL implementation for Arabic language support in the Operate/CoachOS application.
+This document describes the complete RTL implementation for Arabic language support in the Operate application.
 
 ## Features Implemented
 

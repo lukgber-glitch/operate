@@ -1,6 +1,6 @@
 # Skeleton Components
 
-Comprehensive loading skeleton components for smooth loading states across the Operate/CoachOS application.
+Comprehensive loading skeleton components for smooth loading states across the Operate application.
 
 ## Overview
 

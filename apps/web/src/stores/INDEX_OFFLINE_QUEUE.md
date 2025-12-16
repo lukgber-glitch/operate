@@ -475,4 +475,4 @@ For questions or issues:
 **Maintained by**: PULSE (State & Data Agent)
 **Last Updated**: December 5, 2024
 **Version**: 1.0.0
-**License**: Part of Operate/CoachOS
+**License**: Part of Operate

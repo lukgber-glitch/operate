@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides comprehensive guidelines for implementing and maintaining dark mode across the Operate/CoachOS web application.
+This document provides comprehensive guidelines for implementing and maintaining dark mode across the Operate web application.
 
 ## Color System
 

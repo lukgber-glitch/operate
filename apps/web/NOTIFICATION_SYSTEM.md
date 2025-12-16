@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Operate/CoachOS notification system provides real-time, multi-channel notifications for users. It includes in-app notifications with Server-Sent Events (SSE) for real-time updates, email notifications, and push notification support.
+The Operate notification system provides real-time, multi-channel notifications for users. It includes in-app notifications with Server-Sent Events (SSE) for real-time updates, email notifications, and push notification support.
 
 ## Architecture
 

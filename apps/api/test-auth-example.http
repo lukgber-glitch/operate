@@ -1,0 +1,19 @@
+### Test Authentication Example
+### Use this with REST Client extension in VS Code or similar tools
+
+### 1. Test Login (Development/Test Only)
+POST http://localhost:3001/api/v1/auth/test-login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "testSecret": "your-test-secret-here"
+}
+
+### 2. Check if authenticated - Get current user
+GET http://localhost:3001/api/v1/auth/me
+Cookie: access_token=<token-from-response>
+
+### 3. Access a protected route (example)
+GET http://localhost:3001/api/v1/dashboard
+Cookie: access_token=<token-from-response>

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide covers integrating the mobile-optimized components into your Operate/CoachOS application.
+This guide covers integrating the mobile-optimized components into your Operate application.
 
 ## ✅ Completed Mobile Improvements
 

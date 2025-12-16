@@ -242,4 +242,4 @@ Uses Tailwind utility classes with shadcn/ui component library:
 
 ## License
 
-Part of Operate/CoachOS - Proprietary
+Part of Operate - Proprietary

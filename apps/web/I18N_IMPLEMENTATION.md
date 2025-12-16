@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of multi-language support for the Operate/CoachOS web application using `next-intl` library.
+This document describes the implementation of multi-language support for the Operate web application using `next-intl` library.
 
 ## Supported Languages
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Comprehensive dark mode refinement completed for Operate/CoachOS web application, focusing on improved contrast, reduced shadow intensity, smooth theme transitions, and enhanced color hierarchy.
+Comprehensive dark mode refinement completed for Operate web application, focusing on improved contrast, reduced shadow intensity, smooth theme transitions, and enhanced color hierarchy.
 
 ## Files Created
 

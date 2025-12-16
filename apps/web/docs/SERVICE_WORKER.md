@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Operate/CoachOS web application implements a Progressive Web App (PWA) with advanced caching strategies, offline support, and automatic update notifications using `@ducanh2912/next-pwa`.
+The Operate web application implements a Progressive Web App (PWA) with advanced caching strategies, offline support, and automatic update notifications using `@ducanh2912/next-pwa`.
 
 ## Architecture
 

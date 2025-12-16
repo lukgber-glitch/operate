@@ -1,0 +1,21 @@
+=== BROWSER-FINANCE COMPREHENSIVE TEST REPORT ===
+
+Test Date: 2025-12-16
+Site: https://operate.guru
+
+CRITICAL ISSUE: All Finance Pages FAIL
+Status: 10/10 pages stuck in loading state
+
+ROOT CAUSE: API Route Mismatch
+Frontend calls: /api/v1/invoices
+Backend expects: /api/v1/organisations/:orgId/invoices
+
+Evidence:
+- 12 HTTP 404 errors detected
+- API health check: 200 OK
+- All finance endpoints: 404 Not Found
+
+Fix Required:
+Update frontend API client to include organisation ID in all finance routes
+
+Priority: CRITICAL - Blocks all financial features

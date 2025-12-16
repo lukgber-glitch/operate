@@ -1,6 +1,6 @@
 # Mobile Components
 
-Touch-friendly, mobile-optimized components for the Operate/CoachOS web application.
+Touch-friendly, mobile-optimized components for the Operate web application.
 
 ## Components
 

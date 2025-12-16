@@ -1,0 +1,174 @@
+{
+  "timestamp": "2025-12-16T00:14:02.550Z",
+  "pages": [
+    {
+      "name": "Dashboard",
+      "path": "/dashboard",
+      "status": "PASS",
+      "loadTime": 3587,
+      "errors": [],
+      "notes": [
+        "Title: Einen Moment bitte …",
+        "Data: false"
+      ]
+    },
+    {
+      "name": "Invoices",
+      "path": "/invoices",
+      "status": "PASS",
+      "loadTime": 3550,
+      "errors": [],
+      "notes": [
+        "Title: Einen Moment bitte …",
+        "Data: false"
+      ]
+    },
+    {
+      "name": "New Invoice",
+      "path": "/invoices/new",
+      "status": "PASS",
+      "loadTime": 3561,
+      "errors": [],
+      "notes": [
+        "Title: Einen Moment bitte …",
+        "Data: false"
+      ]
+    },
+    {
+      "name": "Transactions",
+      "path": "/transactions",
+      "status": "PASS",
+      "loadTime": 3581,
+      "errors": [],
+      "notes": [
+        "Title: Einen Moment bitte …",
+        "Data: false"
+      ]
+    },
+    {
+      "name": "Banking",
+      "path": "/banking",
+      "status": "PASS",
+      "loadTime": 3545,
+      "errors": [],
+      "notes": [
+        "Title: Einen Moment bitte …",
+        "Data: false"
+      ]
+    },
+    {
+      "name": "Reports",
+      "path": "/reports",
+      "status": "PASS",
+      "loadTime": 3556,
+      "errors": [],
+      "notes": [
+        "Title: Einen Moment bitte …",
+        "Data: false"
+      ]
+    },
+    {
+      "name": "Expenses",
+      "path": "/expenses",
+      "status": "PASS",
+      "loadTime": 3556,
+      "errors": [],
+      "notes": [
+        "Title: Einen Moment bitte …",
+        "Data: false"
+      ]
+    },
+    {
+      "name": "Bills",
+      "path": "/bills",
+      "status": "PASS",
+      "loadTime": 3572,
+      "errors": [],
+      "notes": [
+        "Title: Einen Moment bitte …",
+        "Data: false"
+      ]
+    },
+    {
+      "name": "Tax",
+      "path": "/tax",
+      "status": "PASS",
+      "loadTime": 3576,
+      "errors": [],
+      "notes": [
+        "Title: Einen Moment bitte …",
+        "Data: false"
+      ]
+    },
+    {
+      "name": "Cash Flow",
+      "path": "/cash-flow",
+      "status": "PASS",
+      "loadTime": 3562,
+      "errors": [],
+      "notes": [
+        "Title: Einen Moment bitte …",
+        "Data: false"
+      ]
+    }
+  ],
+  "consoleErrors": [
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "timestamp": "2025-12-16T00:14:03.918Z"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "timestamp": "2025-12-16T00:14:08.968Z"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "timestamp": "2025-12-16T00:14:11.766Z"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "timestamp": "2025-12-16T00:14:15.441Z"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "timestamp": "2025-12-16T00:14:19.106Z"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "timestamp": "2025-12-16T00:14:22.797Z"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "timestamp": "2025-12-16T00:14:26.477Z"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "timestamp": "2025-12-16T00:14:30.147Z"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "timestamp": "2025-12-16T00:14:33.809Z"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "timestamp": "2025-12-16T00:14:37.475Z"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "timestamp": "2025-12-16T00:14:41.158Z"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "timestamp": "2025-12-16T00:14:44.837Z"
+    }
+  ],
+  "pageErrors": [],
+  "summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "consoleErrors": 12,
+    "pageErrors": 0
+  }
+}

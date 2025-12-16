@@ -7,7 +7,7 @@
 
 ## Overview
 
-Implemented a comprehensive set of reusable multi-currency UI components for the Operate/CoachOS frontend. All components are built with shadcn/ui, support dark mode, are fully responsive, and include accessibility features.
+Implemented a comprehensive set of reusable multi-currency UI components for the Operate frontend. All components are built with shadcn/ui, support dark mode, are fully responsive, and include accessibility features.
 
 ## Files Created
 

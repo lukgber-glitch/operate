@@ -1,6 +1,6 @@
 # Service Worker Quick Reference
 
-## For Developers Working with Operate/CoachOS PWA
+## For Developers Working with Operate PWA
 
 ### Quick Start
 

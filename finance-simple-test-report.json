@@ -1,0 +1,152 @@
+{
+  "summary": {
+    "total": 13,
+    "passed": 0,
+    "failed": 13
+  },
+  "issues": [
+    {
+      "page": "/finance",
+      "type": "backend",
+      "severity": "medium",
+      "description": "Unexpected status code 307",
+      "steps_to_reproduce": [
+        "Navigate to /finance"
+      ],
+      "expected": "200 OK",
+      "actual": "307 Temporary Redirect"
+    },
+    {
+      "page": "/finance/invoices",
+      "type": "backend",
+      "severity": "medium",
+      "description": "Unexpected status code 307",
+      "steps_to_reproduce": [
+        "Navigate to /finance/invoices"
+      ],
+      "expected": "200 OK",
+      "actual": "307 Temporary Redirect"
+    },
+    {
+      "page": "/finance/invoices/new",
+      "type": "backend",
+      "severity": "medium",
+      "description": "Unexpected status code 307",
+      "steps_to_reproduce": [
+        "Navigate to /finance/invoices/new"
+      ],
+      "expected": "200 OK",
+      "actual": "307 Temporary Redirect"
+    },
+    {
+      "page": "/finance/invoices/recurring",
+      "type": "backend",
+      "severity": "medium",
+      "description": "Unexpected status code 307",
+      "steps_to_reproduce": [
+        "Navigate to /finance/invoices/recurring"
+      ],
+      "expected": "200 OK",
+      "actual": "307 Temporary Redirect"
+    },
+    {
+      "page": "/finance/expenses",
+      "type": "backend",
+      "severity": "medium",
+      "description": "Unexpected status code 307",
+      "steps_to_reproduce": [
+        "Navigate to /finance/expenses"
+      ],
+      "expected": "200 OK",
+      "actual": "307 Temporary Redirect"
+    },
+    {
+      "page": "/finance/expenses/new",
+      "type": "backend",
+      "severity": "medium",
+      "description": "Unexpected status code 307",
+      "steps_to_reproduce": [
+        "Navigate to /finance/expenses/new"
+      ],
+      "expected": "200 OK",
+      "actual": "307 Temporary Redirect"
+    },
+    {
+      "page": "/finance/expenses/scan",
+      "type": "backend",
+      "severity": "medium",
+      "description": "Unexpected status code 307",
+      "steps_to_reproduce": [
+        "Navigate to /finance/expenses/scan"
+      ],
+      "expected": "200 OK",
+      "actual": "307 Temporary Redirect"
+    },
+    {
+      "page": "/finance/transactions",
+      "type": "backend",
+      "severity": "medium",
+      "description": "Unexpected status code 307",
+      "steps_to_reproduce": [
+        "Navigate to /finance/transactions"
+      ],
+      "expected": "200 OK",
+      "actual": "307 Temporary Redirect"
+    },
+    {
+      "page": "/finance/bank-accounts",
+      "type": "backend",
+      "severity": "medium",
+      "description": "Unexpected status code 307",
+      "steps_to_reproduce": [
+        "Navigate to /finance/bank-accounts"
+      ],
+      "expected": "200 OK",
+      "actual": "307 Temporary Redirect"
+    },
+    {
+      "page": "/finance/banking",
+      "type": "backend",
+      "severity": "medium",
+      "description": "Unexpected status code 307",
+      "steps_to_reproduce": [
+        "Navigate to /finance/banking"
+      ],
+      "expected": "200 OK",
+      "actual": "307 Temporary Redirect"
+    },
+    {
+      "page": "/finance/accounts",
+      "type": "backend",
+      "severity": "medium",
+      "description": "Unexpected status code 307",
+      "steps_to_reproduce": [
+        "Navigate to /finance/accounts"
+      ],
+      "expected": "200 OK",
+      "actual": "307 Temporary Redirect"
+    },
+    {
+      "page": "/finance/payments",
+      "type": "backend",
+      "severity": "medium",
+      "description": "Unexpected status code 307",
+      "steps_to_reproduce": [
+        "Navigate to /finance/payments"
+      ],
+      "expected": "200 OK",
+      "actual": "307 Temporary Redirect"
+    },
+    {
+      "page": "/finance/reconciliation",
+      "type": "backend",
+      "severity": "medium",
+      "description": "Unexpected status code 307",
+      "steps_to_reproduce": [
+        "Navigate to /finance/reconciliation"
+      ],
+      "expected": "200 OK",
+      "actual": "307 Temporary Redirect"
+    }
+  ]
+}

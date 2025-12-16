@@ -26,6 +26,7 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { CompleteMfaLoginDto } from './dto/complete-mfa-login.dto';
 import { SetPasswordDto } from './dto/set-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { TestLoginDto } from './dto/test-login.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UsersService } from '../users/users.service';
@@ -428,5 +429,53 @@ export class AuthController {
     }
 
     return user;
+  }
+
+  /**
+   * TEST-ONLY: Login with test credentials
+   * SECURITY:
+   * - Only works in development/test environments (NOT production)
+   * - Requires TEST_AUTH_SECRET environment variable
+   * - Used for automated E2E testing to bypass OAuth flow
+   */
+  @Public()
+  @Post('test-login')
+  @Throttle({ auth: { limit: 10, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Test login (dev/test only)',
+    description: 'Authenticate with test credentials for automated testing. Only available in non-production environments.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Test login successful',
+    type: AuthResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid test secret or not available in production',
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'Too many requests - Rate limit exceeded',
+  })
+  async testLogin(
+    @Body() testLoginDto: TestLoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthResponseDto> {
+    const result = await this.authService.createTestSession(
+      testLoginDto.email,
+      testLoginDto.testSecret,
+    );
+
+    // Set tokens as HTTP-only cookies
+    if (result.accessToken && result.refreshToken) {
+      this.authService.setAuthCookies(res, result.accessToken, result.refreshToken);
+
+      // Always set onboarding complete cookie for test users
+      this.authService.setOnboardingCompleteCookie(res);
+    }
+
+    return result;
   }
 }

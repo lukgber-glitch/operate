@@ -1,8 +1,8 @@
-# PWA Implementation Guide - Operate/CoachOS
+# PWA Implementation Guide - Operate
 
 ## Overview
 
-Operate/CoachOS is fully configured as a Progressive Web App (PWA) with offline support, installability, and push notifications.
+Operate is fully configured as a Progressive Web App (PWA) with offline support, installability, and push notifications.
 
 ## Features
 

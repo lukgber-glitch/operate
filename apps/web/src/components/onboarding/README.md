@@ -1,6 +1,6 @@
 # Onboarding Wizard Component
 
-A multi-step onboarding wizard for Operate/CoachOS that guides new users through account setup.
+A multi-step onboarding wizard for Operate that guides new users through account setup.
 
 ## Components
 

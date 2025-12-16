@@ -1,6 +1,6 @@
 # Chat Interface Components
 
-Comprehensive AI assistant chat interface for Operate/CoachOS with competitor parity to sevDesk/FreeFinance chat assistants.
+Comprehensive AI assistant chat interface for Operate with competitor parity to sevDesk/FreeFinance chat assistants.
 
 ## Components
 

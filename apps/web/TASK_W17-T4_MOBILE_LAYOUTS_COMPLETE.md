@@ -8,7 +8,7 @@
 
 ## Summary
 
-Successfully created a comprehensive mobile-first component library with responsive layouts, touch-friendly components, and mobile-optimized navigation for the Operate/CoachOS web application.
+Successfully created a comprehensive mobile-first component library with responsive layouts, touch-friendly components, and mobile-optimized navigation for the Operate web application.
 
 ## Completed Work
 

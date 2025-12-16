@@ -2,7 +2,7 @@
 
 ## Overview
 
-Complete Spanish language support for the Operate/CoachOS platform, including Spain-specific business terminology, tax forms, and formatting conventions.
+Complete Spanish language support for the Operate platform, including Spain-specific business terminology, tax forms, and formatting conventions.
 
 ## Features
 

@@ -1,7 +1,7 @@
 # Enhanced Notification Center - Task W35-T4
 
 ## Overview
-Complete notification center dropdown implementation for Operate/CoachOS with real-time updates, date grouping, and comprehensive notification type support.
+Complete notification center dropdown implementation for Operate with real-time updates, date grouping, and comprehensive notification type support.
 
 ## Components Created/Enhanced
 

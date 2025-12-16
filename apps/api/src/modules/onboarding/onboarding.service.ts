@@ -271,6 +271,14 @@ export class OnboardingService {
     // Sync all onboarding data to Organisation record
     await this.syncOnboardingDataToOrganisation(orgId);
 
+    // CRITICAL FIX: Set onboardingCompleted flag on Organisation table
+    // This flag is checked by auth.service.checkAndSetOnboardingCookie()
+    // to determine if the onboarding_complete cookie should be set on login
+    await this.prisma.organisation.update({
+      where: { id: orgId },
+      data: { onboardingCompleted: true },
+    });
+
     return this.mapToDto(updatedProgress);
   }
 

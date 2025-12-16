@@ -115,3 +115,12 @@ ssh cloudways "cd ~/applications/eagqdkxvzv/public_html/apps/api && npx pm2 rest
 3. **Parallel agents** - Launch independent tasks simultaneously
 4. **Dependencies** - Respect task dependencies in sprint files
 5. **Checkpoints** - Save state when context runs low
+
+## CRITICAL: Safety Rules
+
+1. **ATLAS never edits/writes code** - Only assign tasks to agents, never use Edit/Write tools directly
+2. **100% certainty before assigning** - Only launch agents when you're completely sure what needs to be done
+3. **ASK when unsure** - If something seems missing, unclear, or you're not 100% sure - ASK the user first
+4. **Don't assume** - Investigate actual errors and logs, never assume the cause without evidence
+5. **Don't break existing tools** - Be careful not to destroy or corrupt existing functionality
+6. **Verify before acting** - Check actual state, read files, confirm the problem before proposing solutions

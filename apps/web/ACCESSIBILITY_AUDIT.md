@@ -1,13 +1,13 @@
 # Accessibility Audit Report - WCAG 2.1 Level AA
 
-**Project:** Operate/CoachOS Web Application
+**Project:** Operate Web Application
 **Date:** 2025-12-05
 **Auditor:** AURORA (UI/UX Design Agent)
 **Standard:** WCAG 2.1 Level AA
 
 ## Executive Summary
 
-This audit assessed the Operate/CoachOS web application against WCAG 2.1 Level AA standards. Significant improvements have been implemented across all key accessibility areas.
+This audit assessed the Operate web application against WCAG 2.1 Level AA standards. Significant improvements have been implemented across all key accessibility areas.
 
 ### Compliance Status: ✅ WCAG 2.1 AA Compliant
 
@@ -362,7 +362,7 @@ lighthouse http://localhost:3000 --only-categories=accessibility
 
 ## Compliance Statement
 
-**Operate/CoachOS** aims to conform to WCAG 2.1 Level AA standards. We are committed to ensuring digital accessibility for people with disabilities and continually improving the user experience for everyone.
+**Operate** aims to conform to WCAG 2.1 Level AA standards. We are committed to ensuring digital accessibility for people with disabilities and continually improving the user experience for everyone.
 
 ### Contact
 

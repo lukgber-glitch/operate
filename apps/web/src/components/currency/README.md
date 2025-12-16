@@ -1,6 +1,6 @@
 # Multi-Currency UI Components
 
-Reusable multi-currency components for Operate/CoachOS.
+Reusable multi-currency components for Operate.
 
 ## Components
 

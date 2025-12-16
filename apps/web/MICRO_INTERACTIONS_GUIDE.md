@@ -1,6 +1,6 @@
 # Micro-Interactions Guide
 
-This guide explains how to use the micro-interactions system in Operate/CoachOS.
+This guide explains how to use the micro-interactions system in Operate.
 
 ## Quick Start
 

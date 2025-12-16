@@ -1,6 +1,6 @@
 # E-Invoice Components
 
-Components for handling E-Invoice format selection and download in the Operate/CoachOS platform.
+Components for handling E-Invoice format selection and download in the Operate platform.
 
 ## Components
 
