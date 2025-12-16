@@ -53,8 +53,18 @@ const nonLocalePaths = [
   '/help', // Help center
   '/feedback', // Feedback form
   '/billing', // Billing & subscription
+  // Additional dashboard routes
+  '/autopilot', // Automation settings
+  '/health-score', // Business health metrics
+  '/insurance', // Insurance management
+  '/mileage', // Mileage tracking
+  '/quotes', // Quotes management
+  '/tax-assistant', // Tax AI assistant
+  '/time', // Time tracking
+  '/contracts', // Contract management
   // Legal and marketing pages (public, no auth required)
   '/pricing',
+  '/payment-terms', // Payment terms policy
   '/faq',
   '/privacy',
   '/terms',
@@ -83,6 +93,7 @@ const publicRoutes = [
   '/ai-disclaimer',
   '/impressum',
   '/dpa',
+  '/payment-terms',
 ]
 
 // Routes that require authentication but not onboarding
@@ -122,6 +133,15 @@ const protectedRoutes = [
   '/help',
   '/feedback',
   '/billing',
+  // Additional dashboard routes
+  '/autopilot',
+  '/health-score',
+  '/insurance',
+  '/mileage',
+  '/quotes',
+  '/tax-assistant',
+  '/time',
+  '/contracts',
 ]
 
 /**
