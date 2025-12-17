@@ -55,7 +55,7 @@ export default function PayRunPage() {
             </AlertDescription>
           </Alert>
 
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
             <div className="space-y-6">
               <div>

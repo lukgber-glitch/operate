@@ -21,7 +21,7 @@ export default function LeaveApprovalsPage() {
         </div>
       </div>
 
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[16px]">
         <CardContent className="p-6">
         <div className="rounded-lg border p-8 text-center">
           <p className="text-muted-foreground">

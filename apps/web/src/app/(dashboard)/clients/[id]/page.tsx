@@ -29,7 +29,7 @@ export default function ClientDetailPage() {
 
   if (!client) {
     return (
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[16px]">
         <CardContent className="p-6">
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <p className="text-muted-foreground">Client not found</p>

@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
   UseGuards,
   Req,
 } from '@nestjs/common';
@@ -20,18 +21,18 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@ApiTags('Projects')
+@ApiTags('Time Tracking - Projects')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('projects')
+@Controller('time-tracking/projects')
 export class ProjectsController {
   constructor(private readonly timeTrackingService: TimeTrackingService) {}
 
   @Get()
   @ApiOperation({ summary: 'List all projects' })
   @ApiResponse({ status: 200, description: 'Returns all projects' })
-  findAll(@Req() req: any) {
-    return this.timeTrackingService.findAllProjects(req.user.organisationId);
+  findAll(@Req() req: any, @Query() filters: any) {
+    return this.timeTrackingService.findAllProjects(req.user.organisationId, filters);
   }
 
   @Get(':id')
@@ -80,6 +81,14 @@ export class ProjectsController {
       req.user.organisationId,
       updateProjectDto,
     );
+  }
+
+  @Post(':id/archive')
+  @ApiOperation({ summary: 'Archive a project' })
+  @ApiResponse({ status: 200, description: 'Project has been archived' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
+  archive(@Param('id') id: string, @Req() req: any) {
+    return this.timeTrackingService.archiveProject(id, req.user.organisationId);
   }
 
   @Delete(':id')

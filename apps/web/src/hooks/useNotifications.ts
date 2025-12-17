@@ -41,7 +41,7 @@ export function useNotifications() {
     if (!token) return
 
     const eventSource = new EventSource(
-      `${API_BASE_URL}/api/notifications/stream?token=${token}`
+      `${API_BASE_URL}/notifications/stream?token=${token}`
     )
 
     eventSource.onmessage = (event) => {
@@ -77,7 +77,7 @@ export function useNotifications() {
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId: string) => {
       await axios.patch(
-        `${API_BASE_URL}/api/notifications/${notificationId}/read`,
+        `${API_BASE_URL}/notifications/${notificationId}/read`,
         {},
         {
           headers: {
@@ -111,7 +111,7 @@ export function useNotifications() {
   const markAllAsReadMutation = useMutation({
     mutationFn: async () => {
       await axios.patch(
-        `${API_BASE_URL}/api/notifications/read-all`,
+        `${API_BASE_URL}/notifications/read-all`,
         {},
         {
           headers: {
@@ -141,7 +141,7 @@ export function useNotifications() {
   // Delete notification mutation
   const deleteNotificationMutation = useMutation({
     mutationFn: async (notificationId: string) => {
-      await axios.delete(`${API_BASE_URL}/api/notifications/${notificationId}`, {
+      await axios.delete(`${API_BASE_URL}/notifications/${notificationId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -169,7 +169,7 @@ export function useNotifications() {
   const { data: preferences } = useQuery<NotificationPreferences>({
     queryKey: ['notification-preferences'],
     queryFn: async () => {
-      const response = await axios.get(`${API_BASE_URL}/api/notifications/preferences`, {
+      const response = await axios.get(`${API_BASE_URL}/notifications/preferences`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -182,7 +182,7 @@ export function useNotifications() {
   const updatePreferencesMutation = useMutation({
     mutationFn: async (newPreferences: Partial<NotificationPreferences>) => {
       const response = await axios.patch(
-        `${API_BASE_URL}/api/notifications/preferences`,
+        `${API_BASE_URL}/notifications/preferences`,
         newPreferences,
         {
           headers: {

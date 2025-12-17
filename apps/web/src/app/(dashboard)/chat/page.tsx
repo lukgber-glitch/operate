@@ -15,7 +15,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { ChatMessage } from '@/components/chat/ChatMessage';
 import { ChatInput } from '@/components/chat/ChatInput';
-import { Mail, Building2, Calendar, Mic, History, Loader2, Brain, AlertCircle, Sparkles } from 'lucide-react';
+import { Mail, Building2, Calendar, Mic, History, Loader2, Brain, AlertCircle } from 'lucide-react';
+import { GuruLogo } from '@/components/ui/guru-logo';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -493,7 +494,7 @@ function ChatPageContent() {
                         background: 'linear-gradient(135deg, #06BF9D 0%, #059e82 100%)',
                       }}
                     >
-                      <Sparkles className="h-4 w-4 text-white" />
+                      <GuruLogo size={16} variant="light" />
                     </div>
                     <div
                       className="flex-1 rounded-2xl px-4 py-3"
@@ -529,7 +530,7 @@ function ChatPageContent() {
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Sparkles className="w-8 h-8 text-blue-500/60" />
+                  <GuruLogo size={32} variant="colored" className="opacity-60" />
                 </motion.div>
                 <p className="text-lg font-medium text-slate-700 dark:text-slate-200 mb-1">
                   Start a conversation
@@ -550,7 +551,7 @@ function ChatPageContent() {
           >
             {/* Email Insights Card */}
             <motion.div variants={fadeUp} whileHover={cardHover}>
-              <Card className="rounded-[24px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+              <Card className="rounded-[16px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/5 dark:from-blue-400/20 dark:to-blue-500/10">
@@ -580,7 +581,7 @@ function ChatPageContent() {
 
             {/* Bank Summary Card */}
             <motion.div variants={fadeUp} whileHover={cardHover}>
-              <Card className="rounded-[24px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+              <Card className="rounded-[16px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 dark:from-emerald-400/20 dark:to-emerald-500/10">
@@ -617,7 +618,7 @@ function ChatPageContent() {
 
             {/* Upcoming Card */}
             <motion.div variants={fadeUp} whileHover={cardHover}>
-              <Card className="rounded-[24px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+              <Card className="rounded-[16px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-600/5 dark:from-purple-400/20 dark:to-purple-500/10">

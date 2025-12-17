@@ -186,7 +186,7 @@ export default function ProfilePage() {
       {/* Quick Settings Links */}
       <div className="grid gap-4 md:grid-cols-2">
         <Link href="/settings/profile">
-          <GlassCard className="cursor-pointer rounded-[24px] transition-colors hover:bg-accent">
+          <GlassCard className="cursor-pointer rounded-[16px] transition-colors hover:bg-accent">
             <CardContent className="flex items-center justify-between p-6">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
@@ -205,7 +205,7 @@ export default function ProfilePage() {
         </Link>
 
         <Link href="/settings/security">
-          <GlassCard className="cursor-pointer rounded-[24px] transition-colors hover:bg-accent">
+          <GlassCard className="cursor-pointer rounded-[16px] transition-colors hover:bg-accent">
             <CardContent className="flex items-center justify-between p-6">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">

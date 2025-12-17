@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -307,9 +307,17 @@ import configuration from './config/configuration';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    // Apply CSRF token middleware to all routes
-    // This generates and sets CSRF tokens for the double-submit pattern
-    consumer.apply(CsrfTokenMiddleware).forRoutes('*');
+    // Apply CSRF token middleware to all routes EXCEPT OAuth callbacks
+    // OAuth callbacks need clean cookie handling without CSRF interference
+    consumer
+      .apply(CsrfTokenMiddleware)
+      .exclude(
+        { path: 'auth/google/callback', method: RequestMethod.GET },
+        { path: 'auth/microsoft/callback', method: RequestMethod.GET },
+        { path: 'api/v1/auth/google/callback', method: RequestMethod.GET },
+        { path: 'api/v1/auth/microsoft/callback', method: RequestMethod.GET },
+      )
+      .forRoutes('*');
 
     // Queue board temporarily disabled
   }

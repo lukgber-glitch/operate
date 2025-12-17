@@ -159,7 +159,7 @@ export function UserStats({ className }: UserStatsProps) {
   const hasData = stats?.hasData ?? false;
 
   return (
-    <Card className={cn('rounded-[24px]', className)}>
+    <Card className={cn('rounded-[16px]', className)}>
       <CardHeader>
         <CardTitle className="text-base font-semibold">Your Activity</CardTitle>
       </CardHeader>

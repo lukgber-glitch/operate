@@ -86,3 +86,6 @@ credentials.json
 service-account*.json
 secrets/
 keys/
+test-browser-profile/
+test-screenshots/
+*.log

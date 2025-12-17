@@ -673,8 +673,8 @@ export class AuthService {
 
     res.cookie('onboarding_complete', 'true', {
       httpOnly: false, // Needs to be readable by frontend middleware
-      secure: isProduction,
-      sameSite: 'lax', // Allow cross-site for OAuth flows
+      secure: isProduction, // true in production, false in dev (sameSite varies accordingly)
+      sameSite: isProduction ? 'none' : 'lax', // 'none' in production for cross-site, 'lax' in dev
       path: '/',
       maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
       ...(isProduction ? {} : { domain: 'localhost' }), // Cross-port support in dev

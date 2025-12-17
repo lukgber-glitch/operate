@@ -316,7 +316,7 @@ export function ReportsPageSkeleton() {
       </div>
 
       {/* Export actions */}
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[16px]">
         <CardContent className="p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>

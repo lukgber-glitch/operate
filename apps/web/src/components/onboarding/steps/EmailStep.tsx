@@ -171,7 +171,7 @@ export function EmailStep() {
           Connect your business email to automatically extract invoices, receipts, and important documents. Connect one or both email providers.
         </p>
       </div>
-      <Card className="rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10">
+      <Card className="rounded-[16px] bg-white/5 backdrop-blur-xl border border-white/10">
         <CardContent className="p-6">
         <div className="space-y-6">
           {/* Security Notice */}
@@ -369,7 +369,7 @@ export function EmailStep() {
 
       {/* Alternative: Manual Upload Reminder */}
       {!anyConnected && (
-        <Card className="border-dashed rounded-[24px] bg-white/5 backdrop-blur-xl border-white/10">
+        <Card className="border-dashed rounded-[16px] bg-white/5 backdrop-blur-xl border-white/10">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">

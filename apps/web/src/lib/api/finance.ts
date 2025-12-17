@@ -3,6 +3,35 @@
  * Handles all finance-related API calls
  */
 
+// Helper functions for expense category transformation
+function formatCategoryName(category: string): string {
+  if (!category) return 'Uncategorized';
+  // Convert SNAKE_CASE to Title Case
+  return category
+    .toLowerCase()
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+function getCategoryColor(category: string): string {
+  const colors: Record<string, string> = {
+    TRAVEL: '#3B82F6',
+    OFFICE: '#10B981',
+    MEALS: '#F59E0B',
+    SOFTWARE: '#8B5CF6',
+    HARDWARE: '#EC4899',
+    MARKETING: '#06B6D4',
+    PROFESSIONAL_SERVICES: '#6366F1',
+    UTILITIES: '#84CC16',
+    RENT: '#F97316',
+    INSURANCE: '#14B8A6',
+    TAXES: '#EF4444',
+    OTHER: '#6B7280',
+  };
+  return colors[category] || '#6B7280';
+}
+
 // Invoice Types
 export interface Invoice {
   id: string;
@@ -326,9 +355,18 @@ class FinanceApi {
       });
     }
 
-    return this.request<PaginatedResponse<Invoice>>(
+    const response = await this.request<ApiResponse<Invoice[]>>(
       `/invoices?${params.toString()}`
     );
+
+    // Transform nested meta structure to flat PaginatedResponse
+    return {
+      data: response.data,
+      total: response.meta?.total || 0,
+      page: response.meta?.page || 1,
+      pageSize: response.meta?.pageSize || 20,
+      totalPages: response.meta?.totalPages || 0,
+    };
   }
 
   async getInvoice(id: string): Promise<Invoice> {
@@ -362,7 +400,7 @@ class FinanceApi {
   }
 
   async markInvoiceAsPaid(id: string): Promise<Invoice> {
-    return this.request<Invoice>(`/invoices/${id}/mark-paid`, {
+    return this.request<Invoice>(`/invoices/${id}/pay`, {
       method: 'POST',
     });
   }
@@ -384,9 +422,47 @@ class FinanceApi {
       });
     }
 
-    return this.request<PaginatedResponse<Expense>>(
+    const response = await this.request<ApiResponse<any[]>>(
       `/expenses?${params.toString()}`
     );
+
+    // Transform backend expense format to frontend Expense type
+    // Backend uses: amount, date, category (enum)
+    // Frontend expects: totalAmount, expenseDate, category (object)
+    const transformedExpenses: Expense[] = (response.data || []).map((expense: any) => ({
+      id: expense.id,
+      number: expense.number || `EXP-${expense.id?.slice(0, 8)?.toUpperCase() || 'UNKNOWN'}`,
+      categoryId: expense.category,
+      category: expense.category ? {
+        id: expense.category,
+        name: formatCategoryName(expense.category),
+        color: getCategoryColor(expense.category),
+      } : undefined,
+      vendorName: expense.vendorName || '',
+      vendorEmail: expense.vendorEmail,
+      description: expense.description || '',
+      amount: Number(expense.amount) || 0,
+      taxAmount: Number(expense.taxAmount) || 0,
+      totalAmount: Number(expense.amount) || 0,
+      currency: expense.currency || 'EUR',
+      expenseDate: expense.date || expense.expenseDate,
+      status: expense.status || 'DRAFT',
+      receiptUrl: expense.receiptUrl,
+      approvedBy: expense.approvedBy,
+      approvedAt: expense.approvedAt,
+      rejectionReason: expense.rejectionReason,
+      createdAt: expense.createdAt,
+      updatedAt: expense.updatedAt,
+    }));
+
+    // Transform nested meta structure to flat PaginatedResponse
+    return {
+      data: transformedExpenses,
+      total: response.meta?.total || 0,
+      page: response.meta?.page || 1,
+      pageSize: response.meta?.pageSize || 20,
+      totalPages: response.meta?.totalPages || 0,
+    };
   }
 
   async getExpense(id: string): Promise<Expense> {
@@ -463,7 +539,7 @@ class FinanceApi {
   // Bank Account CRUD
   async getBankAccounts(): Promise<BankAccount[]> {
     const response = await this.request<ApiResponse<BankAccount[]>>('/banking/accounts');
-    return response.data;
+    return response.data || [];
   }
 
   async getBankAccount(id: string): Promise<BankAccount> {

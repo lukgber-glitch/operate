@@ -296,7 +296,7 @@ function DocumentsPageContent() {
       >
         {/* Folders Sidebar */}
         <aside className="lg:w-64 flex-shrink-0">
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-4">
               <div className="space-y-2">
                 <button
@@ -397,7 +397,7 @@ function DocumentsPageContent() {
                   const TypeIcon = typeConfig.icon;
 
                   return (
-                    <Card key={doc.id} className="rounded-[24px] group hover:shadow-md transition-shadow">
+                    <Card key={doc.id} className="rounded-[16px] group hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
                         <div className="space-y-3">
                           <div className="flex items-start justify-between">
@@ -451,7 +451,7 @@ function DocumentsPageContent() {
 
           {/* List View */}
           {viewMode === 'list' && (
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardContent className="p-4">
               <Table>
                 <TableHeader>

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
  */
 export function DocumentCardSkeleton() {
   return (
-    <Card className="rounded-[24px]">
+    <Card className="rounded-[16px]">
       <CardContent className="p-4">
         <div className="space-y-3">
           <div className="flex items-start justify-between">
@@ -74,7 +74,7 @@ interface DocumentListSkeletonProps {
 
 export function DocumentListSkeleton({ rows = 5 }: DocumentListSkeletonProps) {
   return (
-    <Card className="rounded-[24px]">
+    <Card className="rounded-[16px]">
       <CardContent className="p-0">
         <div className="divide-y">
           {/* Header */}
@@ -101,7 +101,7 @@ export function DocumentListSkeleton({ rows = 5 }: DocumentListSkeletonProps) {
  */
 export function FolderSidebarSkeleton() {
   return (
-    <Card className="rounded-[24px]">
+    <Card className="rounded-[16px]">
       <CardContent className="p-4">
         <div className="space-y-2">
           <Skeleton className="h-10 w-full rounded-md" />
@@ -173,7 +173,7 @@ export function DocumentsPageSkeleton() {
  */
 export function DocumentUploadSkeleton() {
   return (
-    <Card className="rounded-[24px]">
+    <Card className="rounded-[16px]">
       <CardContent className="p-6">
         <div className="border-2 border-dashed rounded-lg p-12">
           <div className="flex flex-col items-center justify-center space-y-4">

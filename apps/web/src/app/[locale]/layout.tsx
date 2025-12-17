@@ -20,15 +20,15 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'Operate | CoachOS - Enterprise Coaching Platform',
-  description: 'AI-powered coaching platform for enterprise teams',
+  title: 'Operate - AI-Powered Business Automation',
+  description: 'Automate your finances, invoices, expenses, and business operations with AI',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
     title: 'Operate',
   },
-  applicationName: 'Operate | CoachOS',
+  applicationName: 'Operate',
   formatDetection: {
     telephone: false,
   },

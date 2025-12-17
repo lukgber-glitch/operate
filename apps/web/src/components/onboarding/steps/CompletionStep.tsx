@@ -20,6 +20,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { useAIConsent } from '@/hooks/useAIConsent'
 
 const NEXT_STEPS = [
   {
@@ -86,6 +87,7 @@ interface CompletionStepProps {
 export function CompletionStep({ companyName, setupCompleted }: CompletionStepProps) {
   const router = useRouter()
   const [isNavigating, setIsNavigating] = React.useState(false)
+  const { giveConsent, hasConsent } = useAIConsent()
 
   const handleGoToDashboard = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -106,6 +108,12 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       // Clear localStorage progress
       localStorage.removeItem('operate_onboarding_progress')
 
+      // Auto-enable AI consent when completing onboarding
+      // This allows the chat to work immediately without additional prompts
+      if (!hasConsent) {
+        await giveConsent()
+      }
+
       // Navigate to chat
       router.push('/chat')
     } catch (error) {
@@ -113,6 +121,10 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       // Still try to navigate - set cookie and go
       document.cookie = 'onboarding_complete=true; path=/; max-age=31536000; SameSite=Lax'
       localStorage.removeItem('operate_onboarding_progress')
+      // Still give consent on error
+      if (!hasConsent) {
+        await giveConsent()
+      }
       router.push('/chat')
     }
   }
@@ -143,7 +155,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       </div>
 
       {/* Success Message Card */}
-      <Card className="rounded-[24px] bg-white/10 border border-white/20">
+      <Card className="rounded-[16px] bg-white/10 border border-white/20">
         <CardContent className="p-6">
           <div className="text-center space-y-4">
             <div className="mx-auto w-16 h-16 rounded-full bg-white/10 flex items-center justify-center">
@@ -173,7 +185,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
           {NEXT_STEPS.map((step) => (
             <Card
               key={step.title}
-              className="rounded-[24px] hover:border-white/30 transition-all cursor-pointer group"
+              className="rounded-[16px] hover:border-white/30 transition-all cursor-pointer group"
               onClick={(e) => handleNavigate(e, step.href)}
             >
               <CardContent className="p-4">
@@ -198,7 +210,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       </div>
 
       {/* Resources */}
-      <Card className="rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10">
+      <Card className="rounded-[16px] bg-white/5 backdrop-blur-xl border border-white/10">
         <CardContent className="p-6">
           <div className="space-y-4">
             <div>
@@ -227,7 +239,7 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       </Card>
 
       {/* Tips */}
-      <Card className="rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10">
+      <Card className="rounded-[16px] bg-white/5 backdrop-blur-xl border border-white/10">
         <CardContent className="p-6">
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-white">Pro Tips</h4>

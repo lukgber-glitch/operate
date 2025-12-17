@@ -149,7 +149,7 @@ export default function SalesReportPage() {
         animate="visible"
         transition={{ delay: 0.1 }}
       >
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[16px]">
         <CardContent className="p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -198,7 +198,7 @@ export default function SalesReportPage() {
 
       {/* Loading State */}
       {isLoading && (
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardContent className="p-6">
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
@@ -212,7 +212,7 @@ export default function SalesReportPage() {
 
       {/* Error State */}
       {isError && (
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardContent className="p-6">
             <div className="text-center py-12">
               <p className="text-sm text-red-600">Failed to load sales report</p>
@@ -232,7 +232,7 @@ export default function SalesReportPage() {
         >
           {/* Key Metrics */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Invoices</CardTitle>
                 <FileText className="h-4 w-4 text-muted-foreground" />
@@ -247,7 +247,7 @@ export default function SalesReportPage() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -263,7 +263,7 @@ export default function SalesReportPage() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Paid Amount</CardTitle>
                 <CheckCircle className="h-4 w-4 text-muted-foreground" />
@@ -278,7 +278,7 @@ export default function SalesReportPage() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Outstanding</CardTitle>
                 <Clock className="h-4 w-4 text-muted-foreground" />
@@ -295,7 +295,7 @@ export default function SalesReportPage() {
           </div>
 
           {/* Invoice Status Breakdown */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardHeader>
               <CardTitle>Invoice Status Breakdown</CardTitle>
             </CardHeader>
@@ -337,7 +337,7 @@ export default function SalesReportPage() {
           </Card>
 
           {/* Aging Report */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardHeader>
               <CardTitle>Invoice Aging Report</CardTitle>
             </CardHeader>
@@ -388,7 +388,7 @@ export default function SalesReportPage() {
 
           {/* Payment Performance */}
           <div className="grid gap-4 md:grid-cols-2">
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader>
                 <CardTitle>Payment Performance</CardTitle>
               </CardHeader>
@@ -414,7 +414,7 @@ export default function SalesReportPage() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader>
                 <CardTitle>Quick Summary</CardTitle>
               </CardHeader>

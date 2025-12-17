@@ -231,7 +231,7 @@ export default function SearchPage() {
             {filteredResults.map((result) => (
               <GlassCard
                 key={result.id}
-                className="rounded-[24px] transition-all hover:shadow-md cursor-pointer"
+                className="rounded-[16px] transition-all hover:shadow-md cursor-pointer"
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start gap-4">

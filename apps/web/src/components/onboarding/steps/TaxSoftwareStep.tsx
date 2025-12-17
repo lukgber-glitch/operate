@@ -295,7 +295,7 @@ export function TaxSoftwareStep() {
         <h2 className="text-2xl font-semibold tracking-tight">Connect Tax Software</h2>
         <p className="text-muted-foreground">Connect to your tax filing system to automate VAT returns, tax submissions, and compliance reporting. This step is optional but highly recommended for tax automation.</p>
       </div>
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[16px]">
         <CardContent className="p-6">
         <div className="space-y-6">
           {connectedTax && connectedIntegration ? (

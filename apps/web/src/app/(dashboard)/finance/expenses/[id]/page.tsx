@@ -156,7 +156,7 @@ export default function ExpenseDetailPage({
         {/* Main Content */}
         <div className="space-y-6 lg:col-span-2">
           {/* Expense Details */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardHeader>
               <CardTitle>Expense Information</CardTitle>
             </CardHeader>
@@ -222,7 +222,7 @@ export default function ExpenseDetailPage({
           </Card>
 
           {/* Submitter Information */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardHeader>
               <CardTitle>Submission Details</CardTitle>
             </CardHeader>
@@ -267,7 +267,7 @@ export default function ExpenseDetailPage({
 
           {/* Approval Section - Only for managers */}
           {isManager && status === 'pending' && (
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader>
                 <CardTitle>Approval</CardTitle>
               </CardHeader>
@@ -345,7 +345,7 @@ export default function ExpenseDetailPage({
 
         {/* Timeline Sidebar */}
         <div>
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardHeader>
               <CardTitle>Activity Timeline</CardTitle>
             </CardHeader>

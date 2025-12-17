@@ -332,4 +332,4 @@ customization/
 
 ## License
 
-Part of Operate/CoachOS - Enterprise SaaS Platform
+Part of Operate - Enterprise SaaS Platform

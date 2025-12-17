@@ -113,7 +113,7 @@ function ReportsPageContent() {
         animate="visible"
         transition={{ delay: 0.1 }}
       >
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[16px]">
         <CardContent className="p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -180,7 +180,7 @@ function ReportsPageContent() {
           {isLoading || !financial.data ? (
             <FinancialReportSkeleton />
           ) : financial.isError ? (
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardContent className="p-6">
               <div className="text-center py-12">
                 <p className="text-sm text-red-600">Failed to load financial report</p>
@@ -197,7 +197,7 @@ function ReportsPageContent() {
           {isLoading || !tax.data ? (
             <TaxReportSkeleton />
           ) : tax.isError ? (
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardContent className="p-6">
               <div className="text-center py-12">
                 <p className="text-sm text-red-600">Failed to load tax report</p>
@@ -214,7 +214,7 @@ function ReportsPageContent() {
           {isLoading || !clients.data ? (
             <ClientMetricsSkeleton />
           ) : clients.isError ? (
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardContent className="p-6">
               <div className="text-center py-12">
                 <p className="text-sm text-red-600">Failed to load client metrics</p>
@@ -231,7 +231,7 @@ function ReportsPageContent() {
           {isLoading || !documents.data ? (
             <DocumentStatsSkeleton />
           ) : documents.isError ? (
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardContent className="p-6">
               <div className="text-center py-12">
                 <p className="text-sm text-red-600">Failed to load document statistics</p>

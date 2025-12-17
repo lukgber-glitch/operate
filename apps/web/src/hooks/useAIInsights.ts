@@ -92,7 +92,7 @@ export function useAIInsights(
       }
 
       // Fetch suggestions
-      const suggestionsUrl = `${API_BASE_URL}/api/suggestions?${params.toString()}`;
+      const suggestionsUrl = `${API_BASE_URL}/suggestions?${params.toString()}`;
       const suggestionsResponse = await fetch(suggestionsUrl, {
         credentials: 'include',
         headers: {
@@ -109,7 +109,7 @@ export function useAIInsights(
       const suggestions: Suggestion[] = suggestionsData.suggestions || [];
 
       // Fetch insights
-      const insightsUrl = `${API_BASE_URL}/api/insights?orgId=${user.orgId}`;
+      const insightsUrl = `${API_BASE_URL}/insights?orgId=${user.orgId}`;
       const insightsResponse = await fetch(insightsUrl, {
         credentials: 'include',
         headers: {
@@ -178,7 +178,7 @@ export function useAIInsights(
     if (!isAuthenticated) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/suggestions/${insightId}/dismiss`, {
+      const response = await fetch(`${API_BASE_URL}/suggestions/${insightId}/dismiss`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -211,7 +211,7 @@ export function useAIInsights(
     if (!isAuthenticated) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/suggestions/${insightId}/snooze`, {
+      const response = await fetch(`${API_BASE_URL}/suggestions/${insightId}/snooze`, {
         method: 'POST',
         credentials: 'include',
         headers: {

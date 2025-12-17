@@ -52,7 +52,7 @@ const DialogContent = React.forwardRef<
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={dialogSpringConfig}
         className={cn(
-          "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg rounded-[24px] transform-gpu will-change-transform",
+          "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg rounded-[16px] transform-gpu will-change-transform",
           className
         )}
       >

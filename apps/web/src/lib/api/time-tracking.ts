@@ -175,22 +175,22 @@ export const timeTrackingApi = {
     if (filters?.pageSize) params.append('pageSize', String(filters.pageSize));
 
     const response = await apiClient.get<PaginatedResponse<TimeEntry>>(`/time-tracking/entries?${params}`);
-    return response.data;
+    return response.data || { data: [], total: 0, page: 1, pageSize: 10, totalPages: 0 };
   },
 
   async getTimeEntry(id: string): Promise<TimeEntry> {
     const response = await apiClient.get<TimeEntry>(`/time-tracking/entries/${id}`);
-    return response.data;
+    return response.data || ({} as TimeEntry);
   },
 
   async createTimeEntry(data: CreateTimeEntryRequest): Promise<TimeEntry> {
     const response = await apiClient.post<TimeEntry>('/time-tracking/entries', data);
-    return response.data;
+    return response.data || ({} as TimeEntry);
   },
 
   async updateTimeEntry(id: string, data: UpdateTimeEntryRequest): Promise<TimeEntry> {
     const response = await apiClient.patch<TimeEntry>(`/time-tracking/entries/${id}`, data);
-    return response.data;
+    return response.data || ({} as TimeEntry);
   },
 
   async deleteTimeEntry(id: string): Promise<void> {
@@ -199,12 +199,12 @@ export const timeTrackingApi = {
 
   async bulkMarkAsBillable(ids: string[]): Promise<{ updated: number }> {
     const response = await apiClient.post<{ updated: number }>('/time-tracking/entries/bulk/mark-billable', { ids });
-    return response.data;
+    return response.data || { updated: 0 };
   },
 
   async bulkMarkAsBilled(ids: string[]): Promise<{ updated: number }> {
     const response = await apiClient.post<{ updated: number }>('/time-tracking/entries/bulk/mark-billed', { ids });
-    return response.data;
+    return response.data || { updated: 0 };
   },
 
   // ============================================================================
@@ -225,17 +225,17 @@ export const timeTrackingApi = {
 
   async startTimer(data?: StartTimerRequest): Promise<RunningTimer> {
     const response = await apiClient.post<RunningTimer>('/time-tracking/timer/start', data || {});
-    return response.data;
+    return response.data || ({} as RunningTimer);
   },
 
   async stopTimer(data?: StopTimerRequest): Promise<TimeEntry> {
     const response = await apiClient.post<TimeEntry>('/time-tracking/timer/stop', data || {});
-    return response.data;
+    return response.data || ({} as TimeEntry);
   },
 
   async updateRunningTimer(data: Partial<StartTimerRequest>): Promise<RunningTimer> {
     const response = await apiClient.patch<RunningTimer>('/time-tracking/timer', data);
-    return response.data;
+    return response.data || ({} as RunningTimer);
   },
 
   async discardTimer(): Promise<void> {
@@ -254,22 +254,22 @@ export const timeTrackingApi = {
     if (filters?.pageSize) params.append('pageSize', String(filters.pageSize));
 
     const response = await apiClient.get<PaginatedResponse<Project>>(`/time-tracking/projects?${params}`);
-    return response.data;
+    return response.data || { data: [], total: 0, page: 1, pageSize: 10, totalPages: 0 };
   },
 
   async getProject(id: string): Promise<Project> {
     const response = await apiClient.get<Project>(`/time-tracking/projects/${id}`);
-    return response.data;
+    return response.data || ({} as Project);
   },
 
   async createProject(data: CreateProjectRequest): Promise<Project> {
     const response = await apiClient.post<Project>('/time-tracking/projects', data);
-    return response.data;
+    return response.data || ({} as Project);
   },
 
   async updateProject(id: string, data: UpdateProjectRequest): Promise<Project> {
     const response = await apiClient.patch<Project>(`/time-tracking/projects/${id}`, data);
-    return response.data;
+    return response.data || ({} as Project);
   },
 
   async deleteProject(id: string): Promise<void> {
@@ -278,7 +278,7 @@ export const timeTrackingApi = {
 
   async archiveProject(id: string): Promise<Project> {
     const response = await apiClient.post<Project>(`/time-tracking/projects/${id}/archive`);
-    return response.data;
+    return response.data || ({} as Project);
   },
 
   // ============================================================================
@@ -291,7 +291,7 @@ export const timeTrackingApi = {
     if (filters?.endDate) params.append('endDate', filters.endDate);
 
     const response = await apiClient.get<TimeSummary>(`/time-tracking/summary?${params}`);
-    return response.data;
+    return response.data || ({} as TimeSummary);
   },
 
   async exportTimeEntries(filters?: TimeEntryFilters): Promise<Blob> {
@@ -304,6 +304,6 @@ export const timeTrackingApi = {
     const response = await apiClient.get<Blob>(`/time-tracking/entries/export?${params}`, {
       responseType: 'blob',
     });
-    return response.data;
+    return response.data || new Blob();
   },
 };

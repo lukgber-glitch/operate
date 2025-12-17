@@ -237,7 +237,7 @@ export function BankingStep() {
           </h1>
           <p className="text-lg text-gray-300/90 max-w-2xl mx-auto leading-relaxed">Link your business bank account to automatically sync transactions and streamline your bookkeeping.</p>
         </div>
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardContent className="p-6">
           <div className="space-y-6">
             <Alert className="bg-white/5 border-white/10">
@@ -270,7 +270,7 @@ export function BankingStep() {
         </h1>
         <p className="text-lg text-gray-300/90 max-w-2xl mx-auto leading-relaxed">Link your business bank account to automatically sync transactions and streamline your bookkeeping. This step is optional but highly recommended.</p>
       </div>
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[16px]">
         <CardContent className="p-6">
         <div className="space-y-6">
           {/* Security Notice */}

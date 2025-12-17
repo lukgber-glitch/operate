@@ -167,7 +167,7 @@ export default function ClientDetailPage() {
         animate="visible"
         transition={{ delay: 0.1 }}
       >
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
         <CardContent className="p-6">
         <div className="space-y-6">
           <h3 className="text-lg font-semibold">Contact Information</h3>
@@ -322,7 +322,7 @@ export default function ClientDetailPage() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
             <div className="space-y-6">
               <h3 className="text-lg font-semibold">Recent Activity</h3>
@@ -378,7 +378,7 @@ export default function ClientDetailPage() {
         </TabsContent>
 
         <TabsContent value="invoices">
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
             <div className="py-12 text-center">
               <p className="text-muted-foreground">
@@ -390,7 +390,7 @@ export default function ClientDetailPage() {
         </TabsContent>
 
         <TabsContent value="documents">
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
             <div className="py-12 text-center">
               <p className="text-muted-foreground">

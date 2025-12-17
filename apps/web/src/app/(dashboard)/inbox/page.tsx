@@ -199,7 +199,7 @@ export default function InboxPage() {
           filteredMessages.map((message) => (
             <GlassCard
               key={message.id}
-              className={`rounded-[24px] transition-all hover:shadow-md ${
+              className={`rounded-[16px] transition-all hover:shadow-md ${
                 message.isRead ? 'opacity-75' : ''
               }`}
             >

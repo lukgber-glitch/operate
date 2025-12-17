@@ -151,7 +151,12 @@ class BankConnectionsApi {
     const response = await this.request<{ data: BankConnection[] }>(
       `/organisations/${orgId}/bank-connections`
     );
-    return response.data;
+    // Ensure each connection has an accounts array (never null)
+    const connections = response.data || [];
+    return connections.map(connection => ({
+      ...connection,
+      accounts: connection.accounts || [],
+    }));
   }
 
   // Get a specific bank connection
@@ -225,7 +230,7 @@ class BankConnectionsApi {
     const response = await this.request<{ data: Bank[] }>(
       `/bank-connections/banks?country=${country}`
     );
-    return response.data;
+    return response.data || [];
   }
 }
 

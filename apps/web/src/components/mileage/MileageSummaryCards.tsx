@@ -72,7 +72,7 @@ export function MileageSummaryCards({
     >
       {cards.map((card, index) => (
         <motion.div key={card.title} variants={fadeUp}>
-          <GlassCard className="rounded-[24px] p-6">
+          <GlassCard className="rounded-[16px] p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <p className="text-sm text-white/70 mb-2">{card.title}</p>

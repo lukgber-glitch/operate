@@ -186,7 +186,7 @@ export default function DocumentTemplatesPage() {
       </div>
 
       {/* Popular Templates */}
-      <Card className="rounded-[24px] bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+      <Card className="rounded-[16px] bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
         <CardHeader>
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-primary/10">
@@ -288,7 +288,7 @@ export default function DocumentTemplatesPage() {
             const config = categoryConfig[template.category];
 
             return (
-              <Card key={template.id} className="rounded-[24px] group hover:shadow-md transition-shadow">
+              <Card key={template.id} className="rounded-[16px] group hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
                   <div className="space-y-3">
                     <div className={`p-6 rounded-lg ${config.color.split(' ')[0]} ${config.color.split(' ')[1]} flex items-center justify-center`}>

@@ -85,7 +85,7 @@ export default function SpecificPayrollPage() {
             <p className="text-muted-foreground">This payroll has been {payroll.status} and cannot be edited</p>
           </div>
 
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
             <div className="space-y-4">
               <div className="flex justify-between">

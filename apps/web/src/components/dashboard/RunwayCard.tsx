@@ -11,7 +11,7 @@ function RunwayCardComponent() {
 
   if (isLoading) {
     return (
-      <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
+      <Card className="rounded-[16px] bg-white/5 backdrop-blur-sm border-white/10">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-gray-300">
             Runway
@@ -28,7 +28,7 @@ function RunwayCardComponent() {
 
   if (error || !data) {
     return (
-      <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
+      <Card className="rounded-[16px] bg-white/5 backdrop-blur-sm border-white/10">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-gray-300">
             Runway
@@ -77,7 +77,7 @@ function RunwayCardComponent() {
   }, [data.status]);
 
   return (
-    <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
+    <Card className="rounded-[16px] bg-white/5 backdrop-blur-sm border-white/10">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-gray-300">
           Runway

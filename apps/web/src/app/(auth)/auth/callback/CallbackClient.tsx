@@ -156,7 +156,7 @@ export default function CallbackClient() {
         <h1 className="text-2xl font-semibold tracking-tight text-white">{getTitle()}</h1>
         <p className="text-white/70">{getSubtitle()}</p>
       </div>
-      <GlassCard intensity="onDark" className="rounded-[24px] p-6">
+      <GlassCard intensity="onDark" className="rounded-[16px] p-6">
         <div className="flex justify-center py-8">
           {status === 'processing' && (
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-white/30 border-t-white/70" />

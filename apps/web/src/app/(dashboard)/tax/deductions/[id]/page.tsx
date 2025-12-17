@@ -148,7 +148,7 @@ export default function DeductionDetailPage({
         animate="visible"
         transition={{ delay: 0.1 }}
       >
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[16px]">
         <CardContent className="p-6">
         <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Content */}

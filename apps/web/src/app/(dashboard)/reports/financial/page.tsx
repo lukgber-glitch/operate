@@ -112,7 +112,7 @@ export default function FinancialReportPage() {
         animate="visible"
         transition={{ delay: 0.1 }}
       >
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[16px]">
         <CardContent className="p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -161,7 +161,7 @@ export default function FinancialReportPage() {
 
       {/* Loading State */}
       {isLoading && (
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardContent className="p-6">
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
@@ -175,7 +175,7 @@ export default function FinancialReportPage() {
 
       {/* Error State */}
       {isError && (
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardContent className="p-6">
             <div className="text-center py-12">
               <p className="text-sm text-red-600">Failed to load financial report</p>
@@ -190,7 +190,7 @@ export default function FinancialReportPage() {
         <>
           {/* Key Metrics */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -206,7 +206,7 @@ export default function FinancialReportPage() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
                 <CreditCard className="h-4 w-4 text-muted-foreground" />
@@ -222,7 +222,7 @@ export default function FinancialReportPage() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
                 <Wallet className="h-4 w-4 text-muted-foreground" />
@@ -244,7 +244,7 @@ export default function FinancialReportPage() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Outstanding</CardTitle>
                 <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
@@ -263,7 +263,7 @@ export default function FinancialReportPage() {
           {/* Detailed Breakdown */}
           <div className="grid gap-4 md:grid-cols-2">
             {/* Revenue Breakdown */}
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader>
                 <CardTitle>Revenue Breakdown</CardTitle>
               </CardHeader>
@@ -296,7 +296,7 @@ export default function FinancialReportPage() {
             </Card>
 
             {/* Cash Flow */}
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader>
                 <CardTitle>Cash Flow Summary</CardTitle>
               </CardHeader>
@@ -325,7 +325,7 @@ export default function FinancialReportPage() {
 
           {/* Monthly Trend */}
           {report.monthlyTrend && report.monthlyTrend.length > 0 && (
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader>
                 <CardTitle>Monthly Trend</CardTitle>
               </CardHeader>

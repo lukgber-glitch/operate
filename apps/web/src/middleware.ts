@@ -153,7 +153,9 @@ function isAuthenticated(request: NextRequest): boolean {
   if (!authCookie?.value) return false
 
   try {
-    const authData = JSON.parse(authCookie.value)
+    // Cookie values are URL-encoded by Express, need to decode before parsing
+    const decodedValue = decodeURIComponent(authCookie.value)
+    const authData = JSON.parse(decodedValue)
     return !!authData.a // access token exists
   } catch {
     return false
@@ -206,52 +208,23 @@ export default async function middleware(request: NextRequest) {
   }
 
   // ============================================
-  // OAuth Callback Handler - Process tokens server-side
+  // OAuth Callback Handler
   // ============================================
+  // The backend sets httpOnly cookies before redirecting here.
+  // We let the CallbackClient page handle the redirect to /dashboard.
+  // This avoids timing issues where the cookie isn't yet available
+  // in the same request that receives the redirect.
   if (pathname === '/auth/callback') {
     const error = searchParams.get('error')
 
-    // Handle OAuth error
+    // Handle OAuth error passed in URL
     if (error) {
       return NextResponse.redirect(new URL(`/auth/error?error=${error}`, request.url))
     }
 
-    // SECURITY FIX: Tokens are now set as httpOnly cookies by the backend
-    // Check if auth cookie exists (set by backend OAuth controller)
-    const authCookie = request.cookies.get('op_auth')
-
-    if (authCookie?.value) {
-      // Cookie already set by backend - redirect to chat (main app interface)
-      return NextResponse.redirect(new URL('/chat', request.url))
-    }
-
-    // Fallback for legacy URL-based tokens (backwards compatibility)
-    // This should be removed after all users have migrated
-    const accessToken = searchParams.get('accessToken')
-    const refreshToken = searchParams.get('refreshToken')
-
-    if (accessToken) {
-      const response = NextResponse.redirect(new URL('/chat', request.url))
-
-      // Set cookie from URL params (legacy path)
-      const authData = JSON.stringify({
-        a: accessToken,
-        r: refreshToken || '',
-      })
-
-      response.cookies.set('op_auth', authData, {
-        path: '/',
-        maxAge: 604800, // 7 days
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: false, // Cannot be httpOnly on frontend
-      })
-
-      return response
-    }
-
-    // No token - redirect to error
-    return NextResponse.redirect(new URL('/auth/error?error=no_token', request.url))
+    // Allow the callback page to load - it will redirect to /dashboard
+    // The httpOnly cookie will be sent with that subsequent request
+    return NextResponse.next()
   }
 
   // Check if this is a non-locale path (app router path)

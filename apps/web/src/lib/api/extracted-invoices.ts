@@ -26,7 +26,7 @@ export async function listExtractedInvoices(
   const response = await api.get<ListExtractedInvoicesResponse>(BASE_PATH, {
     params: params as Record<string, any>,
   });
-  return response.data;
+  return response.data || { items: [], total: 0, page: 1, limit: 10, totalPages: 0 };
 }
 
 /**
@@ -34,7 +34,7 @@ export async function listExtractedInvoices(
  */
 export async function getExtractedInvoice(id: string): Promise<ExtractedInvoice> {
   const response = await api.get<ExtractedInvoice>(`${BASE_PATH}/${id}`);
-  return response.data;
+  return response.data || ({} as ExtractedInvoice);
 }
 
 /**
@@ -45,7 +45,7 @@ export async function updateExtractedInvoice(
   data: UpdateExtractedInvoiceDto
 ): Promise<ExtractedInvoice> {
   const response = await api.patch<ExtractedInvoice>(`${BASE_PATH}/${id}`, data);
-  return response.data;
+  return response.data || ({} as ExtractedInvoice);
 }
 
 /**
@@ -58,7 +58,7 @@ export async function approveExtraction(
   const response = await api.post<ExtractedInvoice>(`${BASE_PATH}/${id}/approve`, {
     reviewNotes: notes,
   });
-  return response.data;
+  return response.data || ({} as ExtractedInvoice);
 }
 
 /**
@@ -71,7 +71,7 @@ export async function rejectExtraction(
   const response = await api.post<ExtractedInvoice>(`${BASE_PATH}/${id}/reject`, {
     reviewNotes: reason,
   });
-  return response.data;
+  return response.data || ({} as ExtractedInvoice);
 }
 
 /**
@@ -85,7 +85,7 @@ export async function bulkApproveExtractions(
     failed: number;
     results: ExtractedInvoice[];
   }>(`${BASE_PATH}/bulk-approve`, data);
-  return response.data;
+  return response.data || { approved: 0, failed: 0, results: [] };
 }
 
 /**
@@ -98,7 +98,7 @@ export async function bulkRejectExtractions(
     `${BASE_PATH}/bulk-reject`,
     data
   );
-  return response.data;
+  return response.data || { rejected: 0, failed: 0 };
 }
 
 /**
@@ -111,7 +111,7 @@ export async function createInvoiceFromExtraction(
     invoiceId: string;
     extraction: ExtractedInvoice;
   }>(`${BASE_PATH}/create-invoice`, data);
-  return response.data;
+  return response.data || { invoiceId: '', extraction: {} as ExtractedInvoice };
 }
 
 /**
@@ -135,7 +135,7 @@ export async function getExtractionAttachment(id: string): Promise<Blob> {
  */
 export async function getExtractionStatistics(): Promise<ExtractionStatistics> {
   const response = await api.get<ExtractionStatistics>(`${BASE_PATH}/statistics`);
-  return response.data;
+  return response.data || ({} as ExtractionStatistics);
 }
 
 /**
@@ -150,5 +150,5 @@ export async function deleteExtraction(id: string): Promise<void> {
  */
 export async function retryExtraction(id: string): Promise<ExtractedInvoice> {
   const response = await api.post<ExtractedInvoice>(`${BASE_PATH}/${id}/retry`);
-  return response.data;
+  return response.data || ({} as ExtractedInvoice);
 }

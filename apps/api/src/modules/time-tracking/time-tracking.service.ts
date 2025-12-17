@@ -40,25 +40,51 @@ export class TimeTrackingService {
     });
   }
 
-  async findAllProjects(organisationId: string) {
-    return this.prisma.project.findMany({
-      where: { organisationId },
-      include: {
-        client: {
-          select: {
-            id: true,
-            name: true,
-            clientNumber: true,
+  async findAllProjects(organisationId: string, filters?: any) {
+    const where: any = { organisationId };
+
+    if (filters?.status) {
+      where.status = filters.status;
+    }
+    if (filters?.clientId) {
+      where.clientId = filters.clientId;
+    }
+
+    const page = filters?.page || 1;
+    const pageSize = filters?.pageSize || 100;
+    const skip = (page - 1) * pageSize;
+
+    const [data, total] = await Promise.all([
+      this.prisma.project.findMany({
+        where,
+        include: {
+          client: {
+            select: {
+              id: true,
+              name: true,
+              clientNumber: true,
+            },
+          },
+          _count: {
+            select: {
+              billableTimeEntries: true,
+            },
           },
         },
-        _count: {
-          select: {
-            billableTimeEntries: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.project.count({ where }),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    };
   }
 
   async findOneProject(id: string, organisationId: string) {
@@ -258,16 +284,38 @@ export class TimeTrackingService {
   }
 
   async getRunningTimer(organisationId: string, userId: string) {
-    return this.prisma.billableTimeEntry.findFirst({
+    const timer = await this.prisma.billableTimeEntry.findFirst({
       where: {
         organisationId,
         userId,
         endTime: null,
       },
       include: {
-        project: true,
+        project: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+          },
+        },
       },
     });
+
+    if (!timer) {
+      throw new NotFoundException('No running timer found');
+    }
+
+    // Calculate elapsed seconds
+    const elapsedSeconds = Math.floor((Date.now() - timer.startTime.getTime()) / 1000);
+
+    return {
+      id: timer.id,
+      projectId: timer.projectId,
+      description: timer.description,
+      startTime: timer.startTime.toISOString(),
+      elapsedSeconds,
+      project: timer.project,
+    };
   }
 
   async findAllTimeEntries(
@@ -292,19 +340,36 @@ export class TimeTrackingService {
       }
     }
 
-    return this.prisma.billableTimeEntry.findMany({
-      where,
-      include: {
-        project: {
-          select: {
-            id: true,
-            name: true,
-            color: true,
+    const page = filters.page || 1;
+    const pageSize = filters.pageSize || 20;
+    const skip = (page - 1) * pageSize;
+
+    const [data, total] = await Promise.all([
+      this.prisma.billableTimeEntry.findMany({
+        where,
+        include: {
+          project: {
+            select: {
+              id: true,
+              name: true,
+              color: true,
+            },
           },
         },
-      },
-      orderBy: { startTime: 'desc' },
-    });
+        orderBy: { startTime: 'desc' },
+        skip,
+        take: pageSize,
+      }),
+      this.prisma.billableTimeEntry.count({ where }),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    };
   }
 
   async findOneTimeEntry(id: string, organisationId: string) {
@@ -568,5 +633,220 @@ export class TimeTrackingService {
       lineItems,
       timeEntryIds: entryIds,
     };
+  }
+
+  // ==================== TIMER MANAGEMENT ====================
+
+  async stopRunningTimer(
+    organisationId: string,
+    userId: string,
+    dto: any,
+  ) {
+    const timer = await this.prisma.billableTimeEntry.findFirst({
+      where: {
+        organisationId,
+        userId,
+        endTime: null,
+      },
+    });
+
+    if (!timer) {
+      throw new NotFoundException('No running timer found');
+    }
+
+    const endTime = new Date();
+    const duration = Math.floor((endTime.getTime() - timer.startTime.getTime()) / 60000);
+
+    return this.prisma.billableTimeEntry.update({
+      where: { id: timer.id },
+      data: {
+        endTime,
+        duration,
+        description: dto?.description || timer.description,
+        billable: dto?.billable !== undefined ? dto.billable : timer.billable,
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+          },
+        },
+      },
+    });
+  }
+
+  async updateRunningTimer(
+    organisationId: string,
+    userId: string,
+    dto: any,
+  ) {
+    const timer = await this.prisma.billableTimeEntry.findFirst({
+      where: {
+        organisationId,
+        userId,
+        endTime: null,
+      },
+    });
+
+    if (!timer) {
+      throw new NotFoundException('No running timer found');
+    }
+
+    const updated = await this.prisma.billableTimeEntry.update({
+      where: { id: timer.id },
+      data: {
+        projectId: dto.projectId !== undefined ? dto.projectId : timer.projectId,
+        description: dto.description !== undefined ? dto.description : timer.description,
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+          },
+        },
+      },
+    });
+
+    // Calculate elapsed seconds
+    const elapsedSeconds = Math.floor((Date.now() - updated.startTime.getTime()) / 1000);
+
+    return {
+      id: updated.id,
+      projectId: updated.projectId,
+      description: updated.description,
+      startTime: updated.startTime.toISOString(),
+      elapsedSeconds,
+      project: updated.project,
+    };
+  }
+
+  async discardTimer(organisationId: string, userId: string) {
+    const timer = await this.prisma.billableTimeEntry.findFirst({
+      where: {
+        organisationId,
+        userId,
+        endTime: null,
+      },
+    });
+
+    if (!timer) {
+      throw new NotFoundException('No running timer found');
+    }
+
+    await this.prisma.billableTimeEntry.delete({
+      where: { id: timer.id },
+    });
+
+    return { message: 'Timer discarded successfully' };
+  }
+
+  // ==================== BULK OPERATIONS ====================
+
+  async bulkMarkBillable(ids: string[], organisationId: string) {
+    const result = await this.prisma.billableTimeEntry.updateMany({
+      where: {
+        id: { in: ids },
+        organisationId,
+      },
+      data: {
+        billable: true,
+      },
+    });
+
+    return { updated: result.count };
+  }
+
+  async bulkMarkBilled(ids: string[], organisationId: string) {
+    const result = await this.prisma.billableTimeEntry.updateMany({
+      where: {
+        id: { in: ids },
+        organisationId,
+        billable: true,
+      },
+      data: {
+        billed: true,
+      },
+    });
+
+    return { updated: result.count };
+  }
+
+  // ==================== EXPORT ====================
+
+  async exportTimeEntries(
+    organisationId: string,
+    filters: TimeEntryFiltersDto,
+  ) {
+    const entries = await this.findAllTimeEntries(organisationId, filters);
+
+    // Generate CSV
+    const headers = [
+      'Date',
+      'Project',
+      'Description',
+      'Start Time',
+      'End Time',
+      'Duration (hours)',
+      'Billable',
+      'Billed',
+      'Rate',
+      'Amount',
+    ];
+
+    const rows = entries.map((entry) => {
+      const duration = entry.duration ? (entry.duration / 60).toFixed(2) : '0.00';
+      const rate = entry.hourlyRate ? entry.hourlyRate.toNumber() : '';
+      const amount =
+        entry.hourlyRate && entry.duration
+          ? (entry.hourlyRate.toNumber() * (entry.duration / 60)).toFixed(2)
+          : '';
+
+      return [
+        entry.startTime.toISOString().split('T')[0],
+        entry.project?.name || '',
+        entry.description || '',
+        entry.startTime.toISOString(),
+        entry.endTime?.toISOString() || '',
+        duration,
+        entry.billable ? 'Yes' : 'No',
+        entry.billed ? 'Yes' : 'No',
+        rate,
+        amount,
+      ];
+    });
+
+    const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
+
+    return {
+      data: csv,
+      filename: `time-entries-${new Date().toISOString().split('T')[0]}.csv`,
+      contentType: 'text/csv',
+    };
+  }
+
+  // ==================== PROJECT ARCHIVE ====================
+
+  async archiveProject(id: string, organisationId: string) {
+    const project = await this.prisma.project.findFirst({
+      where: { id, organisationId },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${id} not found`);
+    }
+
+    return this.prisma.project.update({
+      where: { id },
+      data: {
+        status: 'ARCHIVED',
+      },
+      include: {
+        client: true,
+      },
+    });
   }
 }

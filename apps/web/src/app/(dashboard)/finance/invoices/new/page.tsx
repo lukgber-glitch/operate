@@ -143,7 +143,7 @@ export default function NewInvoicePage() {
         {/* Main Form */}
         <div className="space-y-6 lg:col-span-2">
           {/* Customer Information */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
               <div className="text-lg font-semibold mb-4">Customer Information</div>
               <div className="space-y-4">
@@ -183,7 +183,7 @@ export default function NewInvoicePage() {
           </Card>
 
           {/* Invoice Details */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
               <div className="text-lg font-semibold mb-4">Invoice Details</div>
               <div className="space-y-4">
@@ -227,7 +227,7 @@ export default function NewInvoicePage() {
           </Card>
 
           {/* Line Items */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-4">
               <div className="flex flex-row items-center justify-between p-2 pb-3">
                 <div className="text-lg font-semibold">Line Items</div>
@@ -329,7 +329,7 @@ export default function NewInvoicePage() {
           </Card>
 
           {/* Notes */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
               <div className="text-lg font-semibold mb-4">Notes</div>
               <Textarea
@@ -344,7 +344,7 @@ export default function NewInvoicePage() {
 
         {/* Summary Sidebar */}
         <div className="space-y-6">
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
               <div className="text-lg font-semibold mb-4">Summary</div>
               <div className="space-y-4">
@@ -378,7 +378,7 @@ export default function NewInvoicePage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
               <div className="space-y-3">
                 <Button

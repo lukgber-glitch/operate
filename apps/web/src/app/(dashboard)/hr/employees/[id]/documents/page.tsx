@@ -150,7 +150,7 @@ export default function EmployeeDocumentsPage() {
           </div>
         </div>
 
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardContent className="p-6">
           <div className="space-y-6">
             <div>

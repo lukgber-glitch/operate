@@ -98,7 +98,7 @@ export function AccountingStep() {
           Sync with your existing accounting software to streamline your financial workflows. This step is optional.
         </p>
       </div>
-      <Card className="rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10">
+      <Card className="rounded-[16px] bg-white/5 backdrop-blur-xl border border-white/10">
         <CardContent className="p-6">
         <div className="space-y-6">
           {connectedAccounting ? (

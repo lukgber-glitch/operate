@@ -89,7 +89,7 @@ export async function getEmailConnections(
         params: { userId },
       }
     );
-    return response.data;
+    return response.data || [];
   } catch (error) {
     console.error('Failed to fetch email connections:', error);
     return [];
@@ -112,7 +112,7 @@ export async function getGmailAuthUrl(
       redirectUri,
     }
   );
-  return response.data;
+  return response.data || ({ authUrl: '', state: '' } as GmailAuthUrlResponse);
 }
 
 /**
@@ -133,7 +133,7 @@ export async function getOutlookAuthUrl(
       },
     }
   );
-  return response.data;
+  return response.data || ({ authUrl: '', state: '' } as OutlookAuthUrlResponse);
 }
 
 /**
@@ -210,7 +210,7 @@ export async function disconnectGmail(
       params: { connectionId },
     }
   );
-  return response.data;
+  return response.data || { success: false, message: 'Unknown error' };
 }
 
 /**
@@ -224,7 +224,7 @@ export async function disconnectOutlook(
     '/integrations/outlook/disconnect',
     { userId, orgId }
   );
-  return response.data;
+  return response.data || { success: false, message: 'Unknown error' };
 }
 
 /**
@@ -236,7 +236,7 @@ export async function disconnectEmail(
   const response = await api.delete<{ success: boolean; message: string }>(
     `/integrations/email/connections/${connectionId}`
   );
-  return response.data;
+  return response.data || { success: false, message: 'Unknown error' };
 }
 
 /**
@@ -246,7 +246,7 @@ export async function syncEmails(connectionId: string): Promise<SyncResult> {
   const response = await api.post<SyncResult>(
     `/integrations/email/connections/${connectionId}/sync`
   );
-  return response.data;
+  return response.data || ({ success: false, jobId: '', message: 'Unknown error' } as SyncResult);
 }
 
 /**
@@ -258,7 +258,7 @@ export async function getSyncProgress(
   const response = await api.get<SyncProgress>(
     `/integrations/email/connections/${connectionId}/sync/progress`
   );
-  return response.data;
+  return response.data || ({ status: 'failed', progress: 0 } as SyncProgress);
 }
 
 /**
@@ -273,7 +273,18 @@ export async function getEmailFilterConfig(
       params: { userId },
     }
   );
-  return response.data;
+  return response.data || ({
+    processAttachments: false,
+    processInvoices: false,
+    processReceipts: false,
+    processPurchaseOrders: false,
+    processStatements: false,
+    senderWhitelist: [],
+    senderBlacklist: [],
+    subjectKeywords: [],
+    autoProcess: false,
+    requireManualReview: true,
+  } as EmailFilterConfig);
 }
 
 /**
@@ -290,7 +301,7 @@ export async function updateEmailFilterConfig(
       params: { userId },
     }
   );
-  return response.data;
+  return response.data || config;
 }
 
 /**
@@ -309,7 +320,7 @@ export async function testGmailConnection(connectionId: string): Promise<TestCon
   const response = await api.get<TestConnectionResponse>('/integrations/gmail/test', {
     params: { connectionId },
   });
-  return response.data;
+  return response.data || { success: false, message: 'Unknown error' };
 }
 
 /**
@@ -322,7 +333,7 @@ export async function testOutlookConnection(
   const response = await api.get<TestConnectionResponse>('/integrations/outlook/test', {
     params: { userId, orgId },
   });
-  return response.data;
+  return response.data || { success: false, message: 'Unknown error' };
 }
 
 /**
@@ -332,7 +343,7 @@ export async function testEmailConnection(connectionId: string): Promise<TestCon
   const response = await api.post<TestConnectionResponse>(
     `/integrations/email/connections/${connectionId}/test`
   );
-  return response.data;
+  return response.data || { success: false, message: 'Unknown error' };
 }
 
 /**
@@ -349,7 +360,7 @@ export async function searchGmailInvoices(
   const response = await api.get<{ messages: any[]; totalResults: number }>('/integrations/gmail/search/invoices', {
     params: { connectionId, ...options },
   });
-  return response.data;
+  return response.data || { messages: [], totalResults: 0 };
 }
 
 /**
@@ -367,7 +378,7 @@ export async function searchOutlookInvoices(
   const response = await api.get<{ messages: any[]; count: number }>('/integrations/outlook/search/invoices', {
     params: { userId, orgId, ...options },
   });
-  return response.data;
+  return response.data || { messages: [], count: 0 };
 }
 
 /**
@@ -399,7 +410,7 @@ export async function getSyncHistory(
       params: options,
     }
   );
-  return response.data;
+  return response.data || { syncs: [], total: 0 };
 }
 
 /**
@@ -411,7 +422,7 @@ export async function reconnectEmail(
   const response = await api.post<{ authUrl: string; state: string }>(
     `/integrations/email/connections/${connectionId}/reconnect`
   );
-  return response.data;
+  return response.data || { authUrl: '', state: '' };
 }
 
 /**
@@ -430,5 +441,9 @@ export async function getEmailConnectionStats(connectionId: string): Promise<Ema
   const response = await api.get<EmailConnectionStatsResponse>(
     `/integrations/email/connections/${connectionId}/stats`
   );
-  return response.data;
+  return response.data || {
+    totalEmailsProcessed: 0,
+    invoicesFound: 0,
+    receiptsFound: 0,
+  };
 }

@@ -43,7 +43,7 @@ export function MileageEntryCard({
 
   return (
     <motion.div variants={fadeUp}>
-      <GlassCard className="rounded-[24px] p-6">
+      <GlassCard className="rounded-[16px] p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 space-y-3">
             <div className="flex items-start justify-between">

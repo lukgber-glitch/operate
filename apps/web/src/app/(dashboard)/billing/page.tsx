@@ -265,7 +265,7 @@ export default function BillingPage() {
             {plans.map((plan) => (
               <GlassCard
                 key={plan.name}
-                className={`rounded-[24px] transition-all ${
+                className={`rounded-[16px] transition-all ${
                   plan.popular
                     ? 'ring-2 ring-primary shadow-lg'
                     : plan.current

@@ -145,7 +145,7 @@ export default function EmployeeLeavePage() {
           ))}
         </div>
 
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardContent className="p-6">
           <div className="grid gap-6 lg:grid-cols-2">
             <LeaveCalendar requests={requests} />

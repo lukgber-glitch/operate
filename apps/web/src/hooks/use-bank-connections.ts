@@ -364,7 +364,7 @@ export function useBanks() {
       setError(null);
       try {
         const data = await bankConnectionsApi.getBanks(country);
-        setBanks(data);
+        setBanks(Array.isArray(data) ? data : []);
       } catch (error) {
         const errorMessage = handleApiError(error);
         setError(errorMessage);

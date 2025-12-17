@@ -18,7 +18,7 @@ export default function IntelligencePage() {
       {/* Intelligence Features Grid */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* Email Intelligence */}
-        <Card className="rounded-[24px] hover:shadow-lg transition-shadow">
+        <Card className="rounded-[16px] hover:shadow-lg transition-shadow">
           <CardContent className="p-6">
           <div className="space-y-6">
             <div className="flex items-start justify-between">
@@ -81,7 +81,7 @@ export default function IntelligencePage() {
         </Card>
 
         {/* Bank Intelligence (Coming Soon) */}
-        <Card className="rounded-[24px] opacity-60">
+        <Card className="rounded-[16px] opacity-60">
           <CardContent className="p-6">
           <div className="space-y-6">
             <div className="flex items-start justify-between">
@@ -133,7 +133,7 @@ export default function IntelligencePage() {
       </div>
 
       {/* Getting Started */}
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[16px]">
         <CardContent className="p-6">
         <div className="space-y-6">
           <div>

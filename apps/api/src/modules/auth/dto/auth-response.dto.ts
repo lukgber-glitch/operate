@@ -65,6 +65,13 @@ export class AuthResponseDto {
   })
   message?: string;
 
+  @ApiProperty({
+    description: 'User ID (for internal use)',
+    example: 'ckl12345678901234567890',
+    required: false,
+  })
+  userId?: string;
+
   constructor(
     accessToken: string | undefined,
     refreshToken: string | undefined,
@@ -72,6 +79,7 @@ export class AuthResponseDto {
     requiresMfa: boolean = false,
     mfaToken?: string,
     message?: string,
+    userId?: string,
   ) {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
@@ -80,5 +88,6 @@ export class AuthResponseDto {
     this.requiresMfa = requiresMfa;
     this.mfaToken = mfaToken;
     this.message = message;
+    this.userId = userId;
   }
 }

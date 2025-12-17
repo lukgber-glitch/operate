@@ -19,8 +19,8 @@
   --color-brand: var(--color-blue-500);
   --color-brand-dark: var(--color-blue-600);
   --color-brand-darker: var(--color-blue-700);
-  --color-surface: rgba(255, 255, 255, 0.05); /* glass effect on dark */
-  --color-surface-alt: rgba(255, 255, 255, 0.08);
+  --color-surface: rgba(255, 255, 255, 0.03); /* subtle glass, resembles background */
+  --color-surface-alt: rgba(255, 255, 255, 0.05);
 
   /* Alias for backward compatibility - DARK THEME */
   --color-primary: var(--color-blue-500);
@@ -87,9 +87,9 @@
   /* ==================== */
 
   --radius-sm: 0.375rem;  /* 6px */
-  --radius-md: 0.75rem;   /* 12px */
-  --radius-lg: 1rem;      /* 16px */
-  --radius-xl: 1.5rem;    /* 24px */
+  --radius-md: 0.5rem;    /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px - MAX border radius */
   --radius-full: 9999px;
 
   /* ==================== */

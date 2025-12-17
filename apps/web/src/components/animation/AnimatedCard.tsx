@@ -33,7 +33,7 @@ export function AnimatedCard({
         className={cn(
           'backdrop-blur-xl bg-white/80 dark:bg-gray-900/80',
           'border border-gray-200/50 dark:border-gray-700/50',
-          'rounded-3xl p-6',
+          'rounded-[16px] p-6',
           'shadow-sm',
           className
         )}
@@ -51,7 +51,7 @@ export function AnimatedCard({
       className={cn(
         'backdrop-blur-xl bg-white/80 dark:bg-gray-900/80',
         'border border-gray-200/50 dark:border-gray-700/50',
-        'rounded-3xl p-6',
+        'rounded-[16px] p-6',
         'shadow-sm',
         className
       )}

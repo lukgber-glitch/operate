@@ -231,7 +231,7 @@ export default function TasksPage() {
           filteredTasks.map((task) => (
             <GlassCard
               key={task.id}
-              className={`rounded-[24px] transition-all hover:shadow-md ${
+              className={`rounded-[16px] transition-all hover:shadow-md ${
                 task.completed ? 'opacity-60' : ''
               }`}
             >

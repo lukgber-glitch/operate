@@ -30,7 +30,7 @@ export default function MfaSetupPage() {
       animate="visible"
     >
       <motion.div variants={fadeUpVariants}>
-        <GlassCard intensity="onDark" className="w-full rounded-[24px] p-6 lg:p-8">
+        <GlassCard intensity="onDark" className="w-full rounded-[16px] p-6 lg:p-8">
           {/* Language selector inside card, centered */}
           <div className="flex justify-center mb-4">
             <LanguageSelector />

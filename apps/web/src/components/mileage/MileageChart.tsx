@@ -20,7 +20,7 @@ interface MileageChartProps {
 export function MileageChart({ data, currency, distanceUnit }: MileageChartProps) {
   if (!data || data.length === 0) {
     return (
-      <GlassCard className="rounded-[24px] p-6">
+      <GlassCard className="rounded-[16px] p-6">
         <h3 className="text-lg font-semibold text-white mb-4">Monthly Trend</h3>
         <div className="flex items-center justify-center h-[300px] text-white/50">
           No data available
@@ -30,7 +30,7 @@ export function MileageChart({ data, currency, distanceUnit }: MileageChartProps
   }
 
   return (
-    <GlassCard className="rounded-[24px] p-6">
+    <GlassCard className="rounded-[16px] p-6">
       <h3 className="text-lg font-semibold text-white mb-4">Monthly Trend</h3>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>

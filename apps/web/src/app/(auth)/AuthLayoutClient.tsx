@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { WelcomeBackground } from '@/components/onboarding/WelcomeBackground'
 import { GuruLogo } from '@/components/ui/guru-logo'
-import { FeatureShowcase } from '@/components/auth/FeatureShowcase'
+import { AuthSidebarSlider } from '@/components/auth/AuthSidebarSlider'
 
 interface AuthLayoutClientProps {
   children: React.ReactNode
@@ -47,12 +47,9 @@ export function AuthLayoutClient({ children, rtl }: AuthLayoutClientProps) {
 
   return (
     <div
-      className="min-h-screen flex flex-col lg:flex-row items-center lg:items-stretch relative overflow-hidden"
+      className="min-h-screen flex flex-col lg:flex-row"
       dir={rtl ? 'rtl' : 'ltr'}
       role="document"
-      style={{
-        background: 'linear-gradient(135deg, #0a2540 0%, #1a3a5a 100%)'
-      }}
     >
       {/* Skip to main content link for accessibility */}
       <a
@@ -62,55 +59,47 @@ export function AuthLayoutClient({ children, rtl }: AuthLayoutClientProps) {
         Skip to main content
       </a>
 
-      {/* Dark Navy Gradient Background */}
-      <WelcomeBackground />
-
-      {/* Left side - Features (hidden on mobile, shown on lg+) */}
-      <aside
-        className="hidden lg:flex lg:flex-1 relative z-10 items-center justify-center p-12"
-        aria-label="Product features"
+      {/* Left/Center - Main content area with login form */}
+      <main
+        id="main-content"
+        className="flex-1 min-h-screen flex flex-col items-center justify-center py-8 px-4 relative overflow-hidden"
+        role="main"
+        style={{
+          background: 'linear-gradient(135deg, #0a2540 0%, #1a3a5a 100%)'
+        }}
       >
-        <div className="max-w-md">
-          {/* Logo and branding - decorative, not the main page heading */}
-          <header className="mb-8">
+        {/* Animated background */}
+        <WelcomeBackground />
+
+        {/* Content */}
+        <div className="relative z-10 w-full flex flex-col items-center">
+          {/* Logo and branding */}
+          <header className="flex flex-col items-center mb-8">
             <Link
               href="/"
-              className="hover:opacity-80 transition-opacity inline-block"
+              className="hover:opacity-80 transition-opacity"
               aria-label="Operate Guru - Go to homepage"
             >
-              <GuruLogo size={56} variant="light" />
+              <GuruLogo size={72} variant="light" />
             </Link>
             <BrandTitle className="mt-4" />
             <p className="text-gray-300/90 text-sm mt-1">AI-Powered Business Automation</p>
           </header>
-          <FeatureShowcase />
+
+          {/* Auth form (H1 is inside the form component) */}
+          <section className="w-full" style={{ maxWidth: '420px' }} aria-label="Authentication">
+            {children}
+          </section>
         </div>
-      </aside>
-
-      {/* Right side - Auth form (main content) */}
-      <main
-        id="main-content"
-        className="relative z-10 w-full lg:w-[480px] lg:min-h-screen flex flex-col items-center justify-center py-8 px-4 lg:bg-black/20"
-        role="main"
-      >
-        {/* Mobile logo (shown only on mobile) */}
-        <header className="lg:hidden flex flex-col items-center mb-6">
-          <Link
-            href="/"
-            className="hover:opacity-80 transition-opacity"
-            aria-label="Operate Guru - Go to homepage"
-          >
-            <GuruLogo size={64} variant="light" />
-          </Link>
-          <BrandTitle className="mt-4" />
-          <p className="text-gray-300/90 text-sm mt-1">AI-Powered Business Automation</p>
-        </header>
-
-        {/* Content - Auth form (H1 is inside the form component) */}
-        <section className="w-full" style={{ maxWidth: '400px' }} aria-label="Authentication">
-          {children}
-        </section>
       </main>
+
+      {/* Right sidebar - Feature slider (hidden on mobile, shown on lg+) */}
+      <aside
+        className="hidden lg:flex lg:w-[420px] xl:w-[480px] min-h-screen bg-slate-900 relative overflow-hidden"
+        aria-label="Product features"
+      >
+        <AuthSidebarSlider />
+      </aside>
     </div>
   )
 }

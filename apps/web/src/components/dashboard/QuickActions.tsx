@@ -152,7 +152,7 @@ export function QuickActions() {
   };
 
   return (
-    <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
+    <Card className="rounded-[16px] bg-white/5 backdrop-blur-sm border-white/10">
       <CardHeader>
         <CardTitle className="text-lg">Schnellaktionen</CardTitle>
       </CardHeader>

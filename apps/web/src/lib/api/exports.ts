@@ -208,7 +208,7 @@ class ExportsApi {
     const response = await apiClient.get<ExportListResponse>('/compliance/exports', {
       params: filters,
     });
-    return response.data;
+    return response.data || { data: [], total: 0, page: 1, pageSize: 10, totalPages: 0 };
   }
 
   /**
@@ -216,7 +216,7 @@ class ExportsApi {
    */
   async getExport(id: string): Promise<ExportResponse> {
     const response = await apiClient.get<ExportResponse>(`/compliance/exports/${id}`);
-    return response.data;
+    return response.data || ({} as ExportResponse);
   }
 
   /**
@@ -224,7 +224,7 @@ class ExportsApi {
    */
   async createDatevExport(data: CreateDatevExportRequest): Promise<ExportResponse> {
     const response = await apiClient.post<ExportResponse>('/compliance/exports/datev', data);
-    return response.data;
+    return response.data || ({} as ExportResponse);
   }
 
   /**
@@ -232,7 +232,7 @@ class ExportsApi {
    */
   async createSaftExport(data: CreateSaftExportRequest): Promise<ExportResponse> {
     const response = await apiClient.post<ExportResponse>('/compliance/exports/saft', data);
-    return response.data;
+    return response.data || ({} as ExportResponse);
   }
 
   /**
@@ -240,7 +240,7 @@ class ExportsApi {
    */
   async createBmdExport(data: CreateBmdExportRequest): Promise<ExportResponse> {
     const response = await apiClient.post<ExportResponse>('/compliance/exports/bmd', data);
-    return response.data;
+    return response.data || ({} as ExportResponse);
   }
 
   /**
@@ -254,7 +254,7 @@ class ExportsApi {
         responseType: 'blob',
       }
     );
-    return response.data;
+    return response.data || new Blob();
   }
 
   /**
@@ -273,7 +273,7 @@ class ExportsApi {
     const response = await apiClient.get<ExportResponse>(
       `/compliance/exports/${formatPath}/${id}/status`
     );
-    return response.data;
+    return response.data || ({} as ExportResponse);
   }
 }
 

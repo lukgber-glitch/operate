@@ -11,7 +11,7 @@ function RevenueChartComponent() {
 
   if (isLoading) {
     return (
-      <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
+      <Card className="rounded-[16px] bg-white/5 backdrop-blur-sm border-white/10">
         <CardHeader>
           <CardTitle>Umsatz (12 Monate)</CardTitle>
         </CardHeader>
@@ -36,7 +36,7 @@ function RevenueChartComponent() {
 
   if (error || !data || data.length === 0) {
     return (
-      <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
+      <Card className="rounded-[16px] bg-white/5 backdrop-blur-sm border-white/10">
         <CardHeader>
           <CardTitle>Umsatz (12 Monate)</CardTitle>
         </CardHeader>
@@ -50,7 +50,7 @@ function RevenueChartComponent() {
   }
 
   return (
-    <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
+    <Card className="rounded-[16px] bg-white/5 backdrop-blur-sm border-white/10">
       <CardHeader>
         <CardTitle>Umsatz (12 Monate)</CardTitle>
       </CardHeader>

@@ -13,7 +13,7 @@ function ExpenseBreakdownComponent() {
 
   if (isLoading) {
     return (
-      <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
+      <Card className="rounded-[16px] bg-white/5 backdrop-blur-sm border-white/10">
         <CardHeader>
           <CardTitle>Ausgaben nach Kategorie</CardTitle>
         </CardHeader>
@@ -26,7 +26,7 @@ function ExpenseBreakdownComponent() {
 
   if (error || !data || data.length === 0) {
     return (
-      <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
+      <Card className="rounded-[16px] bg-white/5 backdrop-blur-sm border-white/10">
         <CardHeader>
           <CardTitle>Ausgaben nach Kategorie</CardTitle>
         </CardHeader>
@@ -46,7 +46,7 @@ function ExpenseBreakdownComponent() {
   }, [data]);
 
   return (
-    <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
+    <Card className="rounded-[16px] bg-white/5 backdrop-blur-sm border-white/10">
       <CardHeader>
         <CardTitle>Ausgaben nach Kategorie</CardTitle>
       </CardHeader>

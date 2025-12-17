@@ -153,8 +153,8 @@ async function bootstrap(): Promise<void> {
   // Swagger documentation
   if (environment !== 'production') {
     const config = new DocumentBuilder()
-      .setTitle('Operate/CoachOS API')
-      .setDescription('Enterprise SaaS Platform API Documentation')
+      .setTitle('Operate API')
+      .setDescription('AI-Powered Business Automation Platform API Documentation')
       .setVersion('1.0')
       .addBearerAuth(
         {

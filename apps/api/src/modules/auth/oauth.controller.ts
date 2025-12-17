@@ -4,15 +4,17 @@ import {
   Post,
   Param,
   Query,
+  Body,
   Req,
   Res,
   UseGuards,
   Logger,
   HttpStatus,
   HttpCode,
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { OAuthService } from './oauth.service';
 import { OAuthCallbackDto } from './dto/oauth-callback.dto';
@@ -21,10 +23,26 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { MicrosoftAuthGuard } from './guards/microsoft-auth.guard';
 import { Public } from '../../common/decorators/public.decorator';
+import * as crypto from 'crypto';
+
+// Temporary storage for OAuth auth codes (expires in 60 seconds)
+// In production, this should use Redis, but for simplicity we use in-memory
+const authCodeStore = new Map<string, { authResponse: AuthResponseDto; expiresAt: number }>();
+
+// Clean up expired codes every 30 seconds
+setInterval(() => {
+  const now = Date.now();
+  for (const [code, data] of authCodeStore.entries()) {
+    if (data.expiresAt < now) {
+      authCodeStore.delete(code);
+    }
+  }
+}, 30000);
 
 /**
  * OAuth Controller
  * Handles OAuth2 authentication flows for Google and Microsoft
+ * Uses code exchange pattern for reliable cookie setting
  */
 @ApiTags('auth')
 @Controller('auth')
@@ -100,29 +118,18 @@ export class OAuthController {
         oauthData.profile,
       );
 
-      // Set httpOnly cookie with tokens (SECURITY FIX: tokens no longer in URL)
-      // Format matches frontend middleware expectation: { a: accessToken, r: refreshToken }
-      const authData = JSON.stringify({
-        a: authResponse.accessToken,
-        r: authResponse.refreshToken,
+      // Generate a short-lived code for the frontend to exchange
+      // This avoids setting cookies during redirects which is unreliable
+      const authCode = crypto.randomBytes(32).toString('hex');
+      authCodeStore.set(authCode, {
+        authResponse,
+        expiresAt: Date.now() + 60000, // 60 seconds
       });
 
-      res.cookie('op_auth', authData, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax', // Use 'lax' for OAuth compatibility (cross-site from Google)
-        maxAge: 604800 * 1000, // 7 days (matches refresh token expiry)
-        path: '/',
-      });
+      this.logger.log(`OAuth login successful, redirecting with auth code for user: ${authResponse.userId}`);
 
-      // Check if user has completed onboarding and set cookie if true
-      const user = { id: oauthData.userId }; // OAuth data should contain userId
-      if (user.id) {
-        await this.oauthService.checkAndSetOnboardingCookie(user, res);
-      }
-
-      // Redirect to frontend WITHOUT tokens in URL
-      const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback`;
+      // Redirect to frontend with auth code (not tokens!)
+      const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback?code=${authCode}`;
       return res.redirect(redirectUrl);
     } catch (error) {
       this.logger.error('Google OAuth callback failed', error.message);
@@ -199,29 +206,17 @@ export class OAuthController {
         oauthData.profile,
       );
 
-      // Set httpOnly cookie with tokens (SECURITY FIX: tokens no longer in URL)
-      // Format matches frontend middleware expectation: { a: accessToken, r: refreshToken }
-      const authData = JSON.stringify({
-        a: authResponse.accessToken,
-        r: authResponse.refreshToken,
+      // Generate a short-lived code for the frontend to exchange
+      const authCode = crypto.randomBytes(32).toString('hex');
+      authCodeStore.set(authCode, {
+        authResponse,
+        expiresAt: Date.now() + 60000, // 60 seconds
       });
 
-      res.cookie('op_auth', authData, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax', // Use 'lax' for OAuth compatibility (cross-site from Google)
-        maxAge: 604800 * 1000, // 7 days (matches refresh token expiry)
-        path: '/',
-      });
+      this.logger.log(`OAuth login successful, redirecting with auth code for user: ${authResponse.userId}`);
 
-      // Check if user has completed onboarding and set cookie if true
-      const user = { id: oauthData.userId }; // OAuth data should contain userId
-      if (user.id) {
-        await this.oauthService.checkAndSetOnboardingCookie(user, res);
-      }
-
-      // Redirect to frontend WITHOUT tokens in URL
-      const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback`;
+      // Redirect to frontend with auth code
+      const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback?code=${authCode}`;
       return res.redirect(redirectUrl);
     } catch (error) {
       this.logger.error('Microsoft OAuth callback failed', error.message);
@@ -229,6 +224,87 @@ export class OAuthController {
         `${process.env.FRONTEND_URL}/auth/error?error=oauth_failed`,
       );
     }
+  }
+
+  /**
+   * Exchange auth code for tokens
+   * Frontend calls this after receiving the auth code from OAuth redirect
+   */
+  @Public()
+  @Post('exchange')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Exchange OAuth auth code for tokens',
+    description: 'Exchanges a short-lived auth code for access and refresh tokens. Sets httpOnly cookie.',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        code: { type: 'string', description: 'Auth code from OAuth callback' },
+      },
+      required: ['code'],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Tokens exchanged and cookie set',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid or expired auth code',
+  })
+  async exchangeCode(
+    @Body('code') code: string,
+    @Res() res: Response,
+  ) {
+    if (!code) {
+      throw new BadRequestException('Auth code is required');
+    }
+
+    const storedData = authCodeStore.get(code);
+    if (!storedData) {
+      this.logger.warn('Invalid or expired auth code attempted');
+      throw new BadRequestException('Invalid or expired auth code');
+    }
+
+    // Delete the code immediately (one-time use)
+    authCodeStore.delete(code);
+
+    // Check if expired
+    if (storedData.expiresAt < Date.now()) {
+      this.logger.warn('Expired auth code attempted');
+      throw new BadRequestException('Auth code has expired');
+    }
+
+    const { authResponse } = storedData;
+
+    // Set httpOnly cookie with tokens
+    const authData = JSON.stringify({
+      a: authResponse.accessToken,
+      r: authResponse.refreshToken,
+    });
+
+    res.cookie('op_auth', authData, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict', // Can use strict here since it's same-origin
+      maxAge: 604800 * 1000, // 7 days
+      path: '/',
+    });
+
+    // Check and set onboarding cookie
+    if (authResponse.userId) {
+      await this.oauthService.checkAndSetOnboardingCookie({ id: authResponse.userId }, res);
+    }
+
+    this.logger.log(`Auth code exchanged successfully for user: ${authResponse.userId}`);
+
+    // Return success (cookie is already set)
+    return res.json({
+      success: true,
+      userId: authResponse.userId,
+    });
   }
 
   /**

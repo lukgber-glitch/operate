@@ -20,7 +20,7 @@ export default function DocumentUploadLoading() {
           <DocumentUploadSkeleton />
 
           {/* Document Details Form Skeleton */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardHeader>
               <Skeleton className="h-5 w-[150px] mb-2" />
               <Skeleton className="h-4 w-[280px]" />
@@ -39,7 +39,7 @@ export default function DocumentUploadLoading() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Allowed File Types */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardHeader>
               <Skeleton className="h-5 w-[140px]" />
             </CardHeader>
@@ -57,7 +57,7 @@ export default function DocumentUploadLoading() {
           </Card>
 
           {/* Recent Uploads */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardHeader>
               <Skeleton className="h-5 w-[120px]" />
             </CardHeader>

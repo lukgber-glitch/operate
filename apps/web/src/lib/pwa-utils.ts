@@ -1,5 +1,5 @@
 /**
- * PWA Utilities for Operate/CoachOS
+ * PWA Utilities for Operate
  * Helper functions for Progressive Web App features
  */
 

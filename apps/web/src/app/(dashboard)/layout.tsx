@@ -20,7 +20,7 @@ export default function DashboardLayout({
   useTimerWarning() // Warn before closing tab if timer is running
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a2540] to-[#1a3a5a] text-white relative">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white relative">
 
       {/* Desktop Sidebar - Fixed positioned */}
       <div className="hidden lg:block">

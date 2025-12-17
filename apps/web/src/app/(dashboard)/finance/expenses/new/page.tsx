@@ -95,7 +95,7 @@ export default function NewExpensePage() {
         {/* Main Form */}
         <div className="space-y-6 lg:col-span-2">
           {/* Expense Details */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
             <div className="text-lg font-semibold mb-4">Expense Details</div>
             <div className="space-y-4">
@@ -190,7 +190,7 @@ export default function NewExpensePage() {
           </Card>
 
           {/* Receipt Upload */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
             <div className="text-lg font-semibold mb-4">Receipt</div>
               <div className="space-y-4">
@@ -235,7 +235,7 @@ export default function NewExpensePage() {
           </Card>
 
           {/* Notes */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
             <div className="text-lg font-semibold mb-4">Additional Notes</div>
               <Textarea
@@ -250,7 +250,7 @@ export default function NewExpensePage() {
 
         {/* Summary Sidebar */}
         <div className="space-y-6">
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
             <div className="text-lg font-semibold mb-4">Summary</div>
             <div className="space-y-4">
@@ -284,7 +284,7 @@ export default function NewExpensePage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
             <div className="space-y-3">
               <Button
@@ -306,7 +306,7 @@ export default function NewExpensePage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-[24px] bg-muted/50">
+          <Card className="rounded-[16px] bg-muted/50">
             <CardContent className="p-6">
               <div className="space-y-2 text-sm text-muted-foreground">
                 <p className="font-semibold text-white">

@@ -1,4 +1,4 @@
-// Custom Service Worker enhancements for Operate/CoachOS
+// Custom Service Worker enhancements for Operate
 // This file is used alongside the generated service worker from next-pwa
 
 self.addEventListener('message', (event) => {

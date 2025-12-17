@@ -228,7 +228,7 @@ export default function AccountTransactionsPage({
 
       {/* Account Summary */}
       <motion.div variants={fadeUp} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Current Balance
@@ -241,7 +241,7 @@ export default function AccountTransactionsPage({
           </CardContent>
         </Card>
 
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Account Number
@@ -252,7 +252,7 @@ export default function AccountTransactionsPage({
           </CardContent>
         </Card>
 
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               BIC/SWIFT
@@ -263,7 +263,7 @@ export default function AccountTransactionsPage({
           </CardContent>
         </Card>
 
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Account Type
@@ -277,7 +277,7 @@ export default function AccountTransactionsPage({
 
       {/* Filters */}
       <motion.div variants={fadeUp}>
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
         <CardContent className="pt-6">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-4 sm:flex-row">
@@ -358,7 +358,7 @@ export default function AccountTransactionsPage({
 
       {/* Transactions Table */}
       <motion.div variants={fadeUp}>
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
         <CardContent className="p-0">
           <div className="space-y-4">
             <div className="flex items-center justify-between px-6 pt-6">

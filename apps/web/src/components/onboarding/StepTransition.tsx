@@ -119,7 +119,7 @@ export function MorphingStepCard({
         w-full max-w-2xl mx-auto
         bg-white/80 backdrop-blur-md
         border border-white/40
-        rounded-[24px]
+        rounded-[16px]
         shadow-lg
         p-8
         ${className || ''}

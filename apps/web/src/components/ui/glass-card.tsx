@@ -20,7 +20,7 @@ import { useReducedMotion } from '@/hooks/use-reduced-motion';
 
 const glassCardVariants = cva(
   [
-    'relative rounded-3xl overflow-hidden',
+    'relative rounded-[16px] overflow-hidden',
     'border transition-all duration-300',
   ],
   {

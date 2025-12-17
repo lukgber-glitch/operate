@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, Code, Book, ExternalLink, Key, Zap, Shield, HelpCircle } from 'lucide-react';
+import { FileText, Code, Book, ExternalLink, Key, Zap, Shield, HelpCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import {
   Card,
@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const quickStartSteps = [
   {
@@ -103,6 +104,27 @@ const getMethodColor = (method: string) => {
 export default function ApiDocsPage() {
   return (
     <div className="space-y-6">
+      {/* Interactive Docs Banner */}
+      <Alert className="border-primary/50 bg-gradient-to-r from-primary/10 to-primary/5">
+        <FileText className="h-5 w-5" />
+        <AlertDescription className="flex items-center justify-between">
+          <span className="text-sm">
+            <strong>Looking for interactive API documentation?</strong> View our full OpenAPI reference with try-it-out functionality.
+          </span>
+          <a
+            href="/docs/api/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 ml-4"
+          >
+            <Button size="sm" className="gap-2">
+              Open API Reference
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </a>
+        </AlertDescription>
+      </Alert>
+
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">API Documentation</h1>

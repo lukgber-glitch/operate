@@ -27,7 +27,7 @@ export default function AuthErrorPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-white">Authentication Error</h1>
         <p className="text-white/70">{displayMessage}</p>
       </div>
-      <GlassCard intensity="onDark" className="rounded-[24px] p-6">
+      <GlassCard intensity="onDark" className="rounded-[16px] p-6">
           <div className="space-y-4">
             {errorDescription && (
               <p className="text-sm text-white/70">

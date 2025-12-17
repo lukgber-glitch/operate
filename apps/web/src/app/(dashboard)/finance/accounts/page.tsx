@@ -25,7 +25,7 @@ export default function AccountsPage() {
       </div>
 
       {/* Coming Soon Card */}
-      <GlassCard className="rounded-[24px] border-dashed">
+      <GlassCard className="rounded-[16px] border-dashed">
           <div className="mx-auto w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-4">
             <Wallet className="h-6 w-6 text-white/70" />
           </div>

@@ -94,7 +94,7 @@ export default function EditEmployeePage() {
         </div>
       </div>
 
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[16px]">
         <CardContent className="p-6">
         <EmployeeForm
           employee={employee}

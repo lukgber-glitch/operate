@@ -44,7 +44,7 @@ export const taxApi = {
         },
       }
     );
-    return response.data;
+    return response.data || ({} as VatReturnPreview);
   },
 
   /**
@@ -57,7 +57,7 @@ export const taxApi = {
       '/tax/elster/submit',
       data
     );
-    return response.data;
+    return response.data || ({} as ElsterSubmissionResult);
   },
 
   /**
@@ -75,7 +75,7 @@ export const taxApi = {
         },
       }
     );
-    return response.data;
+    return response.data || ({} as VatReturnStatus);
   },
 
   /**
@@ -88,7 +88,7 @@ export const taxApi = {
         responseType: 'blob',
       }
     );
-    return response.data;
+    return response.data || new Blob();
   },
 
   /**
@@ -103,7 +103,7 @@ export const taxApi = {
         params,
       }
     );
-    return response.data;
+    return response.data || ({} as VatReturnHistory);
   },
 
   /**
@@ -116,7 +116,7 @@ export const taxApi = {
       '/tax/elster/validate',
       data
     );
-    return response.data;
+    return response.data || ({} as ValidationResult);
   },
 
   /**
@@ -153,7 +153,7 @@ export const taxApi = {
       '/tax/vat-return/draft',
       data
     );
-    return response.data;
+    return response.data || ({} as VatReturnSubmission);
   },
 
   /**

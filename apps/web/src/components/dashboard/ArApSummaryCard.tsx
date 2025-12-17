@@ -19,7 +19,7 @@ function ArApSummaryCardComponent({ type }: ArApSummaryCardProps) {
 
   if (isLoading) {
     return (
-      <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
+      <Card className="rounded-[16px] bg-white/5 backdrop-blur-sm border-white/10">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-gray-300">
             {title}
@@ -36,7 +36,7 @@ function ArApSummaryCardComponent({ type }: ArApSummaryCardProps) {
 
   if (error || !data) {
     return (
-      <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
+      <Card className="rounded-[16px] bg-white/5 backdrop-blur-sm border-white/10">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-gray-300">
             {title}
@@ -54,7 +54,7 @@ function ArApSummaryCardComponent({ type }: ArApSummaryCardProps) {
   const isPositive = data.changePercent >= 0;
 
   return (
-    <Card className="rounded-[24px] bg-white/5 backdrop-blur-sm border-white/10">
+    <Card className="rounded-[16px] bg-white/5 backdrop-blur-sm border-white/10">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-gray-300">
           {title}

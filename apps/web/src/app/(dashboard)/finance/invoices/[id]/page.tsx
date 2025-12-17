@@ -283,7 +283,7 @@ export default function InvoiceDetailPage({
 
       {/* Invoice Details */}
       <motion.div variants={fadeUp}>
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
         <CardContent className="p-6">
         <div className="space-y-8">
             {/* Header Information */}
@@ -425,7 +425,7 @@ export default function InvoiceDetailPage({
       {/* Actions */}
       {status !== 'paid' && (
         <motion.div variants={fadeUp}>
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
           <CardContent className="p-6">
           <div className="text-lg font-semibold mb-4">Actions</div>
             <AlertDialog>

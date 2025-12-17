@@ -79,7 +79,7 @@ class ChatApiClient {
    */
   async createConversation(data: CreateConversationRequest): Promise<CreateConversationResponse> {
     const response = await api.post<CreateConversationResponse>('/chatbot/conversations', data);
-    return response.data;
+    return response.data || ({} as CreateConversationResponse);
   }
 
   /**
@@ -90,7 +90,7 @@ class ChatApiClient {
       `/chatbot/conversations/${conversationId}/messages`,
       data
     );
-    return response.data;
+    return response.data || ({} as SendMessageResponse);
   }
 
   /**
@@ -100,7 +100,7 @@ class ChatApiClient {
     const response = await api.post<SendMessageResponse>('/chatbot/quick-ask', {
       content,
     });
-    return response.data;
+    return response.data || ({} as SendMessageResponse);
   }
 
   /**
@@ -110,7 +110,7 @@ class ChatApiClient {
     const response = await api.get('/chatbot/conversations', {
       params: { limit, offset },
     });
-    return response.data;
+    return response.data || [];
   }
 
   /**
@@ -118,7 +118,7 @@ class ChatApiClient {
    */
   async getConversation(conversationId: string) {
     const response = await api.get(`/chatbot/conversations/${conversationId}`);
-    return response.data;
+    return response.data || {};
   }
 
   /**
@@ -132,7 +132,7 @@ class ChatApiClient {
       `/chatbot/actions/${confirmationId}/confirm`,
       data || {}
     );
-    return response.data;
+    return response.data || ({ success: false, message: 'Unknown error' } as ActionExecutionResponse);
   }
 
   /**
@@ -143,7 +143,7 @@ class ChatApiClient {
       `/chatbot/actions/${confirmationId}/cancel`,
       data || {}
     );
-    return response.data;
+    return response.data || { success: false, message: 'Unknown error' };
   }
 
   /**
@@ -153,7 +153,7 @@ class ChatApiClient {
     const response = await api.get<ActionStatusResponse>(
       `/chatbot/actions/${confirmationId}/status`
     );
-    return response.data;
+    return response.data || ({} as ActionStatusResponse);
   }
 
   /**
@@ -163,7 +163,7 @@ class ChatApiClient {
     const response = await api.get('/chatbot/suggestions', {
       params: { context },
     });
-    return response.data;
+    return response.data || [];
   }
 }
 

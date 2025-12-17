@@ -74,7 +74,7 @@ export function TestimonialsCarousel({ className }: TestimonialsCarouselProps) {
   // Empty state - no fake testimonials
   if (testimonials.length === 0) {
     return (
-      <Card className={cn('rounded-[24px]', className)}>
+      <Card className={cn('rounded-[16px]', className)}>
         <CardContent className="p-6 text-center">
           <div className="inline-flex p-3 rounded-full bg-muted mb-4">
             <Quote className="h-6 w-6 text-gray-300" />
@@ -109,7 +109,7 @@ export function TestimonialsCarousel({ className }: TestimonialsCarouselProps) {
   }
 
   return (
-    <Card className={cn('rounded-[24px]', className)}>
+    <Card className={cn('rounded-[16px]', className)}>
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <Quote className="h-8 w-8 text-primary/20 shrink-0" />

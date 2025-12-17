@@ -24,7 +24,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { GuruLogo } from '@/components/ui/guru-logo'
 import { useAuth } from '@/hooks/use-auth'
@@ -105,8 +105,23 @@ const navItems: NavItemProps[] = [
 
 export function Sidebar() {
   const { isOpen, toggle } = useSidebar()
-  const { logout, isLoading } = useAuth()
+  const { logout, isLoading, user } = useAuth()
   const router = useRouter()
+
+  // Memoized user initials for avatar fallback
+  const userInitials = useMemo(() => {
+    if (!user) return '?'
+    const first = user.firstName?.[0] || ''
+    const last = user.lastName?.[0] || ''
+    return (first + last).toUpperCase() || user.email?.[0]?.toUpperCase() || '?'
+  }, [user])
+
+  // Memoized display name
+  const displayName = useMemo(() => {
+    if (!user) return 'User'
+    const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim()
+    return fullName || user.email || 'User'
+  }, [user])
 
   // Memoized logout handler to prevent recreation on each render
   const handleLogout = useCallback(async () => {
@@ -190,18 +205,17 @@ export function Sidebar() {
       <div className="border-t border-white/10 p-4" role="complementary" aria-label="User profile">
         <div className="flex items-center gap-3 mb-3">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="/avatar-placeholder.png" alt="John Doe profile picture" />
-            <AvatarFallback className="bg-white/10 text-white" aria-label="John Doe">
-              JD
+            <AvatarFallback className="bg-white/10 text-white" aria-label={displayName}>
+              {userInitials}
             </AvatarFallback>
           </Avatar>
           {isOpen && (
             <div className="flex-1 min-w-0">
               <p className="truncate text-sm font-medium text-white">
-                John Doe
+                {displayName}
               </p>
               <p className="truncate text-xs text-gray-300">
-                john@example.com
+                {user?.email || ''}
               </p>
             </div>
           )}

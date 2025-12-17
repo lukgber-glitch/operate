@@ -129,7 +129,7 @@ export default function MileageTaxReportPage() {
         <>
           {/* Summary Section */}
           <motion.div variants={fadeUp}>
-            <GlassCard className="rounded-[24px] p-6 print:shadow-none print:border print:border-gray-300">
+            <GlassCard className="rounded-[16px] p-6 print:shadow-none print:border print:border-gray-300">
               <div className="mb-6 print:mb-4">
                 <h2 className="text-xl font-semibold text-white print:text-black mb-2">
                   Mileage Tax Report - {selectedYear}
@@ -196,7 +196,7 @@ export default function MileageTaxReportPage() {
 
           {/* Detailed Log */}
           <motion.div variants={fadeUp}>
-            <GlassCard className="rounded-[24px] print:shadow-none print:border print:border-gray-300">
+            <GlassCard className="rounded-[16px] print:shadow-none print:border print:border-gray-300">
               <div className="p-6 print:p-4">
                 <h3 className="text-lg font-semibold text-white print:text-black mb-4">
                   Detailed Mileage Log

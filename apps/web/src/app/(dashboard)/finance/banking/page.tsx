@@ -80,7 +80,7 @@ export default function BankingPage() {
         <>
           {/* Total Balance Card */}
           <motion.div variants={fadeUp}>
-            <GlassCard className="rounded-[24px] bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+            <GlassCard className="rounded-[16px] bg-gradient-to-br from-blue-600 to-blue-800 text-white">
               <div className="space-y-2">
                 <p className="text-sm opacity-90">Total Balance</p>
                 <p className="text-4xl font-bold">{formatCurrency(totalBalance)}</p>
@@ -95,7 +95,7 @@ export default function BankingPage() {
           <div className="grid gap-6 md:grid-cols-2">
             {accounts.map((account) => (
           <motion.div key={account.id} variants={fadeUp}>
-            <GlassCard className="rounded-[24px] relative hover:shadow-lg transition-shadow">
+            <GlassCard className="rounded-[16px] relative hover:shadow-lg transition-shadow">
             {account.isPrimary && (
               <div className="absolute top-4 right-4">
                 <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">

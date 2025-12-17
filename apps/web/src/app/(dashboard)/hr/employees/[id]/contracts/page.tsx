@@ -144,7 +144,7 @@ export default function EmployeeContractsPage() {
           </Button>
         </div>
 
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardContent className="p-6">
           <ContractList
             contracts={contracts}

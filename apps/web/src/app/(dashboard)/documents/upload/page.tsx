@@ -175,7 +175,7 @@ export default function DocumentUploadPage() {
         {/* Main Upload Area */}
         <div className="lg:col-span-2 space-y-6">
           {/* Drag and Drop Zone */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardContent className="p-6">
               <div
                 onDragOver={handleDragOver}
@@ -210,7 +210,7 @@ export default function DocumentUploadPage() {
 
           {/* Upload Progress */}
           {uploadingFiles.length > 0 && (
-            <Card className="rounded-[24px]">
+            <Card className="rounded-[16px]">
               <CardHeader>
                 <CardTitle>Uploading Files</CardTitle>
                 <CardDescription>
@@ -270,7 +270,7 @@ export default function DocumentUploadPage() {
           )}
 
           {/* Document Details Form */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardHeader>
               <CardTitle>Document Details</CardTitle>
               <CardDescription>
@@ -336,7 +336,7 @@ export default function DocumentUploadPage() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Allowed File Types */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardHeader>
               <CardTitle className="text-lg">Allowed File Types</CardTitle>
             </CardHeader>
@@ -356,7 +356,7 @@ export default function DocumentUploadPage() {
           </Card>
 
           {/* Recent Uploads */}
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
             <CardHeader>
               <CardTitle className="text-lg">Recent Uploads</CardTitle>
             </CardHeader>

@@ -31,7 +31,7 @@ export default function TransactionsPage() {
       </div>
 
       {/* Coming Soon Card */}
-      <GlassCard className="rounded-[24px] border-dashed">
+      <GlassCard className="rounded-[16px] border-dashed">
           <div className="mx-auto w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-4">
             <Receipt className="h-6 w-6 text-white/70" />
           </div>
@@ -112,7 +112,7 @@ export default function TransactionsPage() {
             Until the unified transaction view is ready, you can view transactions organized by their source:
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <GlassCard className="rounded-[24px] border-2">
+            <GlassCard className="rounded-[16px] border-2">
                 <h4 className="font-semibold mb-2">Bank Transactions</h4>
                 <p className="text-sm text-white/70 mb-3">
                   View synced transactions from connected bank accounts
@@ -124,7 +124,7 @@ export default function TransactionsPage() {
                 </Button>
             </GlassCard>
 
-            <GlassCard className="rounded-[24px] border-2">
+            <GlassCard className="rounded-[16px] border-2">
                 <h4 className="font-semibold mb-2">Invoice Payments</h4>
                 <p className="text-sm text-white/70 mb-3">
                   Track payments received for sent invoices
@@ -136,7 +136,7 @@ export default function TransactionsPage() {
                 </Button>
             </GlassCard>
 
-            <GlassCard className="rounded-[24px] border-2">
+            <GlassCard className="rounded-[16px] border-2">
                 <h4 className="font-semibold mb-2">Expense Records</h4>
                 <p className="text-sm text-white/70 mb-3">
                   Review all submitted and approved expenses
@@ -148,7 +148,7 @@ export default function TransactionsPage() {
                 </Button>
             </GlassCard>
 
-            <GlassCard className="rounded-[24px] border-2">
+            <GlassCard className="rounded-[16px] border-2">
                 <h4 className="font-semibold mb-2">Reconciliation</h4>
                 <p className="text-sm text-white/70 mb-3">
                   Match and reconcile bank transactions

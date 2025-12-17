@@ -126,7 +126,7 @@ export default function NewMileagePage() {
       </motion.div>
 
       <motion.div variants={fadeUp}>
-        <GlassCard className="rounded-[24px] p-6">
+        <GlassCard className="rounded-[16px] p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Date */}
             <div className="space-y-2">

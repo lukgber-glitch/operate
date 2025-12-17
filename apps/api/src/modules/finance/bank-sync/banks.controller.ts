@@ -18,7 +18,7 @@ export class BanksController {
   @Get('banks')
   async getBanks(@Query('country') country: string) {
     if (!country) {
-      return { data: [] };
+      return [];
     }
 
     // European countries that use Tink
@@ -27,22 +27,21 @@ export class BanksController {
     if (euroCountries.includes(country.toUpperCase())) {
       try {
         const providers = await this.tinkService.getProviders(country.toUpperCase());
-        return {
-          data: providers.map(p => ({
-            id: p.name || p.financialInstitution?.id || p.id,
-            name: p.displayName || p.financialInstitution?.name || p.name,
-            logo: p.images?.icon || p.image || p.logo || null,
-            country: p.market || country.toUpperCase(),
-            bic: null,
-          }))
-        };
+        // Return array directly - interceptor will wrap in { data: [...] }
+        return providers.map(p => ({
+          id: p.name || p.financialInstitution?.id || p.id,
+          name: p.displayName || p.financialInstitution?.name || p.name,
+          logo: p.images?.icon || p.image || p.logo || null,
+          country: p.market || country.toUpperCase(),
+          bic: null,
+        }));
       } catch (error) {
         console.error('Error fetching banks from Tink:', error);
-        return { data: [] };
+        return [];
       }
     }
 
     // For US (Plaid) and UK (TrueLayer), return empty - they use embedded widgets
-    return { data: [] };
+    return [];
   }
 }

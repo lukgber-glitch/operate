@@ -320,6 +320,25 @@ const nextConfig = {
           },
         ],
       },
+      // Auth routes - NEVER cache (critical for OAuth flow)
+      {
+        source: '/auth/:path*',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, max-age=0',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
+        ],
+      },
       // Block source maps in production
       {
         source: '/:path*.map',

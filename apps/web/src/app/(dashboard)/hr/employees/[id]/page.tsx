@@ -142,7 +142,7 @@ export default function EmployeeDetailPage() {
 
         <EmployeeCard employee={employee} />
 
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardContent className="p-6">
           <Tabs defaultValue="overview" className="w-full">
             <TabsList>

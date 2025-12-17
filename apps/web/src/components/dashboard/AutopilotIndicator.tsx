@@ -38,7 +38,7 @@ export function AutopilotIndicator({ className }: AutopilotIndicatorProps) {
   const activeCount = activeFeatures.length;
 
   return (
-    <Card className={cn('rounded-[24px] relative overflow-hidden', className)}>
+    <Card className={cn('rounded-[16px] relative overflow-hidden', className)}>
       {/* Pulse animation when active */}
       {isActive && (
         <div className="absolute inset-0 opacity-30 pointer-events-none">

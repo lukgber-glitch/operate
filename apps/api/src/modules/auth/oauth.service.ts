@@ -259,6 +259,10 @@ export class OAuthService {
       jwtAccessToken,
       jwtRefreshToken,
       15 * 60, // 15 minutes in seconds
+      false, // requiresMfa
+      undefined, // mfaToken
+      undefined, // message
+      user.id, // userId (for onboarding cookie check)
     );
   }
 
@@ -371,8 +375,8 @@ export class OAuthService {
 
         res.cookie('onboarding_complete', 'true', {
           httpOnly: false, // Needs to be readable by frontend middleware
-          secure: isProduction,
-          sameSite: 'lax', // Allow cross-site for OAuth flows
+          secure: true, // Required for sameSite: 'none'
+          sameSite: 'none', // Most permissive - works in incognito and cross-site OAuth
           path: '/',
           maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
         });

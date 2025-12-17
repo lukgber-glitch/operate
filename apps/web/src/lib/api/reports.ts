@@ -245,7 +245,7 @@ class ReportsApi {
 
     const endpoint = `/organisations/${orgId}/reports/financial?${queryParams.toString()}`;
     const response = await api.get<FinancialReportData>(endpoint);
-    return response.data;
+    return response.data || ({} as FinancialReportData);
   }
 
   /**
@@ -261,7 +261,7 @@ class ReportsApi {
 
     const endpoint = `/organisations/${orgId}/reports/tax?${queryParams.toString()}`;
     const response = await api.get<TaxReportData>(endpoint);
-    return response.data;
+    return response.data || ({} as TaxReportData);
   }
 
   /**
@@ -277,7 +277,7 @@ class ReportsApi {
 
     const endpoint = `/organisations/${orgId}/reports/invoices?${queryParams.toString()}`;
     const response = await api.get<InvoiceReportData>(endpoint);
-    return response.data;
+    return response.data || ({} as InvoiceReportData);
   }
 
   /**
@@ -293,7 +293,7 @@ class ReportsApi {
 
     const endpoint = `/organisations/${orgId}/reports/hr?${queryParams.toString()}`;
     const response = await api.get<HRReportData>(endpoint);
-    return response.data;
+    return response.data || ({} as HRReportData);
   }
 
   /**
@@ -303,7 +303,7 @@ class ReportsApi {
     const orgId = this.getOrgId();
     const endpoint = `/organisations/${orgId}/reports/export`;
     const response = await api.post<ExportReportResponse>(endpoint, request);
-    return response.data;
+    return response.data || ({} as ExportReportResponse);
   }
 }
 

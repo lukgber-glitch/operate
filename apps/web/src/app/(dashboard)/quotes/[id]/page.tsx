@@ -249,7 +249,7 @@ export default function QuoteDetailPage({
 
       {/* Quote Details */}
       <motion.div variants={fadeUp}>
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
         <CardContent className="p-6">
         <div className="space-y-8">
             {/* Header Information */}
@@ -410,7 +410,7 @@ export default function QuoteDetailPage({
 
       {/* Activity Timeline */}
       <motion.div variants={fadeUp}>
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold mb-4">Activity</h3>
             <div className="space-y-3">
@@ -437,7 +437,7 @@ export default function QuoteDetailPage({
       {/* Actions */}
       {status !== 'converted' && status !== 'accepted' && (
         <motion.div variants={fadeUp}>
-          <Card className="rounded-[24px]">
+          <Card className="rounded-[16px]">
           <CardContent className="p-6">
           <div className="text-lg font-semibold mb-4">Actions</div>
             <div className="flex gap-3">

@@ -49,7 +49,7 @@ export async function getGmailAuthUrl(
       redirectUri,
     }
   );
-  return response.data;
+  return response.data || ({ authUrl: '', state: '' } as GmailAuthUrlResponse);
 }
 
 /**
@@ -70,7 +70,7 @@ export async function getOutlookAuthUrl(
       },
     }
   );
-  return response.data;
+  return response.data || ({ authUrl: '', state: '' } as OutlookAuthUrlResponse);
 }
 
 /**
@@ -145,7 +145,7 @@ export async function disconnectGmail(
     null,
     { params: { connectionId } }
   );
-  return response.data;
+  return response.data || { success: false, message: 'Unknown error' };
 }
 
 /**
@@ -159,7 +159,7 @@ export async function disconnectOutlook(
     '/integrations/outlook/disconnect',
     { userId, orgId }
   );
-  return response.data;
+  return response.data || { success: false, message: 'Unknown error' };
 }
 
 /**
@@ -184,7 +184,7 @@ export async function testGmailConnection(connectionId: string): Promise<{
   const response = await api.get<TestConnectionResponse>('/integrations/gmail/test', {
     params: { connectionId },
   });
-  return response.data;
+  return response.data || { success: false, message: 'Unknown error' };
 }
 
 /**
@@ -212,7 +212,7 @@ export async function testOutlookConnection(
   const response = await api.get<TestOutlookResponse>('/integrations/outlook/test', {
     params: { userId, orgId },
   });
-  return response.data;
+  return response.data || { success: false, message: 'Unknown error' };
 }
 
 /**
@@ -229,7 +229,7 @@ export async function searchGmailInvoices(
   const response = await api.get<{ messages: any[]; totalResults: number }>('/integrations/gmail/search/invoices', {
     params: { connectionId, ...options },
   });
-  return response.data;
+  return response.data || { messages: [], totalResults: 0 };
 }
 
 /**
@@ -247,5 +247,5 @@ export async function searchOutlookInvoices(
   const response = await api.get<{ messages: any[]; count: number }>('/integrations/outlook/search/invoices', {
     params: { userId, orgId, ...options },
   });
-  return response.data;
+  return response.data || { messages: [], count: 0 };
 }

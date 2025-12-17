@@ -81,7 +81,7 @@ export const finanzOnlineApi = {
       '/tax/finanz-online/submit',
       data
     );
-    return response.data;
+    return response.data || ({} as FinanzOnlineResult);
   },
 
   /**
@@ -94,7 +94,7 @@ export const finanzOnlineApi = {
         params: { organizationId: orgId },
       }
     );
-    return response.data;
+    return response.data || ({} as UvaStatus);
   },
 
   /**
@@ -107,7 +107,7 @@ export const finanzOnlineApi = {
         params: { uid },
       }
     );
-    return response.data;
+    return response.data || ({} as UidVerificationResult);
   },
 
   /**
@@ -120,7 +120,7 @@ export const finanzOnlineApi = {
         params: { organizationId: orgId, period },
       }
     );
-    return response.data;
+    return response.data || ({} as UvaPreview);
   },
 
   /**
@@ -133,7 +133,7 @@ export const finanzOnlineApi = {
         responseType: 'blob',
       }
     );
-    return response.data;
+    return response.data || new Blob();
   },
 };
 

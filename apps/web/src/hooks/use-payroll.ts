@@ -22,7 +22,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 // ==================== API Client ====================
 
 const apiClient = axios.create({
-  baseURL: `${API_BASE_URL}/api/integrations/gusto`,
+  baseURL: `${API_BASE_URL}/integrations/gusto`,
   headers: {
     'Content-Type': 'application/json',
   },

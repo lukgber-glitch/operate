@@ -327,7 +327,7 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
 
           {/* Navigation - Hide on completion step */}
           {currentStepData?.id !== 'completion' && (
-            <GlassCard intensity="onDark" className="p-6 rounded-[24px]">
+            <GlassCard intensity="onDark" className="p-6 rounded-[16px]">
               <div className="flex items-center justify-between gap-4">
                 {/* Back button - transparent with border */}
                 <motion.button

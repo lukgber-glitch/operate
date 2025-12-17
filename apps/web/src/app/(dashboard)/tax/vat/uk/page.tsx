@@ -38,7 +38,7 @@ export default function UKVATPage() {
           </Button>
         </div>
 
-        <Card className="rounded-[24px]">
+        <Card className="rounded-[16px]">
           <CardContent className="p-6">
             <VATReturnWizard onComplete={() => setShowWizard(false)} />
           </CardContent>
@@ -87,7 +87,7 @@ export default function UKVATPage() {
         animate="visible"
         transition={{ delay: 0.1 }}
       >
-      <Card className="rounded-[24px]">
+      <Card className="rounded-[16px]">
         <CardContent className="p-6">
           <div className="space-y-6">
 

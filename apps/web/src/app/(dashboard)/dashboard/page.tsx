@@ -21,12 +21,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 // Lazy load chart components for better performance
 const RevenueChart = dynamic(
   () => import('@/components/dashboard/RevenueChart').then(m => ({ default: m.RevenueChart })),
-  { ssr: false, loading: () => <Skeleton className="h-[300px] w-full rounded-[24px]" /> }
+  { ssr: false, loading: () => <Skeleton className="h-[300px] w-full rounded-[16px]" /> }
 );
 
 const ExpenseBreakdown = dynamic(
   () => import('@/components/dashboard/ExpenseBreakdown').then(m => ({ default: m.ExpenseBreakdown })),
-  { ssr: false, loading: () => <Skeleton className="h-[300px] w-full rounded-[24px]" /> }
+  { ssr: false, loading: () => <Skeleton className="h-[300px] w-full rounded-[16px]" /> }
 );
 
 function DashboardContent() {

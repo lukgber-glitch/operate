@@ -357,7 +357,7 @@ export function CompanyProfileStep() {
         <h2 className="text-2xl font-semibold tracking-tight">Company Information</h2>
         <p className="text-muted-foreground">Tell us about your business. This information will be used to set up your account and configure country-specific tax settings.</p>
       </div>
-      <Card className="rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10">
+      <Card className="rounded-[16px] bg-white/5 backdrop-blur-xl border border-white/10">
         <CardContent className="p-6">
         <div className="space-y-6">
           {/* Company Name */}
