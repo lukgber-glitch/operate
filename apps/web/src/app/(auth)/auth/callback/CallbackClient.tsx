@@ -4,26 +4,6 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { GlassCard } from '@/components/ui/glass-card';
 
-// Helper to store tokens in cookies (secure, httpOnly should be set by API ideally)
-// WAF/proxy only allows ONE Set-Cookie, so we combine both tokens into a JSON cookie
-function setAuthCookies(accessToken: string, refreshToken?: string) {
-  const authData = JSON.stringify({
-    a: accessToken, // access token
-    r: refreshToken || '', // refresh token
-  });
-  document.cookie = `op_auth=${encodeURIComponent(authData)};path=/;max-age=604800;SameSite=Lax`;
-}
-
-// Get cookie value by name
-function getCookie(name: string): string | null {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    return parts.pop()?.split(';').shift() || null;
-  }
-  return null;
-}
-
 export default function CallbackClient() {
   const router = useRouter();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
@@ -31,8 +11,8 @@ export default function CallbackClient() {
   const processedRef = useRef(false);
   const redirectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Process the OAuth callback
-  const processCallback = useCallback(() => {
+  // Process the OAuth callback by exchanging the code for tokens
+  const processCallback = useCallback(async () => {
     // Prevent double execution
     if (processedRef.current) {
       console.log('[Auth Callback] Already processed, skipping');
@@ -45,15 +25,13 @@ export default function CallbackClient() {
 
     // Parse URL parameters directly
     const params = new URLSearchParams(window.location.search);
-    const accessToken = params.get('accessToken');
-    const refreshToken = params.get('refreshToken');
+    const code = params.get('code');
     const error = params.get('error');
 
     console.log('[Auth Callback] Params:', {
-      hasAccessToken: !!accessToken,
-      hasRefreshToken: !!refreshToken,
+      hasCode: !!code,
       hasError: !!error,
-      accessTokenLength: accessToken?.length || 0,
+      codeLength: code?.length || 0,
     });
 
     // Handle error from OAuth provider
@@ -68,29 +46,37 @@ export default function CallbackClient() {
       return;
     }
 
-    // Handle missing token
-    if (!accessToken) {
-      console.error('[Auth Callback] No access token in URL');
+    // Handle missing code
+    if (!code) {
+      console.error('[Auth Callback] No auth code in URL');
       setStatus('error');
-      setErrorMessage('No authentication token received. Please try again.');
+      setErrorMessage('No authentication code received. Please try again.');
       return;
     }
 
     try {
-      // Store tokens in cookies
-      console.log('[Auth Callback] Storing tokens in cookies...');
-      setAuthCookies(accessToken, refreshToken || undefined);
+      // Exchange the code for tokens via API
+      console.log('[Auth Callback] Exchanging code for tokens...');
+      const response = await fetch('/api/v1/auth/exchange', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code }),
+        credentials: 'include', // Important: include cookies
+      });
 
-      // Verify cookie was set
-      const storedToken = getCookie('access_token');
-      if (!storedToken) {
-        console.error('[Auth Callback] Failed to set cookie');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('[Auth Callback] Exchange failed:', errorData);
         setStatus('error');
-        setErrorMessage('Failed to save authentication. Please enable cookies and try again.');
+        setErrorMessage(errorData.message || 'Failed to complete authentication. Please try again.');
         return;
       }
 
-      console.log('[Auth Callback] Tokens stored successfully');
+      const data = await response.json();
+      console.log('[Auth Callback] Exchange successful:', { userId: data.userId });
+
       setStatus('success');
 
       // Clear any existing timeout

@@ -285,7 +285,12 @@ export default async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/onboarding', request.url))
     }
 
-    return NextResponse.next()
+    // Add cache headers to prevent CDN from caching authenticated content
+    const response = NextResponse.next()
+    response.headers.set('Cache-Control', 'private, no-store, no-cache, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    return response
   }
 
   // Allow offline route

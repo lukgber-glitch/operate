@@ -198,12 +198,14 @@ export class EventsGateway
       const redisHost = this.configService.get<string>('redis.host');
       const redisPort = this.configService.get<number>('redis.port');
       const redisPassword = this.configService.get<string>('redis.password');
+      const redisUsername = this.configService.get<string>('redis.username');
 
       const pubClient = createClient({
         socket: {
           host: redisHost,
           port: redisPort,
         },
+        username: redisUsername,
         password: redisPassword,
       });
 
