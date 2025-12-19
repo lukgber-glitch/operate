@@ -575,59 +575,35 @@ function ChatPageContent() {
               </motion.div>
             )}
           </div>
-        </div>
-      </ScrollArea>
 
-      {/* Fixed Input Area at Bottom */}
-      <div
-        className="border-t"
-        style={{
-          background: 'var(--color-surface)',
-          borderColor: 'var(--color-border)',
-        }}
-      >
-        <div
-          className="mx-auto px-4 py-3"
-          style={{
-            maxWidth: '800px',
-          }}
-        >
-          {/* Chat Input with placeholders */}
-          <ChatInput
-            onSend={handleSendMessage}
-            disabled={isLoading || (!consentLoading && !isAutoConsenting && needsConsent)}
-            isLoading={isLoading}
-            placeholder={
-              consentLoading || isAutoConsenting
-                ? "Loading..."
-                : hasConsent
-                  ? "Ask anything about your business..."
-                  : "Enable AI to use chat features..."
-            }
-            showAttachment={true}
-            showVoice={true}
-            showQuickActions={false}
-            showHistory={false}
-          />
-        </div>
-      </div>
+          {/* Chat Input - integrated with chat area */}
+          <div className="mb-8">
+            <ChatInput
+              onSend={handleSendMessage}
+              disabled={isLoading || (!consentLoading && !isAutoConsenting && needsConsent)}
+              isLoading={isLoading}
+              placeholder={
+                consentLoading || isAutoConsenting
+                  ? "Loading..."
+                  : hasConsent
+                    ? "Ask anything about your business..."
+                    : "Enable AI to use chat features..."
+              }
+              showAttachment={true}
+              showVoice={true}
+              showQuickActions={false}
+              showHistory={false}
+            />
+          </div>
 
-      {/* Insight Cards - At the very bottom */}
-      <motion.div
-        className="border-t px-4 py-4"
-        style={{
-          background: 'var(--color-surface)',
-          borderColor: 'var(--color-border)',
-        }}
-        variants={staggerContainer}
-        initial="hidden"
-        animate="visible"
-      >
-        <div
-          className="mx-auto grid grid-cols-1 md:grid-cols-3 gap-3"
-          style={{ maxWidth: '800px' }}
-        >
-          {/* Email Insights Card */}
+          {/* Insight Cards - At the bottom */}
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+          >
+            {/* Email Insights Card */}
           <motion.div variants={fadeUp} whileHover={cardHover}>
             <Card className="rounded-[12px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-2 pt-3 px-4">
@@ -738,8 +714,9 @@ function ChatPageContent() {
               </CardContent>
             </Card>
           </motion.div>
+          </motion.div>
         </div>
-      </motion.div>
+      </ScrollArea>
         </motion.div>
       </motion.div>
     {/* Wizard Panel Container */}
