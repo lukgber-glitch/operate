@@ -68,6 +68,9 @@ function ChatPageContent() {
     revokeConsent,
   } = useAIConsent();
 
+  // Track if we're in the process of auto-consenting (for authenticated users)
+  const [isAutoConsenting, setIsAutoConsenting] = useState(true);
+
   // Wizard Panel Management
   const {
     panelState,
@@ -102,6 +105,22 @@ function ChatPageContent() {
       setMessages([]);
     }
   }, [activeConversation]);
+
+  // Auto-enable AI consent for authenticated users on the chat page
+  // This fixes the issue where existing users need to manually click "Enable AI"
+  useEffect(() => {
+    const autoConsent = async () => {
+      if (user && !consentLoading) {
+        if (!hasConsent) {
+          // Automatically give consent for authenticated users
+          await giveConsent();
+        }
+        // Mark auto-consent complete once we've checked/consented
+        setIsAutoConsenting(false);
+      }
+    };
+    autoConsent();
+  }, [user, consentLoading, hasConsent, giveConsent]);
 
   // Fetch data on mount - PARALLELIZED for performance
   useEffect(() => {
@@ -410,11 +429,11 @@ function ChatPageContent() {
               </Suspense>
             </div>
 
-            {/* AI Consent Warning */}
-            {!consentLoading && !hasConsent && (
-              <Alert className="mb-6">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="flex items-center justify-between">
+            {/* AI Consent Warning - only show after auto-consent attempt completes and if still no consent */}
+            {!consentLoading && !isAutoConsenting && !hasConsent && (
+              <Alert className="mb-6 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700/50">
+                <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <AlertDescription className="flex items-center justify-between text-amber-800 dark:text-amber-200">
                   <span>
                     AI features are disabled. Enable AI processing to use the chat assistant.
                   </span>
@@ -422,13 +441,28 @@ function ChatPageContent() {
                     variant="outline"
                     size="sm"
                     onClick={() => setShowConsentDialog(true)}
-                    className="ml-4"
+                    className="ml-4 border-amber-300 dark:border-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/40"
                   >
                     <Brain className="h-4 w-4 mr-2" />
                     Enable AI
                   </Button>
                 </AlertDescription>
               </Alert>
+            )}
+
+            {/* Suggestion Chips - Shown when no messages (moved up for better visibility) */}
+            {!hasMessages && (
+              <div className="mb-6">
+                <Suspense fallback={
+                  <div className="flex flex-wrap gap-2 py-2 justify-center">
+                    {[1, 2, 3, 4].map(i => (
+                      <div key={i} className="h-8 w-40 animate-pulse bg-slate-200 dark:bg-slate-700 rounded-full" />
+                    ))}
+                  </div>
+                }>
+                  <SuggestionChips onSelect={handleSendMessage} />
+                </Suspense>
+              </div>
             )}
 
           {/* Chat Messages Area */}
@@ -541,127 +575,6 @@ function ChatPageContent() {
               </motion.div>
             )}
           </div>
-
-          {/* Insight Cards - Three premium cards at bottom */}
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-6"
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-          >
-            {/* Email Insights Card */}
-            <motion.div variants={fadeUp} whileHover={cardHover}>
-              <Card className="rounded-[16px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-600/5 dark:from-blue-400/20 dark:to-blue-500/10">
-                      <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <CardTitle className="text-base font-semibold text-slate-800 dark:text-slate-100">
-                      Email Insights
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingData ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
-                      <span className="text-sm text-slate-400">Loading...</span>
-                    </div>
-                  ) : (
-                    <CardDescription className="text-sm text-slate-600 dark:text-slate-300">
-                      {totalPendingReview > 0
-                        ? `${totalPendingReview} invoice${totalPendingReview !== 1 ? 's' : ''} to review`
-                        : 'All caught up!'}
-                    </CardDescription>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Bank Summary Card */}
-            <motion.div variants={fadeUp} whileHover={cardHover}>
-              <Card className="rounded-[16px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 dark:from-emerald-400/20 dark:to-emerald-500/10">
-                      <Building2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    <CardTitle className="text-base font-semibold text-slate-800 dark:text-slate-100">
-                      Bank Summary
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingData ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
-                      <span className="text-sm text-slate-400">Loading...</span>
-                    </div>
-                  ) : accounts.length > 0 ? (
-                    <CardDescription className="text-sm text-slate-600 dark:text-slate-300">
-                      <span className="font-medium">{formatWithSymbol(totalBalance, primaryCurrency as any)}</span> balance
-                      <br />
-                      <span className={weeklyChange >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}>
-                        {weeklyChange >= 0 ? '+' : ''}
-                        {formatWithSymbol(weeklyChange, primaryCurrency as any)}
-                      </span> this week
-                    </CardDescription>
-                  ) : (
-                    <CardDescription className="text-sm text-slate-500 dark:text-slate-400">
-                      No bank accounts connected
-                    </CardDescription>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Upcoming Card */}
-            <motion.div variants={fadeUp} whileHover={cardHover}>
-              <Card className="rounded-[16px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-600/5 dark:from-purple-400/20 dark:to-purple-500/10">
-                      <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <CardTitle className="text-base font-semibold text-slate-800 dark:text-slate-100">
-                      Upcoming
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingData ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
-                      <span className="text-sm text-slate-400">Loading...</span>
-                    </div>
-                  ) : upcomingInvoices.length > 0 ? (
-                    <CardDescription className="text-sm text-slate-600 dark:text-slate-300">
-                      {upcomingInvoices.slice(0, 2).map((inv, idx) => {
-                        const daysUntil = Math.ceil(
-                          (new Date(inv.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-                        );
-                        return (
-                          <div key={inv.id} className={idx > 0 ? 'mt-1' : ''}>
-                            Invoice #{inv.number} <span className="text-purple-600 dark:text-purple-400 font-medium">({daysUntil}d)</span>
-                          </div>
-                        );
-                      })}
-                      {upcomingInvoices.length > 2 && (
-                        <div className="mt-1 text-slate-400">
-                          +{upcomingInvoices.length - 2} more
-                        </div>
-                      )}
-                    </CardDescription>
-                  ) : (
-                    <CardDescription className="text-sm text-slate-500 dark:text-slate-400">
-                      No upcoming invoices
-                    </CardDescription>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
-          </motion.div>
         </div>
       </ScrollArea>
 
@@ -674,38 +587,18 @@ function ChatPageContent() {
         }}
       >
         <div
-          className="mx-auto px-4"
+          className="mx-auto px-4 py-3"
           style={{
             maxWidth: '800px',
           }}
         >
-          {/* Suggestion Chips - Shown when no messages - Lazy loaded with Suspense */}
-          {!hasMessages && (
-            <div
-              className="py-4 border-b overflow-x-auto"
-              style={{
-                borderColor: 'var(--color-border)',
-              }}
-            >
-              <Suspense fallback={
-                <div className="flex gap-2 py-2">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="h-8 w-32 animate-pulse bg-gray-200 rounded-full" />
-                  ))}
-                </div>
-              }>
-                <SuggestionChips onSelect={handleSendMessage} />
-              </Suspense>
-            </div>
-          )}
-
           {/* Chat Input with placeholders */}
           <ChatInput
             onSend={handleSendMessage}
-            disabled={isLoading || (!consentLoading && needsConsent)}
+            disabled={isLoading || (!consentLoading && !isAutoConsenting && needsConsent)}
             isLoading={isLoading}
             placeholder={
-              consentLoading
+              consentLoading || isAutoConsenting
                 ? "Loading..."
                 : hasConsent
                   ? "Ask anything about your business..."
@@ -718,6 +611,135 @@ function ChatPageContent() {
           />
         </div>
       </div>
+
+      {/* Insight Cards - At the very bottom */}
+      <motion.div
+        className="border-t px-4 py-4"
+        style={{
+          background: 'var(--color-surface)',
+          borderColor: 'var(--color-border)',
+        }}
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+      >
+        <div
+          className="mx-auto grid grid-cols-1 md:grid-cols-3 gap-3"
+          style={{ maxWidth: '800px' }}
+        >
+          {/* Email Insights Card */}
+          <motion.div variants={fadeUp} whileHover={cardHover}>
+            <Card className="rounded-[12px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-600/5 dark:from-blue-400/20 dark:to-blue-500/10">
+                    <Mail className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <CardTitle className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    Email Insights
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="pb-3 px-4">
+                {isLoadingData ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-3 w-3 animate-spin text-slate-400" />
+                    <span className="text-xs text-slate-400">Loading...</span>
+                  </div>
+                ) : (
+                  <CardDescription className="text-xs text-slate-600 dark:text-slate-300">
+                    {totalPendingReview > 0
+                      ? `${totalPendingReview} invoice${totalPendingReview !== 1 ? 's' : ''} to review`
+                      : 'All caught up!'}
+                  </CardDescription>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Bank Summary Card */}
+          <motion.div variants={fadeUp} whileHover={cardHover}>
+            <Card className="rounded-[12px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 dark:from-emerald-400/20 dark:to-emerald-500/10">
+                    <Building2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <CardTitle className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    Bank Summary
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="pb-3 px-4">
+                {isLoadingData ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-3 w-3 animate-spin text-slate-400" />
+                    <span className="text-xs text-slate-400">Loading...</span>
+                  </div>
+                ) : accounts.length > 0 ? (
+                  <CardDescription className="text-xs text-slate-600 dark:text-slate-300">
+                    <span className="font-medium">{formatWithSymbol(totalBalance, primaryCurrency as any)}</span> balance
+                    {' • '}
+                    <span className={weeklyChange >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}>
+                      {weeklyChange >= 0 ? '+' : ''}
+                      {formatWithSymbol(weeklyChange, primaryCurrency as any)}
+                    </span> this week
+                  </CardDescription>
+                ) : (
+                  <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
+                    No bank accounts connected
+                  </CardDescription>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Upcoming Card */}
+          <motion.div variants={fadeUp} whileHover={cardHover}>
+            <Card className="rounded-[12px] border-slate-200/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500/10 to-purple-600/5 dark:from-purple-400/20 dark:to-purple-500/10">
+                    <Calendar className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <CardTitle className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    Upcoming
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="pb-3 px-4">
+                {isLoadingData ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-3 w-3 animate-spin text-slate-400" />
+                    <span className="text-xs text-slate-400">Loading...</span>
+                  </div>
+                ) : upcomingInvoices.length > 0 ? (
+                  <CardDescription className="text-xs text-slate-600 dark:text-slate-300">
+                    {upcomingInvoices.slice(0, 2).map((inv, idx) => {
+                      const daysUntil = Math.ceil(
+                        (new Date(inv.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+                      );
+                      return (
+                        <span key={inv.id}>
+                          {idx > 0 && ' • '}
+                          #{inv.number} <span className="text-purple-600 dark:text-purple-400 font-medium">({daysUntil}d)</span>
+                        </span>
+                      );
+                    })}
+                    {upcomingInvoices.length > 2 && (
+                      <span className="text-slate-400"> +{upcomingInvoices.length - 2}</span>
+                    )}
+                  </CardDescription>
+                ) : (
+                  <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
+                    No upcoming invoices
+                  </CardDescription>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </motion.div>
         </motion.div>
       </motion.div>
     {/* Wizard Panel Container */}
