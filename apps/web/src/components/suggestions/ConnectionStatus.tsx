@@ -42,39 +42,44 @@ const stateConfig: Record<
     borderColor: string;
     icon: string;
     showReconnect: boolean;
+    hideWhenIdle: boolean; // Hide indicator when not actively connected
   }
 > = {
   connecting: {
     label: 'Connecting...',
-    color: 'text-yellow-700',
-    bgColor: 'bg-yellow-50',
-    borderColor: 'border-yellow-200',
+    color: 'text-yellow-300',
+    bgColor: 'bg-yellow-900/80',
+    borderColor: 'border-yellow-700',
     icon: '🔄',
     showReconnect: false,
+    hideWhenIdle: false,
   },
   connected: {
     label: 'Live',
-    color: 'text-green-700',
-    bgColor: 'bg-green-50',
-    borderColor: 'border-green-200',
+    color: 'text-green-300',
+    bgColor: 'bg-green-900/80',
+    borderColor: 'border-green-700',
     icon: '✓',
     showReconnect: false,
+    hideWhenIdle: false,
   },
   disconnected: {
-    label: 'Disconnected',
-    color: 'text-gray-700',
-    bgColor: 'bg-gray-50',
-    borderColor: 'border-gray-200',
+    label: 'Offline',
+    color: 'text-slate-300',
+    bgColor: 'bg-slate-800/80',
+    borderColor: 'border-slate-600',
     icon: '○',
     showReconnect: true,
+    hideWhenIdle: true, // Hide disconnected indicator - not useful to show
   },
   error: {
-    label: 'Connection Error',
-    color: 'text-red-700',
-    bgColor: 'bg-red-50',
-    borderColor: 'border-red-200',
+    label: 'Error',
+    color: 'text-red-300',
+    bgColor: 'bg-red-900/80',
+    borderColor: 'border-red-700',
     icon: '⚠',
     showReconnect: true,
+    hideWhenIdle: false,
   },
 };
 
@@ -115,7 +120,11 @@ export function ConnectionStatus({
     }
   }, [state]);
 
-  if (!show || (autoHide && state === 'connected')) {
+  // Hide when:
+  // 1. show prop is false
+  // 2. Auto-hide after connected for 3 seconds
+  // 3. State is configured to hide when idle (e.g., disconnected - not useful to show)
+  if (!show || (autoHide && state === 'connected') || config.hideWhenIdle) {
     return null;
   }
 

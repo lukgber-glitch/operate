@@ -1,6 +1,7 @@
 'use client'
 
 import '@/app/globals.css'
+import { useEffect } from 'react'
 import { Header } from '@/components/dashboard/header'
 import { MobileNav } from '@/components/dashboard/mobile-nav'
 import { Sidebar } from '@/components/dashboard/sidebar'
@@ -9,6 +10,7 @@ import { PushPermissionBanner } from '@/components/notifications'
 import { TrialManager, UsageManager } from '@/components/billing'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { useTimerWarning } from '@/hooks/use-timer-warning'
+import { useAIConsent } from '@/hooks/useAIConsent'
 import { cn } from '@/lib/utils'
 
 export default function DashboardLayout({
@@ -19,8 +21,22 @@ export default function DashboardLayout({
   const { isOpen } = useSidebar()
   useTimerWarning() // Warn before closing tab if timer is running
 
+  // Global AI auto-consent for authenticated users
+  // This ensures AI features work immediately without popup
+  const { hasConsent, isLoading: consentLoading, giveConsent } = useAIConsent()
+
+  useEffect(() => {
+    // Auto-enable AI consent for all authenticated dashboard users
+    if (!consentLoading && !hasConsent) {
+      giveConsent()
+    }
+  }, [consentLoading, hasConsent, giveConsent])
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white relative">
+    <div
+      className="min-h-screen text-white relative"
+      style={{ background: 'linear-gradient(135deg, #0a2540 0%, #1a3a5a 100%)' }}
+    >
 
       {/* Desktop Sidebar - Fixed positioned */}
       <div className="hidden lg:block">
