@@ -211,11 +211,11 @@ export function CommunicationTimeline({ clientId, communications }: Communicatio
                   <div className="space-y-2">
                     <Label htmlFor="linkedEntityType">Entity Type</Label>
                     <Select
-                      value={formData.linkedEntityType}
+                      value={formData.linkedEntityType || 'none'}
                       onValueChange={(value) =>
                         setFormData({
                           ...formData,
-                          linkedEntityType: value as '' | 'INVOICE' | 'PAYMENT' | 'QUOTE',
+                          linkedEntityType: (value === 'none' ? '' : value) as '' | 'INVOICE' | 'PAYMENT' | 'QUOTE',
                         })
                       }
                     >
@@ -223,7 +223,7 @@ export function CommunicationTimeline({ clientId, communications }: Communicatio
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
                         <SelectItem value="INVOICE">Invoice</SelectItem>
                         <SelectItem value="PAYMENT">Payment</SelectItem>
                         <SelectItem value="QUOTE">Quote</SelectItem>

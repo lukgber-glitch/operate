@@ -1,10 +1,11 @@
 'use client';
 
-import { Bell, Globe } from 'lucide-react'
+import { Bell, Globe, Brain, Shield, ExternalLink } from 'lucide-react'
 import * as React from 'react'
 import { useFormContext } from 'react-hook-form'
 
 import { Card, CardContent } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -63,6 +64,9 @@ export function PreferencesStep() {
   const taxDeadlines = watch('preferences.notifications.taxDeadlines') ?? true
   const bankTransactions = watch('preferences.notifications.bankTransactions') ?? false
   const weeklyReports = watch('preferences.notifications.weeklyReports') ?? true
+
+  // AI consent
+  const aiConsent = watch('preferences.aiConsent') ?? false
 
   return (
     <div className="space-y-6">
@@ -275,6 +279,68 @@ export function PreferencesStep() {
                   }
                 />
               </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* AI Assistant Consent */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Brain className="w-4 h-4 text-white/70" />
+              <h4 className="text-sm font-medium text-white">AI Assistant</h4>
+            </div>
+
+            <div className="rounded-lg bg-white/5 border border-white/10 p-4 space-y-4">
+              <div className="space-y-3">
+                <p className="text-sm text-white/80">
+                  Operate uses AI (Claude by Anthropic) to help manage your business.
+                  By enabling AI features, you consent to:
+                </p>
+                <ul className="text-sm text-white/60 space-y-1.5 ml-4">
+                  <li className="flex items-start gap-2">
+                    <Shield className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                    <span>AI processing of your business data (invoices, transactions, documents)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Shield className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                    <span>Data shared with Anthropic for AI assistance (encrypted, not used for training)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Shield className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                    <span>You can revoke consent anytime in Settings</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="flex items-start gap-3 pt-2">
+                <Checkbox
+                  id="aiConsent"
+                  checked={aiConsent}
+                  onCheckedChange={(checked) =>
+                    setValue('preferences.aiConsent', checked as boolean)
+                  }
+                  className="mt-0.5"
+                />
+                <div className="flex-1">
+                  <Label htmlFor="aiConsent" className="cursor-pointer text-white font-medium">
+                    Enable AI Assistant
+                  </Label>
+                  <p className="text-sm text-white/60">
+                    I consent to AI processing of my business data as described above
+                  </p>
+                </div>
+              </div>
+
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-white/50 hover:text-white/70 flex items-center gap-1 transition-colors"
+              >
+                Read our Privacy Policy
+                <ExternalLink className="h-3 w-3" />
+              </a>
             </div>
           </div>
         </div>

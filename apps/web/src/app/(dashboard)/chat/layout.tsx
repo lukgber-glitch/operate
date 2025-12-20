@@ -12,12 +12,14 @@ export default function ChatLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Note: SSE endpoint (/api/v1/suggestions/stream) is not yet implemented on backend
+  // Connection status is hidden until the feature is ready
   return (
     <SuggestionStreamProvider
-      showConnectionStatus={true}
+      showConnectionStatus={false}
       statusPosition="bottom-right"
-      showToasts={true}
-      autoConnect={true}
+      showToasts={false}
+      autoConnect={false}
     >
       {children}
     </SuggestionStreamProvider>

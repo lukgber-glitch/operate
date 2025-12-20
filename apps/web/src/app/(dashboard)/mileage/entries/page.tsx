@@ -153,25 +153,25 @@ export default function MileageEntriesPage() {
                   className="pl-9"
                 />
               </div>
-              <Select value={vehicleTypeFilter} onValueChange={setVehicleTypeFilter}>
+              <Select value={vehicleTypeFilter || 'all'} onValueChange={(v) => setVehicleTypeFilter(v === 'all' ? '' : v)}>
                 <SelectTrigger className="w-full sm:w-[180px]">
                   <Filter className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Vehicle type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Vehicles</SelectItem>
+                  <SelectItem value="all">All Vehicles</SelectItem>
                   <SelectItem value="CAR">Car</SelectItem>
                   <SelectItem value="MOTORCYCLE">Motorcycle</SelectItem>
                   <SelectItem value="BICYCLE">Bicycle</SelectItem>
                   <SelectItem value="ELECTRIC">Electric</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={reimbursedFilter} onValueChange={setReimbursedFilter}>
+              <Select value={reimbursedFilter || 'all'} onValueChange={(v) => setReimbursedFilter(v === 'all' ? '' : v)}>
                 <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Reimbursed status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Entries</SelectItem>
+                  <SelectItem value="all">All Entries</SelectItem>
                   <SelectItem value="true">Reimbursed</SelectItem>
                   <SelectItem value="false">Not Reimbursed</SelectItem>
                 </SelectContent>

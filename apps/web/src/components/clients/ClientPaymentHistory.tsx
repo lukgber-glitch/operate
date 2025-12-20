@@ -177,16 +177,16 @@ export function ClientPaymentHistory({ clientId }: ClientPaymentHistoryProps) {
                     <div className="space-y-2">
                       <Label>Status</Label>
                       <Select
-                        value={filters.status || ''}
+                        value={filters.status || 'all'}
                         onValueChange={(value) =>
-                          handleFilterChange('status', value || undefined)
+                          handleFilterChange('status', value === 'all' ? undefined : value)
                         }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="All statuses" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All statuses</SelectItem>
+                          <SelectItem value="all">All statuses</SelectItem>
                           <SelectItem value="COMPLETED">Completed</SelectItem>
                           <SelectItem value="PENDING">Pending</SelectItem>
                           <SelectItem value="FAILED">Failed</SelectItem>
@@ -199,16 +199,16 @@ export function ClientPaymentHistory({ clientId }: ClientPaymentHistoryProps) {
                     <div className="space-y-2">
                       <Label>Payment Method</Label>
                       <Select
-                        value={filters.method || ''}
+                        value={filters.method || 'all'}
                         onValueChange={(value) =>
-                          handleFilterChange('method', value || undefined)
+                          handleFilterChange('method', value === 'all' ? undefined : value)
                         }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="All methods" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All methods</SelectItem>
+                          <SelectItem value="all">All methods</SelectItem>
                           <SelectItem value="CREDIT_CARD">Credit Card</SelectItem>
                           <SelectItem value="DEBIT_CARD">Debit Card</SelectItem>
                           <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>

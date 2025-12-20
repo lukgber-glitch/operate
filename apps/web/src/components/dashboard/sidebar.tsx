@@ -146,7 +146,7 @@ export function Sidebar() {
       <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
         {isOpen ? (
           <Link href="/chat" className="flex items-center gap-2" aria-label="Go to chat">
-            <GuruLogo size={32} />
+            <GuruLogo size={32} variant="light" />
             <AnimatePresence mode="wait">
               <motion.span
                 key="logo-text"
@@ -162,7 +162,7 @@ export function Sidebar() {
           </Link>
         ) : (
           <Link href="/chat" className="flex items-center" aria-label="Go to chat">
-            <GuruLogo size={32} />
+            <GuruLogo size={32} variant="light" />
           </Link>
         )}
         <Button

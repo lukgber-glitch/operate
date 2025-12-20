@@ -30,7 +30,7 @@ export default function TimePage() {
       </div>
 
       {/* Today by Project */}
-      {summary && summary.todayByProject.length > 0 && (
+      {summary?.todayByProject && summary.todayByProject.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {summary.todayByProject.map((item) => (
             <div

@@ -65,13 +65,7 @@ export function AIConsentDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-2xl max-h-[90vh] mx-auto my-auto overflow-y-auto"
-        style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-        }}
+        className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col"
         aria-describedby="ai-consent-description"
       >
         <DialogHeader>

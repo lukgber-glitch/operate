@@ -31,9 +31,12 @@ export function AuthLayoutClient({ children, rtl }: AuthLayoutClientProps) {
   if (isOnboarding) {
     return (
       <div
-        className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-purple-600"
+        className="min-h-screen relative overflow-hidden"
         dir={rtl ? 'rtl' : 'ltr'}
         role="document"
+        style={{
+          background: 'linear-gradient(135deg, #0a2540 0%, #1a3a5a 100%)'
+        }}
       >
         {/* Dark Navy Gradient Background */}
         <WelcomeBackground />
@@ -59,8 +62,11 @@ export function AuthLayoutClient({ children, rtl }: AuthLayoutClientProps) {
       {/* Left/Center - Main content area with login form */}
       <main
         id="main-content"
-        className="flex-1 min-h-screen flex flex-col items-center justify-center py-8 px-4 relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-purple-600"
+        className="flex-1 min-h-screen flex flex-col items-center justify-center py-8 px-4 relative overflow-hidden"
         role="main"
+        style={{
+          background: 'linear-gradient(135deg, #0a2540 0%, #1a3a5a 100%)'
+        }}
       >
         {/* Animated background */}
         <WelcomeBackground />

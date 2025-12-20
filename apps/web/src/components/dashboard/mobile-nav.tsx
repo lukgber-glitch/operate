@@ -69,9 +69,9 @@ export function MobileNav() {
             <Link
               href={item.href}
               className={cn(
-                'flex flex-col items-center gap-1 rounded-md px-3 py-2 text-xs font-medium transition-colors',
+                'flex flex-col items-center justify-center gap-1 rounded-md px-3 py-2 text-xs font-medium transition-colors min-h-[48px] min-w-[48px]',
                 isActive
-                  ? 'text-white'
+                  ? 'text-slate-900 dark:text-white'
                   : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
               )}
             >

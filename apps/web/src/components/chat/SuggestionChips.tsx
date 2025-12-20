@@ -114,15 +114,7 @@ export function SuggestionChips({ onSelect, className, context }: SuggestionChip
           <button
             key={suggestion.id}
             onClick={() => onSelect(suggestion.text)}
-            className="flex items-center gap-2 px-4 py-2 shrink-0 transition-all hover:scale-105 focus-visible:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-            style={{
-              background: 'var(--color-accent-3)',
-              color: 'var(--color-primary)',
-              borderRadius: 'var(--radius-full)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: '500',
-              transitionDuration: 'var(--transition-fast)',
-            }}
+            className="flex items-center gap-2 px-4 py-2 shrink-0 transition-all hover:scale-105 focus-visible:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 rounded-full text-sm font-medium"
             aria-label={suggestion.text}
           >
             <Icon className="h-4 w-4" />

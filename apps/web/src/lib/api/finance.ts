@@ -355,13 +355,42 @@ class FinanceApi {
       });
     }
 
-    const response = await this.request<ApiResponse<Invoice[]>>(
+    const response = await this.request<ApiResponse<any[]>>(
       `/invoices?${params.toString()}`
     );
 
+    // Transform backend invoice format to frontend Invoice type
+    // Backend returns Prisma Decimal objects, frontend expects numbers
+    const transformedInvoices: Invoice[] = (response.data || []).map((invoice: any) => ({
+      id: invoice.id,
+      number: invoice.number || '',
+      customerId: invoice.customerId,
+      customerName: invoice.customerName || '',
+      customerEmail: invoice.customerEmail,
+      customerAddress: invoice.customerAddress,
+      status: invoice.status || 'DRAFT',
+      issueDate: invoice.issueDate,
+      dueDate: invoice.dueDate,
+      subtotal: Number(invoice.subtotal) || 0,
+      taxAmount: Number(invoice.taxAmount) || 0,
+      totalAmount: Number(invoice.totalAmount) || 0,
+      currency: invoice.currency || 'EUR',
+      notes: invoice.notes,
+      items: invoice.items?.map((item: any) => ({
+        id: item.id,
+        description: item.description || '',
+        quantity: Number(item.quantity) || 0,
+        unitPrice: Number(item.unitPrice) || 0,
+        taxRate: Number(item.taxRate) || 0,
+        amount: Number(item.amount) || 0,
+      })),
+      createdAt: invoice.createdAt,
+      updatedAt: invoice.updatedAt,
+    }));
+
     // Transform nested meta structure to flat PaginatedResponse
     return {
-      data: response.data,
+      data: transformedInvoices,
       total: response.meta?.total || 0,
       page: response.meta?.page || 1,
       pageSize: response.meta?.pageSize || 20,
@@ -370,7 +399,35 @@ class FinanceApi {
   }
 
   async getInvoice(id: string): Promise<Invoice> {
-    return this.request<Invoice>(`/invoices/${id}`);
+    const invoice = await this.request<any>(`/invoices/${id}`);
+
+    // Transform backend invoice format to frontend Invoice type
+    return {
+      id: invoice.id,
+      number: invoice.number || '',
+      customerId: invoice.customerId,
+      customerName: invoice.customerName || '',
+      customerEmail: invoice.customerEmail,
+      customerAddress: invoice.customerAddress,
+      status: invoice.status || 'DRAFT',
+      issueDate: invoice.issueDate,
+      dueDate: invoice.dueDate,
+      subtotal: Number(invoice.subtotal) || 0,
+      taxAmount: Number(invoice.taxAmount) || 0,
+      totalAmount: Number(invoice.totalAmount) || 0,
+      currency: invoice.currency || 'EUR',
+      notes: invoice.notes,
+      items: invoice.items?.map((item: any) => ({
+        id: item.id,
+        description: item.description || '',
+        quantity: Number(item.quantity) || 0,
+        unitPrice: Number(item.unitPrice) || 0,
+        taxRate: Number(item.taxRate) || 0,
+        amount: Number(item.amount) || 0,
+      })),
+      createdAt: invoice.createdAt,
+      updatedAt: invoice.updatedAt,
+    };
   }
 
   async createInvoice(data: CreateInvoiceRequest): Promise<Invoice> {

@@ -70,7 +70,7 @@ const stateConfig: Record<
     borderColor: 'border-slate-600',
     icon: '○',
     showReconnect: true,
-    hideWhenIdle: true, // Hide disconnected indicator - not useful to show
+    hideWhenIdle: false,
   },
   error: {
     label: 'Error',

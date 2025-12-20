@@ -85,7 +85,7 @@ export function MobileSidebar({ onClose }: MobileSidebarProps) {
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="h-9 w-9"
+            className="min-h-[44px] min-w-[44px] h-11 w-11"
           >
             <X className="h-5 w-5" />
           </Button>
@@ -126,7 +126,7 @@ export function MobileSidebar({ onClose }: MobileSidebarProps) {
                       size="icon"
                       onClick={() => toggleExpanded(item.href)}
                       className={cn(
-                        'h-8 w-8 shrink-0',
+                        'min-h-[44px] min-w-[44px] h-11 w-11 shrink-0',
                         active
                           ? 'text-white dark:text-slate-900'
                           : 'text-slate-700 dark:text-slate-300'

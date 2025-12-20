@@ -98,12 +98,12 @@ export function ActiveTimer() {
             {/* Project Selector */}
             <div className="space-y-2">
               <Label htmlFor="project">Project (optional)</Label>
-              <Select value={projectId} onValueChange={handleUpdateProject} disabled={isLoading}>
+              <Select value={projectId || 'none'} onValueChange={(v) => handleUpdateProject(v === 'none' ? '' : v)} disabled={isLoading}>
                 <SelectTrigger id="project">
                   <SelectValue placeholder="No project" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No project</SelectItem>
+                  <SelectItem value="none">No project</SelectItem>
                   {projects.map((project) => (
                     <SelectItem key={project.id} value={project.id}>
                       <div className="flex items-center gap-2">

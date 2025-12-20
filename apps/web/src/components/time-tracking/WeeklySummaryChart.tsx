@@ -25,7 +25,7 @@ export function WeeklySummaryChart({ summary, isLoading }: WeeklySummaryChartPro
     );
   }
 
-  if (!summary) return null;
+  if (!summary || !summary.weekByDay) return null;
 
   const chartData = summary.weekByDay.map((day) => ({
     date: new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }),

@@ -103,6 +103,7 @@ export interface UserPreferences {
     bankTransactions: boolean
     weeklyReports: boolean
   }
+  aiConsent: boolean
 }
 
 /**

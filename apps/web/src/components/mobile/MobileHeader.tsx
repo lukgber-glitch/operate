@@ -42,7 +42,7 @@ export function MobileHeader({
           variant="ghost"
           size="icon"
           onClick={() => setMenuOpen(true)}
-          className="h-9 w-9 shrink-0"
+          className="min-h-[44px] min-w-[44px] h-11 w-11 shrink-0"
           aria-label="Open menu"
         >
           <Menu className="h-5 w-5" />
@@ -71,7 +71,7 @@ export function MobileHeader({
               variant="ghost"
               size="icon"
               onClick={() => setSearchOpen(true)}
-              className="h-9 w-9"
+              className="min-h-[44px] min-w-[44px] h-11 w-11"
               aria-label="Search"
             >
               <Search className="h-5 w-5" />
@@ -81,9 +81,9 @@ export function MobileHeader({
           <NotificationBell />
 
           {/* User Avatar */}
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-10 w-10">
             <AvatarImage src="/avatar-placeholder.png" alt="User" />
-            <AvatarFallback className="bg-slate-200 text-slate-700 text-xs dark:bg-slate-700 dark:text-slate-200">
+            <AvatarFallback className="bg-slate-200 text-slate-700 text-sm dark:bg-slate-700 dark:text-slate-200">
               JD
             </AvatarFallback>
           </Avatar>

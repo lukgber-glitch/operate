@@ -82,9 +82,10 @@ interface CompletionStepProps {
     tax?: boolean
     accounting?: boolean
   }
+  aiConsentGiven?: boolean
 }
 
-export function CompletionStep({ companyName, setupCompleted }: CompletionStepProps) {
+export function CompletionStep({ companyName, setupCompleted, aiConsentGiven }: CompletionStepProps) {
   const router = useRouter()
   const [isNavigating, setIsNavigating] = React.useState(false)
   const { giveConsent, hasConsent } = useAIConsent()
@@ -108,9 +109,8 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       // Clear localStorage progress
       localStorage.removeItem('operate_onboarding_progress')
 
-      // Auto-enable AI consent when completing onboarding
-      // This allows the chat to work immediately without additional prompts
-      if (!hasConsent) {
+      // Only give AI consent if user explicitly checked the checkbox in preferences
+      if (aiConsentGiven && !hasConsent) {
         await giveConsent()
       }
 
@@ -121,8 +121,8 @@ export function CompletionStep({ companyName, setupCompleted }: CompletionStepPr
       // Still try to navigate - set cookie and go
       document.cookie = 'onboarding_complete=true; path=/; max-age=31536000; SameSite=Lax'
       localStorage.removeItem('operate_onboarding_progress')
-      // Still give consent on error
-      if (!hasConsent) {
+      // Only give consent if user explicitly checked the checkbox
+      if (aiConsentGiven && !hasConsent) {
         await giveConsent()
       }
       router.push('/chat')

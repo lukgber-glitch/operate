@@ -68,9 +68,6 @@ function ChatPageContent() {
     revokeConsent,
   } = useAIConsent();
 
-  // Track if we're in the process of auto-consenting (for authenticated users)
-  const [isAutoConsenting, setIsAutoConsenting] = useState(true);
-
   // Wizard Panel Management
   const {
     panelState,
@@ -105,22 +102,6 @@ function ChatPageContent() {
       setMessages([]);
     }
   }, [activeConversation]);
-
-  // Auto-enable AI consent for authenticated users on the chat page
-  // This fixes the issue where existing users need to manually click "Enable AI"
-  useEffect(() => {
-    const autoConsent = async () => {
-      if (user && !consentLoading) {
-        if (!hasConsent) {
-          // Automatically give consent for authenticated users
-          await giveConsent();
-        }
-        // Mark auto-consent complete once we've checked/consented
-        setIsAutoConsenting(false);
-      }
-    };
-    autoConsent();
-  }, [user, consentLoading, hasConsent, giveConsent]);
 
   // Fetch data on mount - PARALLELIZED for performance
   useEffect(() => {
@@ -429,8 +410,8 @@ function ChatPageContent() {
               </Suspense>
             </div>
 
-            {/* AI Consent Warning - only show after auto-consent attempt completes and if still no consent */}
-            {!consentLoading && !isAutoConsenting && !hasConsent && (
+            {/* AI Consent Warning - show when user hasn't consented */}
+            {!consentLoading && !hasConsent && (
               <Alert className="mb-6 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700/50">
                 <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <AlertDescription className="flex items-center justify-between text-amber-800 dark:text-amber-200">
@@ -580,10 +561,10 @@ function ChatPageContent() {
           <div className="mb-8">
             <ChatInput
               onSend={handleSendMessage}
-              disabled={isLoading || (!consentLoading && !isAutoConsenting && needsConsent)}
+              disabled={isLoading || (!consentLoading && needsConsent)}
               isLoading={isLoading}
               placeholder={
-                consentLoading || isAutoConsenting
+                consentLoading
                   ? "Loading..."
                   : hasConsent
                     ? "Ask anything about your business..."

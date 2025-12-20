@@ -53,7 +53,7 @@ export function TodayEntries() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {entries.length === 0 ? (
+        {!entries || !Array.isArray(entries) || entries.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
             <Clock className="h-12 w-12 mx-auto mb-2 opacity-50" />
             <p>No time entries today</p>

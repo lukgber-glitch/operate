@@ -83,6 +83,7 @@ const onboardingSchema = z.object({
       bankTransactions: z.boolean().default(false),
       weeklyReports: z.boolean().default(true),
     }),
+    aiConsent: z.boolean().default(false),
   }),
 })
 
@@ -209,6 +210,7 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
           bankTransactions: false,
           weeklyReports: true,
         },
+        aiConsent: false,
       },
     },
   })
@@ -264,6 +266,7 @@ export function OnboardingWizard({ onComplete, initialData }: OnboardingWizardPr
               tax: formData.tax?.connected,
               accounting: formData.accounting?.connected,
             }}
+            aiConsentGiven={formData.preferences?.aiConsent}
           />
         )
       default:

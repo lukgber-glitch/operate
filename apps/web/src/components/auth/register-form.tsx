@@ -322,11 +322,11 @@ export function RegisterForm() {
               className="text-sm font-normal leading-relaxed cursor-pointer min-h-[44px] flex items-center py-3 text-white"
             >
               {t('iAgreeToThe')}{' '}
-              <Link href="/terms" className="text-primary hover:underline inline-flex items-center min-h-[44px] py-2 px-1">
+              <Link href="/terms" className="text-white underline hover:text-white/80 inline-flex items-center min-h-[44px] py-2 px-1">
                 {t('termsOfService')}
               </Link>{' '}
               {t('and')}{' '}
-              <Link href="/privacy" className="text-primary hover:underline inline-flex items-center min-h-[44px] py-2 px-1">
+              <Link href="/privacy" className="text-white underline hover:text-white/80 inline-flex items-center min-h-[44px] py-2 px-1">
                 {t('privacyPolicy')}
               </Link>
             </Label>

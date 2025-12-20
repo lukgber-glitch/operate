@@ -285,13 +285,9 @@ export function ChatHistoryDropdown({
         onClick={handleToggle}
         className={cn(
           'flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200',
-          'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400',
-          isOpen ? 'ring-2 ring-blue-400' : 'hover:bg-blue-50/50'
+          'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/30',
+          isOpen ? 'ring-2 ring-white/30 bg-white/10' : 'hover:bg-white/10'
         )}
-        style={{
-          background: isOpen ? 'rgba(227, 242, 253, 0.6)' : 'transparent',
-          borderColor: 'var(--color-blue-200)',
-        }}
         whileHover={prefersReducedMotion ? {} : { scale: 1.01 }}
         whileTap={prefersReducedMotion ? {} : { scale: 0.99 }}
         aria-expanded={isOpen}
@@ -299,14 +295,8 @@ export function ChatHistoryDropdown({
         aria-label="Chat history"
       >
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <MessageSquare
-            className="h-5 w-5 shrink-0"
-            style={{ color: 'var(--color-blue-600)' }}
-          />
-          <span
-            className="text-sm font-medium truncate"
-            style={{ color: 'var(--color-blue-700)' }}
-          >
+          <MessageSquare className="h-5 w-5 shrink-0 text-white/70" />
+          <span className="text-sm font-medium truncate text-white">
             {displayTitle}
           </span>
         </div>
@@ -314,23 +304,16 @@ export function ChatHistoryDropdown({
         <div className="flex items-center gap-2">
           {/* Keyboard shortcut hint */}
           {enableKeyboardShortcut && (
-            <kbd
-              className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded"
-              style={{
-                background: 'var(--color-blue-100)',
-                color: 'var(--color-blue-600)',
-              }}
-            >
+            <kbd className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded bg-white/10 text-white/70">
               <span className="text-[10px]">⌘</span>K
             </kbd>
           )}
 
           <ChevronDown
             className={cn(
-              'h-4 w-4 shrink-0 transition-transform duration-200',
+              'h-4 w-4 shrink-0 transition-transform duration-200 text-white/70',
               isOpen && 'rotate-180'
             )}
-            style={{ color: 'var(--color-blue-500)' }}
           />
         </div>
       </motion.button>

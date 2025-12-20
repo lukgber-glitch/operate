@@ -94,10 +94,37 @@ export interface AutopilotActionFilters {
 class AutopilotApi {
   private baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
+  /**
+   * Get organisation ID from auth context
+   * First tries window.__orgId, then falls back to parsing JWT from cookie
+   */
   private getOrgId(): string {
     if (typeof window !== 'undefined') {
+      // First try window.__orgId (set by useAuth)
       if ((window as any).__orgId) {
         return (window as any).__orgId;
+      }
+
+      // Fallback: try to parse from cookie
+      const authCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('op_auth='));
+
+      if (authCookie) {
+        try {
+          const authValue = decodeURIComponent(authCookie.split('=')[1] || '');
+          const authData = JSON.parse(authValue);
+
+          // Parse JWT to extract orgId
+          if (authData.a) {
+            const payload = JSON.parse(atob(authData.a.split('.')[1]));
+            if (payload.orgId) {
+              return payload.orgId;
+            }
+          }
+        } catch (e) {
+          console.warn('[AutopilotAPI] Failed to parse auth cookie:', e);
+        }
       }
     }
     return '';
