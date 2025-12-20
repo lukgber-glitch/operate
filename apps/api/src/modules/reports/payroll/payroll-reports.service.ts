@@ -72,12 +72,13 @@ export class PayrollReportsService {
     private readonly benefitsDeductionGenerator: BenefitsDeductionGenerator,
     private readonly ytdReportGenerator: YTDReportGenerator,
   ) {
-    // Initialize Redis
+    // Initialize Redis with ACL authentication
     this.redis = new Redis({
-      host: this.configService.get('REDIS_HOST', 'localhost'),
-      port: this.configService.get('REDIS_PORT', 6379),
-      password: this.configService.get('REDIS_PASSWORD'),
-      db: this.configService.get('REDIS_DB', 0),
+      host: this.configService.get('redis.host') || 'localhost',
+      port: this.configService.get('redis.port') || 6379,
+      username: this.configService.get('redis.username'),
+      password: this.configService.get('redis.password'),
+      db: this.configService.get('redis.db') || 0,
     });
   }
 

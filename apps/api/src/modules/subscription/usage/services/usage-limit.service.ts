@@ -185,7 +185,7 @@ export class UsageLimitService {
         // Count active bank connections
         const bankCount = await this.prisma.bankConnection.count({
           where: {
-            organisationId: organizationId,
+            orgId: organizationId,
             status: 'ACTIVE',
           },
         });

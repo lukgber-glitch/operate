@@ -121,19 +121,26 @@ import configuration from './config/configuration';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
         const redisUsername = configService.get<string>('redis.username');
+        const redisPassword = configService.get<string>('redis.password');
+        const redisHost = configService.get<string>('redis.host') || 'localhost';
+        const redisPort = configService.get<number>('redis.port') || 6379;
+        const redisDb = configService.get<number>('redis.db') || 0;
         const redisPrefix = redisUsername ? `${redisUsername}:` : '';
 
+        // Build Redis URL with authentication for Redis ACL
+        // Format: redis://username:password@host:port/db
+        let redisUrl = 'redis://';
+        if (redisUsername && redisPassword) {
+          redisUrl += `${encodeURIComponent(redisUsername)}:${encodeURIComponent(redisPassword)}@`;
+        } else if (redisPassword) {
+          redisUrl += `:${encodeURIComponent(redisPassword)}@`;
+        }
+        redisUrl += `${redisHost}:${redisPort}/${redisDb}`;
+
+        console.log(`[Bull] Redis URL: ${redisUrl.replace(/:[^:@]+@/, ':****@')}`);
+
         return {
-          redis: {
-            host: configService.get<string>('redis.host') || 'localhost',
-            port: configService.get<number>('redis.port') || 6379,
-            username: redisUsername || undefined,
-            password: configService.get<string>('redis.password') || undefined,
-            db: configService.get<number>('redis.db') || 0,
-            // Required for Bull's subscriber/bclient connections
-            enableReadyCheck: false,
-            maxRetriesPerRequest: null,
-          },
+          redis: redisUrl,
           prefix: `${redisPrefix}bull`,
           settings: {
             stalledInterval: 30000,

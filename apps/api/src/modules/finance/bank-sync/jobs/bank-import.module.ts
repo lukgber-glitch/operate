@@ -36,21 +36,13 @@ import { DatabaseModule } from '../../../database/database.module';
       verboseMemoryLeak: true,
     }),
 
-    // Register Bull queue
+    // Register Bull queue - inherits Redis connection from BullModule.forRoot in AppModule
     BullModule.registerQueueAsync({
       name: BANK_IMPORT_QUEUE,
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        redis: {
-          host: configService.get<string>('REDIS_HOST', 'localhost'),
-          port: configService.get<number>('REDIS_PORT', 6379),
-          password: configService.get<string>('REDIS_PASSWORD'),
-          db: configService.get<number>('REDIS_DB', 0),
-          maxRetriesPerRequest: null,
-          enableReadyCheck: false,
-          enableOfflineQueue: true,
-        },
+        // No redis config here - use global config from AppModule
         defaultJobOptions: {
           attempts: 3,
           backoff: {

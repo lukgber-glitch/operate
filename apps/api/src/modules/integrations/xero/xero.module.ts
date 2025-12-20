@@ -74,13 +74,9 @@ import xeroConfig from './xero.config';
     ConfigModule.forFeature(xeroConfig),
     DatabaseModule,
     ScheduleModule.forRoot(), // Enable scheduled jobs
-    // BullMQ for background sync jobs
+    // Bull queue for background sync jobs - inherits Redis connection from BullModule.forRoot
     BullModule.registerQueue({
       name: 'xero-sync',
-      connection: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379', 10),
-      },
     }),
   ],
   controllers: [XeroController],

@@ -70,13 +70,9 @@ import freeeConfig from './freee.config';
     ConfigModule.forFeature(freeeConfig),
     DatabaseModule,
     ScheduleModule.forRoot(), // Enable scheduled jobs
-    // BullMQ for background sync jobs
+    // Bull queue for background sync jobs - inherits Redis connection from BullModule.forRoot
     BullModule.registerQueue({
       name: 'freee-sync',
-      connection: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379', 10),
-      },
     }),
   ],
   controllers: [FreeeController],
