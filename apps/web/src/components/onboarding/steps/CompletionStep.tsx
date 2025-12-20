@@ -88,7 +88,7 @@ interface CompletionStepProps {
 export function CompletionStep({ companyName, setupCompleted, aiConsentGiven }: CompletionStepProps) {
   const router = useRouter()
   const [isNavigating, setIsNavigating] = React.useState(false)
-  const { giveConsent, hasConsent } = useAIConsent()
+  const { giveConsent, hasConsent, isLoading: consentLoading } = useAIConsent()
 
   const handleGoToDashboard = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -96,6 +96,16 @@ export function CompletionStep({ companyName, setupCompleted, aiConsentGiven }: 
     setIsNavigating(true)
 
     try {
+      // IMPORTANT: Save AI consent FIRST before any navigation
+      // This ensures consent is stored even if navigation happens quickly
+      if (aiConsentGiven) {
+        console.log('[Onboarding] Saving AI consent...')
+        const consentSaved = await giveConsent()
+        console.log('[Onboarding] AI consent saved:', consentSaved)
+        // Give localStorage time to persist
+        await new Promise(resolve => setTimeout(resolve, 100))
+      }
+
       // Call API to ensure onboarding is marked complete
       const response = await fetch('/api/v1/onboarding/complete', {
         method: 'POST',
@@ -109,22 +119,21 @@ export function CompletionStep({ companyName, setupCompleted, aiConsentGiven }: 
       // Clear localStorage progress
       localStorage.removeItem('operate_onboarding_progress')
 
-      // Only give AI consent if user explicitly checked the checkbox in preferences
-      if (aiConsentGiven && !hasConsent) {
-        await giveConsent()
-      }
-
       // Navigate to chat
       router.push('/chat')
     } catch (error) {
       console.error('Error completing onboarding:', error)
-      // Still try to navigate - set cookie and go
+      // Still try to save consent and navigate
+      if (aiConsentGiven) {
+        try {
+          await giveConsent()
+          await new Promise(resolve => setTimeout(resolve, 100))
+        } catch (consentError) {
+          console.error('Failed to save AI consent:', consentError)
+        }
+      }
       document.cookie = 'onboarding_complete=true; path=/; max-age=31536000; SameSite=Lax'
       localStorage.removeItem('operate_onboarding_progress')
-      // Only give consent if user explicitly checked the checkbox
-      if (aiConsentGiven && !hasConsent) {
-        await giveConsent()
-      }
       router.push('/chat')
     }
   }

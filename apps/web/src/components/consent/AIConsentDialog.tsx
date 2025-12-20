@@ -65,10 +65,10 @@ export function AIConsentDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col"
+        className="max-w-2xl w-[95vw] sm:w-full max-h-[90vh] sm:max-h-[85vh] overflow-hidden flex flex-col"
         aria-describedby="ai-consent-description"
       >
-        <DialogHeader>
+        <DialogHeader className="flex-shrink-0">
           <div className="flex items-center gap-3 mb-2">
             <div
               className="p-3 rounded-lg"
@@ -89,7 +89,7 @@ export function AIConsentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[50vh] pr-4">
+        <ScrollArea className="flex-1 max-h-[45vh] sm:max-h-[50vh] pr-4 overflow-y-auto">
           <div className="space-y-6">
             {/* What is AI Processing */}
             <section>
@@ -224,9 +224,9 @@ export function AIConsentDialog({
           </div>
         </ScrollArea>
 
-        <div className="space-y-4">
+        <div className="space-y-4 flex-shrink-0 pt-4 border-t">
           {/* Acknowledgment Checkbox */}
-          <div className="flex items-start gap-3 p-4 rounded-lg bg-muted">
+          <div className="flex items-start gap-3 p-3 sm:p-4 rounded-lg bg-muted">
             <Checkbox
               id="ai-consent-acknowledge"
               checked={hasRead}
