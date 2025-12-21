@@ -39,13 +39,27 @@ import { randomBytes } from 'crypto';
 @Injectable()
 export class StripeBillingService {
   private readonly logger = new Logger(StripeBillingService.name);
-  private readonly stripe: Stripe;
+  private readonly stripe: Stripe | null = null;
 
   constructor(
     private readonly stripeService: StripeService,
     private readonly prisma: PrismaService,
   ) {
-    this.stripe = this.stripeService.getClient();
+    if (this.stripeService.isEnabled()) {
+      this.stripe = this.stripeService.getClient();
+    } else {
+      this.logger.warn('StripeBillingService disabled - Stripe is not configured');
+    }
+  }
+
+  /**
+   * Get Stripe client or throw if not available
+   */
+  private getStripeClient(): Stripe {
+    if (!this.stripe) {
+      throw new BadRequestException('Stripe is not configured');
+    }
+    return this.stripe;
   }
 
   /**
@@ -103,7 +117,7 @@ export class StripeBillingService {
       }
 
       // Create subscription in Stripe
-      const subscription = await this.stripe.subscriptions.create(
+      const subscription = await this.getStripeClient().subscriptions.create(
         subscriptionParams,
         {
           idempotencyKey,
@@ -186,7 +200,7 @@ export class StripeBillingService {
       }
 
       // Update subscription in Stripe
-      const subscription = await this.stripe.subscriptions.update(
+      const subscription = await this.getStripeClient().subscriptions.update(
         dto.subscriptionId,
         updateParams,
         {
@@ -242,7 +256,7 @@ export class StripeBillingService {
 
       if (dto.cancelAtPeriodEnd) {
         // Cancel at period end (allow subscription to run until end of billing period)
-        subscription = await this.stripe.subscriptions.update(
+        subscription = await this.getStripeClient().subscriptions.update(
           dto.subscriptionId,
           {
             cancel_at_period_end: true,
@@ -253,7 +267,7 @@ export class StripeBillingService {
         );
       } else {
         // Cancel immediately
-        subscription = await this.stripe.subscriptions.cancel(
+        subscription = await this.getStripeClient().subscriptions.cancel(
           dto.subscriptionId,
           {
             metadata: {
@@ -323,7 +337,7 @@ export class StripeBillingService {
         };
       }
 
-      const subscription = await this.stripe.subscriptions.update(
+      const subscription = await this.getStripeClient().subscriptions.update(
         dto.subscriptionId,
         updateParams,
       );
@@ -363,7 +377,7 @@ export class StripeBillingService {
       // Verify subscription ownership
       await this.verifySubscriptionOwnership(dto.userId, dto.subscriptionId);
 
-      const subscription = await this.stripe.subscriptions.update(
+      const subscription = await this.getStripeClient().subscriptions.update(
         dto.subscriptionId,
         {
           pause_collection: null as Prisma.InputJsonValue,
@@ -401,7 +415,7 @@ export class StripeBillingService {
       // Verify subscription ownership
       await this.verifySubscriptionOwnership(userId, subscriptionId);
 
-      const subscription = await this.stripe.subscriptions.retrieve(
+      const subscription = await this.getStripeClient().subscriptions.retrieve(
         subscriptionId,
         {
           expand: ['latest_invoice', 'default_payment_method'],
@@ -423,7 +437,7 @@ export class StripeBillingService {
     customerId: string,
   ): Promise<SubscriptionResponseDto[]> {
     try {
-      const subscriptions = await this.stripe.subscriptions.list({
+      const subscriptions = await this.getStripeClient().subscriptions.list({
         customer: customerId,
         expand: ['data.latest_invoice', 'data.default_payment_method'],
       });
@@ -451,7 +465,7 @@ export class StripeBillingService {
         params.subscription = subscriptionId;
       }
 
-      return await this.stripe.invoices.retrieveUpcoming(params);
+      return await this.getStripeClient().invoices.retrieveUpcoming(params);
     } catch (error) {
       this.logger.error('Failed to preview upcoming invoice', error);
       throw this.stripeService.handleStripeError(error, 'previewUpcomingInvoice');
@@ -466,7 +480,7 @@ export class StripeBillingService {
     limit: number = 20,
   ): Promise<BillingHistoryDto[]> {
     try {
-      const invoices = await this.stripe.invoices.list({
+      const invoices = await this.getStripeClient().invoices.list({
         customer: customerId,
         limit,
       });
@@ -493,7 +507,7 @@ export class StripeBillingService {
 
   private async verifyCustomer(customerId: string): Promise<void> {
     try {
-      await this.stripe.customers.retrieve(customerId);
+      await this.getStripeClient().customers.retrieve(customerId);
     } catch (error) {
       throw new NotFoundException(`Customer ${customerId} not found`);
     }

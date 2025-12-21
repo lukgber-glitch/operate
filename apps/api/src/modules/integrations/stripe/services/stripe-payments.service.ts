@@ -36,13 +36,27 @@ import { randomBytes } from 'crypto';
 @Injectable()
 export class StripePaymentsService {
   private readonly logger = new Logger(StripePaymentsService.name);
-  private readonly stripe: Stripe;
+  private readonly stripe: Stripe | null = null;
 
   constructor(
     private readonly stripeService: StripeService,
     private readonly prisma: PrismaService,
   ) {
-    this.stripe = this.stripeService.getClient();
+    if (this.stripeService.isEnabled()) {
+      this.stripe = this.stripeService.getClient();
+    } else {
+      this.logger.warn('StripePaymentsService disabled - Stripe is not configured');
+    }
+  }
+
+  /**
+   * Get Stripe client or throw if not available
+   */
+  private getStripeClient(): Stripe {
+    if (!this.stripe) {
+      throw new BadRequestException('Stripe is not configured');
+    }
+    return this.stripe;
   }
 
   /**
@@ -102,7 +116,7 @@ export class StripePaymentsService {
       }
 
       // Create payment intent
-      const paymentIntent = await this.stripe.paymentIntents.create(params, {
+      const paymentIntent = await this.getStripeClient().paymentIntents.create(params, {
         idempotencyKey,
       });
 
@@ -162,7 +176,7 @@ export class StripePaymentsService {
     try {
       this.logger.log(`Fetching payment intent ${paymentIntentId}`);
 
-      const paymentIntent = await this.stripe.paymentIntents.retrieve(
+      const paymentIntent = await this.getStripeClient().paymentIntents.retrieve(
         paymentIntentId,
       );
 
@@ -198,7 +212,7 @@ export class StripePaymentsService {
         params.payment_method = paymentMethodId;
       }
 
-      const paymentIntent = await this.stripe.paymentIntents.confirm(
+      const paymentIntent = await this.getStripeClient().paymentIntents.confirm(
         paymentIntentId,
         params,
       );
@@ -233,7 +247,7 @@ export class StripePaymentsService {
     try {
       this.logger.log(`Canceling payment intent ${paymentIntentId}`);
 
-      await this.stripe.paymentIntents.cancel(paymentIntentId);
+      await this.getStripeClient().paymentIntents.cancel(paymentIntentId);
 
       // Update payment status in database
       await this.updatePaymentStatus(
@@ -269,7 +283,7 @@ export class StripePaymentsService {
       const idempotencyKey = this.generateIdempotencyKey();
 
       // Create transfer
-      const transfer = await this.stripe.transfers.create(
+      const transfer = await this.getStripeClient().transfers.create(
         {
           amount: request.amount,
           currency: request.currency.toLowerCase(),
@@ -351,7 +365,7 @@ export class StripePaymentsService {
       }
 
       // Create refund
-      const refund = await this.stripe.refunds.create(params, {
+      const refund = await this.getStripeClient().refunds.create(params, {
         idempotencyKey,
       });
 

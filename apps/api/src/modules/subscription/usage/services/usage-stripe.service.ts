@@ -22,13 +22,27 @@ import { randomBytes } from 'crypto';
 @Injectable()
 export class UsageStripeService {
   private readonly logger = new Logger(UsageStripeService.name);
-  private readonly stripe: Stripe;
+  private readonly stripe: Stripe | null = null;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly stripeService: StripeService,
   ) {
-    this.stripe = this.stripeService.getClient();
+    if (this.stripeService.isEnabled()) {
+      this.stripe = this.stripeService.getClient();
+    } else {
+      this.logger.warn('UsageStripeService disabled - Stripe is not configured');
+    }
+  }
+
+  /**
+   * Get Stripe client or throw if not available
+   */
+  private getStripeClient(): Stripe {
+    if (!this.stripe) {
+      throw new BadRequestException('Stripe is not configured');
+    }
+    return this.stripe;
   }
 
   /**
@@ -62,7 +76,7 @@ export class UsageStripeService {
       }
 
       // Create usage record in Stripe
-      const usageRecord = await this.stripe.subscriptionItems.createUsageRecord(
+      const usageRecord = await this.getStripeClient().subscriptionItems.createUsageRecord(
         subscriptionItem.id,
         {
           quantity,
@@ -184,7 +198,7 @@ export class UsageStripeService {
     currency: string = 'EUR',
   ): Promise<Stripe.Price> {
     try {
-      const price = await this.stripe.prices.create({
+      const price = await this.getStripeClient().prices.create({
         product: productId,
         currency: currency.toLowerCase(),
         unit_amount_decimal: unitAmountDecimal,
@@ -218,7 +232,7 @@ export class UsageStripeService {
     priceId: string,
   ): Promise<Stripe.SubscriptionItem> {
     try {
-      const item = await this.stripe.subscriptionItems.create({
+      const item = await this.getStripeClient().subscriptionItems.create({
         subscription: subscriptionId,
         price: priceId,
       });
@@ -269,7 +283,7 @@ export class UsageStripeService {
       const subscriptionId = subscription[0].stripe_subscription_id;
 
       // Get subscription items from Stripe
-      const stripeSubscription = await this.stripe.subscriptions.retrieve(
+      const stripeSubscription = await this.getStripeClient().subscriptions.retrieve(
         subscriptionId,
         {
           expand: ['items.data.price'],
@@ -352,7 +366,7 @@ export class UsageStripeService {
     subscriptionItemId: string,
   ): Promise<Stripe.UsageRecordSummary[]> {
     try {
-      const summaries = await this.stripe.subscriptionItems.listUsageRecordSummaries(
+      const summaries = await this.getStripeClient().subscriptionItems.listUsageRecordSummaries(
         subscriptionItemId,
         {
           limit: 100,

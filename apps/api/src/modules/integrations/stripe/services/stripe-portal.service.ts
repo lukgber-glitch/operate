@@ -30,13 +30,27 @@ import Stripe from 'stripe';
 @Injectable()
 export class StripePortalService {
   private readonly logger = new Logger(StripePortalService.name);
-  private readonly stripe: Stripe;
+  private readonly stripe: Stripe | null = null;
 
   constructor(
     private readonly stripeService: StripeService,
     private readonly prisma: PrismaService,
   ) {
-    this.stripe = this.stripeService.getClient();
+    if (this.stripeService.isEnabled()) {
+      this.stripe = this.stripeService.getClient();
+    } else {
+      this.logger.warn('StripePortalService disabled - Stripe is not configured');
+    }
+  }
+
+  /**
+   * Get Stripe client or throw if not available
+   */
+  private getStripeClient(): Stripe {
+    if (!this.stripe) {
+      throw new BadRequestException('Stripe is not configured');
+    }
+    return this.stripe;
   }
 
   /**
@@ -57,7 +71,7 @@ export class StripePortalService {
       await this.verifyCustomer(dto.customerId);
 
       // Create portal session
-      const session = await this.stripe.billingPortal.sessions.create({
+      const session = await this.getStripeClient().billingPortal.sessions.create({
         customer: dto.customerId,
         return_url: dto.returnUrl,
       });
@@ -159,7 +173,7 @@ export class StripePortalService {
         configParams.business_profile!.primary_button_color = config.accentColor;
       }
 
-      const portalConfig = await this.stripe.billingPortal.configurations.create(
+      const portalConfig = await this.getStripeClient().billingPortal.configurations.create(
         configParams,
       );
 
@@ -180,13 +194,13 @@ export class StripePortalService {
   ): Promise<Stripe.BillingPortal.Configuration> {
     try {
       if (configurationId) {
-        return await this.stripe.billingPortal.configurations.retrieve(
+        return await this.getStripeClient().billingPortal.configurations.retrieve(
           configurationId,
         );
       }
 
       // Get the default (first) configuration
-      const configs = await this.stripe.billingPortal.configurations.list({
+      const configs = await this.getStripeClient().billingPortal.configurations.list({
         limit: 1,
       });
 
@@ -211,7 +225,7 @@ export class StripePortalService {
     try {
       this.logger.log(`Updating portal configuration ${configurationId}`);
 
-      const config = await this.stripe.billingPortal.configurations.update(
+      const config = await this.getStripeClient().billingPortal.configurations.update(
         configurationId,
         updates,
       );
@@ -230,7 +244,7 @@ export class StripePortalService {
    */
   async listPortalConfigurations(): Promise<Stripe.BillingPortal.Configuration[]> {
     try {
-      const configs = await this.stripe.billingPortal.configurations.list();
+      const configs = await this.getStripeClient().billingPortal.configurations.list();
       return configs.data;
     } catch (error) {
       this.logger.error('Failed to list portal configurations', error);
@@ -248,7 +262,7 @@ export class StripePortalService {
     try {
       this.logger.log(`Setting default portal configuration to ${configurationId}`);
 
-      const config = await this.stripe.billingPortal.configurations.update(
+      const config = await this.getStripeClient().billingPortal.configurations.update(
         configurationId,
         {
           is_default: true,
@@ -268,7 +282,7 @@ export class StripePortalService {
 
   private async verifyCustomer(customerId: string): Promise<void> {
     try {
-      await this.stripe.customers.retrieve(customerId);
+      await this.getStripeClient().customers.retrieve(customerId);
     } catch (error) {
       throw new NotFoundException(`Customer ${customerId} not found`);
     }

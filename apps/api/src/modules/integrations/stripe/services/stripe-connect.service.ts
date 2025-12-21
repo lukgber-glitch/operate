@@ -33,13 +33,27 @@ import Stripe from 'stripe';
 @Injectable()
 export class StripeConnectService {
   private readonly logger = new Logger(StripeConnectService.name);
-  private readonly stripe: Stripe;
+  private readonly stripe: Stripe | null = null;
 
   constructor(
     private readonly stripeService: StripeService,
     private readonly prisma: PrismaService,
   ) {
-    this.stripe = this.stripeService.getClient();
+    if (this.stripeService.isEnabled()) {
+      this.stripe = this.stripeService.getClient();
+    } else {
+      this.logger.warn('StripeConnectService disabled - Stripe is not configured');
+    }
+  }
+
+  /**
+   * Get Stripe client or throw if not available
+   */
+  private getStripeClient(): Stripe {
+    if (!this.stripe) {
+      throw new BadRequestException('Stripe is not configured');
+    }
+    return this.stripe;
   }
 
   /**
@@ -56,7 +70,7 @@ export class StripeConnectService {
       );
 
       // Create Stripe account
-      const account = await this.stripe.accounts.create({
+      const account = await this.getStripeClient().accounts.create({
         type: request.type,
         email: request.email,
         country: request.country,
@@ -112,7 +126,7 @@ export class StripeConnectService {
         `Creating onboarding link for account ${request.accountId}`,
       );
 
-      const accountLink = await this.stripe.accountLinks.create({
+      const accountLink = await this.getStripeClient().accountLinks.create({
         account: request.accountId,
         refresh_url: request.refreshUrl,
         return_url: request.returnUrl,
@@ -143,7 +157,7 @@ export class StripeConnectService {
     try {
       this.logger.log(`Creating account update link for ${accountId}`);
 
-      const accountLink = await this.stripe.accountLinks.create({
+      const accountLink = await this.getStripeClient().accountLinks.create({
         account: accountId,
         refresh_url: refreshUrl,
         return_url: returnUrl,
@@ -170,7 +184,7 @@ export class StripeConnectService {
     try {
       this.logger.log(`Fetching Connect account ${accountId}`);
 
-      const account = await this.stripe.accounts.retrieve(accountId);
+      const account = await this.getStripeClient().accounts.retrieve(accountId);
       return this.mapAccountToResponse(account);
     } catch (error) {
       this.logger.error('Failed to fetch Connect account', error);
@@ -207,7 +221,7 @@ export class StripeConnectService {
     try {
       this.logger.log(`Updating Connect account ${accountId}`);
 
-      const account = await this.stripe.accounts.update(accountId, updates);
+      const account = await this.getStripeClient().accounts.update(accountId, updates);
 
       // Update database record
       await this.updateStoredAccount(accountId, account);
@@ -226,7 +240,7 @@ export class StripeConnectService {
     try {
       this.logger.log(`Deleting Connect account ${accountId}`);
 
-      await this.stripe.accounts.del(accountId);
+      await this.getStripeClient().accounts.del(accountId);
 
       // Mark as deleted in database
       await this.markAccountAsDeleted(accountId);
@@ -243,7 +257,7 @@ export class StripeConnectService {
     try {
       this.logger.log(`Configuring payouts for account ${config.accountId}`);
 
-      await this.stripe.accounts.update(config.accountId, {
+      await this.getStripeClient().accounts.update(config.accountId, {
         settings: {
           payouts: {
             schedule: {
@@ -268,7 +282,7 @@ export class StripeConnectService {
     try {
       this.logger.log(`Fetching balance for account ${accountId}`);
 
-      return await this.stripe.balance.retrieve({
+      return await this.getStripeClient().balance.retrieve({
         stripeAccount: accountId,
       });
     } catch (error) {
@@ -285,7 +299,7 @@ export class StripeConnectService {
    */
   async canAcceptPayments(accountId: string): Promise<boolean> {
     try {
-      const account = await this.stripe.accounts.retrieve(accountId);
+      const account = await this.getStripeClient().accounts.retrieve(accountId);
       return account.charges_enabled === true;
     } catch (error) {
       this.logger.error('Failed to check payment acceptance', error);
@@ -298,7 +312,7 @@ export class StripeConnectService {
    */
   async canReceivePayouts(accountId: string): Promise<boolean> {
     try {
-      const account = await this.stripe.accounts.retrieve(accountId);
+      const account = await this.getStripeClient().accounts.retrieve(accountId);
       return account.payouts_enabled === true;
     } catch (error) {
       this.logger.error('Failed to check payout capability', error);

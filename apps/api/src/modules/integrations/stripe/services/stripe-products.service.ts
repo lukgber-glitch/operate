@@ -31,7 +31,7 @@ import { randomBytes } from 'crypto';
 @Injectable()
 export class StripeProductsService {
   private readonly logger = new Logger(StripeProductsService.name);
-  private readonly stripe: Stripe;
+  private readonly stripe: Stripe | null = null;
 
   // Caching for pricing table - reduces Stripe API calls
   private pricingTableCache: { data: any[]; expiresAt: number } | null = null;
@@ -141,7 +141,21 @@ export class StripeProductsService {
     private readonly stripeService: StripeService,
     private readonly prisma: PrismaService,
   ) {
-    this.stripe = this.stripeService.getClient();
+    if (this.stripeService.isEnabled()) {
+      this.stripe = this.stripeService.getClient();
+    } else {
+      this.logger.warn('StripeProductsService disabled - Stripe is not configured');
+    }
+  }
+
+  /**
+   * Get Stripe client or throw if not available
+   */
+  private getStripeClient(): Stripe {
+    if (!this.stripe) {
+      throw new BadRequestException('Stripe is not configured');
+    }
+    return this.stripe;
   }
 
   /**
@@ -164,7 +178,7 @@ export class StripeProductsService {
         },
       };
 
-      const product = await this.stripe.products.create(productParams, {
+      const product = await this.getStripeClient().products.create(productParams, {
         idempotencyKey,
       });
 
@@ -201,7 +215,7 @@ export class StripeProductsService {
         nickname: dto.nickname,
       };
 
-      const price = await this.stripe.prices.create(priceParams, {
+      const price = await this.getStripeClient().prices.create(priceParams, {
         idempotencyKey,
       });
 
@@ -219,7 +233,7 @@ export class StripeProductsService {
    */
   async getProduct(productId: string): Promise<Stripe.Product> {
     try {
-      return await this.stripe.products.retrieve(productId);
+      return await this.getStripeClient().products.retrieve(productId);
     } catch (error) {
       this.logger.error('Failed to retrieve product', error);
       throw this.stripeService.handleStripeError(error, 'getProduct');
@@ -231,7 +245,7 @@ export class StripeProductsService {
    */
   async listProducts(limit: number = 100): Promise<Stripe.Product[]> {
     try {
-      const products = await this.stripe.products.list({
+      const products = await this.getStripeClient().products.list({
         limit,
         active: true,
       });
@@ -248,7 +262,7 @@ export class StripeProductsService {
    */
   async getPrice(priceId: string): Promise<Stripe.Price> {
     try {
-      return await this.stripe.prices.retrieve(priceId);
+      return await this.getStripeClient().prices.retrieve(priceId);
     } catch (error) {
       this.logger.error('Failed to retrieve price', error);
       throw this.stripeService.handleStripeError(error, 'getPrice');
@@ -263,7 +277,7 @@ export class StripeProductsService {
     limit: number = 100,
   ): Promise<Stripe.Price[]> {
     try {
-      const prices = await this.stripe.prices.list({
+      const prices = await this.getStripeClient().prices.list({
         product: productId,
         limit,
         active: true,
@@ -292,7 +306,7 @@ export class StripeProductsService {
       if (updates.description) updateParams.description = updates.description;
       if (updates.metadata) updateParams.metadata = updates.metadata;
 
-      const product = await this.stripe.products.update(
+      const product = await this.getStripeClient().products.update(
         productId,
         updateParams,
       );
@@ -313,7 +327,7 @@ export class StripeProductsService {
     try {
       this.logger.log(`Archiving product ${productId}`);
 
-      const product = await this.stripe.products.update(productId, {
+      const product = await this.getStripeClient().products.update(productId, {
         active: false,
       });
 
@@ -333,7 +347,7 @@ export class StripeProductsService {
     try {
       this.logger.log(`Archiving price ${priceId}`);
 
-      const price = await this.stripe.prices.update(priceId, {
+      const price = await this.getStripeClient().prices.update(priceId, {
         active: false,
       });
 
