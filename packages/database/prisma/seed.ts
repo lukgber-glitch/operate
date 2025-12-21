@@ -137,14 +137,19 @@ async function main() {
   });
   console.log(`Created ${membership.role} membership for ${adminUser.email}`);
 
-  // Create OnboardingProgress for admin user
+  // Create OnboardingProgress for admin user (marks onboarding as complete)
   await prisma.onboardingProgress.create({
     data: {
       userId: adminUser.id,
       orgId: organisation.id,
-      currentStep: 5,
-      completedSteps: ['welcome', 'profile', 'company', 'integrations', 'preferences'],
-      stepData: {},
+      currentStep: 6,
+      totalSteps: 6,
+      companyInfoStatus: 'COMPLETED',
+      bankingStatus: 'COMPLETED',
+      emailStatus: 'COMPLETED',
+      taxStatus: 'COMPLETED',
+      accountingStatus: 'COMPLETED',
+      preferencesStatus: 'COMPLETED',
       isCompleted: true,
       completedAt: new Date(),
     },
@@ -179,13 +184,33 @@ async function main() {
     console.log(`Created ${testMembership.role} membership for ${testUser.email}`);
 
     // Create OnboardingProgress for test user (marks onboarding as complete)
-    await prisma.onboardingProgress.create({
-      data: {
+    // Note: Using upsert since orgId is unique and admin user already created one for this org
+    await prisma.onboardingProgress.upsert({
+      where: { orgId: organisation.id },
+      update: {
+        userId: testUser.id, // Update to test user
+        currentStep: 6,
+        totalSteps: 6,
+        companyInfoStatus: 'COMPLETED',
+        bankingStatus: 'COMPLETED',
+        emailStatus: 'COMPLETED',
+        taxStatus: 'COMPLETED',
+        accountingStatus: 'COMPLETED',
+        preferencesStatus: 'COMPLETED',
+        isCompleted: true,
+        completedAt: new Date(),
+      },
+      create: {
         userId: testUser.id,
         orgId: organisation.id,
-        currentStep: 5,
-        completedSteps: ['welcome', 'profile', 'company', 'integrations', 'preferences'],
-        stepData: {},
+        currentStep: 6,
+        totalSteps: 6,
+        companyInfoStatus: 'COMPLETED',
+        bankingStatus: 'COMPLETED',
+        emailStatus: 'COMPLETED',
+        taxStatus: 'COMPLETED',
+        accountingStatus: 'COMPLETED',
+        preferencesStatus: 'COMPLETED',
         isCompleted: true,
         completedAt: new Date(),
       },
