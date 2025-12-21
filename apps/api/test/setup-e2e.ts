@@ -26,8 +26,8 @@ process.env.DATABASE_URL =
   process.env.DATABASE_URL || 'postgresql://operate:operate_test@localhost:5432/operate_test';
 process.env.REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
-// Increase Jest timeout for E2E tests
-jest.setTimeout(30000);
+// Increase Jest timeout for E2E tests (60s for app initialization)
+jest.setTimeout(60000);
 
 // Global test user credentials
 global.testUser = {
