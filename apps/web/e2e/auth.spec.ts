@@ -8,7 +8,8 @@ test.describe('Authentication', () => {
       // Check page title and branding
       await expect(page).toHaveTitle(/Operate/i);
       // Use first() to avoid strict mode violation when multiple headings exist
-      await expect(page.locator('h1, h2').first()).toContainText(/anmelden|login/i);
+      // Login page shows "Welcome to Operate" or translated variants
+      await expect(page.locator('h1, h2').first()).toContainText(/welcome|willkommen|anmelden|login|sign in/i);
 
       // Check form elements exist
       await expect(page.locator('input[name="email"]')).toBeVisible();
@@ -39,8 +40,12 @@ test.describe('Authentication', () => {
         page.locator('[data-testid="chat-input"]'),
         page.locator('textarea[placeholder*="conversation"]'),
         page.locator('textarea[placeholder*="message"]'),
+        page.locator('textarea[placeholder*="business"]'),
         page.locator('h1:has-text("Dashboard")'),
         page.locator('[data-testid="user-menu"]'),
+        page.locator('[data-testid="sidebar"]'),
+        page.locator('nav[aria-label]'),
+        page.locator('.sidebar'),
       ];
 
       // At least one indicator should be visible

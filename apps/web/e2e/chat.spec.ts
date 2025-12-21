@@ -14,6 +14,9 @@ test.describe('AI Chat', () => {
         page.locator('[data-testid="chat-input"]'),
         page.locator('textarea[placeholder*="message" i]'),
         page.locator('textarea[placeholder*="frage" i]'),
+        page.locator('textarea[placeholder*="business" i]'),
+        page.locator('h1:has-text("Good")'),
+        page.locator('text=How can I help you'),
       ];
 
       let chatFound = false;
@@ -89,6 +92,7 @@ test.describe('AI Chat', () => {
         '[data-testid="chat-input"]',
         'textarea[placeholder*="message" i]',
         'textarea[placeholder*="frage" i]',
+        'textarea[placeholder*="business" i]',
         'input[type="text"]',
       ];
 
@@ -145,7 +149,7 @@ test.describe('AI Chat', () => {
       await page.waitForLoadState('networkidle');
 
       // Send a question
-      const input = page.locator('[data-testid="chat-input"], textarea, input[type="text"]').first();
+      const input = page.locator('[data-testid="chat-input"], textarea[placeholder*="business" i], textarea, input[type="text"]').first();
 
       if (await input.isVisible().catch(() => false)) {
         await input.fill('Wie ist mein Cash Flow?');
@@ -189,7 +193,7 @@ test.describe('AI Chat', () => {
       await page.waitForLoadState('networkidle');
 
       // Send a message
-      const input = page.locator('[data-testid="chat-input"], textarea').first();
+      const input = page.locator('[data-testid="chat-input"], textarea[placeholder*="business" i], textarea').first();
 
       if (await input.isVisible().catch(() => false)) {
         await input.fill('Tell me about my invoices');
@@ -231,7 +235,7 @@ test.describe('AI Chat', () => {
       await page.goto('/chat');
       await page.waitForLoadState('networkidle');
 
-      const input = page.locator('[data-testid="chat-input"], textarea').first();
+      const input = page.locator('[data-testid="chat-input"], textarea[placeholder*="business" i], textarea').first();
 
       if (await input.isVisible().catch(() => false)) {
         await input.fill('Wie ist mein aktueller Kontostand?');
@@ -272,7 +276,7 @@ test.describe('AI Chat', () => {
       await page.goto('/chat');
       await page.waitForLoadState('networkidle');
 
-      const input = page.locator('[data-testid="chat-input"], textarea').first();
+      const input = page.locator('[data-testid="chat-input"], textarea[placeholder*="business" i], textarea').first();
 
       if (await input.isVisible().catch(() => false)) {
         await input.fill('Zeige mir meine unbezahlten Rechnungen');
@@ -297,7 +301,7 @@ test.describe('AI Chat', () => {
       await page.goto('/chat');
       await page.waitForLoadState('networkidle');
 
-      const input = page.locator('[data-testid="chat-input"], textarea').first();
+      const input = page.locator('[data-testid="chat-input"], textarea[placeholder*="business" i], textarea').first();
 
       if (await input.isVisible().catch(() => false)) {
         await input.fill('Wann ist meine nächste Steuerabgabe fällig?');
@@ -323,7 +327,7 @@ test.describe('AI Chat', () => {
       await page.goto('/chat');
       await page.waitForLoadState('networkidle');
 
-      const input = page.locator('[data-testid="chat-input"], textarea').first();
+      const input = page.locator('[data-testid="chat-input"], textarea[placeholder*="business" i], textarea').first();
 
       if (await input.isVisible().catch(() => false)) {
         await input.fill('Erstelle eine Rechnung für Test GmbH über 1000 Euro');
@@ -386,7 +390,7 @@ test.describe('AI Chat', () => {
       await page.goto('/chat');
       await page.waitForLoadState('networkidle');
 
-      const input = page.locator('[data-testid="chat-input"], textarea').first();
+      const input = page.locator('[data-testid="chat-input"], textarea[placeholder*="business" i], textarea').first();
 
       if (await input.isVisible().catch(() => false)) {
         await input.fill('Zeige mir meine Rechnungen');
@@ -429,7 +433,7 @@ test.describe('AI Chat', () => {
       await page.waitForLoadState('networkidle');
 
       // Send first message
-      const input = page.locator('[data-testid="chat-input"], textarea').first();
+      const input = page.locator('[data-testid="chat-input"], textarea[placeholder*="business" i], textarea').first();
 
       if (await input.isVisible().catch(() => false)) {
         await input.fill('First message');
@@ -458,7 +462,7 @@ test.describe('AI Chat', () => {
       await page.goto('/chat');
       await page.waitForLoadState('networkidle');
 
-      const input = page.locator('[data-testid="chat-input"], textarea').first();
+      const input = page.locator('[data-testid="chat-input"], textarea[placeholder*="business" i], textarea').first();
 
       if (await input.isVisible().catch(() => false)) {
         await input.fill('Test message');

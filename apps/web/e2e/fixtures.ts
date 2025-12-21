@@ -78,7 +78,7 @@ export const test = base.extend<TestFixtures>({
     await page.waitForLoadState('networkidle');
 
     // Verify we're logged in by checking for user menu, chat, or dashboard element
-    await expect(page.locator('[data-testid="user-menu"], [data-testid="dashboard"], [data-testid="chat-input"], textarea[placeholder*="conversation"], textarea[placeholder*="message"]').first()).toBeVisible({
+    await expect(page.locator('[data-testid="user-menu"], [data-testid="dashboard"], [data-testid="chat-input"], textarea[placeholder*="conversation"], textarea[placeholder*="message"], textarea[placeholder*="business"], h1:has-text("Good")').first()).toBeVisible({
       timeout: 10000,
     });
 
