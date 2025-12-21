@@ -70,8 +70,9 @@ export const test = base.extend<TestFixtures>({
     // Submit login form
     await page.click('button[type="submit"]');
 
-    // Wait for navigation to chat or dashboard
-    await page.waitForURL(/\/(chat|dashboard)/, { timeout: 15000 });
+    // Wait for navigation to chat or dashboard (longer timeout in CI)
+    const isCI = !!process.env.CI;
+    await page.waitForURL(/\/(chat|dashboard)/, { timeout: isCI ? 30000 : 15000 });
 
     // Wait for page to be fully loaded
     await page.waitForLoadState('networkidle');

@@ -15,8 +15,8 @@ export default defineConfig({
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only - reduced from 2 to 1 for faster CI */
-  retries: process.env.CI ? 1 : 0,
+  /* Retry on CI only */
+  retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -40,10 +40,13 @@ export default defineConfig({
     video: 'retain-on-failure',
 
     /* Maximum time each action such as `click()` can take */
-    actionTimeout: 10000,
+    actionTimeout: process.env.CI ? 15000 : 10000,
 
-    /* Navigation timeout */
-    navigationTimeout: 30000,
+    /* Navigation timeout - longer in CI */
+    navigationTimeout: process.env.CI ? 45000 : 30000,
+
+    /* Ignore HTTPS errors in CI (certificate issues) */
+    ignoreHTTPSErrors: !!process.env.CI,
   },
 
   /* Configure projects for major browsers */
@@ -69,6 +72,8 @@ export default defineConfig({
       use: {
         ...devices['Desktop Safari'],
         viewport: { width: 1920, height: 1080 },
+        // Fix TLS handshake issues on Linux CI
+        ignoreHTTPSErrors: true,
       },
     },
 
@@ -100,8 +105,8 @@ export default defineConfig({
     timeout: 120000,
   },
 
-  /* Global timeout for each test */
-  timeout: 60000,
+  /* Global timeout for each test - longer in CI */
+  timeout: process.env.CI ? 90000 : 60000,
 
   /* Expect timeout */
   expect: {

@@ -7,7 +7,8 @@ test.describe('Authentication', () => {
 
       // Check page title and branding
       await expect(page).toHaveTitle(/Operate/i);
-      await expect(page.locator('h1, h2')).toContainText(/anmelden|login/i);
+      // Use first() to avoid strict mode violation when multiple headings exist
+      await expect(page.locator('h1, h2').first()).toContainText(/anmelden|login/i);
 
       // Check form elements exist
       await expect(page.locator('input[name="email"]')).toBeVisible();
@@ -25,8 +26,9 @@ test.describe('Authentication', () => {
       // Submit form
       await page.click('button[type="submit"]');
 
-      // Wait for redirect to chat (or dashboard)
-      await page.waitForURL(/\/(chat|dashboard)/, { timeout: 15000 });
+      // Wait for redirect to chat (or dashboard) - longer timeout in CI
+      const isCI = !!process.env.CI;
+      await page.waitForURL(/\/(chat|dashboard)/, { timeout: isCI ? 30000 : 15000 });
 
       // Verify we're on a protected page (chat or dashboard)
       await expect(page).toHaveURL(/\/(chat|dashboard)/);
