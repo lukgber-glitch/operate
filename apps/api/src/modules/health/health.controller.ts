@@ -41,6 +41,9 @@ export class HealthController {
     description: 'Service is unhealthy',
   })
   check(): Promise<HealthCheckResult> {
+    // Disk threshold: 50% by default, 90% in CI (builds consume disk space)
+    const diskThreshold = parseFloat(process.env.HEALTH_DISK_THRESHOLD || '0.5');
+
     return this.health.check([
       // Memory check: heap should not exceed 600MB
       () => this.memory.checkHeap('memory_heap', 600 * 1024 * 1024),
@@ -49,11 +52,11 @@ export class HealthController {
       // Note: NestJS app with multiple modules typically uses 400-500MB
       () => this.memory.checkRSS('memory_rss', 800 * 1024 * 1024),
 
-      // Disk check: 50% of disk space should be available
+      // Disk check: configured threshold of disk space should be available
       () =>
         this.disk.checkStorage('disk', {
           path: process.platform === 'win32' ? 'C:\\' : '/',
-          thresholdPercent: 0.5,
+          thresholdPercent: diskThreshold,
         }),
     ]);
   }
