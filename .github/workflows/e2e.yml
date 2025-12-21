@@ -101,18 +101,39 @@ jobs:
       - name: Test API server startup
         run: |
           cd apps/api
-          echo "=== Testing API server startup (5 second timeout) ==="
+          echo "=== Testing API server startup ==="
           echo "Current directory: $(pwd)"
-          echo "Contents of dist/:"
+          echo ""
+          echo "=== Checking required environment variables ==="
+          echo "NODE_ENV: $NODE_ENV"
+          echo "PORT: $PORT"
+          echo "DATABASE_URL exists: $(if [ -n "$DATABASE_URL" ]; then echo "YES (${#DATABASE_URL} chars)"; else echo "NO"; fi)"
+          echo "JWT_ACCESS_SECRET exists: $(if [ -n "$JWT_ACCESS_SECRET" ]; then echo "YES (${#JWT_ACCESS_SECRET} chars)"; else echo "NO"; fi)"
+          echo "JWT_REFRESH_SECRET exists: $(if [ -n "$JWT_REFRESH_SECRET" ]; then echo "YES (${#JWT_REFRESH_SECRET} chars)"; else echo "NO"; fi)"
+          echo "REDIS_HOST: $REDIS_HOST"
+          echo "REDIS_PORT: $REDIS_PORT"
+          echo ""
+          echo "=== Testing Redis connection ==="
+          redis-cli -h localhost -p 6379 ping || echo "Redis ping failed"
+          echo ""
+          echo "=== Testing Postgres connection ==="
+          pg_isready -h localhost -p 5432 -U operate -d operate_test || echo "Postgres not ready"
+          echo ""
+          echo "=== Contents of dist/ ==="
           ls -la dist/ 2>&1 | head -10 || echo "No dist folder!"
           echo ""
-          echo "Environment:"
-          echo "  NODE_ENV=$NODE_ENV"
-          echo "  PORT=$PORT"
-          echo "  DATABASE_URL=$DATABASE_URL"
-          echo ""
+          echo "=== Starting API server (10 second test) ==="
           # Run server in foreground with timeout to see actual errors
-          timeout 5 node dist/main.js 2>&1 || echo "Server exited (this is expected - timeout or startup complete)"
+          timeout 10 node dist/main.js 2>&1
+          EXIT_CODE=$?
+          echo ""
+          echo "=== Server exited with code: $EXIT_CODE ==="
+          if [ $EXIT_CODE -eq 124 ]; then
+            echo "Server ran for 10 seconds successfully (timeout is expected)"
+          else
+            echo "Server exited early - this indicates an error!"
+            exit 1
+          fi
         env:
           NODE_ENV: development
           DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
