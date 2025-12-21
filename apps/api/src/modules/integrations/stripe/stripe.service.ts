@@ -7,7 +7,6 @@ import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { StripeConfig, StripeEnvironment } from './stripe.types';
 import {
-  validateStripeConfig,
   getStripeEnvironmentName,
   isTestMode,
 } from './stripe.config';
@@ -23,7 +22,8 @@ import {
 export class StripeService {
   private readonly logger = new Logger(StripeService.name);
   private readonly config: StripeConfig;
-  private readonly stripe: Stripe;
+  private readonly stripe: Stripe | null = null;
+  private readonly enabled: boolean;
 
   constructor(private readonly configService: ConfigService) {
     // Load configuration
@@ -44,12 +44,33 @@ export class StripeService {
       ),
     };
 
-    // Validate configuration
-    validateStripeConfig(this.config);
+    // Check if Stripe is configured
+    if (!this.config.secretKey || !this.config.publishableKey) {
+      this.logger.warn(
+        'Stripe is disabled - STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY are required',
+      );
+      this.enabled = false;
+      return;
+    }
+
+    // Validate key formats
+    if (!this.config.secretKey.startsWith('sk_')) {
+      this.logger.warn('Stripe is disabled - STRIPE_SECRET_KEY has invalid format');
+      this.enabled = false;
+      return;
+    }
+
+    if (!this.config.publishableKey.startsWith('pk_')) {
+      this.logger.warn('Stripe is disabled - STRIPE_PUBLISHABLE_KEY has invalid format');
+      this.enabled = false;
+      return;
+    }
+
+    this.enabled = true;
 
     // Initialize Stripe client
     this.stripe = new Stripe(this.config.secretKey, {
-      apiVersion: this.config.apiVersion as Prisma.InputJsonValue,
+      apiVersion: this.config.apiVersion as any,
       typescript: true,
       maxNetworkRetries: 3,
       timeout: 30000,
@@ -68,9 +89,20 @@ export class StripeService {
   }
 
   /**
+   * Check if Stripe is enabled
+   */
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  /**
    * Get Stripe client instance
+   * @throws InternalServerErrorException if Stripe is not configured
    */
   getClient(): Stripe {
+    if (!this.stripe) {
+      throw new InternalServerErrorException('Stripe is not configured');
+    }
     return this.stripe;
   }
 

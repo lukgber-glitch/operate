@@ -16,7 +16,6 @@ jobs:
     name: E2E Tests - Web (Playwright)
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    continue-on-error: true  # Allow CI to pass while we fix Playwright server startup
 
     strategy:
       fail-fast: false
