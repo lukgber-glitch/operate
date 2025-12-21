@@ -101,9 +101,10 @@ jobs:
       - name: Start API server
         run: |
           cd apps/api
-          nohup pnpm start:prod > /tmp/api.log 2>&1 &
+          nohup pnpm start > /tmp/api.log 2>&1 &
           sleep 10
         env:
+          NODE_ENV: development
           DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
           REDIS_URL: redis://localhost:6379
           JWT_ACCESS_SECRET: test-jwt-access-secret-for-e2e
