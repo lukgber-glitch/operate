@@ -140,6 +140,18 @@ function ChatPageContent() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Auto-show consent dialog when user needs consent (first visit to chat without consent)
+  useEffect(() => {
+    if (!consentLoading && needsConsent && !showConsentDialog) {
+      // Small delay to let page render first
+      const timer = setTimeout(() => {
+        setShowConsentDialog(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [consentLoading, needsConsent, showConsentDialog]);
+
   // Handle sending a message
   const handleSendMessage = async (content: string) => {
     // Check for AI consent before sending

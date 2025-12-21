@@ -134,6 +134,17 @@ export function ChatLanding({ className }: ChatLandingProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Auto-show consent dialog when user needs consent
+  useEffect(() => {
+    if (!consentLoading && needsConsent && !showConsentDialog) {
+      const timer = setTimeout(() => {
+        setShowConsentDialog(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [consentLoading, needsConsent, showConsentDialog]);
+
   // Send message handler
   const handleSendMessage = useCallback(
     async (content: string) => {
