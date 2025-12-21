@@ -123,12 +123,25 @@ jobs:
           NEXTAUTH_SECRET: test-secret-for-e2e-tests
           DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
 
+      - name: Verify build artifacts
+        run: |
+          echo "=== Checking build artifacts ==="
+          ls -la apps/api/dist/ || echo "API dist folder not found!"
+          ls -la apps/web/.next/ || echo "Web .next folder not found!"
+          echo ""
+          echo "=== API main.js exists? ==="
+          test -f apps/api/dist/main.js && echo "YES" || echo "NO - API build failed!"
+
       - name: Wait for servers
         run: |
+          API_READY=false
+          WEB_READY=false
+
           echo "Waiting for API server..."
           for i in {1..60}; do
             if curl -s http://localhost:3001/api/v1/health > /dev/null 2>&1; then
               echo "API server is ready!"
+              API_READY=true
               break
             fi
             echo "Waiting for API... attempt $i"
@@ -139,15 +152,50 @@ jobs:
           for i in {1..60}; do
             if curl -s http://localhost:3000 > /dev/null 2>&1; then
               echo "Web server is ready!"
+              WEB_READY=true
               break
             fi
             echo "Waiting for Web... attempt $i"
             sleep 1
           done
 
-          echo "Final server check..."
-          curl -v http://localhost:3001/api/v1/health || echo "API health check response"
-          curl -v http://localhost:3000 || echo "Web server response"
+          echo ""
+          echo "=== Final server check ==="
+          echo "API health check:"
+          curl -v http://localhost:3001/api/v1/health 2>&1 || echo "API health check failed"
+          echo ""
+          echo "Web server check:"
+          curl -v http://localhost:3000 2>&1 | head -50 || echo "Web server check failed"
+          echo ""
+          echo "=== Server logs preview ==="
+          echo "API logs (last 30 lines):"
+          tail -30 /tmp/api.log 2>/dev/null || echo "No API log"
+          echo ""
+          echo "Web logs (last 30 lines):"
+          tail -30 /tmp/web.log 2>/dev/null || echo "No Web log"
+
+          # Fail if servers not ready
+          if [ "$API_READY" = "false" ]; then
+            echo "ERROR: API server failed to start!"
+            exit 1
+          fi
+          if [ "$WEB_READY" = "false" ]; then
+            echo "ERROR: Web server failed to start!"
+            exit 1
+          fi
+
+      - name: Test login API directly
+        run: |
+          echo "=== Testing login API directly ==="
+          curl -v -X POST http://localhost:3001/api/v1/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"email":"test@operate.guru","password":"TestPassword123!"}' \
+            2>&1 || echo "Login API test failed"
+
+      - name: Test login page renders
+        run: |
+          echo "=== Fetching login page HTML ==="
+          curl -s http://localhost:3000/login | head -100 || echo "Failed to fetch login page"
 
       - name: Run E2E tests
         run: |
