@@ -5,7 +5,7 @@ import {
   ThrottlerException,
   ThrottlerModuleOptions,
   ThrottlerStorage,
-  THROTTLER_OPTIONS,
+  getOptionsToken,
 } from '@nestjs/throttler';
 import { Response } from 'express';
 import { RATE_LIMIT_KEY } from '../decorators/rate-limit.decorator';
@@ -25,7 +25,7 @@ import { RATE_LIMIT_KEY } from '../decorators/rate-limit.decorator';
 @Injectable()
 export class RateLimitGuard extends ThrottlerGuard {
   constructor(
-    @Inject(THROTTLER_OPTIONS) protected readonly options: ThrottlerModuleOptions,
+    @Inject(getOptionsToken()) protected readonly options: ThrottlerModuleOptions,
     @Inject(ThrottlerStorage) protected readonly storageService: ThrottlerStorage,
     protected readonly reflector: Reflector,
   ) {

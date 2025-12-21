@@ -79,6 +79,16 @@ export class BillMatcherService {
       const sortedMatches = potentialMatches.sort((a, b) => b.confidence - a.confidence);
       const bestMatch = sortedMatches[0];
 
+      if (!bestMatch) {
+        return {
+          matched: false,
+          matchType: BillMatchType.NONE,
+          confidence: 0,
+          suggestedAction: BillSuggestedAction.CREATE_BILL,
+          matchReasons: ['No matches found after scoring'],
+        };
+      }
+
       this.logger.log(
         `Best match: Bill ${bestMatch.bill.billNumber || bestMatch.bill.id} (${bestMatch.confidence}% confidence)`,
       );
@@ -113,7 +123,8 @@ export class BillMatcherService {
           bestMatch.matchType === BillMatchType.PARTIAL ? bestMatch.amountDifference : undefined,
       };
     } catch (error) {
-      this.logger.error(`Error matching payment to bill: ${error.message}`, error.stack);
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(`Error matching payment to bill: ${err.message}`, err.stack);
       throw error;
     }
   }
@@ -286,7 +297,9 @@ export class BillMatcherService {
     const multiMatch = this.amountMatcher.matchMultipleInvoices(payment.amount, billAmounts);
 
     if (multiMatch.matches && multiMatch.invoiceIndices.length > 1) {
-      const matchedBills = multiMatch.invoiceIndices.map((i) => sortedMatches[i].bill);
+      const matchedBills = multiMatch.invoiceIndices
+        .map((i) => sortedMatches[i]?.bill)
+        .filter((bill): bill is NonNullable<typeof bill> => bill !== undefined);
 
       this.logger.log(
         `Multi-bill match: ${matchedBills.length} bills totaling €${multiMatch.totalAmount}`,
@@ -353,7 +366,8 @@ export class BillMatcherService {
         this.logger.log(`Successfully reconciled bill ${billId}`);
       });
     } catch (error) {
-      this.logger.error(`Error auto-reconciling bill: ${error.message}`, error.stack);
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(`Error auto-reconciling bill: ${err.message}`, err.stack);
       throw error;
     }
   }
@@ -409,7 +423,8 @@ export class BillMatcherService {
         this.logger.log(`Partial payment recorded: €${amount}, remaining: €${remaining}`);
       });
     } catch (error) {
-      this.logger.error(`Error recording partial bill payment: ${error.message}`, error.stack);
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(`Error recording partial bill payment: ${err.message}`, err.stack);
       throw error;
     }
   }
@@ -464,7 +479,8 @@ export class BillMatcherService {
 
       return bill;
     } catch (error) {
-      this.logger.error(`Error creating bill from payment: ${error.message}`, error.stack);
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(`Error creating bill from payment: ${err.message}`, err.stack);
       throw error;
     }
   }
@@ -612,7 +628,8 @@ export class BillMatcherService {
         predictedNextDate,
       };
     } catch (error) {
-      this.logger.error(`Error detecting recurring payment: ${error.message}`, error.stack);
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(`Error detecting recurring payment: ${err.message}`, err.stack);
       return { isRecurring: false, confidence: 0 };
     }
   }

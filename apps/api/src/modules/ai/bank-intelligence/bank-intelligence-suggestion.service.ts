@@ -65,9 +65,10 @@ export class BankIntelligenceSuggestionService {
         await this.processOutgoingPayment(transaction, event.orgId);
       }
     } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
       this.logger.error(
-        `Error processing transaction ${event.transactionId}: ${error.message}`,
-        error.stack,
+        `Error processing transaction ${event.transactionId}: ${err.message}`,
+        err.stack,
       );
     }
   }

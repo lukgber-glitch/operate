@@ -74,8 +74,11 @@ export class SentryExceptionFilter extends BaseExceptionFilter {
   /**
    * Sanitize headers to remove sensitive information
    */
-  private sanitizeHeaders(headers: unknown): any {
-    const sanitized = { ...headers };
+  private sanitizeHeaders(headers: unknown): Record<string, unknown> {
+    if (!headers || typeof headers !== 'object') {
+      return {};
+    }
+    const sanitized: Record<string, unknown> = { ...(headers as Record<string, unknown>) };
     const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key', 'x-auth-token'];
 
     for (const header of sensitiveHeaders) {
@@ -90,12 +93,12 @@ export class SentryExceptionFilter extends BaseExceptionFilter {
   /**
    * Sanitize request body to remove sensitive information
    */
-  private sanitizeBody(body: unknown): any {
+  private sanitizeBody(body: unknown): Record<string, unknown> | unknown {
     if (!body || typeof body !== 'object') {
       return body;
     }
 
-    const sanitized = { ...body };
+    const sanitized: Record<string, unknown> = { ...(body as Record<string, unknown>) };
     const sensitiveFields = [
       'password',
       'token',

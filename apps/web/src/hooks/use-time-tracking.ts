@@ -267,7 +267,9 @@ export function useRunningTimer() {
         setElapsedSeconds(data.elapsedSeconds);
       }
     } catch (error) {
-      console.error('Failed to fetch timer:', error);
+      // Silently handle 404 - timer may not exist yet
+      console.debug('Timer not available:', error);
+      setTimer(null);
     }
   }, []);
 

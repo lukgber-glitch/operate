@@ -34,7 +34,7 @@ export class EventsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
-  server: Server;
+  server!: Server;
 
   private readonly logger = new Logger(EventsGateway.name);
 
@@ -89,7 +89,8 @@ export class EventsGateway
         organizationId: user.orgId,
       });
     } catch (error) {
-      this.logger.error(`Connection error: ${error.message}`, error.stack);
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(`Connection error: ${err.message}`, err.stack);
       client.disconnect();
     }
   }

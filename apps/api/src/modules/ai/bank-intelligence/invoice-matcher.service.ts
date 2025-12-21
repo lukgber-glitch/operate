@@ -60,6 +60,16 @@ export class InvoiceMatcherService {
       const sortedMatches = potentialMatches.sort((a, b) => b.confidence - a.confidence);
       const bestMatch = sortedMatches[0];
 
+      if (!bestMatch) {
+        return {
+          matched: false,
+          matchType: MatchType.NONE,
+          confidence: 0,
+          suggestedAction: SuggestedAction.CREATE_CUSTOMER,
+          matchReasons: ['No matches found after scoring'],
+        };
+      }
+
       this.logger.log(
         `Best match: Invoice ${bestMatch.invoice.number} (${bestMatch.confidence}% confidence)`,
       );
@@ -94,7 +104,8 @@ export class InvoiceMatcherService {
           bestMatch.matchType === MatchType.PARTIAL ? bestMatch.amountDifference : undefined,
       };
     } catch (error) {
-      this.logger.error(`Error matching payment: ${error.message}`, error.stack);
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(`Error matching payment: ${err.message}`, err.stack);
       throw error;
     }
   }
@@ -240,7 +251,9 @@ export class InvoiceMatcherService {
     const multiMatch = this.amountMatcher.matchMultipleInvoices(payment.amount, invoiceAmounts);
 
     if (multiMatch.matches && multiMatch.invoiceIndices.length > 1) {
-      const matchedInvoices = multiMatch.invoiceIndices.map((i) => sortedMatches[i].invoice);
+      const matchedInvoices = multiMatch.invoiceIndices
+        .map((i) => sortedMatches[i]?.invoice)
+        .filter((invoice): invoice is NonNullable<typeof invoice> => invoice !== undefined);
 
       this.logger.log(
         `Multi-invoice match: ${matchedInvoices.length} invoices totaling €${multiMatch.totalAmount}`,
@@ -290,7 +303,8 @@ export class InvoiceMatcherService {
         this.logger.log(`Successfully reconciled invoice ${invoiceId}`);
       });
     } catch (error) {
-      this.logger.error(`Error auto-reconciling: ${error.message}`, error.stack);
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(`Error auto-reconciling: ${err.message}`, err.stack);
       throw error;
     }
   }
@@ -336,7 +350,8 @@ export class InvoiceMatcherService {
         this.logger.log(`Partial payment recorded: €${amount}, remaining: €${remaining}`);
       });
     } catch (error) {
-      this.logger.error(`Error recording partial payment: ${error.message}`, error.stack);
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error(`Error recording partial payment: ${err.message}`, err.stack);
       throw error;
     }
   }

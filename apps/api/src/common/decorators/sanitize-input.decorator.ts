@@ -70,10 +70,10 @@ export class NoXssConstraint implements ValidatorConstraintInterface {
  * ```
  */
 export function NoXss(validationOptions?: ValidationOptions): PropertyDecorator {
-  return function (object: object, propertyName: string) {
+  return function (object: object, propertyName: string | symbol) {
     registerDecorator({
       target: object.constructor,
-      propertyName,
+      propertyName: String(propertyName),
       options: validationOptions,
       constraints: [],
       validator: NoXssConstraint,
@@ -104,8 +104,8 @@ export class SafeHtmlConstraint implements ValidatorConstraintInterface {
     let match;
 
     while ((match = tagPattern.exec(value)) !== null) {
-      const tagName = match[1].toLowerCase();
-      if (!this.allowedTags.has(tagName)) {
+      const tagName = match[1]?.toLowerCase();
+      if (!tagName || !this.allowedTags.has(tagName)) {
         return false;
       }
     }
@@ -134,10 +134,10 @@ export class SafeHtmlConstraint implements ValidatorConstraintInterface {
  * ```
  */
 export function SafeHtml(validationOptions?: ValidationOptions): PropertyDecorator {
-  return function (object: object, propertyName: string) {
+  return function (object: object, propertyName: string | symbol) {
     registerDecorator({
       target: object.constructor,
-      propertyName,
+      propertyName: String(propertyName),
       options: validationOptions,
       constraints: [],
       validator: SafeHtmlConstraint,

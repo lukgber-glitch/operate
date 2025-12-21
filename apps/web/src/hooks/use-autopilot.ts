@@ -254,15 +254,13 @@ export function useAutopilotConfig() {
       const data = await autopilotApi.getConfig();
       setConfig(data);
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to fetch autopilot config',
-        variant: 'destructive',
-      });
+      // Silently handle 404 - autopilot may not be configured yet
+      console.debug('Autopilot config not available:', error instanceof Error ? error.message : 'Unknown error');
+      setConfig(null);
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   const updateConfig = useCallback(async (updates: Partial<AutopilotConfig>) => {
     setIsLoading(true);
@@ -326,15 +324,13 @@ export function usePendingApprovals() {
       const data = await autopilotApi.getPendingApprovals();
       setApprovals(data);
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to fetch pending approvals',
-        variant: 'destructive',
-      });
+      // Silently handle 404 - autopilot may not be configured yet
+      console.debug('Pending approvals not available:', error instanceof Error ? error.message : 'Unknown error');
+      setApprovals([]);
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   return { approvals, isLoading, fetchApprovals };
 }

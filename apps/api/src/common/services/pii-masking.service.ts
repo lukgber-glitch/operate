@@ -112,7 +112,9 @@ export class PiiMaskingService {
    * Get masked email based on level
    */
   private getMaskedEmail(email: string, level: MaskingLevel, preserveFormat: boolean): string {
-    const [local, domain] = email.split('@');
+    const parts = email.split('@');
+    const local = parts[0] || '';
+    const domain = parts[1] || '';
 
     switch (level) {
       case MaskingLevel.STRICT:
@@ -128,10 +130,12 @@ export class PiiMaskingService {
       case MaskingLevel.MODERATE:
       default:
         // Keep first char of local and domain TLD
-        const firstChar = local.charAt(0);
-        const [domainName, tld] = domain.split('.');
+        const firstChar = local.charAt(0) || '*';
+        const domainParts = domain.split('.');
+        const domainName = domainParts[0] || '';
+        const tld = domainParts[1] || '***';
         if (preserveFormat) {
-          return `${firstChar}${'*'.repeat(Math.min(local.length - 1, 5))}@${'*'.repeat(Math.min(domainName.length, 3))}.${tld || '***'}`;
+          return `${firstChar}${'*'.repeat(Math.min(Math.max(local.length - 1, 0), 5))}@${'*'.repeat(Math.min(domainName.length || 3, 3))}.${tld}`;
         }
         return '***@***.com';
     }

@@ -145,7 +145,19 @@ export class UsageController {
     invoices: { used: number; limit: number; percentage: number };
     plan: { name: string; tier: string };
   }> {
-    const orgId = user.organisationId;
+    // JWT payload uses 'orgId', not 'organisationId'
+    const orgId = user.orgId;
+
+    // Validate orgId is present
+    if (!orgId) {
+      // Return default limits if no org context
+      return {
+        aiMessages: { used: 0, limit: 100, percentage: 0 },
+        bankConnections: { used: 0, limit: 1, percentage: 0 },
+        invoices: { used: 0, limit: 10, percentage: 0 },
+        plan: { name: 'Free', tier: 'free' },
+      };
+    }
 
     // Get limits from the service
     const limitsData = await this.usageLimitService.getLimits(orgId);

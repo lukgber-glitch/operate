@@ -61,9 +61,10 @@ export class SearchReindexProcessor {
         endTime: new Date().toISOString(),
       };
     } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
       this.logger.error(
-        `Reindex job ${job.id} failed for org ${orgId}: ${error.message}`,
-        error.stack,
+        `Reindex job ${job.id} failed for org ${orgId}: ${err.message}`,
+        err.stack,
       );
 
       throw error;

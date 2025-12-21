@@ -7,15 +7,15 @@ import { IsString, IsArray, IsObject, IsOptional, IsDate } from 'class-validator
 export class OnboardingProgressDto {
   @ApiProperty({ description: 'Progress record ID' })
   @IsString()
-  id: string;
+  id!: string;
 
   @ApiProperty({ description: 'User ID' })
   @IsString()
-  userId: string;
+  userId!: string;
 
   @ApiProperty({ description: 'Current step ID', example: 'profile' })
   @IsString()
-  currentStep: string;
+  currentStep!: string;
 
   @ApiProperty({
     description: 'Array of completed step IDs',
@@ -24,7 +24,7 @@ export class OnboardingProgressDto {
   })
   @IsArray()
   @IsString({ each: true })
-  completedSteps: string[];
+  completedSteps!: string[];
 
   @ApiProperty({
     description: 'Array of skipped step IDs',
@@ -33,7 +33,7 @@ export class OnboardingProgressDto {
   })
   @IsArray()
   @IsString({ each: true })
-  skippedSteps: string[];
+  skippedSteps!: string[];
 
   @ApiProperty({
     description: 'Step-specific data storage',
@@ -49,7 +49,7 @@ export class OnboardingProgressDto {
 
   @ApiProperty({ description: 'Onboarding started timestamp' })
   @IsDate()
-  startedAt: Date;
+  startedAt!: Date;
 
   @ApiProperty({
     description: 'Onboarding completed timestamp',
@@ -61,28 +61,28 @@ export class OnboardingProgressDto {
 
   @ApiProperty({ description: 'Last activity timestamp' })
   @IsDate()
-  lastActivityAt: Date;
+  lastActivityAt!: Date;
 
   @ApiProperty({ description: 'Record created timestamp' })
   @IsDate()
-  createdAt: Date;
+  createdAt!: Date;
 
   @ApiProperty({ description: 'Record updated timestamp' })
   @IsDate()
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @ApiProperty({ description: 'Whether onboarding is complete' })
-  isComplete: boolean;
+  isComplete!: boolean;
 
   @ApiProperty({
     description: 'Completion percentage (0-100)',
     example: 75,
   })
-  completionPercentage: number;
+  completionPercentage!: number;
 
   @ApiProperty({
     description: 'Total estimated time in minutes',
     example: 20,
   })
-  totalEstimatedTime: number;
+  totalEstimatedTime!: number;
 }

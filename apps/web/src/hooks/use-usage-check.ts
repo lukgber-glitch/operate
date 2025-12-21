@@ -45,24 +45,32 @@ export function useUsageCheck(): UsageCheckResult {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['usage', 'limits'],
     queryFn: async () => {
-      const response = await api.get<UsageLimits>('/usage/limits');
-      return response.data;
+      const response = await api.get<{ data: UsageLimits }>('/usage/limits');
+      // API returns wrapped response {data: {...}, meta: {...}}
+      // Extract the inner data object
+      return response.data?.data || response.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
     refetchOnWindowFocus: false,
+    retry: false, // Don't retry on auth failures
   });
+
+  // Safely check percentage values with optional chaining
+  const aiPercentage = data?.aiMessages?.percentage ?? 0;
+  const bankPercentage = data?.bankConnections?.percentage ?? 0;
+  const invoicePercentage = data?.invoices?.percentage ?? 0;
 
   // Determine if we should show banner or modal
   const showBanner = data
-    ? data.aiMessages.percentage >= USAGE_WARNING_THRESHOLD &&
-      data.aiMessages.percentage < USAGE_LIMIT_THRESHOLD
+    ? aiPercentage >= USAGE_WARNING_THRESHOLD &&
+      aiPercentage < USAGE_LIMIT_THRESHOLD
     : false;
 
   const showModal = data
-    ? data.aiMessages.percentage >= USAGE_LIMIT_THRESHOLD ||
-      data.bankConnections.percentage >= USAGE_LIMIT_THRESHOLD ||
-      data.invoices.percentage >= USAGE_LIMIT_THRESHOLD
+    ? aiPercentage >= USAGE_LIMIT_THRESHOLD ||
+      bankPercentage >= USAGE_LIMIT_THRESHOLD ||
+      invoicePercentage >= USAGE_LIMIT_THRESHOLD
     : false;
 
   return {

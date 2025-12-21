@@ -8,28 +8,28 @@ import { BillMatcherService } from './bill-matcher.service';
  * DTOs for reconciliation requests
  */
 export class AutoReconcileInvoiceDto {
-  transactionId: string;
-  invoiceId: string;
+  transactionId!: string;
+  invoiceId!: string;
   userId?: string;
 }
 
 export class AutoReconcileBillDto {
-  transactionId: string;
-  billId: string;
+  transactionId!: string;
+  billId!: string;
   userId?: string;
 }
 
 export class PartialPaymentInvoiceDto {
-  transactionId: string;
-  invoiceId: string;
-  amount: number;
+  transactionId!: string;
+  invoiceId!: string;
+  amount!: number;
   userId?: string;
 }
 
 export class PartialPaymentBillDto {
-  transactionId: string;
-  billId: string;
-  amount: number;
+  transactionId!: string;
+  billId!: string;
+  amount!: number;
   userId?: string;
 }
 
