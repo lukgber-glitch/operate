@@ -88,8 +88,11 @@ export function SuggestionChips({ onSelect, className, context }: SuggestionChip
   // Determine suggestions to display
   const fallbackSuggestions = getFallbackSuggestions(pathname);
 
-  const suggestions = apiSuggestions.length > 0
-    ? apiSuggestions.slice(0, 4).map((s) => ({
+  // Ensure apiSuggestions is always an array
+  const safeApiSuggestions = Array.isArray(apiSuggestions) ? apiSuggestions : [];
+
+  const suggestions = safeApiSuggestions.length > 0
+    ? safeApiSuggestions.slice(0, 4).map((s) => ({
         id: s.id,
         text: s.title,
         icon: getIconForSuggestionType(s.type),

@@ -37,8 +37,16 @@ export function useConversationHistory() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        const backendConversations = data.conversations.map((conv: any) => ({
+        const rawData = await response.json();
+        // Handle wrapped API response {data: {...}, meta: {...}}
+        const data = rawData?.data || rawData;
+        // Ensure conversations is an array
+        const conversationsArray = Array.isArray(data?.conversations)
+          ? data.conversations
+          : Array.isArray(data)
+            ? data
+            : [];
+        const backendConversations = conversationsArray.map((conv: any) => ({
           id: conv.id,
           title: conv.title || 'New Conversation',
           messages: [], // Messages loaded on demand when conversation is opened

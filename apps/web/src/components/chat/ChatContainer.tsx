@@ -53,7 +53,7 @@ export function ChatContainer({ isOpen, onClose }: ChatContainerProps) {
 
   // Fetch suggestions
   const {
-    suggestions,
+    suggestions: rawSuggestions,
     isLoading: suggestionsLoading,
     dismissSuggestion,
     executeSuggestion,
@@ -62,6 +62,9 @@ export function ChatContainer({ isOpen, onClose }: ChatContainerProps) {
     context: 'chat',
     refreshInterval: 60000,
   });
+
+  // Ensure suggestions is always an array
+  const suggestions = Array.isArray(rawSuggestions) ? rawSuggestions : [];
 
   // Extract insights and deadlines from suggestions by type
   const insights = suggestions.filter(s => s.type === 'INSIGHT');

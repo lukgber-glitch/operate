@@ -316,18 +316,25 @@ function ChatPageContent() {
   };
 
   // Get top 3 suggestions for the suggestions bar
-  const topSuggestions = suggestions.slice(0, 3);
+  const safeSuggestions = Array.isArray(suggestions) ? suggestions : [];
+  const topSuggestions = safeSuggestions.slice(0, 3);
   const hasMessages = messages.length > 0;
 
+  // Ensure data is always an array for safe iteration
+  const safeAccounts = Array.isArray(accounts) ? accounts : [];
+  const safeTransactions = Array.isArray(transactions) ? transactions : [];
+  const safeInvoices = Array.isArray(invoices) ? invoices : [];
+  const safeExtractedInvoices = Array.isArray(extractedInvoices) ? extractedInvoices : [];
+
   // Calculate insights from real data
-  const totalBalance = accounts.reduce((sum, account) => sum + (account.balance || 0), 0);
-  const primaryAccount = accounts.find(acc => acc.isPrimary) || accounts[0];
+  const totalBalance = safeAccounts.reduce((sum, account) => sum + (account.balance || 0), 0);
+  const primaryAccount = safeAccounts.find(acc => acc.isPrimary) || safeAccounts[0];
   const primaryCurrency = primaryAccount?.currency || 'EUR';
 
   // Calculate week-over-week change
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
-  const recentTransactions = transactions.filter(t =>
+  const recentTransactions = safeTransactions.filter(t =>
     new Date(t.transactionDate) >= weekAgo
   );
   const weeklyChange = recentTransactions.reduce((sum, t) =>
@@ -335,14 +342,14 @@ function ChatPageContent() {
   );
 
   // Count pending items
-  const pendingInvoicesCount = invoices.length;
-  const extractedInvoicesCount = extractedInvoices.length;
+  const pendingInvoicesCount = safeInvoices.length;
+  const extractedInvoicesCount = safeExtractedInvoices.length;
   const totalPendingReview = extractedInvoicesCount;
 
   // Get upcoming items (next 7 days)
   const nextWeek = new Date();
   nextWeek.setDate(nextWeek.getDate() + 7);
-  const upcomingInvoices = invoices.filter(inv => {
+  const upcomingInvoices = safeInvoices.filter(inv => {
     const dueDate = new Date(inv.dueDate);
     return dueDate <= nextWeek && dueDate >= new Date();
   });

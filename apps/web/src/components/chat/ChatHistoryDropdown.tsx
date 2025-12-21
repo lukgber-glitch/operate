@@ -105,10 +105,13 @@ export function ChatHistoryDropdown({
   enableKeyboardShortcut = true,
 }: ChatHistoryDropdownProps) {
   const {
-    groupedConversations,
+    groupedConversations: rawGroupedConversations,
     activeConversationId,
     isLoading,
   } = useConversationHistory();
+
+  // Ensure groupedConversations is always an array
+  const groupedConversations = Array.isArray(rawGroupedConversations) ? rawGroupedConversations : [];
 
   const prefersReducedMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
@@ -124,7 +127,7 @@ export function ChatHistoryDropdown({
   // Get current conversation title
   const currentConversation = useMemo(() => {
     return groupedConversations
-      .flatMap(group => group.conversations)
+      .flatMap(group => Array.isArray(group?.conversations) ? group.conversations : [])
       .find(conv => conv.id === (currentSessionId || activeConversationId));
   }, [groupedConversations, currentSessionId, activeConversationId]);
 
@@ -136,22 +139,25 @@ export function ChatHistoryDropdown({
 
     const query = searchQuery.toLowerCase();
     return groupedConversations
-      .map(group => ({
-        ...group,
-        conversations: group.conversations.filter(conv =>
-          conv.title.toLowerCase().includes(query) ||
-          conv.messages.some(msg =>
-            msg.content.toLowerCase().includes(query)
-          )
-        ),
-      }))
-      .filter(group => group.conversations.length > 0);
+      .map(group => {
+        const conversations = Array.isArray(group?.conversations) ? group.conversations : [];
+        return {
+          ...group,
+          conversations: conversations.filter(conv =>
+            conv.title?.toLowerCase().includes(query) ||
+            (Array.isArray(conv.messages) && conv.messages.some(msg =>
+              msg.content?.toLowerCase().includes(query)
+            ))
+          ),
+        };
+      })
+      .filter(group => Array.isArray(group.conversations) && group.conversations.length > 0);
   }, [groupedConversations, searchQuery]);
 
   // Total conversation count
   const totalConversations = useMemo(() => {
     return groupedConversations.reduce(
-      (sum, group) => sum + group.conversations.length,
+      (sum, group) => sum + (Array.isArray(group?.conversations) ? group.conversations.length : 0),
       0
     );
   }, [groupedConversations]);
@@ -425,11 +431,11 @@ export function ChatHistoryDropdown({
 
                         {/* Group Items */}
                         <div className="space-y-0.5">
-                          {group.conversations.map((conversation, index) => {
+                          {(Array.isArray(group?.conversations) ? group.conversations : []).map((conversation, index) => {
                             const isActive = conversation.id === (currentSessionId || activeConversationId);
                             const isEditing = editingId === conversation.id;
                             const isHovered = hoveredId === conversation.id;
-                            const messageCount = conversation.messages.length;
+                            const messageCount = Array.isArray(conversation?.messages) ? conversation.messages.length : 0;
 
                             return (
                               <motion.div
@@ -595,7 +601,7 @@ export function ChatHistoryDropdown({
                   }}
                 >
                   {searchQuery
-                    ? `${filteredGroups.reduce((sum, g) => sum + g.conversations.length, 0)} of ${totalConversations} conversations`
+                    ? `${filteredGroups.reduce((sum, g) => sum + (Array.isArray(g?.conversations) ? g.conversations.length : 0), 0)} of ${totalConversations} conversations`
                     : `${totalConversations} conversation${totalConversations === 1 ? '' : 's'}`}
                 </div>
               )}

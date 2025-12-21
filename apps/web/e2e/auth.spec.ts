@@ -25,15 +25,18 @@ test.describe('Authentication', () => {
       // Submit form
       await page.click('button[type="submit"]');
 
-      // Wait for redirect to dashboard
-      await page.waitForURL('**/dashboard', { timeout: 15000 });
+      // Wait for redirect to chat (or dashboard)
+      await page.waitForURL(/\/(chat|dashboard)/, { timeout: 15000 });
 
-      // Verify we're on the dashboard
-      await expect(page).toHaveURL(/\/dashboard/);
+      // Verify we're on a protected page (chat or dashboard)
+      await expect(page).toHaveURL(/\/(chat|dashboard)/);
 
-      // Check for dashboard elements
+      // Check for authenticated page elements (chat or dashboard)
       const dashboardIndicators = [
         page.locator('[data-testid="dashboard"]'),
+        page.locator('[data-testid="chat-input"]'),
+        page.locator('textarea[placeholder*="conversation"]'),
+        page.locator('textarea[placeholder*="message"]'),
         page.locator('h1:has-text("Dashboard")'),
         page.locator('[data-testid="user-menu"]'),
       ];
@@ -179,8 +182,8 @@ test.describe('Authentication', () => {
 
   test.describe('Protected Routes', () => {
     test('should redirect to login when accessing protected route without auth', async ({ page }) => {
-      // Try to access dashboard without authentication
-      await page.goto('/dashboard');
+      // Try to access chat without authentication
+      await page.goto('/chat');
 
       // Should redirect to login
       await page.waitForURL('**/login', { timeout: 10000 });
@@ -191,7 +194,7 @@ test.describe('Authentication', () => {
       const page = authenticatedPage;
 
       // Should be able to access various protected routes
-      const protectedRoutes = ['/dashboard', '/invoices', '/banking'];
+      const protectedRoutes = ['/chat', '/finance/invoices', '/finance/banking'];
 
       for (const route of protectedRoutes) {
         await page.goto(route);
@@ -219,12 +222,12 @@ test.describe('Authentication', () => {
       const newPage = await context.newPage();
 
       // Navigate to protected route
-      await newPage.goto('/dashboard');
+      await newPage.goto('/chat');
 
       // Should be authenticated (session shared)
       await newPage.waitForLoadState('networkidle');
 
-      // Check if we're on dashboard or login
+      // Check if we're on chat or login
       const url = newPage.url();
 
       // Clean up

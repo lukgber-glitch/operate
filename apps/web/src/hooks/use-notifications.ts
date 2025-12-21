@@ -47,7 +47,7 @@ export function useNotifications() {
   const { toast } = useToast()
 
   // Fetch notifications list
-  const { data: notifications = [], isLoading, error } = useQuery<Notification[]>({
+  const { data: rawNotifications = [], isLoading, error } = useQuery<Notification[]>({
     queryKey: ['notifications'],
     queryFn: async () => {
       const response = await axios.get(`${API_BASE_URL}/notifications`, {
@@ -55,11 +55,22 @@ export function useNotifications() {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       })
-      return response.data
+      // Handle wrapped API response {data: [...], meta: {...}}
+      const data = response.data;
+      if (Array.isArray(data)) {
+        return data;
+      }
+      if (data?.data && Array.isArray(data.data)) {
+        return data.data;
+      }
+      return [];
     },
     refetchInterval: 60000, // Refetch every minute as fallback
     staleTime: 30000, // Data stays fresh for 30 seconds
   })
+
+  // Ensure notifications is always an array
+  const notifications = Array.isArray(rawNotifications) ? rawNotifications : [];
 
   // Memoized unread count to prevent unnecessary recalculations
   const unreadCount = useMemo(() => {

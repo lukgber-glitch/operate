@@ -70,25 +70,30 @@ export function useSuggestions(
   const fetchSuggestions = useCallback(async () => {
     try {
       setError(null);
-      const response = await chatApi.getSuggestions(context) as any;
+      const response = await chatApi.getSuggestions(context);
+
+      // Ensure we have an array to work with
+      const rawData = Array.isArray(response) ? response : [];
 
       // Transform the response to match our ChatbotSuggestion interface
-      const fetchedSuggestions: ChatbotSuggestion[] = (response?.suggestions || response || []).map((s: any) => ({
-        id: s.id,
-        title: s.title,
-        description: s.description,
-        actionLabel: s.actionLabel,
-        type: s.type,
-        priority: s.priority,
-        entityType: s.entityType,
-        entityId: s.entityId,
-        actionType: s.actionType,
-        actionParams: s.actionParams,
-        data: s.data,
-        createdAt: new Date(s.createdAt),
-        expiresAt: s.expiresAt ? new Date(s.expiresAt) : undefined,
-        confidence: s.confidence,
-      }));
+      const fetchedSuggestions: ChatbotSuggestion[] = rawData
+        .filter((s: any) => s && typeof s === 'object')
+        .map((s: any) => ({
+          id: s.id || crypto.randomUUID(),
+          title: s.title || '',
+          description: s.description || '',
+          actionLabel: s.actionLabel,
+          type: s.type || 'QUICK_ACTION',
+          priority: s.priority || 'MEDIUM',
+          entityType: s.entityType,
+          entityId: s.entityId,
+          actionType: s.actionType,
+          actionParams: s.actionParams,
+          data: s.data,
+          createdAt: s.createdAt ? new Date(s.createdAt) : new Date(),
+          expiresAt: s.expiresAt ? new Date(s.expiresAt) : undefined,
+          confidence: s.confidence,
+        }));
 
       // Apply limit
       const limitedSuggestions = limit > 0

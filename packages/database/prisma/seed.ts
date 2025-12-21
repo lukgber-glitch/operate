@@ -105,6 +105,7 @@ async function main() {
       currency: 'EUR',
       timezone: 'Europe/Berlin',
       settings: {},
+      onboardingCompleted: true, // Mark onboarding complete for E2E tests
     },
   });
   console.log(`Created organisation: ${organisation.name} (${organisation.slug})`);
@@ -136,6 +137,20 @@ async function main() {
   });
   console.log(`Created ${membership.role} membership for ${adminUser.email}`);
 
+  // Create OnboardingProgress for admin user
+  await prisma.onboardingProgress.create({
+    data: {
+      userId: adminUser.id,
+      orgId: organisation.id,
+      currentStep: 5,
+      completedSteps: ['welcome', 'profile', 'company', 'integrations', 'preferences'],
+      stepData: {},
+      isCompleted: true,
+      completedAt: new Date(),
+    },
+  });
+  console.log(`Created OnboardingProgress for ${adminUser.email}`);
+
   // Create E2E test user (ONLY in non-production - used by automated tests)
   if (process.env.NODE_ENV !== 'production') {
     console.log('\nCreating E2E test user...');
@@ -162,6 +177,20 @@ async function main() {
       },
     });
     console.log(`Created ${testMembership.role} membership for ${testUser.email}`);
+
+    // Create OnboardingProgress for test user (marks onboarding as complete)
+    await prisma.onboardingProgress.create({
+      data: {
+        userId: testUser.id,
+        orgId: organisation.id,
+        currentStep: 5,
+        completedSteps: ['welcome', 'profile', 'company', 'integrations', 'preferences'],
+        stepData: {},
+        isCompleted: true,
+        completedAt: new Date(),
+      },
+    });
+    console.log(`Created OnboardingProgress for ${testUser.email}`);
   } else {
     console.log('\nSkipping E2E test user (production mode)');
   }

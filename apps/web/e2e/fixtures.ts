@@ -70,14 +70,14 @@ export const test = base.extend<TestFixtures>({
     // Submit login form
     await page.click('button[type="submit"]');
 
-    // Wait for navigation to dashboard
-    await page.waitForURL('**/dashboard', { timeout: 15000 });
+    // Wait for navigation to chat or dashboard
+    await page.waitForURL(/\/(chat|dashboard)/, { timeout: 15000 });
 
-    // Wait for dashboard to be fully loaded
+    // Wait for page to be fully loaded
     await page.waitForLoadState('networkidle');
 
-    // Verify we're logged in by checking for user menu or dashboard element
-    await expect(page.locator('[data-testid="user-menu"], [data-testid="dashboard"]')).toBeVisible({
+    // Verify we're logged in by checking for user menu, chat, or dashboard element
+    await expect(page.locator('[data-testid="user-menu"], [data-testid="dashboard"], [data-testid="chat-input"], textarea[placeholder*="conversation"], textarea[placeholder*="message"]').first()).toBeVisible({
       timeout: 10000,
     });
 

@@ -159,11 +159,29 @@ class ChatApiClient {
   /**
    * Get AI suggestions
    */
-  async getSuggestions(context?: string) {
-    const response = await api.get('/chatbot/suggestions', {
-      params: { context },
-    });
-    return response.data || [];
+  async getSuggestions(context?: string): Promise<any[]> {
+    try {
+      const response = await api.get<any>('/chatbot/suggestions', {
+        params: { context },
+      });
+      // API returns wrapped response {data: {...}, meta: {...}}
+      // Handle various response shapes to always return an array
+      const data = response.data as any;
+      if (Array.isArray(data)) {
+        return data;
+      }
+      if (data?.data && Array.isArray(data.data)) {
+        return data.data;
+      }
+      if (data?.suggestions && Array.isArray(data.suggestions)) {
+        return data.suggestions;
+      }
+      return [];
+    } catch (error) {
+      // Return empty array on error - suggestions are non-critical
+      console.debug('Failed to fetch suggestions:', error);
+      return [];
+    }
   }
 }
 

@@ -66,7 +66,10 @@ export function LiveSuggestionPanel({
   onSuggestionClick,
   showConnectionBadge = true,
 }: LiveSuggestionPanelProps) {
-  const { suggestions, connectionState, isConnected } = useSuggestionStreamContext();
+  const { suggestions: rawSuggestions, connectionState, isConnected } = useSuggestionStreamContext();
+
+  // Ensure suggestions is always an array
+  const suggestions = Array.isArray(rawSuggestions) ? rawSuggestions : [];
 
   // Show only the most recent suggestions
   const recentSuggestions = React.useMemo(() => {
@@ -205,7 +208,10 @@ function SuggestionCard({ suggestion, onClick }: SuggestionCardProps) {
  * Shows just the count of active suggestions
  */
 export function LiveSuggestionCounter() {
-  const { suggestions, isConnected } = useSuggestionStreamContext();
+  const { suggestions: rawSuggestions, isConnected } = useSuggestionStreamContext();
+
+  // Ensure suggestions is always an array
+  const suggestions = Array.isArray(rawSuggestions) ? rawSuggestions : [];
 
   const actionableCount = suggestions.filter((s) => s.actionable).length;
 
