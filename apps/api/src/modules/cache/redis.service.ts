@@ -78,12 +78,14 @@ export class RedisService implements OnModuleDestroy {
       const result = new Map<string, T>();
 
       for (let i = 0; i < keys.length; i++) {
-        if (values[i]) {
+        const key = keys[i];
+        const value = values[i];
+        if (key && value) {
           try {
-            result.set(keys[i], JSON.parse(values[i]!) as T);
+            result.set(key, JSON.parse(value) as T);
             this.cacheHits++;
           } catch (e) {
-            this.logger.error(`Failed to parse cached value for ${keys[i]}`, e);
+            this.logger.error(`Failed to parse cached value for ${key}`, e);
           }
         } else {
           this.cacheMisses++;
@@ -144,7 +146,8 @@ export class RedisService implements OnModuleDestroy {
     try {
       const serialized = JSON.stringify(value);
       if (ttl) {
-        const result = await this.client.set(key, serialized, 'NX', 'EX', ttl);
+        // Use ioredis options object syntax for SET with NX and EX
+        const result = await this.client.set(key, serialized, 'EX', ttl, 'NX');
         return result === 'OK';
       } else {
         const result = await this.client.setnx(key, serialized);
