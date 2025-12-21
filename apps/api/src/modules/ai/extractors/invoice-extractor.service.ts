@@ -58,8 +58,9 @@ export class InvoiceExtractorService {
     const apiKey = this.configService.get<string>('OPENAI_API_KEY');
     if (!apiKey) {
       this.logger.warn('OPENAI_API_KEY not configured - invoice extraction will fail');
+    } else {
+      this.openai = new OpenAI({ apiKey });
     }
-    this.openai = new OpenAI({ apiKey });
   }
 
   /**
