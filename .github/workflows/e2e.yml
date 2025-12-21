@@ -96,12 +96,13 @@ jobs:
           JWT_ACCESS_SECRET: test-jwt-access-secret-for-e2e
           JWT_REFRESH_SECRET: test-jwt-refresh-secret-for-e2e
           ANTHROPIC_API_KEY: test-key-not-used-in-tests
+          NEXT_PUBLIC_API_URL: http://localhost:3001/api/v1
 
       - name: Start API server
         run: |
           cd apps/api
-          pnpm start:prod &
-          sleep 5
+          nohup pnpm start:prod > /tmp/api.log 2>&1 &
+          sleep 10
         env:
           DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
           REDIS_URL: redis://localhost:6379
@@ -113,19 +114,39 @@ jobs:
       - name: Start Web server
         run: |
           cd apps/web
-          pnpm start &
-          sleep 10
+          nohup pnpm start > /tmp/web.log 2>&1 &
+          sleep 15
         env:
           NEXT_PUBLIC_API_URL: http://localhost:3001/api/v1
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: test-secret-for-e2e-tests
+          DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
 
       - name: Wait for servers
         run: |
           echo "Waiting for API server..."
-          timeout 30 bash -c 'until curl -s http://localhost:3001/api/v1/health > /dev/null 2>&1; do sleep 1; done' || echo "API health check skipped"
+          for i in {1..60}; do
+            if curl -s http://localhost:3001/api/v1/health > /dev/null 2>&1; then
+              echo "API server is ready!"
+              break
+            fi
+            echo "Waiting for API... attempt $i"
+            sleep 1
+          done
+
           echo "Waiting for Web server..."
-          timeout 30 bash -c 'until curl -s http://localhost:3000 > /dev/null 2>&1; do sleep 1; done' || echo "Web server ready or skipped"
+          for i in {1..60}; do
+            if curl -s http://localhost:3000 > /dev/null 2>&1; then
+              echo "Web server is ready!"
+              break
+            fi
+            echo "Waiting for Web... attempt $i"
+            sleep 1
+          done
+
+          echo "Final server check..."
+          curl -v http://localhost:3001/api/v1/health || echo "API health check response"
+          curl -v http://localhost:3000 || echo "Web server response"
 
       - name: Run E2E tests
         run: |
@@ -161,6 +182,15 @@ jobs:
           name: screenshots-${{ matrix.project }}
           path: apps/web/test-results/**/screenshots/
           retention-days: 7
+
+      - name: Show server logs on failure
+        if: failure()
+        run: |
+          echo "=== API Server Logs ==="
+          cat /tmp/api.log || echo "No API logs found"
+          echo ""
+          echo "=== Web Server Logs ==="
+          cat /tmp/web.log || echo "No Web logs found"
 
   e2e-api:
     name: E2E Tests - API (Integration)
