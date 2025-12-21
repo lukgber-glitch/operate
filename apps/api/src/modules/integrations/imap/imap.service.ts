@@ -27,18 +27,42 @@ import {
 @Injectable()
 export class ImapService {
   private readonly logger = new Logger(ImapService.name);
-  private readonly encryptionKey: Buffer;
+  private readonly encryptionKey: Buffer | null = null;
+  private readonly enabled: boolean;
 
   constructor() {
     // Use environment variable for encryption key
     const key = process.env.IMAP_ENCRYPTION_KEY;
     if (!key) {
-      throw new Error('IMAP_ENCRYPTION_KEY environment variable is required');
+      this.logger.warn('ImapService disabled - IMAP_ENCRYPTION_KEY environment variable is required');
+      this.enabled = false;
+      return;
     }
-    this.encryptionKey = Buffer.from(key, 'hex');
-    if (this.encryptionKey.length !== 32) {
-      throw new Error('IMAP_ENCRYPTION_KEY must be 32 bytes (64 hex characters)');
+    const keyBuffer = Buffer.from(key, 'hex');
+    if (keyBuffer.length !== 32) {
+      this.logger.warn('ImapService disabled - IMAP_ENCRYPTION_KEY must be 32 bytes (64 hex characters)');
+      this.enabled = false;
+      return;
     }
+    this.encryptionKey = keyBuffer;
+    this.enabled = true;
+  }
+
+  /**
+   * Check if IMAP service is enabled
+   */
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  /**
+   * Get encryption key or throw if not configured
+   */
+  private getEncryptionKey(): Buffer {
+    if (!this.encryptionKey) {
+      throw new Error('IMAP service is not configured');
+    }
+    return this.encryptionKey;
   }
 
   /**
@@ -350,7 +374,7 @@ export class ImapService {
   encryptPassword(password: string): EncryptedImapCredentials {
     try {
       const iv = crypto.randomBytes(16);
-      const cipher = crypto.createCipheriv(ENCRYPTION_ALGORITHM, this.encryptionKey, iv);
+      const cipher = crypto.createCipheriv(ENCRYPTION_ALGORITHM, this.getEncryptionKey(), iv);
 
       let encrypted = cipher.update(password, 'utf8', 'hex');
       encrypted += cipher.final('hex');
@@ -375,7 +399,7 @@ export class ImapService {
     try {
       const decipher = crypto.createDecipheriv(
         ENCRYPTION_ALGORITHM,
-        this.encryptionKey,
+        this.getEncryptionKey(),
         credentials.iv,
       );
       decipher.setAuthTag(credentials.authTag);

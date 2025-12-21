@@ -22,7 +22,8 @@ import * as crypto from 'crypto';
 export class GoCardlessAuthService {
   private readonly logger = new Logger(GoCardlessAuthService.name);
   private readonly ENCRYPTION_ALGORITHM = 'aes-256-gcm';
-  private readonly ENCRYPTION_KEY: Buffer;
+  private readonly ENCRYPTION_KEY: Buffer | null = null;
+  private readonly enabled: boolean;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -31,9 +32,29 @@ export class GoCardlessAuthService {
     // Initialize encryption key from environment
     const encryptionKey = process.env.GOCARDLESS_ENCRYPTION_KEY;
     if (!encryptionKey || encryptionKey.length !== 64) {
-      throw new Error('GOCARDLESS_ENCRYPTION_KEY must be 64 hex characters (32 bytes)');
+      this.logger.warn('GoCardlessAuthService disabled - GOCARDLESS_ENCRYPTION_KEY must be 64 hex characters (32 bytes)');
+      this.enabled = false;
+      return;
     }
     this.ENCRYPTION_KEY = Buffer.from(encryptionKey, 'hex');
+    this.enabled = true;
+  }
+
+  /**
+   * Check if GoCardless Auth service is enabled
+   */
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  /**
+   * Get encryption key or throw if not configured
+   */
+  private getEncryptionKey(): Buffer {
+    if (!this.ENCRYPTION_KEY) {
+      throw new Error('GoCardless Auth service is not configured');
+    }
+    return this.ENCRYPTION_KEY;
   }
 
   /**
@@ -41,7 +62,7 @@ export class GoCardlessAuthService {
    */
   private encryptToken(token: string): string {
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(this.ENCRYPTION_ALGORITHM, this.ENCRYPTION_KEY, iv);
+    const cipher = crypto.createCipheriv(this.ENCRYPTION_ALGORITHM, this.getEncryptionKey(), iv);
 
     let encrypted = cipher.update(token, 'utf8', 'hex');
     encrypted += cipher.final('hex');
@@ -66,7 +87,7 @@ export class GoCardlessAuthService {
       const iv = Buffer.from(ivHex, 'hex');
       const authTag = Buffer.from(authTagHex, 'hex');
 
-      const decipher = crypto.createDecipheriv(this.ENCRYPTION_ALGORITHM, this.ENCRYPTION_KEY, iv);
+      const decipher = crypto.createDecipheriv(this.ENCRYPTION_ALGORITHM, this.getEncryptionKey(), iv);
       decipher.setAuthTag(authTag);
 
       let decrypted = decipher.update(encrypted, 'hex', 'utf8');

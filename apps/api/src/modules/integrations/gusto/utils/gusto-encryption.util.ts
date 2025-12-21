@@ -15,16 +15,19 @@ import { Injectable, Logger } from '@nestjs/common';
 export class GustoEncryptionUtil {
   private readonly logger = new Logger(GustoEncryptionUtil.name);
   private readonly algorithm = 'aes-256-gcm';
-  private readonly encryptionKey: Buffer;
+  private readonly encryptionKey: Buffer | null = null;
+  private readonly enabled: boolean;
 
   constructor() {
     // Get encryption key from environment
     const key = process.env.GUSTO_ENCRYPTION_KEY;
     if (!key) {
-      throw new Error(
-        'GUSTO_ENCRYPTION_KEY environment variable is required. ' +
+      this.logger.warn(
+        'GustoEncryptionUtil disabled - GUSTO_ENCRYPTION_KEY environment variable is required. ' +
         'Generate a secure key: openssl rand -base64 32',
       );
+      this.enabled = false;
+      return;
     }
 
     // Ensure key is 32 bytes for AES-256
@@ -32,6 +35,24 @@ export class GustoEncryptionUtil {
       .createHash('sha256')
       .update(key)
       .digest();
+    this.enabled = true;
+  }
+
+  /**
+   * Check if Gusto encryption is enabled
+   */
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  /**
+   * Get encryption key or throw if not configured
+   */
+  private getEncryptionKey(): Buffer {
+    if (!this.encryptionKey) {
+      throw new Error('Gusto encryption is not configured');
+    }
+    return this.encryptionKey;
   }
 
   /**
@@ -47,7 +68,7 @@ export class GustoEncryptionUtil {
       // Create cipher
       const cipher = crypto.createCipheriv(
         this.algorithm,
-        this.encryptionKey,
+        this.getEncryptionKey(),
         iv,
       );
 
@@ -94,7 +115,7 @@ export class GustoEncryptionUtil {
       // Create decipher
       const decipher = crypto.createDecipheriv(
         this.algorithm,
-        this.encryptionKey,
+        this.getEncryptionKey(),
         iv,
       );
 
