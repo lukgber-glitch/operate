@@ -415,17 +415,13 @@ export class PrismaService
       const batch = records.slice(i, i + batchSize);
 
       // Process batch with controlled concurrency
-      const results = await Promise.allSettled(
-        this.parallelLimit(batch, concurrency, upsertFn),
-      );
-
-      for (const result of results) {
-        if (result.status === 'fulfilled') {
+      for await (const result of this.parallelLimit(batch, concurrency, upsertFn)) {
+        try {
           // Prisma upsert returns the record - we assume created if no updatedAt change
           created++; // Simplified - actual logic would check timestamps
-        } else {
+        } catch (error) {
           errors++;
-          this.logger.error(`Batch upsert error: ${result.reason}`);
+          this.logger.error(`Batch upsert error: ${error}`);
         }
       }
     }
@@ -440,23 +436,24 @@ export class PrismaService
     items: T[],
     limit: number,
     fn: (item: T) => Promise<R>,
-  ): AsyncGenerator<Promise<R>> {
-    const executing: Promise<R>[] = [];
+  ): AsyncGenerator<R> {
+    const executing: Promise<void>[] = [];
 
     for (const item of items) {
       const promise = fn(item);
-      yield promise;
 
       if (limit <= items.length) {
         const executingPromise = promise.then(() => {
           executing.splice(executing.indexOf(executingPromise), 1);
         });
-        executing.push(executingPromise as any);
+        executing.push(executingPromise);
 
         if (executing.length >= limit) {
           await Promise.race(executing);
         }
       }
+
+      yield await promise;
     }
   }
 

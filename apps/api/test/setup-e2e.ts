@@ -6,6 +6,15 @@
 import { config } from 'dotenv';
 import { resolve } from 'path';
 
+// Extend global type for test user
+declare global {
+  // eslint-disable-next-line no-var
+  var testUser: {
+    email: string;
+    password: string;
+  };
+}
+
 // Load environment variables from .env.test if exists
 const envPath = resolve(__dirname, '../../../.env.test');
 config({ path: envPath });
