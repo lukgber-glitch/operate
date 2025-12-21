@@ -124,14 +124,17 @@ jobs:
           echo ""
           echo "=== Starting API server (10 second test) ==="
           # Run server in foreground with timeout to see actual errors
+          # Use set +e temporarily to capture the exit code without script exiting
+          set +e
           timeout 10 node dist/main.js 2>&1
           EXIT_CODE=$?
+          set -e
           echo ""
           echo "=== Server exited with code: $EXIT_CODE ==="
           if [ $EXIT_CODE -eq 124 ]; then
             echo "Server ran for 10 seconds successfully (timeout is expected)"
           else
-            echo "Server exited early - this indicates an error!"
+            echo "Server exited early with code $EXIT_CODE - this indicates an error!"
             exit 1
           fi
         env:
