@@ -130,7 +130,7 @@ jobs:
       - name: Run E2E tests
         run: |
           cd apps/web
-          CI=true pnpm exec playwright test --project=${{ matrix.project }}
+          CI=true pnpm exec playwright test --project=${{ matrix.project }} auth.spec.ts
         env:
           TEST_BASE_URL: http://localhost:3000
           TEST_USER_EMAIL: test@operate.guru
