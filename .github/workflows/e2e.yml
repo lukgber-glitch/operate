@@ -98,29 +98,50 @@ jobs:
           ANTHROPIC_API_KEY: test-key-not-used-in-tests
           NEXT_PUBLIC_API_URL: http://localhost:3001/api/v1
 
+      - name: Test API server startup
+        run: |
+          cd apps/api
+          echo "=== Testing API server startup (5 second timeout) ==="
+          echo "Current directory: $(pwd)"
+          echo "Contents of dist/:"
+          ls -la dist/ 2>&1 | head -10 || echo "No dist folder!"
+          echo ""
+          echo "Environment:"
+          echo "  NODE_ENV=$NODE_ENV"
+          echo "  PORT=$PORT"
+          echo "  DATABASE_URL=$DATABASE_URL"
+          echo ""
+          # Run server in foreground with timeout to see actual errors
+          timeout 5 node dist/main.js 2>&1 || echo "Server exited (this is expected - timeout or startup complete)"
+        env:
+          NODE_ENV: development
+          DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          JWT_ACCESS_SECRET: test-jwt-access-secret-for-e2e-minimum-32-chars
+          JWT_REFRESH_SECRET: test-jwt-refresh-secret-for-e2e-minimum-32-chars
+          ANTHROPIC_API_KEY: test-key-not-used-in-tests
+          PORT: 3001
+
       - name: Start API server
         run: |
           cd apps/api
-          echo "=== Starting API server ==="
-          echo "Current directory: $(pwd)"
-          echo "Contents of dist/:"
-          ls -la dist/ 2>&1 || echo "No dist folder!"
-          echo ""
-          echo "Starting server..."
-          nohup pnpm start > /tmp/api.log 2>&1 &
+          echo "=== Starting API server in background ==="
+          nohup node dist/main.js > /tmp/api.log 2>&1 &
           API_PID=$!
           echo "API server PID: $API_PID"
-          sleep 5
+          sleep 10
           echo "Checking if API process is still running..."
           if ps -p $API_PID > /dev/null 2>&1; then
             echo "API process is running"
+            echo "=== API LOG (last 20 lines) ==="
+            tail -20 /tmp/api.log
           else
-            echo "API process CRASHED! Exit code: $?"
-            echo "=== API LOG ==="
+            echo "API process CRASHED!"
+            echo "=== FULL API LOG ==="
             cat /tmp/api.log
             exit 1
           fi
-          sleep 5
         env:
           NODE_ENV: development
           DATABASE_URL: postgresql://operate:operate_test@localhost:5432/operate_test
