@@ -1,7 +1,7 @@
 import { Injectable, Inject, Logger, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { GoCardlessClient } from 'gocardless-nodejs';
-import gocardlessConfig, { validateGoCardlessConfig, validateSchemeCurrency } from './gocardless.config';
+import gocardlessConfig, { validateSchemeCurrency } from './gocardless.config';
 import { PrismaService } from '../../database/prisma.service';
 import {
   GoCardlessConfig,
@@ -33,18 +33,32 @@ import {
 @Injectable()
 export class GoCardlessService {
   private readonly logger = new Logger(GoCardlessService.name);
-  private client: GoCardlessClient;
+  private client: GoCardlessClient | null = null;
+  private readonly enabled: boolean;
 
   constructor(
     @Inject(gocardlessConfig.KEY)
     private readonly config: ConfigType<typeof gocardlessConfig>,
     private readonly prisma: PrismaService,
   ) {
-    // Validate configuration
-    validateGoCardlessConfig(this.config);
+    // Check if configuration is complete
+    if (!this.config.mockMode && !this.config.accessToken) {
+      this.logger.warn('GoCardless credentials not configured. Set GOCARDLESS_SECRET_ID and GOCARDLESS_SECRET_KEY');
+      this.enabled = false;
+    } else {
+      this.enabled = true;
+      // Initialize GoCardless client
+      this.initializeClient();
+    }
 
-    // Initialize GoCardless client
-    this.initializeClient();
+    this.logger.log('GoCardless Service initialized');
+  }
+
+  /**
+   * Check if GoCardless service is enabled
+   */
+  isEnabled(): boolean {
+    return this.enabled;
   }
 
   /**
@@ -73,8 +87,14 @@ export class GoCardlessService {
    * Get GoCardless client instance
    */
   getClient(): GoCardlessClient {
+    if (!this.enabled) {
+      throw new BadRequestException('GoCardless is not configured');
+    }
     if (this.config.mockMode) {
       throw new Error('Cannot get client in mock mode');
+    }
+    if (!this.client) {
+      throw new BadRequestException('GoCardless client not initialized');
     }
     return this.client;
   }
@@ -89,6 +109,10 @@ export class GoCardlessService {
   async createRedirectFlow(
     request: CreateRedirectFlowRequest,
   ): Promise<GoCardlessRedirectFlowResponse> {
+    if (!this.enabled) {
+      throw new BadRequestException('GoCardless is not configured');
+    }
+
     if (this.config.mockMode) {
       return this.mockCreateRedirectFlow(request);
     }
@@ -99,7 +123,7 @@ export class GoCardlessService {
         scheme: request.scheme,
       });
 
-      const redirectFlow = await this.client.redirectFlows.create({
+      const redirectFlow = await this.getClient().redirectFlows.create({
         description: request.description,
         session_token: request.sessionToken,
         success_redirect_url: request.successRedirectUrl,
@@ -128,6 +152,10 @@ export class GoCardlessService {
   async completeRedirectFlow(
     request: CompleteRedirectFlowRequest,
   ): Promise<GoCardlessMandate> {
+    if (!this.enabled) {
+      throw new BadRequestException('GoCardless is not configured');
+    }
+
     if (this.config.mockMode) {
       return this.mockCompleteRedirectFlow(request);
     }
@@ -137,7 +165,8 @@ export class GoCardlessService {
         redirectFlowId: request.redirectFlowId,
       });
 
-      const redirectFlow = await this.client.redirectFlows.complete(
+      const client = this.getClient();
+      const redirectFlow = await client.redirectFlows.complete(
         request.redirectFlowId,
         {
           session_token: request.sessionToken,
@@ -145,7 +174,7 @@ export class GoCardlessService {
       );
 
       const mandate = redirectFlow.links.mandate;
-      const mandateDetails = await this.client.mandates.find(mandate);
+      const mandateDetails = await client.mandates.find(mandate);
 
       this.logger.log('Redirect flow completed successfully', {
         mandateId: mandate,
@@ -163,12 +192,16 @@ export class GoCardlessService {
    * Get creditor information
    */
   async getCreditor(creditorId: string): Promise<any> {
+    if (!this.enabled) {
+      throw new BadRequestException('GoCardless is not configured');
+    }
+
     if (this.config.mockMode) {
       return this.mockGetCreditor(creditorId);
     }
 
     try {
-      return await this.client.creditors.find(creditorId);
+      return await this.getClient().creditors.find(creditorId);
     } catch (error) {
       this.logger.error('Failed to get creditor', error);
       throw new BadRequestException('Failed to get creditor: ' + error.message);
@@ -179,12 +212,16 @@ export class GoCardlessService {
    * List all creditors
    */
   async listCreditors(): Promise<any[]> {
+    if (!this.enabled) {
+      throw new BadRequestException('GoCardless is not configured');
+    }
+
     if (this.config.mockMode) {
       return [this.mockGetCreditor('CR123')];
     }
 
     try {
-      const response = await this.client.creditors.list();
+      const response = await this.getClient().creditors.list();
       return response.creditors;
     } catch (error) {
       this.logger.error('Failed to list creditors', error);
@@ -196,6 +233,11 @@ export class GoCardlessService {
    * Validate webhook signature
    */
   validateWebhookSignature(body: string, signature: string): boolean {
+    if (!this.enabled) {
+      this.logger.warn('Cannot validate webhook - GoCardless is not configured');
+      return false;
+    }
+
     if (this.config.mockMode) {
       return true;
     }
