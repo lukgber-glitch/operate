@@ -1,0 +1,84 @@
+{
+  "batch": "02",
+  "timestamp": "2025-12-22T19:30:41.420Z",
+  "summary": {
+    "total": 5,
+    "passed": 2,
+    "failed": 3
+  },
+  "pages": [
+    {
+      "route": "/login",
+      "name": "login",
+      "status": 200,
+      "passed": false,
+      "hasH1": true,
+      "h1Text": "Willkommen bei Operate",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\auth-public\\01-login.png",
+      "issues": [
+        "Console errors: 1 errors"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "timing": "3252ms"
+    },
+    {
+      "route": "/register",
+      "name": "register",
+      "status": 200,
+      "passed": false,
+      "hasH1": true,
+      "h1Text": "Konto erstellen",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\auth-public\\02-register.png",
+      "issues": [
+        "Console errors: 1 errors"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "timing": "3394ms"
+    },
+    {
+      "route": "/forgot-password",
+      "name": "forgot-password",
+      "status": 200,
+      "passed": true,
+      "hasH1": true,
+      "h1Text": "Passwort vergessen",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\auth-public\\03-forgot-password.png",
+      "issues": [],
+      "consoleErrors": [],
+      "timing": "3157ms"
+    },
+    {
+      "route": "/privacy",
+      "name": "privacy",
+      "status": 200,
+      "passed": false,
+      "hasH1": true,
+      "h1Text": "Privacy Policy",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\auth-public\\04-privacy.png",
+      "issues": [
+        "Console errors: 2 errors"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "timing": "3177ms"
+    },
+    {
+      "route": "/terms",
+      "name": "terms",
+      "status": 200,
+      "passed": true,
+      "hasH1": true,
+      "h1Text": "Terms of Service",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\auth-public\\05-terms.png",
+      "issues": [],
+      "consoleErrors": [],
+      "timing": "3288ms"
+    }
+  ]
+}

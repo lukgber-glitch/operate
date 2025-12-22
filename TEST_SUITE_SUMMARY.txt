@@ -1,0 +1,136 @@
+================================================================================
+BROWSER-UI TEST SUITE: HR & SETTINGS PAGES
+================================================================================
+
+Created: December 22, 2025
+Status: READY FOR EXECUTION
+Pages: 7 (3 HR + 4 Settings)
+
+================================================================================
+FILES CREATED
+================================================================================
+
+1. test-hr-settings.js
+   - Automated Puppeteer test script
+   - Tests all 7 pages
+   - Captures screenshots
+   - Outputs JSON results
+
+2. RUN_HR_SETTINGS_TEST.bat
+   - Windows batch file launcher
+   - Easy one-click execution
+
+3. HR_SETTINGS_UI_TEST_REPORT.md
+   - Comprehensive test plan
+   - Setup instructions
+   - Results template
+
+4. HR_SETTINGS_TEST_MANUAL.md
+   - Manual testing guide
+   - Step-by-step instructions
+   - Results documentation template
+
+5. HR_SETTINGS_TEST_SUMMARY.md
+   - Quick reference guide
+   - Test coverage overview
+   - File locations
+
+6. BROWSER_UI_HR_SETTINGS_FINAL_REPORT.md
+   - Executive summary
+   - Complete test documentation
+   - Troubleshooting guide
+
+================================================================================
+PAGES UNDER TEST
+================================================================================
+
+HR Module:
+  1. /hr - HR Dashboard
+  2. /hr/employees - Employee Management
+  3. /hr/payroll - Payroll System
+
+Settings Module:
+  4. /settings - Main Settings
+  5. /settings/profile - Profile Settings
+  6. /settings/security - Security Settings
+  7. /settings/notifications - Notification Preferences
+
+================================================================================
+HOW TO RUN
+================================================================================
+
+Step 1: Start Chrome with remote debugging
+  chrome --remote-debugging-port=9222 --user-data-dir=C:\temp\chrome-test
+
+Step 2: Login to https://operate.guru
+  Email: luk.gber@gmail.com
+  Password: schlagzeug
+
+Step 3: Run the test
+  cd C:\Users\grube\op\operate-fresh
+  node test-hr-settings.js
+
+  OR double-click:
+  RUN_HR_SETTINGS_TEST.bat
+
+================================================================================
+OUTPUTS
+================================================================================
+
+Screenshots: test-screenshots/hr-settings/*.png
+Results: HR_SETTINGS_TEST_RESULTS.json
+
+================================================================================
+TEST COVERAGE
+================================================================================
+
+✓ HTTP status verification (200 OK)
+✓ Authentication check (no redirect to login)
+✓ JavaScript error detection
+✓ Sidebar visibility
+✓ Layout integrity (no horizontal scroll)
+✓ Full-page screenshots
+✓ Responsive design readiness
+✓ Accessibility baseline
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Execute the automated test
+2. Review all 7 screenshots
+3. Verify JSON results
+4. Document any issues found
+5. Test responsive breakpoints manually
+6. Run accessibility audit
+7. Create bug reports if needed
+
+================================================================================
+SUCCESS CRITERIA
+================================================================================
+
+Each page must:
+  - Return HTTP 200
+  - Not redirect to /login
+  - Have no JavaScript errors
+  - Display sidebar correctly
+  - Have no layout cut-off
+  - Render properly at all viewports
+
+================================================================================
+SUPPORT
+================================================================================
+
+Documentation:
+  - See BROWSER_UI_HR_SETTINGS_FINAL_REPORT.md for full details
+  - See HR_SETTINGS_TEST_MANUAL.md for manual testing
+  - See HR_SETTINGS_TEST_SUMMARY.md for quick reference
+
+Troubleshooting:
+  - Chrome won't connect? Check remote debugging port 9222
+  - Test fails? Verify login is still valid
+  - Screenshots missing? Check directory permissions
+
+================================================================================
+END OF SUMMARY
+================================================================================

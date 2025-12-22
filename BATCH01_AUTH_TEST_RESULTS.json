@@ -1,6 +1,6 @@
 {
   "testSuite": "BATCH 01 - Authentication Flow",
-  "timestamp": "2025-12-21T18:21:47.780Z",
+  "timestamp": "2025-12-22T19:24:08.645Z",
   "pages": [
     {
       "name": "Login",
@@ -15,22 +15,22 @@
     {
       "name": "ForgotPassword",
       "status": "FAIL",
-      "error": "page.waitForTimeout is not a function"
+      "error": "Navigation timeout of 60000 ms exceeded"
     },
     {
       "name": "MFASetup",
       "status": "FAIL",
-      "error": "Navigation timeout of 60000 ms exceeded"
+      "error": "Navigating frame was detached"
     },
     {
       "name": "AuthError",
       "status": "FAIL",
-      "error": "page.waitForTimeout is not a function"
+      "error": "Connection closed."
     },
     {
       "name": "Onboarding",
       "status": "FAIL",
-      "error": "Navigation timeout of 60000 ms exceeded"
+      "error": "Connection closed."
     }
   ],
   "summary": {
@@ -40,5 +40,5 @@
   },
   "cookiesSaved": false,
   "screenshots": [],
-  "completedAt": "2025-12-21T18:24:50.746Z"
+  "completedAt": "2025-12-22T19:26:13.234Z"
 }

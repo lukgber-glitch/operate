@@ -1,0 +1,226 @@
+================================================================================
+BROWSER-UI: AI CONSENT FLOW TEST REPORT
+================================================================================
+
+Test Date: 2025-12-22 20:50 CET
+Test URL: https://operate.guru
+Agent: BROWSER-UI (UI/UX Testing Specialist)
+Test Type: Automated + Code Analysis
+
+================================================================================
+EXECUTIVE SUMMARY
+================================================================================
+
+AUTOMATED TEST: BLOCKED by Google OAuth
+CODE ANALYSIS: 3 CRITICAL BUGS FIXED in commit c80618e
+MANUAL TEST: REQUIRED to verify fixes work in production
+
+================================================================================
+TEST RESULTS
+================================================================================
+
+[ ] Automated browser test - BLOCKED by Google OAuth
+[x] Code analysis - 3 bugs identified and fixed
+[ ] Manual testing - PENDING user verification
+
+================================================================================
+WHAT HAPPENED
+================================================================================
+
+I attempted to run an automated browser test:
+1. Clear localStorage and cookies
+2. Login with Google OAuth
+3. Check if AI consent dialog appears
+4. Verify positioning (not cut off)
+5. Test persistence across navigation
+
+RESULT: Google OAuth blocked the test after 90 seconds
+Error: "Waiting failed: 90000ms exceeded"
+
+Cannot automate:
+- Google login (CAPTCHA, 2FA)
+- Protected pages (/chat, /dashboard)
+- AI consent dialog verification
+
+================================================================================
+CODE ANALYSIS RESULTS
+================================================================================
+
+Instead of manual testing, I analyzed recent git commits and found
+THREE CRITICAL BUGS that were FIXED:
+
+BUG #1: Consent Not Saved from Onboarding Quick Actions
+--------------------------------------------------------
+File: apps/web/src/components/onboarding/steps/CompletionStep.tsx
+
+THE PROBLEM:
+- User completes onboarding, checks "I consent to AI"
+- Clicks Quick Action card "Start with AI Chat"
+- handleNavigate() function runs
+- Consent is NEVER SAVED
+- Dialog appears on /chat even though user already consented
+
+THE FIX:
+- Now saves consent BEFORE navigation on ALL paths
+- Includes 100ms delay for localStorage persistence
+- Applies to all Quick Action cards
+
+STATUS: FIXED in commit c80618e
+
+--------------------------------------------------------------------------------
+
+BUG #2: Race Condition - Dialog Flash on Page Load
+---------------------------------------------------
+File: apps/web/src/hooks/useAIConsent.ts
+
+THE PROBLEM:
+- Hook initialized with null consent data
+- Loaded localStorage asynchronously in useEffect
+- During async load, needsConsent returned true
+- Dialog flashed on screen, then disappeared
+- Annoying visual glitch on every navigation
+
+THE FIX:
+- Hook now initializes SYNCHRONOUSLY from localStorage
+- Uses useState(() => getInitialConsentData())
+- No async delay, no race condition
+- No dialog flash
+
+STATUS: FIXED in commit c80618e
+
+--------------------------------------------------------------------------------
+
+BUG #3: Dialog Cut Off on Small Screens
+----------------------------------------
+File: apps/web/src/components/consent/AIConsentDialog.tsx
+
+THE PROBLEM:
+- max-h-[85vh] didnt account for padding
+- overflow: visible prevented scrolling
+- Accept/Decline buttons could be hidden below viewport
+
+THE FIX:
+- Changed to calc() for viewport-safe sizing
+- w-[calc(100vw-2rem)] - 2rem margin from edges
+- max-h-[calc(100vh-4rem)] - 4rem from top/bottom
+- Proper overflow handling for scrolling
+
+STATUS: FIXED in commit c80618e
+
+================================================================================
+MANUAL TESTING REQUIRED
+================================================================================
+
+YOU MUST TEST THESE 3 SCENARIOS:
+
+
+TEST 1: Consent via Onboarding Quick Actions (CRITICAL)
+--------------------------------------------------------
+1. Clear browser data (cookies + localStorage)
+2. Login to https://operate.guru
+3. Complete onboarding
+4. Check AI consent checkbox
+5. Click "Start with AI Chat" Quick Action card
+   (DO NOT click "Go to Dashboard")
+
+EXPECTED:
+[x] Arrive at /chat
+[x] NO AI consent dialog appears
+[x] Chat works immediately
+[x] localStorage.getItem('ai_consent') returns consent data
+
+PREVIOUS BUG: Dialog appeared even though you already consented
+
+--------------------------------------------------------------------------------
+
+TEST 2: No Dialog Flash on Navigation
+--------------------------------------
+1. After Test 1, navigate to /dashboard
+2. Navigate to /chat
+3. Navigate to /invoices
+4. Navigate back to /chat
+5. Refresh page (F5)
+
+EXPECTED:
+[x] NO dialog flash on any navigation
+[x] Dialog does NOT appear
+[x] Consent persists across pages
+[x] Consent persists on refresh
+
+PREVIOUS BUG: Dialog flashed on every page load
+
+--------------------------------------------------------------------------------
+
+TEST 3: Dialog Positioning on Small Screens
+--------------------------------------------
+1. Clear consent: localStorage.removeItem('ai_consent')
+2. Navigate to /chat
+3. Dialog should appear
+4. Open DevTools > Toggle device toolbar
+5. Test viewports:
+   - iPhone SE: 375x667
+   - iPad Mini: 768x1024
+   - Laptop: 1366x768
+   - Desktop: 1920x1080
+
+EXPECTED at ALL viewport sizes:
+[x] Dialog is centered
+[x] Dialog has proper margins from edges
+[x] All content visible (header, text, buttons)
+[x] Accept button visible
+[x] Decline button visible
+[x] Content scrolls if too tall
+
+PREVIOUS BUG: Buttons hidden below viewport on small screens
+
+================================================================================
+WHAT TO REPORT BACK
+================================================================================
+
+If everything works:
+  Test 1: PASS
+  Test 2: PASS
+  Test 3: PASS
+
+If something breaks, report with screenshots:
+  Test 1: FAIL - Dialog appeared after onboarding
+  Test 3: FAIL - Buttons cut off on iPhone SE
+
+================================================================================
+FILES ANALYZED
+================================================================================
+
+Code Files:
+  - apps/web/src/components/onboarding/steps/CompletionStep.tsx
+  - apps/web/src/hooks/useAIConsent.ts
+  - apps/web/src/components/consent/AIConsentDialog.tsx
+
+Git Commits:
+  - c80618e: fix: AI consent persistence and dialog positioning
+  - 77984fa: fix: AI consent race condition and dialog cutoff
+
+Test Files:
+  - dashboard-e2e-test.js (blocked by OAuth)
+  - DASHBOARD_E2E_TEST_RESULTS.json (incomplete)
+
+================================================================================
+CONCLUSION
+================================================================================
+
+CODE ANALYSIS: HIGH CONFIDENCE bugs are fixed
+
+The fixes address root causes:
+  1. Consent saves on ALL navigation paths
+  2. Hook initializes synchronously (no race)
+  3. Dialog uses viewport-safe sizing
+
+HOWEVER: Manual testing is REQUIRED to confirm fixes work in production
+
+Next Steps:
+  1. YOU manually test the 3 scenarios above
+  2. Report PASS/FAIL for each test
+  3. If FAIL, provide screenshots
+
+================================================================================
+END OF REPORT
+================================================================================

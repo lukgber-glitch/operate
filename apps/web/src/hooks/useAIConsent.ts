@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useSecureStorage } from './useSecureStorage';
 
 /**
@@ -16,6 +16,10 @@ import { useSecureStorage } from './useSecureStorage';
  * - Timestamp tracking
  * - Easy opt-in/opt-out
  * - Offline support with localStorage fallback
+ *
+ * CRITICAL: This hook handles SSR hydration carefully to prevent
+ * the consent dialog from flashing. We start with isLoading=true
+ * and only set it to false after checking localStorage on the client.
  */
 
 const CONSENT_KEY = 'ai_consent_data';
@@ -28,8 +32,8 @@ export interface AIConsentData {
   ip?: string; // Optional for audit trail
 }
 
-// Helper to get initial consent data synchronously from localStorage
-function getInitialConsentData(): AIConsentData | null {
+// Helper to get consent data synchronously from localStorage
+function getConsentFromLocalStorage(): AIConsentData | null {
   if (typeof window === 'undefined') return null;
 
   try {
@@ -42,48 +46,68 @@ function getInitialConsentData(): AIConsentData | null {
       }
     }
   } catch (error) {
-    console.error('[useAIConsent] Failed to parse initial consent data:', error);
+    console.error('[useAIConsent] Failed to parse consent data:', error);
   }
   return null;
 }
 
 export function useAIConsent() {
-  // Initialize synchronously from localStorage to prevent flash of consent dialog
-  const [consentData, setConsentData] = useState<AIConsentData | null>(() => getInitialConsentData());
-  const [isLoading, setIsLoading] = useState(false); // Start as false since we loaded sync
+  // CRITICAL: Start with isLoading=true ALWAYS to prevent flash during SSR hydration
+  // During SSR: window is undefined, so we can't read localStorage
+  // During hydration: React keeps the server state (null consent, loading=true)
+  // After hydration: useEffect runs and syncs from localStorage
+  const [consentData, setConsentData] = useState<AIConsentData | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // ALWAYS start as true
+  const hasInitialized = useRef(false);
   const { storeToken, retrieveToken, removeToken, isNativeSecure } = useSecureStorage();
 
-  // Also check secure storage on mount (may have newer data)
+  // CRITICAL: Sync from localStorage IMMEDIATELY on client mount
+  // This runs synchronously before any async operations
   useEffect(() => {
-    loadConsentData();
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    // Immediately sync from localStorage (synchronous)
+    const localData = getConsentFromLocalStorage();
+    if (localData) {
+      setConsentData(localData);
+      setIsLoading(false);
+      console.log('[useAIConsent] Loaded from localStorage:', localData.hasConsent);
+      return; // Don't need async load if we found data
+    }
+
+    // Only do async load if localStorage didn't have data
+    loadConsentDataAsync();
   }, []);
 
-  const loadConsentData = useCallback(async () => {
-    setIsLoading(true);
+  const loadConsentDataAsync = async () => {
     try {
-      // Try secure storage first
+      // Try secure storage (for native apps)
       const stored = await retrieveToken(CONSENT_KEY);
 
       if (stored) {
         const parsed = JSON.parse(stored) as AIConsentData;
         setConsentData(parsed);
+        console.log('[useAIConsent] Loaded from secure storage:', parsed.hasConsent);
       } else {
-        // Fallback to localStorage for web
+        // Check localStorage one more time
         const localStored = localStorage.getItem(CONSENT_KEY);
         if (localStored) {
           const parsed = JSON.parse(localStored) as AIConsentData;
           setConsentData(parsed);
+          console.log('[useAIConsent] Loaded from localStorage (fallback):', parsed.hasConsent);
         } else {
           setConsentData(null);
+          console.log('[useAIConsent] No consent data found');
         }
       }
     } catch (error) {
-      console.error('Failed to load AI consent data:', error);
+      console.error('[useAIConsent] Failed to load consent data:', error);
       setConsentData(null);
     } finally {
       setIsLoading(false);
     }
-  }, [retrieveToken]);
+  };
 
   const giveConsent = useCallback(async () => {
     const newConsentData: AIConsentData = {
@@ -95,16 +119,22 @@ export function useAIConsent() {
     try {
       const serialized = JSON.stringify(newConsentData);
 
-      // Store in secure storage
-      await storeToken(CONSENT_KEY, serialized);
-
-      // Also store in localStorage as backup
+      // Store in localStorage FIRST (synchronous, reliable)
       localStorage.setItem(CONSENT_KEY, serialized);
+      console.log('[useAIConsent] Consent saved to localStorage');
+
+      // Then try secure storage (async, may fail)
+      try {
+        await storeToken(CONSENT_KEY, serialized);
+        console.log('[useAIConsent] Consent saved to secure storage');
+      } catch (secureError) {
+        console.warn('[useAIConsent] Could not save to secure storage:', secureError);
+      }
 
       setConsentData(newConsentData);
       return true;
     } catch (error) {
-      console.error('Failed to store AI consent:', error);
+      console.error('[useAIConsent] Failed to store AI consent:', error);
       return false;
     }
   }, [storeToken]);
@@ -127,12 +157,13 @@ export function useAIConsent() {
       setConsentData(revokedData);
       return true;
     } catch (error) {
-      console.error('Failed to revoke AI consent:', error);
+      console.error('[useAIConsent] Failed to revoke AI consent:', error);
       return false;
     }
   }, [removeToken]);
 
-  const needsConsent = useCallback(() => {
+  // Compute needsConsent based on current state
+  const needsConsent = (() => {
     // User needs to consent if:
     // 1. No consent data exists
     // 2. Consent was revoked
@@ -141,19 +172,19 @@ export function useAIConsent() {
     if (!consentData.hasConsent) return true;
     if (consentData.version !== CONSENT_VERSION) return true;
     return false;
-  }, [consentData]);
+  })();
 
   return {
     // State
     hasConsent: consentData?.hasConsent ?? false,
     consentData,
     isLoading,
-    needsConsent: needsConsent(),
+    needsConsent,
     isNativeSecure,
 
     // Actions
     giveConsent,
     revokeConsent,
-    refreshConsent: loadConsentData,
+    refreshConsent: loadConsentDataAsync,
   };
 }
