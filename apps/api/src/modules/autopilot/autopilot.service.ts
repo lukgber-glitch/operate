@@ -110,7 +110,7 @@ export class AutopilotService {
       try {
         await this.executeAction(action.id);
       } catch (error) {
-        console.error(`Failed to execute action ${action.id}:`, error);
+        this.logger.error(`Failed to execute action ${action.id}:`, error instanceof Error ? error.stack : String(error));
       }
     }
   }

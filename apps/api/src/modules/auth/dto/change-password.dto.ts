@@ -10,7 +10,7 @@ export class ChangePasswordDto {
     example: 'OldPassword123!',
   })
   @IsString()
-  currentPassword: string;
+  currentPassword!: string;
 
   @ApiProperty({
     description: 'New password (min 8 chars, must include uppercase, lowercase, number, special character)',
@@ -23,5 +23,5 @@ export class ChangePasswordDto {
     message:
       'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&#^()_+=-[]{}|;:\',.<>/\\)',
   })
-  newPassword: string;
+  newPassword!: string;
 }

@@ -50,7 +50,7 @@ export class XeroAuthService {
   private readonly xeroClient: XeroClient;
   private readonly encryptionKey: string;
   private readonly oauthStateMap: Map<string, OAuthState> = new Map();
-  private readonly isConfigured: boolean = false;
+  private isConfigured: boolean = false;
 
   // State cleanup interval (10 minutes)
   private readonly STATE_CLEANUP_INTERVAL = 10 * 60 * 1000;
@@ -101,7 +101,7 @@ export class XeroAuthService {
     this.startStateCleanup();
 
     // Mark as configured
-    (this as Prisma.InputJsonValue).isConfigured = true;
+    this.isConfigured = true;
     this.logger.log('Xero Auth Service initialized');
   }
 

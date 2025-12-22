@@ -100,7 +100,7 @@ export class GmailService {
       );
 
       return {
-        messages: response.data.messages || [],
+        messages: (response.data.messages || []) as any[],
         nextPageToken: response.data.nextPageToken,
         resultSizeEstimate: response.data.resultSizeEstimate,
       };
@@ -345,7 +345,7 @@ export class GmailService {
         // Check if MIME type is supported
         if (
           !part.mimeType ||
-          SUPPORTED_MIME_TYPES.includes(part.mimeType as Prisma.InputJsonValue)
+          (SUPPORTED_MIME_TYPES as readonly string[]).includes(part.mimeType)
         ) {
           attachments.push({
             filename: part.filename,

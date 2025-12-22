@@ -381,7 +381,9 @@ export class MfaService {
     // Check backup code against all stored hashes
     let matchIndex = -1;
     for (let i = 0; i < user.backupCodes.length; i++) {
-      const isMatch = await bcrypt.compare(backupCode, user.backupCodes[i]);
+      const storedHash = user.backupCodes[i];
+      if (!storedHash) continue;
+      const isMatch = await bcrypt.compare(backupCode, storedHash);
       if (isMatch) {
         matchIndex = i;
         break;
@@ -459,7 +461,9 @@ export class MfaService {
     // If TOTP fails, try backup code
     if (user.backupCodes && user.backupCodes.length > 0) {
       for (let i = 0; i < user.backupCodes.length; i++) {
-        const isMatch = await bcrypt.compare(token, user.backupCodes[i]);
+        const storedHash = user.backupCodes[i];
+        if (!storedHash) continue;
+        const isMatch = await bcrypt.compare(token, storedHash);
         if (isMatch) {
           // Remove the used backup code
           const updatedBackupCodes = [...user.backupCodes];

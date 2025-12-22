@@ -222,9 +222,7 @@ export class ViesService {
    * Check if country is an EU member state
    */
   private isEuCountry(countryCode: string): boolean {
-    return EU_COUNTRIES.includes(
-      countryCode.toUpperCase() as Prisma.InputJsonValue,
-    );
+    return (EU_COUNTRIES as readonly string[]).includes(countryCode.toUpperCase());
   }
 
   /**
@@ -354,7 +352,7 @@ export class ViesService {
    */
   private extractErrorCode(message: string): string {
     const match = message.match(/^([A-Z_]+):/);
-    return match ? match[1] : ViesErrorCode.SERVICE_UNAVAILABLE;
+    return match && match[1] ? match[1] : ViesErrorCode.SERVICE_UNAVAILABLE;
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod, DynamicModule, Type } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -30,6 +30,13 @@ import { AvalaraModule } from './modules/avalara/avalara.module';
 import { QuickBooksModule } from './modules/quickbooks/quickbooks.module';
 import { XeroModule } from './modules/integrations/xero/xero.module';
 import { GoCardlessModule } from './modules/integrations/gocardless/gocardless.module';
+
+// Queue modules - conditionally loaded when ENABLE_QUEUES=true
+import { QueueModule } from './modules/queue/queue.module';
+import { JobsModule } from './modules/jobs/jobs.module';
+
+// Check if queues are enabled at module load time
+const QUEUES_ENABLED = process.env.ENABLE_QUEUES === 'true';
 // EmailSyncModule removed - has broken dependencies (@aws-sdk/client-s3)
 import { HrModule } from './modules/hr/hr.module';
 import { FinanceModule } from './modules/finance/finance.module';
@@ -115,65 +122,68 @@ import configuration from './config/configuration';
       },
     ]),
 
-    // Bull queue module for background jobs
-    // Required for feature modules that use BullModule.registerQueue
-    BullModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => {
-        const redisUsername = configService.get<string>('redis.username');
-        const redisPassword = configService.get<string>('redis.password');
-        const redisHost = configService.get<string>('redis.host') || 'localhost';
-        const redisPort = configService.get<number>('redis.port') || 6379;
-        const redisDb = configService.get<number>('redis.db') || 0;
-        const redisPrefix = redisUsername ? `${redisUsername}:` : '';
+    // Bull queue modules - conditionally loaded when ENABLE_QUEUES=true
+    // This prevents startup hang when Redis is not available
+    ...(QUEUES_ENABLED
+      ? [
+          // Bull queue module for background jobs
+          BullModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: async (configService: ConfigService) => {
+              const redisUsername = configService.get<string>('redis.username');
+              const redisPassword = configService.get<string>('redis.password');
+              const redisHost = configService.get<string>('redis.host') || 'localhost';
+              const redisPort = configService.get<number>('redis.port') || 6379;
+              const redisDb = configService.get<number>('redis.db') || 0;
+              const redisPrefix = redisUsername ? `${redisUsername}:` : '';
 
-        // Build Redis URL with authentication for Redis ACL
-        // Format: redis://username:password@host:port/db
-        let redisUrl = 'redis://';
-        if (redisUsername && redisPassword) {
-          redisUrl += `${encodeURIComponent(redisUsername)}:${encodeURIComponent(redisPassword)}@`;
-        } else if (redisPassword) {
-          redisUrl += `:${encodeURIComponent(redisPassword)}@`;
-        }
-        redisUrl += `${redisHost}:${redisPort}/${redisDb}`;
+              // Build Redis URL with authentication for Redis ACL
+              let redisUrl = 'redis://';
+              if (redisUsername && redisPassword) {
+                redisUrl += `${encodeURIComponent(redisUsername)}:${encodeURIComponent(redisPassword)}@`;
+              } else if (redisPassword) {
+                redisUrl += `:${encodeURIComponent(redisPassword)}@`;
+              }
+              redisUrl += `${redisHost}:${redisPort}/${redisDb}`;
 
-        console.log(`[Bull] Redis URL: ${redisUrl.replace(/:[^:@]+@/, ':****@')}`);
+              console.log(`[Bull] Queues ENABLED - Redis: ${redisUrl.replace(/:[^:@]+@/, ':****@')}`);
 
-        return {
-          redis: redisUrl,
-          prefix: `${redisPrefix}bull`,
-          settings: {
-            stalledInterval: 30000,
-            maxStalledCount: 1,
-          },
-        };
-      },
-      inject: [ConfigService],
-    }),
+              return {
+                redis: redisUrl,
+                prefix: `${redisPrefix}bull`,
+                settings: {
+                  stalledInterval: 30000,
+                  maxStalledCount: 1,
+                },
+              };
+            },
+            inject: [ConfigService],
+          }),
 
-    // BullMQ module for background jobs (newer API, used by some integrations)
-    BullMQModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
-        const redisUsername = configService.get<string>('redis.username');
-        const redisPrefix = redisUsername ? `${redisUsername}:` : '';
+          // BullMQ module for background jobs (newer API)
+          BullMQModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: (configService: ConfigService) => {
+              const redisUsername = configService.get<string>('redis.username');
+              const redisPrefix = redisUsername ? `${redisUsername}:` : '';
 
-        return {
-          connection: {
-            host: configService.get<string>('redis.host') || 'localhost',
-            port: configService.get<number>('redis.port') || 6379,
-            username: redisUsername || undefined,
-            password: configService.get<string>('redis.password') || undefined,
-            db: configService.get<number>('redis.db') || 0,
-            // Required for BullMQ connections
-            enableReadyCheck: false,
-            maxRetriesPerRequest: null,
-          },
-          prefix: `${redisPrefix}bull`,
-        };
-      },
-      inject: [ConfigService],
-    }),
+              return {
+                connection: {
+                  host: configService.get<string>('redis.host') || 'localhost',
+                  port: configService.get<number>('redis.port') || 6379,
+                  username: redisUsername || undefined,
+                  password: configService.get<string>('redis.password') || undefined,
+                  db: configService.get<number>('redis.db') || 0,
+                  enableReadyCheck: false,
+                  maxRetriesPerRequest: null,
+                },
+                prefix: `${redisPrefix}bull`,
+              };
+            },
+            inject: [ConfigService],
+          }),
+        ]
+      : (console.log('[Bull] Queues DISABLED - set ENABLE_QUEUES=true to enable'), [])),
 
     // Global database module
     DatabaseModule,
@@ -288,8 +298,9 @@ import configuration from './config/configuration';
     // Contracts module
     ContractsModule,
 
-    // QueueModule and JobsModule temporarily disabled
-    // They cause startup hang due to Bull Board Redis connection issues
+    // Queue and Jobs modules - conditionally loaded when ENABLE_QUEUES=true
+    // These require Redis for Bull queues and scheduled tasks
+    ...(QUEUES_ENABLED ? [QueueModule, JobsModule] : []),
   ],
   controllers: [],
   providers: [
@@ -326,6 +337,7 @@ export class AppModule implements NestModule {
       )
       .forRoutes('*');
 
-    // Queue board temporarily disabled
+    // Queue board available at /admin/queues when ENABLE_QUEUES=true
+    // Authentication required (OWNER/ADMIN role or QUEUE_ADMIN_KEY header)
   }
 }

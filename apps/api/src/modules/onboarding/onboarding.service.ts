@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { OnboardingStepStatus } from '@prisma/client';
 import { OnboardingRepository } from './onboarding.repository';
@@ -15,6 +16,8 @@ import { EmailFilterService } from '../ai/email-intelligence/email-filter.servic
  */
 @Injectable()
 export class OnboardingService {
+  private readonly logger = new Logger(OnboardingService.name);
+
   // Map of step names to their status fields and data fields
   private readonly stepMapping = {
     company_info: {
@@ -413,7 +416,7 @@ export class OnboardingService {
       );
     } catch (error) {
       // Config might already exist, that's fine
-      console.log(`Email filter config may already exist for org ${orgId}`);
+      this.logger.debug(`Email filter config may already exist for org ${orgId}`);
     }
   }
 
@@ -425,7 +428,7 @@ export class OnboardingService {
     try {
       const progress = await this.repository.findByOrgId(orgId);
       if (!progress) {
-        console.log(`No onboarding progress found for org ${orgId}, skipping sync`);
+        this.logger.debug(`No onboarding progress found for org ${orgId}, skipping sync`);
         return;
       }
 
@@ -435,7 +438,7 @@ export class OnboardingService {
 
       // If no data in any step, skip sync
       if (!companyInfo && !preferences && !taxData) {
-        console.log(`No onboarding data to sync for org ${orgId}`);
+        this.logger.debug(`No onboarding data to sync for org ${orgId}`);
         return;
       }
 
@@ -516,13 +519,13 @@ export class OnboardingService {
           where: { id: orgId },
           data: updateData,
         });
-        console.log(`Successfully synced onboarding data to organisation ${orgId}`);
+        this.logger.log(`Successfully synced onboarding data to organisation ${orgId}`);
       } else {
-        console.log(`No fields to sync for organisation ${orgId}`);
+        this.logger.debug(`No fields to sync for organisation ${orgId}`);
       }
     } catch (error) {
       // Log but don't throw - onboarding should complete even if sync fails
-      console.error(`Failed to sync onboarding data to organisation ${orgId}:`, error);
+      this.logger.error(`Failed to sync onboarding data to organisation ${orgId}:`, error instanceof Error ? error.stack : String(error));
     }
   }
 }

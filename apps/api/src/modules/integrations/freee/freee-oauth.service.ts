@@ -51,7 +51,7 @@ export class FreeeOAuthService {
   private readonly encryptionKey: string;
   private readonly oauthStateMap: Map<string, OAuthState> = new Map();
   private readonly httpClient: AxiosInstance;
-  private readonly isConfigured: boolean = false;
+  private isConfigured: boolean = false;
 
   // State cleanup interval (10 minutes)
   private readonly STATE_CLEANUP_INTERVAL = 10 * 60 * 1000;
@@ -103,7 +103,7 @@ export class FreeeOAuthService {
     this.startStateCleanup();
 
     // Mark as configured
-    (this as Prisma.InputJsonValue).isConfigured = true;
+    this.isConfigured = true;
     this.logger.log('freee OAuth Service initialized');
   }
 

@@ -10,6 +10,7 @@ import { ClassificationModule } from '../classification/classification.module';
 import { AutomationModule } from '../../automation/automation.module';
 import { ExpensesModule } from '../../finance/expenses/expenses.module';
 import { EventsModule } from '../../../websocket/events.module';
+import { MindeeModule } from '../../integrations/mindee/mindee.module';
 
 @Module({
   imports: [
@@ -18,8 +19,7 @@ import { EventsModule } from '../../../websocket/events.module';
     AutomationModule,
     ExpensesModule,
     EventsModule,
-    // TODO: Add MindeeModule when BRIDGE creates it
-    // MindeeModule,
+    MindeeModule,
   ],
   providers: [ReceiptScannerService],
   exports: [ReceiptScannerService],

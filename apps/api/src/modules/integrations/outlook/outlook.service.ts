@@ -546,7 +546,7 @@ export class OutlookService {
       await this.prisma.emailAuditLog.create({
         data: {
           connectionId: connection.id,
-          action: log.action as Prisma.InputJsonValue,
+          action: log.action as any,
           endpoint: log.endpoint,
           statusCode: log.statusCode,
           success: log.success,

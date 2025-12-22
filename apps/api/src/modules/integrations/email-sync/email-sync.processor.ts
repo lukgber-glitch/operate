@@ -17,6 +17,7 @@ import { EntityExtractorService } from '../../ai/email-intelligence/entity-extra
 import { EmailSuggestionsService } from '../../ai/email-intelligence/email-suggestions.service';
 import { CustomerAutoCreatorService } from '../../ai/email-intelligence/customer-auto-creator.service';
 import { VendorAutoCreatorService } from '../../ai/email-intelligence/vendor-auto-creator.service';
+import { RelationshipTrackerService } from '../../ai/email-intelligence/relationship-tracker.service';
 
 /**
  * Email Sync Processor
@@ -77,6 +78,7 @@ export class EmailSyncProcessor {
     private readonly suggestionsService: EmailSuggestionsService,
     private readonly customerAutoCreator: CustomerAutoCreatorService,
     private readonly vendorAutoCreator: VendorAutoCreatorService,
+    private readonly relationshipTracker: RelationshipTrackerService,
   ) {}
 
   /**
@@ -687,6 +689,9 @@ export class EmailSyncProcessor {
       );
 
       // 3. Auto-create customers/vendors based on classification
+      let customerResult: any = null;
+      let vendorResult: any = null;
+
       if (this.customerAutoCreator && this.vendorAutoCreator) {
         const emailMessage = {
           id: syncedEmail.id,
@@ -707,7 +712,7 @@ export class EmailSyncProcessor {
           'SUPPORT_REQUEST',
         ];
         if (customerTypes.includes(classification.classification)) {
-          const customerResult = await this.customerAutoCreator.processEmail(
+          customerResult = await this.customerAutoCreator.processEmail(
             emailMessage,
             classification,
             entities,
@@ -724,7 +729,7 @@ export class EmailSyncProcessor {
         if (vendorTypes.includes(classification.classification)) {
           // Note: VendorAutoCreator requires extractedInvoice parameter
           // For now, passing undefined - full invoice extraction happens in a separate flow
-          const vendorResult = await this.vendorAutoCreator.processEmail(
+          vendorResult = await this.vendorAutoCreator.processEmail(
             emailMessage,
             classification,
             entities,
@@ -735,7 +740,57 @@ export class EmailSyncProcessor {
         }
       }
 
-      // 4. Generate suggestions based on classification and entities
+      // 4. Update relationship metrics
+      if (this.relationshipTracker) {
+        const emailMessage = {
+          from: syncedEmail.from || '',
+          to: Array.isArray(syncedEmail.to) ? syncedEmail.to.join(', ') : '',
+          subject: syncedEmail.subject || '',
+          date: syncedEmail.receivedAt,
+        };
+
+        // Update customer relationship if applicable
+        if (customerResult?.customerId) {
+          try {
+            await this.relationshipTracker.updateRelationshipMetrics(
+              customerResult.customerId,
+              'CUSTOMER',
+              emailMessage,
+              syncedEmail.orgId,
+            );
+            this.logger.debug(
+              `Updated relationship metrics for customer ${customerResult.customerId}`,
+            );
+          } catch (error) {
+            this.logger.error(
+              `Failed to update customer relationship metrics: ${error.message}`,
+            );
+            // Don't fail the entire process if relationship tracking fails
+          }
+        }
+
+        // Update vendor relationship if applicable
+        if (vendorResult?.vendorId) {
+          try {
+            await this.relationshipTracker.updateRelationshipMetrics(
+              vendorResult.vendorId,
+              'VENDOR',
+              emailMessage,
+              syncedEmail.orgId,
+            );
+            this.logger.debug(
+              `Updated relationship metrics for vendor ${vendorResult.vendorId}`,
+            );
+          } catch (error) {
+            this.logger.error(
+              `Failed to update vendor relationship metrics: ${error.message}`,
+            );
+            // Don't fail the entire process if relationship tracking fails
+          }
+        }
+      }
+
+      // 5. Generate suggestions based on classification and entities
       const suggestions =
         await this.suggestionsService.generateSuggestionsForEmail(
           {

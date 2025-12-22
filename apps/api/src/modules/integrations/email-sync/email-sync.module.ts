@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
+import { ScheduleModule } from '@nestjs/schedule';
 import { EmailSyncController } from './email-sync.controller';
 import { EmailSyncService, EMAIL_SYNC_QUEUE } from './email-sync.service';
 import { EmailSyncProcessor } from './email-sync.processor';
+import { EmailSyncScheduler } from './email-sync.scheduler';
 import { DatabaseModule } from '../../database/database.module';
 
 // Import Gmail and Outlook modules
@@ -23,6 +25,7 @@ import { MailboxController } from './mailbox.controller';
  *
  * Features:
  * - Incremental and full email sync
+ * - Automatic scheduled sync (every 30 minutes)
  * - Background processing with BullMQ
  * - Financial document detection (invoices, receipts)
  * - Rate limiting and error handling
@@ -33,10 +36,12 @@ import { MailboxController } from './mailbox.controller';
  * - GmailModule: For Gmail API operations
  * - OutlookModule: For Outlook/Graph API operations
  * - BullModule: For background job processing
+ * - ScheduleModule: For automatic scheduled syncs
  * - PrismaService: For database operations
  *
  * Exports:
  * - EmailSyncService: For use in other modules
+ * - MailboxService: For mailbox configuration management
  *
  * Usage:
  * ```typescript
@@ -57,11 +62,17 @@ import { MailboxController } from './mailbox.controller';
  * - sync-emails: Main sync job (fetches emails from provider)
  * - process-email-attachments: Process attachments for single email
  * - classify-email: AI classification of email content
+ *
+ * Scheduled Tasks:
+ * - email-sync-scheduler: Automatic sync every 30 minutes for active connections
  */
 @Module({
   imports: [
     // Import database module
     DatabaseModule,
+
+    // Import schedule module for cron jobs
+    ScheduleModule.forRoot(),
 
     // Import Gmail and Outlook integration modules
     GmailModule,
@@ -100,6 +111,7 @@ import { MailboxController } from './mailbox.controller';
   providers: [
     EmailSyncService,
     EmailSyncProcessor,
+    EmailSyncScheduler,
     MailboxService,
   ],
   exports: [EmailSyncService, MailboxService],

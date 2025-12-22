@@ -13,7 +13,7 @@ export class TestLoginDto {
   })
   @IsEmail({}, { message: 'Invalid email address' })
   @IsNotEmpty({ message: 'Email is required' })
-  email: string;
+  email!: string;
 
   @ApiProperty({
     description: 'Test authentication secret (from TEST_AUTH_SECRET env var)',
@@ -21,5 +21,5 @@ export class TestLoginDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'Test secret is required' })
-  testSecret: string;
+  testSecret!: string;
 }

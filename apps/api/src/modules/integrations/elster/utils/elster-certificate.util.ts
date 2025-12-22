@@ -39,8 +39,10 @@ export class ElsterCertificateUtil {
         bagType: forge.pki.oids.pkcs8ShroudedKeyBag,
       });
 
-      const certBag = certBags[forge.pki.oids.certBag];
-      const pkcs8Bag = pkcs8Bags[forge.pki.oids.pkcs8ShroudedKeyBag];
+      const certBagOid = forge.pki.oids.certBag as string;
+      const pkcs8BagOid = forge.pki.oids.pkcs8ShroudedKeyBag as string;
+      const certBag = certBags[certBagOid];
+      const pkcs8Bag = pkcs8Bags[pkcs8BagOid];
 
       if (!certBag || certBag.length === 0) {
         throw new Error('No certificate found in PFX file');

@@ -40,7 +40,7 @@ export class DocumentArchiveService {
   private readonly algorithm = 'aes-256-gcm' as const;
   private readonly encryptionKey: Buffer;
   private readonly baseArchiveDir: string;
-  private readonly isConfigured: boolean = false;
+  private isConfigured: boolean = false;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -59,7 +59,7 @@ export class DocumentArchiveService {
       return;
     }
     this.encryptionKey = Buffer.from(keyHex, 'hex');
-    (this as Prisma.InputJsonValue).isConfigured = true;
+    this.isConfigured = true;
     this.logger.log('Document Archive Service initialized with encryption enabled');
   }
 

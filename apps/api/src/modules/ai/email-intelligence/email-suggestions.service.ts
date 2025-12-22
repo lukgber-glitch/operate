@@ -551,12 +551,144 @@ export class EmailSuggestionsService {
     const suggestions: CreateEmailSuggestionDto[] = [];
 
     // Check for sent quotes without follow-up (>5 days old)
-    // This would check database for quotes
-    // TODO: Implement quote follow-up logic
+    const fiveDaysAgo = new Date();
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+
+    try {
+      const unrespondedQuotes = await this.prisma.quote.findMany({
+        where: {
+          organisationId: orgId,
+          status: 'SENT',
+          sentAt: { lt: fiveDaysAgo },
+          // No conversion means no response
+          convertedToInvoiceId: null,
+        },
+        take: 50,
+      });
+
+      for (const quote of unrespondedQuotes) {
+        const daysSinceSent = Math.floor(
+          (Date.now() - quote.sentAt.getTime()) / (1000 * 60 * 60 * 24),
+        );
+
+        // Get client name if clientId exists
+        let clientName = 'Customer';
+        if (quote.clientId) {
+          try {
+            const client = await this.prisma.client.findUnique({
+              where: { id: quote.clientId },
+              select: { name: true },
+            });
+            if (client) {
+              clientName = client.name;
+            }
+          } catch (err) {
+            this.logger.warn(
+              `Could not fetch client ${quote.clientId}: ${err.message}`,
+            );
+          }
+        }
+
+        suggestions.push({
+          type: EmailSuggestionType.FOLLOW_UP_QUOTE,
+          priority:
+            daysSinceSent > 14
+              ? EmailSuggestionPriority.HIGH
+              : EmailSuggestionPriority.MEDIUM,
+          title: `Follow up on quote for ${clientName}`,
+          message: `Quote ${quote.quoteNumber} was sent ${daysSinceSent} days ago with no response. Consider following up.`,
+          organisationId: orgId,
+          entityId: quote.clientId,
+          entityType: EmailSuggestionEntityType.CUSTOMER,
+          entityName: clientName,
+          actionType: EmailSuggestionActionType.CHAT_ACTION,
+          actionLabel: 'Draft Follow-up',
+          actionPayload: {
+            action: 'follow_up_quote',
+            quoteId: quote.id,
+            quoteNumber: quote.quoteNumber,
+            clientId: quote.clientId,
+          },
+          confidence: 0.9,
+          contextData: {
+            quoteId: quote.id,
+            quoteNumber: quote.quoteNumber,
+            daysSinceSent,
+            quoteTotal: quote.total.toString(),
+            currency: quote.currency,
+          },
+        });
+      }
+
+      this.logger.debug(
+        `Found ${unrespondedQuotes.length} quotes needing follow-up`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to query quotes for follow-up: ${error.message}`,
+      );
+    }
 
     // Check for overdue invoices
-    // This would check database for invoices
-    // TODO: Implement invoice follow-up logic
+    try {
+      const overdueInvoices = await this.prisma.invoice.findMany({
+        where: {
+          orgId,
+          status: { in: ['SENT', 'OVERDUE'] },
+          dueDate: { lt: new Date() },
+        },
+        include: {
+          client: true,
+        },
+        take: 50,
+      });
+
+      for (const invoice of overdueInvoices) {
+        const daysOverdue = Math.floor(
+          (Date.now() - invoice.dueDate.getTime()) / (1000 * 60 * 60 * 24),
+        );
+
+        const clientName = invoice.client?.name || invoice.customerName;
+
+        suggestions.push({
+          type: EmailSuggestionType.FOLLOW_UP_INVOICE,
+          priority:
+            daysOverdue > 30
+              ? EmailSuggestionPriority.URGENT
+              : EmailSuggestionPriority.HIGH,
+          title: `Send reminder for overdue invoice to ${clientName}`,
+          message: `Invoice ${invoice.number} is ${daysOverdue} days overdue (${invoice.totalAmount} ${invoice.currency}). Send a reminder?`,
+          organisationId: orgId,
+          entityId: invoice.clientId || invoice.customerId,
+          entityType: EmailSuggestionEntityType.CUSTOMER,
+          entityName: clientName,
+          actionType: EmailSuggestionActionType.CHAT_ACTION,
+          actionLabel: 'Send Reminder',
+          actionPayload: {
+            action: 'send_payment_reminder',
+            invoiceId: invoice.id,
+            invoiceNumber: invoice.number,
+          },
+          confidence: 0.95,
+          contextData: {
+            invoiceId: invoice.id,
+            invoiceNumber: invoice.number,
+            daysOverdue,
+            amount: invoice.totalAmount.toString(),
+            currency: invoice.currency,
+            dueDate: invoice.dueDate.toISOString(),
+          },
+        });
+      }
+
+      this.logger.debug(
+        `Found ${overdueInvoices.length} overdue invoices needing reminders`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to query invoices for reminders: ${error.message}`,
+      );
+    }
 
     return suggestions;
   }

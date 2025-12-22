@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Logger } from '@nestjs/common';
 import { TinkService } from '../../integrations/tink/tink.service';
 import { Public } from '../../../common/decorators/public.decorator';
 
@@ -8,6 +8,8 @@ import { Public } from '../../../common/decorators/public.decorator';
  */
 @Controller('bank-connections')
 export class BanksController {
+  private readonly logger = new Logger(BanksController.name);
+
   constructor(private readonly tinkService: TinkService) {}
 
   /**
@@ -36,7 +38,7 @@ export class BanksController {
           bic: null,
         }));
       } catch (error) {
-        console.error('Error fetching banks from Tink:', error);
+        this.logger.error('Error fetching banks from Tink:', error instanceof Error ? error.stack : String(error));
         return [];
       }
     }

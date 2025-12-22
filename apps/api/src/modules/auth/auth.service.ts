@@ -399,23 +399,22 @@ export class AuthService {
         );
       }
 
-      // SEC-017: Validate device fingerprint (if stored with session)
-      if (session.deviceFingerprint && deviceFingerprint) {
-        if (!validateSessionFingerprint(session.deviceFingerprint, deviceFingerprint, 'low')) {
-          this.logger.warn(
-            `SEC-017: Device fingerprint mismatch for user ${payload.sub} - potential session hijacking`,
-          );
-          // Don't invalidate all sessions, but reject this refresh
-          // Log for security monitoring
-          await this.prisma.session.update({
-            where: { token: hashedRefreshToken },
-            data: { isUsed: true }, // Mark as used to prevent further attempts
-          });
-          throw new UnauthorizedException(
-            'Session verification failed - please login again',
-          );
-        }
-      }
+      // SEC-017: Device fingerprint validation - field not in schema yet
+      // TODO: Add deviceFingerprint to Session model when ready to enable
+      // if (session.deviceFingerprint && deviceFingerprint) {
+      //   if (!validateSessionFingerprint(session.deviceFingerprint, deviceFingerprint, 'low')) {
+      //     this.logger.warn(
+      //       `SEC-017: Device fingerprint mismatch for user ${payload.sub} - potential session hijacking`,
+      //     );
+      //     await this.prisma.session.update({
+      //       where: { token: hashedRefreshToken },
+      //       data: { isUsed: true },
+      //     });
+      //     throw new UnauthorizedException(
+      //       'Session verification failed - please login again',
+      //     );
+      //   }
+      // }
 
       // Verify user still exists
       const user = await this.usersRepository.findById(payload.sub);
@@ -470,7 +469,7 @@ export class AuthService {
           expiresAt,
           ipAddress,
           userAgent,
-          deviceFingerprint, // SEC-017: Store fingerprint for hijacking detection
+          // deviceFingerprint, // SEC-017: Field not in schema yet
         },
       });
 
@@ -494,7 +493,7 @@ export class AuthService {
         15 * 60, // 15 minutes in seconds
       );
     } catch (error) {
-      this.logger.error('Token refresh failed', error.message);
+      this.logger.error('Token refresh failed', error instanceof Error ? error.message : String(error));
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
   }
@@ -623,7 +622,7 @@ export class AuthService {
         'Login successful',
       );
     } catch (error) {
-      this.logger.error('MFA login failed', error.message);
+      this.logger.error('MFA login failed', error instanceof Error ? error.message : String(error));
       throw new UnauthorizedException('Invalid MFA token or code');
     }
   }
@@ -709,7 +708,7 @@ export class AuthService {
       }
     } catch (error) {
       // Don't fail login if onboarding check fails
-      this.logger.error(`Failed to check onboarding status for user ${user.id}`, error.message);
+      this.logger.error(`Failed to check onboarding status for user ${user.id}`, error instanceof Error ? error.message : String(error));
     }
   }
 

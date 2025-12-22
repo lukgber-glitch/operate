@@ -12,7 +12,7 @@ export class CompleteMfaLoginDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'MFA token is required' })
-  mfaToken: string;
+  mfaToken!: string;
 
   @ApiProperty({
     description: '6-digit TOTP code from authenticator app or backup code',
@@ -20,5 +20,5 @@ export class CompleteMfaLoginDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'MFA code is required' })
-  mfaCode: string;
+  mfaCode!: string;
 }

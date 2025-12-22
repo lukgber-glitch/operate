@@ -16,5 +16,5 @@ export class SetPasswordDto {
     message:
       'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&#^()_+=-[]{}|;:\',.<>/\\)',
   })
-  password: string;
+  password!: string;
 }

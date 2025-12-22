@@ -62,6 +62,13 @@ export default () => ({
     db: parseInt(process.env.REDIS_DB || '0', 10),
   },
 
+  queues: {
+    // Enable queue system (requires Redis)
+    // Set to 'true' to enable background jobs, Bull Board dashboard, and scheduled tasks
+    // Disable for development without Redis or when not needed
+    enabled: process.env.ENABLE_QUEUES === 'true',
+  },
+
   aws: {
     region: process.env.AWS_REGION || 'us-east-1',
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,

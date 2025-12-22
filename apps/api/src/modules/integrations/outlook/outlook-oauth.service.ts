@@ -42,7 +42,7 @@ export class OutlookOAuthService {
   private readonly redirectUri: string;
   private readonly tenant: string;
   private readonly encryptionKey: string;
-  private readonly isConfigured: boolean = false;
+  private isConfigured: boolean = false;
 
   // In-memory state store for OAuth flow (use Redis in production)
   private readonly oauthStateMap: Map<
@@ -94,7 +94,7 @@ export class OutlookOAuthService {
     }
 
     // Mark as configured
-    (this as Prisma.InputJsonValue).isConfigured = true;
+    this.isConfigured = true;
 
     // Start periodic state cleanup
     this.startStateCleanup();
@@ -392,7 +392,7 @@ export class OutlookOAuthService {
         await this.prisma.emailConnection.update({
           where: { id: connectionId },
           data: {
-            syncStatus: 'ERROR',
+            syncStatus: 'FAILED',
             syncError: error.message,
           },
         });
@@ -670,7 +670,7 @@ export class OutlookOAuthService {
       await this.prisma.emailAuditLog.create({
         data: {
           connectionId,
-          action: log.action as Prisma.InputJsonValue,
+          action: log.action as any,
           endpoint: log.endpoint,
           statusCode: log.statusCode,
           success: log.success,

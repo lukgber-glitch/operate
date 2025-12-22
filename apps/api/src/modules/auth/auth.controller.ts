@@ -291,9 +291,8 @@ export class AuthController {
 
       // Check if user has completed onboarding and set cookie if true
       // Extract user from result since MFA completion doesn't use req.user
-      const user = { id: result.user?.id }; // Assuming result contains user info
-      if (user.id) {
-        await this.authService.checkAndSetOnboardingCookie(user, res);
+      if (result.userId) {
+        await this.authService.checkAndSetOnboardingCookie({ id: result.userId }, res);
       }
     }
 

@@ -31,7 +31,7 @@ export class ScreeningService {
   private readonly config: ComplyAdvantageConfig;
   private readonly httpClient: AxiosInstance;
   private readonly encryptionKey: string;
-  private readonly isConfigured: boolean = false;
+  private isConfigured: boolean = false;
 
   constructor(
     private readonly configService: ConfigService,
@@ -82,7 +82,7 @@ export class ScreeningService {
     this.setupInterceptors();
 
     // Mark as configured
-    (this as Prisma.InputJsonValue).isConfigured = true;
+    this.isConfigured = true;
     this.logger.log('ComplyAdvantage Screening Service initialized');
   }
 

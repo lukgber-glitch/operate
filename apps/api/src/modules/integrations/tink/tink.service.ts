@@ -46,7 +46,7 @@ export class TinkService {
   private readonly httpClient: AxiosInstance;
   private readonly encryptionKey: string;
   private readonly rateLimitInfo: Map<string, TinkRateLimitInfo> = new Map();
-  private readonly isConfigured: boolean = false;
+  private isConfigured: boolean = false;
   private clientAccessToken: string | null = null;
   private clientTokenExpiresAt: Date | null = null;
 
@@ -133,7 +133,7 @@ export class TinkService {
     );
 
     // Mark as configured
-    (this as Prisma.InputJsonValue).isConfigured = true;
+    this.isConfigured = true;
     this.logger.log(`Tink Service initialized (${this.config.environment} mode, Mock: ${this.config.mockMode})`);
   }
 

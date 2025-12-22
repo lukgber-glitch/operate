@@ -10,6 +10,8 @@ import { AutomationSettingsService } from '../../automation/automation-settings.
 import { AutoApproveService } from '../../automation/auto-approve.service';
 import { ExpensesService } from '../../finance/expenses/expenses.service';
 import { EventsGateway } from '../../../websocket/events.gateway';
+import { MindeeService } from '../../integrations/mindee/mindee.service';
+import { ReceiptParseResultDto } from '../../integrations/mindee/dto/mindee.dto';
 import { AutomationEvent, AutomationEventPayload } from '@operate/shared';
 import {
   ReceiptScanResult,
@@ -26,8 +28,7 @@ export class ReceiptScannerService {
 
   constructor(
     private readonly prisma: PrismaService,
-    // Note: MindeeService will be injected once BRIDGE creates it
-    // private readonly mindeeService: MindeeService,
+    private readonly mindeeService: MindeeService,
     private readonly classificationService: ClassificationService,
     private readonly automationSettingsService: AutomationSettingsService,
     private readonly autoApproveService: AutoApproveService,
@@ -66,14 +67,11 @@ export class ReceiptScannerService {
       await this.updateScanStatus(scanId, 'PROCESSING');
 
       // Step 1: OCR with Mindee
-      // TODO: Uncomment when MindeeService is available
-      // const ocrResult = await this.mindeeService.parseReceipt({
-      //   file,
-      //   mimeType,
-      // });
+      this.logger.debug('Calling Mindee OCR service');
+      const mindeeResult = await this.mindeeService.parseReceipt(file, mimeType);
 
-      // TEMPORARY: Mock OCR result for development
-      const ocrResult: ReceiptParseResult = this.mockOcrResult();
+      // Transform Mindee result to our internal format
+      const ocrResult: ReceiptParseResult = this.transformMindeeResult(mindeeResult);
 
       // Step 2: AI Classification
       const classification = await this.classifyReceipt(ocrResult);
@@ -493,39 +491,79 @@ export class ReceiptScannerService {
   }
 
   /**
-   * TEMPORARY: Mock OCR result for development
-   * TODO: Remove when Mindee integration is complete
+   * Transform Mindee API result to internal ReceiptParseResult format
    */
-  private mockOcrResult(): ReceiptParseResult {
-    return {
-      merchantName: 'Sample Merchant',
-      merchantAddress: '123 Main St, Berlin',
-      receiptNumber: 'REC-123456',
-      date: new Date(),
-      time: '14:30',
-      totalAmount: 45.99,
-      subtotal: 38.65,
-      taxAmount: 7.34,
-      currency: 'EUR',
-      taxRate: 19,
-      lineItems: [
-        {
-          description: 'Office supplies',
-          quantity: 2,
-          unitPrice: 15.99,
-          totalPrice: 31.98,
-        },
-        {
-          description: 'Coffee',
-          quantity: 1,
-          unitPrice: 6.67,
-          totalPrice: 6.67,
-        },
-      ],
-      paymentMethod: 'credit_card',
-      cardLast4: '4242',
-      confidence: 0.92,
+  private transformMindeeResult(mindeeResult: ReceiptParseResultDto): ReceiptParseResult {
+    this.logger.debug(
+      `Transforming Mindee result (success: ${mindeeResult.success}, confidence: ${mindeeResult.confidence})`,
+    );
+
+    // If parsing failed, return minimal result
+    if (!mindeeResult.success) {
+      this.logger.warn(`Mindee parsing failed: ${mindeeResult.errorMessage}`);
+      return {
+        confidence: 0,
+        ocrProvider: 'mindee',
+      };
+    }
+
+    // Calculate tax rate if we have both tax and subtotal
+    let taxRate: number | undefined;
+    if (mindeeResult.totals.tax && mindeeResult.totals.amount) {
+      const subtotal = mindeeResult.totals.amount - mindeeResult.totals.tax;
+      if (subtotal > 0) {
+        taxRate = (mindeeResult.totals.tax / subtotal) * 100;
+      }
+    }
+
+    // Calculate subtotal if not available (total - tax)
+    let subtotal: number | undefined;
+    if (mindeeResult.totals.amount && mindeeResult.totals.tax) {
+      subtotal = mindeeResult.totals.amount - mindeeResult.totals.tax;
+    }
+
+    // Transform to internal format
+    const result: ReceiptParseResult = {
+      // Merchant info
+      merchantName: mindeeResult.merchant.name,
+      merchantAddress: mindeeResult.merchant.address,
+      merchantPhone: mindeeResult.merchant.phone,
+
+      // Receipt details
+      receiptNumber: mindeeResult.receiptNumber,
+      date: mindeeResult.date.value,
+      time: mindeeResult.time,
+
+      // Amounts
+      totalAmount: mindeeResult.totals.amount,
+      subtotal,
+      taxAmount: mindeeResult.totals.tax,
+      tipAmount: mindeeResult.totals.tip,
+      currency: mindeeResult.totals.currency || 'EUR',
+
+      // Tax details
+      taxRate,
+
+      // Line items
+      lineItems: mindeeResult.lineItems.map((item) => ({
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        totalPrice: item.totalPrice,
+      })),
+
+      // Payment info
+      paymentMethod: mindeeResult.paymentMethod,
+
+      // Metadata
+      confidence: mindeeResult.confidence,
       ocrProvider: 'mindee',
     };
+
+    this.logger.debug(
+      `Transformed result: merchant=${result.merchantName}, total=${result.totalAmount} ${result.currency}`,
+    );
+
+    return result;
   }
 }
