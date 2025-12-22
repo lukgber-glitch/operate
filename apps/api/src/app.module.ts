@@ -122,68 +122,65 @@ import configuration from './config/configuration';
       },
     ]),
 
-    // Bull queue modules - conditionally loaded when ENABLE_QUEUES=true
-    // This prevents startup hang when Redis is not available
-    ...(QUEUES_ENABLED
-      ? [
-          // Bull queue module for background jobs
-          BullModule.forRootAsync({
-            imports: [ConfigModule],
-            useFactory: async (configService: ConfigService) => {
-              const redisUsername = configService.get<string>('redis.username');
-              const redisPassword = configService.get<string>('redis.password');
-              const redisHost = configService.get<string>('redis.host') || 'localhost';
-              const redisPort = configService.get<number>('redis.port') || 6379;
-              const redisDb = configService.get<number>('redis.db') || 0;
-              const redisPrefix = redisUsername ? `${redisUsername}:` : '';
+    // Bull queue global config - ALWAYS loaded to provide Redis auth for any module using BullModule.registerQueue
+    // Even when queue processing is disabled, modules may still register queues
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const redisUsername = configService.get<string>('redis.username');
+        const redisPassword = configService.get<string>('redis.password');
+        const redisHost = configService.get<string>('redis.host') || 'localhost';
+        const redisPort = configService.get<number>('redis.port') || 6379;
+        const redisDb = configService.get<number>('redis.db') || 0;
+        const redisPrefix = redisUsername ? `${redisUsername}:` : '';
 
-              // Build Redis URL with authentication for Redis ACL
-              let redisUrl = 'redis://';
-              if (redisUsername && redisPassword) {
-                redisUrl += `${encodeURIComponent(redisUsername)}:${encodeURIComponent(redisPassword)}@`;
-              } else if (redisPassword) {
-                redisUrl += `:${encodeURIComponent(redisPassword)}@`;
-              }
-              redisUrl += `${redisHost}:${redisPort}/${redisDb}`;
+        // Build Redis URL with authentication for Redis ACL
+        let redisUrl = 'redis://';
+        if (redisUsername && redisPassword) {
+          redisUrl += `${encodeURIComponent(redisUsername)}:${encodeURIComponent(redisPassword)}@`;
+        } else if (redisPassword) {
+          redisUrl += `:${encodeURIComponent(redisPassword)}@`;
+        }
+        redisUrl += `${redisHost}:${redisPort}/${redisDb}`;
 
-              console.log(`[Bull] Queues ENABLED - Redis: ${redisUrl.replace(/:[^:@]+@/, ':****@')}`);
+        console.log(`[Bull] Redis config loaded: ${redisUrl.replace(/:[^:@]+@/, ':****@')}`);
 
-              return {
-                redis: redisUrl,
-                prefix: `${redisPrefix}bull`,
-                settings: {
-                  stalledInterval: 30000,
-                  maxStalledCount: 1,
-                },
-              };
-            },
-            inject: [ConfigService],
-          }),
+        return {
+          redis: redisUrl,
+          prefix: `${redisPrefix}bull`,
+          settings: {
+            stalledInterval: 30000,
+            maxStalledCount: 1,
+          },
+        };
+      },
+      inject: [ConfigService],
+    }),
 
-          // BullMQ module for background jobs (newer API)
-          BullMQModule.forRootAsync({
-            imports: [ConfigModule],
-            useFactory: (configService: ConfigService) => {
-              const redisUsername = configService.get<string>('redis.username');
-              const redisPrefix = redisUsername ? `${redisUsername}:` : '';
+    // BullMQ global config - ALWAYS loaded to provide Redis auth for any module using BullMQ
+    BullMQModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        const redisUsername = configService.get<string>('redis.username');
+        const redisPrefix = redisUsername ? `${redisUsername}:` : '';
 
-              return {
-                connection: {
-                  host: configService.get<string>('redis.host') || 'localhost',
-                  port: configService.get<number>('redis.port') || 6379,
-                  username: redisUsername || undefined,
-                  password: configService.get<string>('redis.password') || undefined,
-                  db: configService.get<number>('redis.db') || 0,
-                  enableReadyCheck: false,
-                  maxRetriesPerRequest: null,
-                },
-                prefix: `${redisPrefix}bull`,
-              };
-            },
-            inject: [ConfigService],
-          }),
-        ]
-      : (console.log('[Bull] Queues DISABLED - set ENABLE_QUEUES=true to enable'), [])),
+        console.log(`[BullMQ] Redis config loaded`);
+
+        return {
+          connection: {
+            host: configService.get<string>('redis.host') || 'localhost',
+            port: configService.get<number>('redis.port') || 6379,
+            username: redisUsername || undefined,
+            password: configService.get<string>('redis.password') || undefined,
+            db: configService.get<number>('redis.db') || 0,
+            enableReadyCheck: false,
+            maxRetriesPerRequest: null,
+          },
+          prefix: `${redisPrefix}bull`,
+        };
+      },
+      inject: [ConfigService],
+    }),
 
     // Global database module
     DatabaseModule,
