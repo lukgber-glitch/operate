@@ -211,7 +211,7 @@ import configuration from './config/configuration';
     // Integration modules
     ViesModule,
     ElsterModule,
-    FinanzOnlineModule,
+    // FinanzOnlineModule uses BullMQ - conditionally loaded below when QUEUES_ENABLED=true
     SvMeldungModule,
     OutlookModule,
     GmailModule,
@@ -220,7 +220,7 @@ import configuration from './config/configuration';
     // PlaidModule and TrueLayerModule use BullMQ - conditionally loaded below when QUEUES_ENABLED=true
     AvalaraModule,
     QuickBooksModule,
-    XeroModule,
+    // XeroModule uses BullMQ - conditionally loaded below when QUEUES_ENABLED=true
     GoCardlessModule,
     // EmailSyncModule removed - has broken dependencies
 
@@ -299,7 +299,7 @@ import configuration from './config/configuration';
 
     // Queue and Jobs modules - conditionally loaded when ENABLE_QUEUES=true
     // These require Redis for Bull queues and scheduled tasks
-    ...(QUEUES_ENABLED ? [QueueModule, JobsModule, PlaidModule, TrueLayerModule] : []),
+    ...(QUEUES_ENABLED ? [QueueModule, JobsModule, PlaidModule, TrueLayerModule, XeroModule, FinanzOnlineModule] : []),
   ],
   controllers: [],
   providers: [
