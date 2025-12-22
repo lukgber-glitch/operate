@@ -28,12 +28,32 @@ export interface AIConsentData {
   ip?: string; // Optional for audit trail
 }
 
+// Helper to get initial consent data synchronously from localStorage
+function getInitialConsentData(): AIConsentData | null {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const stored = localStorage.getItem(CONSENT_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored) as AIConsentData;
+      // Validate the data structure
+      if (typeof parsed.hasConsent === 'boolean' && parsed.version) {
+        return parsed;
+      }
+    }
+  } catch (error) {
+    console.error('[useAIConsent] Failed to parse initial consent data:', error);
+  }
+  return null;
+}
+
 export function useAIConsent() {
-  const [consentData, setConsentData] = useState<AIConsentData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Initialize synchronously from localStorage to prevent flash of consent dialog
+  const [consentData, setConsentData] = useState<AIConsentData | null>(() => getInitialConsentData());
+  const [isLoading, setIsLoading] = useState(false); // Start as false since we loaded sync
   const { storeToken, retrieveToken, removeToken, isNativeSecure } = useSecureStorage();
 
-  // Load consent data on mount
+  // Also check secure storage on mount (may have newer data)
   useEffect(() => {
     loadConsentData();
   }, []);

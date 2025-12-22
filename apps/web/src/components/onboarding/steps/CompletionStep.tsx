@@ -138,10 +138,33 @@ export function CompletionStep({ companyName, setupCompleted, aiConsentGiven }: 
     }
   }
 
-  const handleNavigate = (e: React.MouseEvent, href: string) => {
+  const handleNavigate = async (e: React.MouseEvent, href: string) => {
     e.preventDefault()
     e.stopPropagation()
-    router.push(href)
+    setIsNavigating(true)
+
+    try {
+      // CRITICAL FIX: Save AI consent BEFORE any navigation
+      // Previously this function just navigated without saving consent
+      // which caused consent dialog to appear on chat page
+      if (aiConsentGiven && !hasConsent) {
+        console.log('[Onboarding] Saving AI consent before navigation to:', href)
+        const consentSaved = await giveConsent()
+        console.log('[Onboarding] AI consent saved:', consentSaved)
+        // Give localStorage time to persist
+        await new Promise(resolve => setTimeout(resolve, 100))
+      }
+
+      // Mark onboarding complete
+      document.cookie = 'onboarding_complete=true; path=/; max-age=31536000; SameSite=Lax'
+      localStorage.removeItem('operate_onboarding_progress')
+
+      router.push(href)
+    } catch (error) {
+      console.error('Error during navigation:', error)
+      // Still try to navigate even if consent save fails
+      router.push(href)
+    }
   }
 
   const completedIntegrations = Object.values(setupCompleted || {}).filter(Boolean).length

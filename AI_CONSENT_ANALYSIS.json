@@ -1,4 +1,5 @@
 {
+  "url": "https://operate.guru/login",
   "dialogCount": 0,
   "viewport": {
     "width": 1920,
@@ -7,7 +8,9 @@
   "dialogs": [],
   "sidebar": {
     "found": true,
+    "visible": true,
     "rect": {},
-    "visible": true
-  }
+    "zIndex": "auto"
+  },
+  "sidebarBlocked": false
 }
