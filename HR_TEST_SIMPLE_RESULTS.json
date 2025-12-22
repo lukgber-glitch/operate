@@ -1,0 +1,50 @@
+{
+  "results": [
+    {
+      "route": "/hr/employees",
+      "name": "Employee List",
+      "passed": false,
+      "error": "page.waitForTimeout is not a function"
+    },
+    {
+      "route": "/hr/employees/new",
+      "name": "New Employee Form",
+      "passed": false,
+      "error": "page.waitForTimeout is not a function"
+    },
+    {
+      "route": "/hr/payroll",
+      "name": "Payroll Overview",
+      "passed": false,
+      "error": "page.waitForTimeout is not a function"
+    },
+    {
+      "route": "/hr/payroll/runs",
+      "name": "Payroll Runs",
+      "passed": false,
+      "error": "page.waitForTimeout is not a function"
+    },
+    {
+      "route": "/time",
+      "name": "Time Tracking",
+      "passed": false,
+      "error": "page.waitForTimeout is not a function"
+    },
+    {
+      "route": "/time/entries",
+      "name": "Time Entries",
+      "passed": false,
+      "error": "page.waitForTimeout is not a function"
+    },
+    {
+      "route": "/time/projects",
+      "name": "Time Projects",
+      "passed": false,
+      "error": "page.waitForTimeout is not a function"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "passed": 0
+  }
+}

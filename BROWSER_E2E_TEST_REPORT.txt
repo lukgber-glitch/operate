@@ -1,0 +1,16 @@
+## BROWSER E2E TEST REPORT
+Timestamp: 2025-12-20T11:30:01.066Z
+
+### QUICK ANSWERS:
+1. Did auth work? NO
+2. Did you reach /chat? NO
+3. Was chat input found? NO
+4. Did message send? NO
+5. Did AI respond? NO
+6. Other pages: {}
+
+### SCREENSHOTS:
+
+
+### ERRORS:
+Navigation timeout of 10000 ms exceeded

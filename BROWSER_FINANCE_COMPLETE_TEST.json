@@ -1,0 +1,797 @@
+{
+  "batch": "04-07",
+  "timestamp": "2025-12-17T16:28:32.186Z",
+  "totalPages": 16,
+  "passed": 0,
+  "failed": 28,
+  "pages": [
+    {
+      "batch": "04",
+      "route": "/finance",
+      "name": "Finance Dashboard",
+      "url": "https://operate.guru/finance",
+      "status": "ERROR",
+      "httpStatus": 200,
+      "passed": false,
+      "redirected": true,
+      "redirectUrl": "https://operate.guru/login?from=%2Ffinance",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\finance-complete\\batch04--finance.png",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiErrors": [
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        }
+      ],
+      "loadTime": 1277,
+      "issues": [
+        "Redirected to auth",
+        "2 console errors",
+        "2 API errors",
+        "page.removeListener is not a function"
+      ]
+    },
+    {
+      "batch": "04",
+      "route": "/finance/accounts",
+      "name": "Finance Accounts",
+      "url": "https://operate.guru/finance/accounts",
+      "status": "ERROR",
+      "httpStatus": 200,
+      "passed": false,
+      "redirected": true,
+      "redirectUrl": "https://operate.guru/login?from=%2Ffinance%2Faccounts",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\finance-complete\\batch04--finance-accounts.png",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiErrors": [
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        }
+      ],
+      "loadTime": 875,
+      "issues": [
+        "Redirected to auth",
+        "2 console errors",
+        "2 API errors",
+        "page.removeListener is not a function"
+      ]
+    },
+    {
+      "batch": "04",
+      "route": "/finance/transactions",
+      "name": "Finance Transactions",
+      "url": "https://operate.guru/finance/transactions",
+      "status": "ERROR",
+      "httpStatus": 200,
+      "passed": false,
+      "redirected": true,
+      "redirectUrl": "https://operate.guru/login?from=%2Ffinance%2Ftransactions",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\finance-complete\\batch04--finance-transactions.png",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiErrors": [
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        }
+      ],
+      "loadTime": 1076,
+      "issues": [
+        "Redirected to auth",
+        "2 console errors",
+        "2 API errors",
+        "page.removeListener is not a function"
+      ]
+    },
+    {
+      "batch": "04",
+      "route": "/finance/reconciliation",
+      "name": "Finance Reconciliation",
+      "url": "https://operate.guru/finance/reconciliation",
+      "status": "ERROR",
+      "httpStatus": 200,
+      "passed": false,
+      "redirected": true,
+      "redirectUrl": "https://operate.guru/login?from=%2Ffinance%2Freconciliation",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\finance-complete\\batch04--finance-reconciliation.png",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiErrors": [
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        }
+      ],
+      "loadTime": 1348,
+      "issues": [
+        "Redirected to auth",
+        "2 console errors",
+        "2 API errors",
+        "page.removeListener is not a function"
+      ]
+    },
+    {
+      "batch": "04",
+      "route": "/finance/payments",
+      "name": "Finance Payments",
+      "url": "https://operate.guru/finance/payments",
+      "status": "ERROR",
+      "httpStatus": 200,
+      "passed": false,
+      "redirected": true,
+      "redirectUrl": "https://operate.guru/login?from=%2Ffinance%2Fpayments",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\finance-complete\\batch04--finance-payments.png",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiErrors": [
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        }
+      ],
+      "loadTime": 747,
+      "issues": [
+        "Redirected to auth",
+        "1 console errors",
+        "1 API errors",
+        "page.removeListener is not a function"
+      ]
+    },
+    {
+      "batch": "04",
+      "route": "/billing",
+      "name": "Billing",
+      "url": "https://operate.guru/billing",
+      "status": "ERROR",
+      "httpStatus": 200,
+      "passed": false,
+      "redirected": true,
+      "redirectUrl": "https://operate.guru/login?from=%2Fbilling",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\finance-complete\\batch04--billing.png",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiErrors": [
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        }
+      ],
+      "loadTime": 993,
+      "issues": [
+        "Redirected to auth",
+        "1 console errors",
+        "1 API errors",
+        "page.removeListener is not a function"
+      ]
+    },
+    {
+      "batch": "05",
+      "route": "/finance/invoices",
+      "name": "Invoices List",
+      "url": "https://operate.guru/finance/invoices",
+      "status": "ERROR",
+      "httpStatus": 200,
+      "passed": false,
+      "redirected": true,
+      "redirectUrl": "https://operate.guru/login?from=%2Ffinance%2Finvoices",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\finance-complete\\batch05--finance-invoices.png",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiErrors": [
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        }
+      ],
+      "loadTime": 1729,
+      "issues": [
+        "Redirected to auth",
+        "1 console errors",
+        "1 API errors",
+        "page.removeListener is not a function"
+      ]
+    },
+    {
+      "batch": "05",
+      "route": "/finance/invoices/new",
+      "name": "New Invoice",
+      "url": "https://operate.guru/finance/invoices/new",
+      "status": "ERROR",
+      "httpStatus": 200,
+      "passed": false,
+      "redirected": true,
+      "redirectUrl": "https://operate.guru/login?from=%2Ffinance%2Finvoices%2Fnew",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\finance-complete\\batch05--finance-invoices-new.png",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiErrors": [
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        }
+      ],
+      "loadTime": 1350,
+      "issues": [
+        "Redirected to auth",
+        "1 console errors",
+        "1 API errors",
+        "page.removeListener is not a function"
+      ]
+    },
+    {
+      "batch": "05",
+      "route": "/finance/invoices/extracted",
+      "name": "Extracted Invoices",
+      "url": "https://operate.guru/finance/invoices/extracted",
+      "status": "ERROR",
+      "httpStatus": 200,
+      "passed": false,
+      "redirected": true,
+      "redirectUrl": "https://operate.guru/login?from=%2Ffinance%2Finvoices%2Fextracted",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\finance-complete\\batch05--finance-invoices-extracted.png",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiErrors": [
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        }
+      ],
+      "loadTime": 1726,
+      "issues": [
+        "Redirected to auth",
+        "1 console errors",
+        "1 API errors",
+        "page.removeListener is not a function"
+      ]
+    },
+    {
+      "batch": "05",
+      "route": "/finance/invoices/recurring",
+      "name": "Recurring Invoices",
+      "url": "https://operate.guru/finance/invoices/recurring",
+      "status": "ERROR",
+      "httpStatus": 200,
+      "passed": false,
+      "redirected": true,
+      "redirectUrl": "https://operate.guru/login?from=%2Ffinance%2Finvoices%2Frecurring",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\finance-complete\\batch05--finance-invoices-recurring.png",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiErrors": [
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        }
+      ],
+      "loadTime": 1168,
+      "issues": [
+        "Redirected to auth",
+        "1 console errors",
+        "1 API errors",
+        "page.removeListener is not a function"
+      ]
+    },
+    {
+      "batch": "05",
+      "route": "/finance/invoices/recurring/new",
+      "name": "New Recurring Invoice",
+      "url": "https://operate.guru/finance/invoices/recurring/new",
+      "status": "ERROR",
+      "httpStatus": 200,
+      "passed": false,
+      "redirected": true,
+      "redirectUrl": "https://operate.guru/login?from=%2Ffinance%2Finvoices%2Frecurring%2Fnew",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\finance-complete\\batch05--finance-invoices-recurring-new.png",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiErrors": [
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        },
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        }
+      ],
+      "loadTime": 1689,
+      "issues": [
+        "Redirected to auth",
+        "1 console errors",
+        "1 API errors",
+        "page.removeListener is not a function"
+      ]
+    },
+    {
+      "batch": "06",
+      "route": "/finance/expenses",
+      "name": "Expenses List",
+      "url": "https://operate.guru/finance/expenses",
+      "status": "ERROR",
+      "httpStatus": 200,
+      "passed": false,
+      "redirected": true,
+      "redirectUrl": "https://operate.guru/login?from=%2Ffinance%2Fexpenses",
+      "screenshot": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\finance-complete\\batch06--finance-expenses.png",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiErrors": [
+        {
+          "url": "https://operate.guru/api/v1/auth/me",
+          "status": 401
+        }
+      ],
+      "loadTime": 1266,
+      "issues": [
+        "Redirected to auth",
+        "1 console errors",
+        "1 API errors",
+        "page.removeListener is not a function"
+      ]
+    },
+    {
+      "batch": "06",
+      "route": "/finance/expenses/new",
+      "name": "New Expense",
+      "url": "https://operate.guru/finance/expenses/new",
+      "status": "ERROR",
+      "httpStatus": null,
+      "passed": false,
+      "redirected": false,
+      "redirectUrl": null,
+      "screenshot": null,
+      "consoleErrors": [],
+      "apiErrors": [],
+      "loadTime": 0,
+      "issues": [
+        "net::ERR_ABORTED at https://operate.guru/finance/expenses/new"
+      ]
+    },
+    {
+      "batch": "06",
+      "route": "/finance/expenses/scan",
+      "name": "Scan Expense",
+      "url": "https://operate.guru/finance/expenses/scan",
+      "status": "ERROR",
+      "httpStatus": null,
+      "passed": false,
+      "redirected": false,
+      "redirectUrl": null,
+      "screenshot": null,
+      "consoleErrors": [],
+      "apiErrors": [],
+      "loadTime": 0,
+      "issues": [
+        "net::ERR_ABORTED at https://operate.guru/finance/expenses/scan"
+      ]
+    },
+    {
+      "batch": "07",
+      "route": "/finance/banking",
+      "name": "Banking Dashboard",
+      "url": "https://operate.guru/finance/banking",
+      "status": "ERROR",
+      "httpStatus": null,
+      "passed": false,
+      "redirected": false,
+      "redirectUrl": null,
+      "screenshot": null,
+      "consoleErrors": [],
+      "apiErrors": [],
+      "loadTime": 0,
+      "issues": [
+        "net::ERR_ABORTED at https://operate.guru/finance/banking"
+      ]
+    },
+    {
+      "batch": "07",
+      "route": "/finance/bank-accounts",
+      "name": "Bank Accounts",
+      "url": "https://operate.guru/finance/bank-accounts",
+      "status": "ERROR",
+      "httpStatus": null,
+      "passed": false,
+      "redirected": false,
+      "redirectUrl": null,
+      "screenshot": null,
+      "consoleErrors": [],
+      "apiErrors": [],
+      "loadTime": 0,
+      "issues": [
+        "net::ERR_ABORTED at https://operate.guru/finance/bank-accounts"
+      ]
+    }
+  ]
+}

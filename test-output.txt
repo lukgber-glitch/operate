@@ -1,0 +1,19 @@
+
+=== AUTHENTICATED FLOW TEST ===
+
+Credentials: luk.gber@gmail.com / schlagzeug
+
+Step 1: Loading login page...
+  ✓ Login page loaded
+
+Step 2: Initiating Google OAuth...
+  ! MANUAL STEP REQUIRED !
+  Please click "Google" button and complete OAuth login
+  Email: luk.gber@gmail.com
+  Password: schlagzeug
+
+  Waiting 60 seconds for manual login...
+
+✗ Test failed: Waiting failed: 60000ms exceeded
+
+Browser will stay open. Press Ctrl+C to close when done.

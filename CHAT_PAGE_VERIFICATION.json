@@ -1,0 +1,49 @@
+{
+  "timestamp": "2025-12-20T22:25:33.123Z",
+  "test": "Chat Page Load Verification",
+  "steps": [
+    {
+      "step": "Navigate to login",
+      "status": "PASS",
+      "timestamp": "2025-12-20T22:25:36.744Z"
+    },
+    {
+      "step": "Fill credentials",
+      "status": "PASS",
+      "timestamp": "2025-12-20T22:25:37.276Z"
+    },
+    {
+      "step": "Submit login",
+      "status": "PASS",
+      "url": "https://operate.guru/chat",
+      "timestamp": "2025-12-20T22:25:44.071Z"
+    },
+    {
+      "step": "Redirect to chat",
+      "status": "PASS",
+      "url": "https://operate.guru/chat",
+      "timestamp": "2025-12-20T22:25:44.226Z"
+    },
+    {
+      "step": "Wait for page load",
+      "status": "PASS",
+      "timestamp": "2025-12-20T22:25:54.233Z"
+    }
+  ],
+  "errorBoundary": {
+    "hasError": true,
+    "hasErrorBoundary": true,
+    "bodyText": "Skip to main content!function(){try{var d=document.documentElement,c=d.classList;c.remove('light','dark');var e=localStorage.getItem('operate-theme');if('system'===e||(!e&&true)){var t='(prefers-color-scheme: dark)',m=window.matchMedia(t);if(m.media!==t||m.matches){d.style.colorScheme = 'dark';c.add('dark')}else{d.style.colorScheme = 'light';c.add('light')}}else if(e){c.add(e|| '')}if(e==='light'||e==='dark')d.style.colorScheme=e}catch(e){}}()(self.__next_f=self.__next_f||[]).push([0]);self.__ne"
+  },
+  "chatElements": {
+    "hasInput": false,
+    "hasSuggestionChips": false,
+    "hasChatHistory": false,
+    "visibleText": "Skip to main content!function(){try{var d=document.documentElement,c=d.classList;c.remove('light','dark');var e=localStorage.getItem('operate-theme');if('system'===e||(!e&&true)){var t='(prefers-color-scheme: dark)',m=window.matchMedia(t);if(m.media!==t||m.matches){d.style.colorScheme = 'dark';c.add('dark')}else{d.style.colorScheme = 'light';c.add('light')}}else if(e){c.add(e|| '')}if(e==='light'||e==='dark')d.style.colorScheme=e}catch(e){}}()(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])self.__next_f.push([1,\"1:HL[\\\"/_next/static/media/03e99ac36af9610f-s.p.woff2\\\",\\\"font\\\",{\\\"crossOrigin\\\":\\\"\\\",\\\"type\\\":\\\"font/woff2\\\"}]\\n2:HL[\\\"/_next/static/media/047656d93d2f3e30-s.p.woff2\\\",\\\"font\\\",{\\\"crossOrigin\\\":\\\"\\\",\\\"type\\\":\\\"font/woff2\\\"}]\\n3:HL[\\\"/_next/static/media/6bb9846031bb03b3-s.p.woff2\\\",\\\"font\\\",{\\\"crossOrigin\\\":\\\"\\\",\\\"type\\\":\\\"font/woff2\\\"}]\\n4:HL[\\\"/_next/static/media/d1eb6e250d92a46a-s.p.woff2\\\",\\\"font\\\",{\\\"crossOrigin\\\":\\\"\\\",\\\"type\\\":\\\"font/woff2\\\"}]\\n5:"
+  },
+  "finalAssessment": {
+    "chatPageLoads": false,
+    "chatInterfaceVisible": false,
+    "overallStatus": "FAIL"
+  }
+}

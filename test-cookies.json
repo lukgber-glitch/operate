@@ -1,0 +1,17 @@
+[
+  {
+    "name": "XSRF-TOKEN",
+    "value": "86bc587ddfd6b0df9bcbb329af67895a833930bfa2bc12c50d11321a3dc079c5",
+    "domain": "operate.guru",
+    "path": "/",
+    "expires": 1766343074.89075,
+    "size": 74,
+    "httpOnly": false,
+    "secure": true,
+    "session": false,
+    "sameSite": "Strict",
+    "priority": "Medium",
+    "sameParty": false,
+    "sourceScheme": "Secure"
+  }
+]

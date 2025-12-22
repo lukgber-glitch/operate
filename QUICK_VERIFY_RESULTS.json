@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-12-20T19:30:28.648Z",
+  "results": [
+    {
+      "path": "/finance/invoices",
+      "status": "FAIL",
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "hasError": false
+    },
+    {
+      "path": "/finance/expenses",
+      "status": "FAIL",
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "hasError": false
+    },
+    {
+      "path": "/time",
+      "status": "FAIL",
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "hasError": false
+    },
+    {
+      "path": "/chat",
+      "status": "FAIL",
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "hasError": false
+    }
+  ]
+}

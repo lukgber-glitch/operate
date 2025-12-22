@@ -1,0 +1,63 @@
+{
+  "login": {
+    "status": "FAIL",
+    "error": "Navigation timeout of 15000 ms exceeded",
+    "jsErrors": [
+      "Failed to load resource: the server responded with a status of 401 ()",
+      "Failed to load resource: the server responded with a status of 401 ()"
+    ],
+    "apiErrors": [
+      "[401] https://operate.guru/api/v1/auth/me",
+      "[401] https://operate.guru/api/v1/auth/me"
+    ],
+    "loginError": "Navigation timeout of 30000 ms exceeded"
+  },
+  "register": {
+    "status": "FAIL",
+    "error": "Navigation timeout of 15000 ms exceeded",
+    "jsErrors": [
+      "Failed to load resource: the server responded with a status of 401 ()"
+    ],
+    "apiErrors": [
+      "[401] https://operate.guru/api/v1/auth/me"
+    ]
+  },
+  "forgot-password": {
+    "status": "FAIL",
+    "error": "Navigation timeout of 15000 ms exceeded",
+    "jsErrors": [],
+    "apiErrors": []
+  },
+  "verify-email": {
+    "status": "FAIL",
+    "error": "Navigation timeout of 15000 ms exceeded",
+    "jsErrors": [],
+    "apiErrors": []
+  },
+  "mfa-setup": {
+    "status": "FAIL",
+    "error": "Navigation timeout of 15000 ms exceeded",
+    "jsErrors": [
+      "Failed to load resource: the server responded with a status of 401 ()"
+    ],
+    "apiErrors": [
+      "[401] https://operate.guru/api/v1/auth/me"
+    ]
+  },
+  "mfa-verify": {
+    "status": "FAIL",
+    "error": "Navigation timeout of 15000 ms exceeded",
+    "jsErrors": [
+      "Failed to load resource: the server responded with a status of 401 ()"
+    ],
+    "apiErrors": [
+      "[401] https://operate.guru/api/v1/auth/me"
+    ]
+  },
+  "auth-error": {
+    "status": "FAIL",
+    "error": "Navigation timeout of 15000 ms exceeded",
+    "jsErrors": [],
+    "apiErrors": []
+  }
+}

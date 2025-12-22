@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-12-20T23:00:58.654Z",
+  "steps": [
+    {
+      "step": 1,
+      "status": "SUCCESS",
+      "action": "Navigate to login page",
+      "url": "https://operate.guru/login"
+    },
+    {
+      "step": 2,
+      "status": "SUCCESS",
+      "action": "Page loaded"
+    },
+    {
+      "step": 3,
+      "status": "SUCCESS",
+      "action": "Filled email field"
+    },
+    {
+      "step": 4,
+      "status": "SUCCESS",
+      "action": "Filled password field"
+    },
+    {
+      "step": 5,
+      "status": "SUCCESS",
+      "action": "Clicked Sign in button"
+    },
+    {
+      "step": 6,
+      "status": "SUCCESS",
+      "action": "Waited 8 seconds"
+    }
+  ],
+  "finalState": {
+    "url": "https://operate.guru/onboarding",
+    "errorMessages": [],
+    "visibleText": "Skip to main content\nWelcome to Operate\n\nYour intelligent business management platform. Let's get you set up in minutes.\n\nLightning Fast\n\nSet up your account in under 5 minutes and start automating immediately\n\nBank-Level Security\n\nYour data is encrypted with 256-bit encryption and stored securely\n\nAI-Powered Insights\n\nSmart automation classifies transactions and suggests optimizations\n\nGet Started\nImport Data\nSOC 2 Compliant\nGDPR Ready\n256-bit Encryption",
+    "pageElements": {
+      "hasChatInterface": false,
+      "hasChatInput": false,
+      "hasDashboard": false,
+      "hasNavigation": false,
+      "hasSidebar": false,
+      "title": "Welcome to Operate | Setup Your Account",
+      "mainHeadings": [
+        "Welcome to Operate",
+        "Lightning Fast",
+        "Bank-Level Security",
+        "AI-Powered Insights"
+      ]
+    },
+    "consoleLogs": [],
+    "testStatus": "COMPLETED"
+  }
+}

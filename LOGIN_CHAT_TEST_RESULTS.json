@@ -1,0 +1,58 @@
+{
+  "timestamp": "2025-12-20T21:24:58.351Z",
+  "tests": [
+    {
+      "step": 1,
+      "name": "Load login",
+      "status": "PASS"
+    },
+    {
+      "step": 2,
+      "name": "Fill form",
+      "status": "PASS"
+    },
+    {
+      "step": 3,
+      "name": "Login submit",
+      "status": "PASS",
+      "url": "https://operate.guru/chat"
+    },
+    {
+      "step": 4,
+      "name": "Chat page verification",
+      "finalUrl": "https://operate.guru/chat",
+      "pageTitle": "Operate - Business Autopilot",
+      "hasError": true,
+      "hasChatInput": false,
+      "htmlSaved": "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\login-chat\\chat-page.html",
+      "status": "FAIL",
+      "error": "Error boundary detected"
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "JSHandle@error",
+    "Error fetching suggestions: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to fetch extracted invoices: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Error fetching suggestions: JSHandle@error"
+  ],
+  "networkErrors": [
+    "https://operate.guru/chat?_rsc=tj1mm - net::ERR_ABORTED",
+    "https://operate.guru/login?from=%2F - net::ERR_ABORTED",
+    "https://operate.guru/forgot-password?_rsc=10x2f - net::ERR_ABORTED",
+    "https://operate.guru/register?_rsc=10x2f - net::ERR_ABORTED"
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 1,
+    "total": 4
+  }
+}

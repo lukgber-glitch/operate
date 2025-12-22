@@ -1,0 +1,86 @@
+{
+  "timestamp": "2025-12-20T11:22:04.911Z",
+  "journeys": [
+    {
+      "name": "Dashboard",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Go to /chat",
+          "expected": "/chat",
+          "actual": "http://localhost:3000/login?from=%2Fchat",
+          "status": "FAIL"
+        }
+      ],
+      "status": "FAIL",
+      "duration": 4380,
+      "frictionPoints": [
+        "Redirected"
+      ]
+    },
+    {
+      "name": "Chat",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Find input",
+          "expected": "Found",
+          "actual": "No",
+          "status": "FAIL"
+        }
+      ],
+      "status": "FAIL",
+      "duration": 2018,
+      "frictionPoints": [
+        "No input"
+      ]
+    },
+    {
+      "name": "Pages",
+      "steps": [
+        {
+          "step": 1,
+          "action": "/finance/invoices",
+          "expected": "OK",
+          "actual": "Redirect",
+          "status": "FAIL"
+        },
+        {
+          "step": 2,
+          "action": "/finance/expenses",
+          "expected": "OK",
+          "actual": "Redirect",
+          "status": "FAIL"
+        },
+        {
+          "step": 3,
+          "action": "/time",
+          "expected": "OK",
+          "actual": "Redirect",
+          "status": "FAIL"
+        },
+        {
+          "step": 4,
+          "action": "/settings",
+          "expected": "OK",
+          "actual": "Redirect",
+          "status": "FAIL"
+        }
+      ],
+      "status": "FAIL",
+      "duration": 13516,
+      "frictionPoints": [
+        "/finance/invoices",
+        "/finance/expenses",
+        "/time",
+        "/settings"
+      ]
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "passed": 0,
+    "failed": 3,
+    "duration": 21729
+  }
+}

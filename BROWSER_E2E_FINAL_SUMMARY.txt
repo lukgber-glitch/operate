@@ -1,0 +1,83 @@
+BROWSER-E2E Test Report - Pre-Authenticated Session
+Test Date: 2025-12-20
+Base URL: http://localhost:3000
+
+=== SUMMARY ===
+Total Journeys Attempted: 3
+Passed: 0
+Failed: 3
+Status: BLOCKED - Authentication Issue
+
+=== CRITICAL FINDING ===
+The authentication cookie system requires specific format that was not initially compatible with test setup.
+
+Cookie Format Required:
+- Name: op_auth
+- Value: URL-encoded JSON {a: access_token, r: refresh_token}
+- httpOnly: true
+- Domain: localhost
+
+=== TEST RESULTS ===
+
+Journey 1: Dashboard Access
+- Navigate to /chat with cookies -> FAIL
+- Result: Redirected to /login?from=%2Fchat
+- Issue: Cookies not recognized by middleware
+
+Journey 2: Chat Input
+- Find chat input -> FAIL
+- Result: Never reached chat page
+- Issue: Stuck on login page
+
+Journey 3: Other Pages
+- /finance/invoices -> FAIL (redirect to login)
+- /finance/expenses -> FAIL (redirect to login)
+- /time -> FAIL (redirect to login)
+- /settings -> FAIL (redirect to login)
+
+=== ROOT CAUSE ===
+
+1. Token Expiration (Most Likely)
+   - Access token exp: 1766230294
+   - May be expired
+   - Need fresh tokens
+
+2. Cookie Format Initially Wrong
+   - Test used separate access_token/refresh_token cookies
+   - Middleware expects combined op_auth cookie
+
+3. Navigation Timeout
+   - After fixing cookie format, page timed out
+   - Suggests redirect loop or server issue
+
+=== RECOMMENDATIONS ===
+
+OPTION 1: Get Fresh Valid Tokens
+- Login via browser manually
+- Extract op_auth cookie from DevTools
+- Use in automated tests
+
+OPTION 2: Full OAuth Flow
+- Test should complete Google OAuth
+- More realistic E2E test
+- Requires handling OAuth popup
+
+OPTION 3: Create Test Auth Endpoint
+- Build API endpoint to generate test tokens
+- Returns valid op_auth cookie value
+- Simplifies testing
+
+=== NEXT STEPS ===
+
+Manual Testing Required:
+1. Open http://localhost:3000
+2. Login with luk.gber@gmail.com
+3. Complete OAuth flow
+4. Test chat functionality manually
+5. Navigate to other pages
+6. Document actual user experience
+
+=== FILES GENERATED ===
+- E2E_REPORT.json (test results)
+- test-screenshots/ (login page screenshots)
+- e2e-test-correct.js (test script)

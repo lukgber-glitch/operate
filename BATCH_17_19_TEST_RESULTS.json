@@ -1,0 +1,334 @@
+{
+  "batch": "17-19",
+  "testDate": "2025-12-17T16:29:14.990Z",
+  "pages": [
+    {
+      "batch": 17,
+      "route": "/insurance",
+      "name": "Insurance Overview",
+      "status": "error",
+      "httpStatus": null,
+      "passed": false,
+      "issues": [
+        "net::ERR_ABORTED at https://operate.guru/insurance"
+      ],
+      "consoleErrors": [],
+      "apiFailures": []
+    },
+    {
+      "batch": 17,
+      "route": "/insurance/policies",
+      "name": "Insurance Policies",
+      "status": "error",
+      "httpStatus": null,
+      "passed": false,
+      "issues": [
+        "net::ERR_ABORTED at https://operate.guru/insurance/policies"
+      ],
+      "consoleErrors": [],
+      "apiFailures": []
+    },
+    {
+      "batch": 17,
+      "route": "/insurance/policies/new",
+      "name": "New Insurance Policy",
+      "status": "error",
+      "httpStatus": null,
+      "passed": false,
+      "issues": [
+        "net::ERR_ABORTED at https://operate.guru/insurance/policies/new"
+      ],
+      "consoleErrors": [],
+      "apiFailures": []
+    },
+    {
+      "batch": 18,
+      "route": "/reports",
+      "name": "Reports Overview",
+      "status": "error",
+      "httpStatus": null,
+      "passed": false,
+      "issues": [
+        "net::ERR_ABORTED at https://operate.guru/reports"
+      ],
+      "consoleErrors": [],
+      "apiFailures": []
+    },
+    {
+      "batch": 18,
+      "route": "/reports/financial",
+      "name": "Financial Reports",
+      "status": "redirected_to_login",
+      "httpStatus": 200,
+      "passed": false,
+      "issues": [
+        "Redirected to login page",
+        "1 console errors",
+        "3 API request failures"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiFailures": [
+        {
+          "url": "https://operate.guru/reports",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/finance/bank-accounts",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/login?from=%2F",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "finalUrl": "https://operate.guru/login?from=%2Freports%2Ffinancial",
+      "screenshot": "test-screenshots/batch-17-19/18-reports-financial.png"
+    },
+    {
+      "batch": 18,
+      "route": "/reports/sales",
+      "name": "Sales Reports",
+      "status": "redirected_to_login",
+      "httpStatus": 200,
+      "passed": false,
+      "issues": [
+        "Redirected to login page",
+        "1 console errors",
+        "4 API request failures"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiFailures": [
+        {
+          "url": "https://operate.guru/login?from=%2Ffinance",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/forgot-password?_rsc=10x2f",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/login?from=%2F",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "finalUrl": "https://operate.guru/login?from=%2Freports%2Fsales",
+      "screenshot": "test-screenshots/batch-17-19/18-reports-sales.png"
+    },
+    {
+      "batch": 18,
+      "route": "/intelligence",
+      "name": "Intelligence Hub",
+      "status": "redirected_to_login",
+      "httpStatus": 200,
+      "passed": false,
+      "issues": [
+        "Redirected to login page",
+        "1 console errors",
+        "3 API request failures"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiFailures": [
+        {
+          "url": "https://operate.guru/login?from=%2F",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/forgot-password?_rsc=10x2f",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/register?_rsc=10x2f",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "finalUrl": "https://operate.guru/login?from=%2Fintelligence",
+      "screenshot": "test-screenshots/batch-17-19/18-intelligence.png"
+    },
+    {
+      "batch": 18,
+      "route": "/intelligence/email",
+      "name": "Email Intelligence",
+      "status": "redirected_to_login",
+      "httpStatus": 200,
+      "passed": false,
+      "issues": [
+        "Redirected to login page",
+        "4 console errors",
+        "3 API request failures"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiFailures": [
+        {
+          "url": "https://operate.guru/forgot-password?_rsc=10x2f",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/register?_rsc=10x2f",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/login?from=%2F",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "finalUrl": "https://operate.guru/login?from=%2Fhr%2Femployees%2Fnew",
+      "screenshot": "test-screenshots/batch-17-19/18-intelligence-email.png"
+    },
+    {
+      "batch": 18,
+      "route": "/intelligence/reviews",
+      "name": "Review Intelligence",
+      "status": "redirected_to_login",
+      "httpStatus": 200,
+      "passed": false,
+      "issues": [
+        "Redirected to login page",
+        "6 console errors",
+        "3 API request failures"
+      ],
+      "consoleErrors": [
+        "Failed to fetch RSC payload for https://operate.guru/register. Falling back to browser navigation. JSHandle@error",
+        "Failed to fetch RSC payload for https://operate.guru/. Falling back to browser navigation. JSHandle@error",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()",
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiFailures": [
+        {
+          "url": "https://operate.guru/register?_rsc=10x2f",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/?_rsc=10x2f",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/forgot-password?_rsc=10x2f",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "finalUrl": "https://operate.guru/login?from=%2Fhr%2Fbenefits",
+      "screenshot": "test-screenshots/batch-17-19/18-intelligence-reviews.png"
+    },
+    {
+      "batch": 19,
+      "route": "/autopilot",
+      "name": "Autopilot Overview",
+      "status": "error",
+      "httpStatus": null,
+      "passed": false,
+      "issues": [
+        "net::ERR_ABORTED at https://operate.guru/autopilot"
+      ],
+      "consoleErrors": [],
+      "apiFailures": []
+    },
+    {
+      "batch": 19,
+      "route": "/autopilot/actions",
+      "name": "Autopilot Actions",
+      "status": "error",
+      "httpStatus": null,
+      "passed": false,
+      "issues": [
+        "net::ERR_ABORTED at https://operate.guru/autopilot/actions"
+      ],
+      "consoleErrors": [],
+      "apiFailures": []
+    },
+    {
+      "batch": 19,
+      "route": "/autopilot/settings",
+      "name": "Autopilot Settings",
+      "status": "error",
+      "httpStatus": null,
+      "passed": false,
+      "issues": [
+        "net::ERR_ABORTED at https://operate.guru/autopilot/settings"
+      ],
+      "consoleErrors": [],
+      "apiFailures": []
+    },
+    {
+      "batch": 19,
+      "route": "/integrations",
+      "name": "Integrations",
+      "status": "redirected_to_login",
+      "httpStatus": 200,
+      "passed": false,
+      "issues": [
+        "Redirected to login page",
+        "1 console errors",
+        "5 API request failures"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiFailures": [
+        {
+          "url": "https://operate.guru/autopilot/settings",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/hr/leave/requests",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/forgot-password?_rsc=10x2f",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "finalUrl": "https://operate.guru/login?from=%2Fintegrations",
+      "screenshot": "test-screenshots/batch-17-19/19-integrations.png"
+    },
+    {
+      "batch": 19,
+      "route": "/feedback",
+      "name": "Feedback",
+      "status": "redirected_to_login",
+      "httpStatus": 200,
+      "passed": false,
+      "issues": [
+        "Redirected to login page",
+        "1 console errors",
+        "3 API request failures"
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "apiFailures": [
+        {
+          "url": "https://operate.guru/register?_rsc=10x2f",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/login?from=%2F",
+          "failure": "net::ERR_ABORTED"
+        },
+        {
+          "url": "https://operate.guru/forgot-password?_rsc=10x2f",
+          "failure": "net::ERR_ABORTED"
+        }
+      ],
+      "finalUrl": "https://operate.guru/login?from=%2Ffeedback",
+      "screenshot": "test-screenshots/batch-17-19/19-feedback.png"
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "passed": 0,
+    "failed": 14,
+    "passRate": "0.0%"
+  }
+}

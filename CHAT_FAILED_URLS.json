@@ -1,0 +1,65 @@
+{
+  "failedRequests": [
+    {
+      "url": "https://operate.guru/api/v1/auth/me",
+      "status": 401,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/avatar-placeholder.png",
+      "status": 404,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/api/v1/organisations/2eecf459-dc41-4d26-b7b2-74549a6ce10a/autopilot/config",
+      "status": 404,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/api/v1/organisations/2eecf459-dc41-4d26-b7b2-74549a6ce10a/autopilot/actions/pending",
+      "status": 404,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/api/v1/time-tracking/timer",
+      "status": 404,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/api/v1/organisations/2eecf459-dc41-4d26-b7b2-74549a6ce10a/banking/transactions?pageSize=5",
+      "status": 404,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/api/v1/notifications/preferences",
+      "status": 404,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/api/v1/integrations/email-sync/extractions?reviewStatus=PENDING_REVIEW&limit=10",
+      "status": 404,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/api/v1/time-tracking/timer",
+      "status": 404,
+      "statusText": ""
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Error fetching suggestions: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "JSHandle@error",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to fetch extracted invoices: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Error fetching suggestions: JSHandle@error"
+  ],
+  "totalFailed": 9
+}

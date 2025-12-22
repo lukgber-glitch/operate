@@ -1,0 +1,179 @@
+{
+  "batch": "02",
+  "timestamp": "2025-12-17T16:32:01.552Z",
+  "summary": {
+    "total": 12,
+    "passed": 0,
+    "failed": 12
+  },
+  "pages": [
+    {
+      "route": "/",
+      "name": "home",
+      "status": null,
+      "passed": false,
+      "hasH1": false,
+      "h1Text": null,
+      "screenshot": null,
+      "issues": [
+        "Error: Navigation timeout of 30000 ms exceeded"
+      ],
+      "consoleErrors": [],
+      "timing": null
+    },
+    {
+      "route": "/pricing",
+      "name": "pricing",
+      "status": null,
+      "passed": false,
+      "hasH1": false,
+      "h1Text": null,
+      "screenshot": null,
+      "issues": [
+        "Error: Navigation timeout of 30000 ms exceeded"
+      ],
+      "consoleErrors": [],
+      "timing": null
+    },
+    {
+      "route": "/faq",
+      "name": "faq",
+      "status": null,
+      "passed": false,
+      "hasH1": false,
+      "h1Text": null,
+      "screenshot": null,
+      "issues": [
+        "Error: Navigation timeout of 30000 ms exceeded"
+      ],
+      "consoleErrors": [],
+      "timing": null
+    },
+    {
+      "route": "/privacy",
+      "name": "privacy",
+      "status": null,
+      "passed": false,
+      "hasH1": false,
+      "h1Text": null,
+      "screenshot": null,
+      "issues": [
+        "Error: Navigation timeout of 30000 ms exceeded"
+      ],
+      "consoleErrors": [],
+      "timing": null
+    },
+    {
+      "route": "/terms",
+      "name": "terms",
+      "status": null,
+      "passed": false,
+      "hasH1": false,
+      "h1Text": null,
+      "screenshot": null,
+      "issues": [
+        "Error: Navigation timeout of 30000 ms exceeded"
+      ],
+      "consoleErrors": [],
+      "timing": null
+    },
+    {
+      "route": "/cookies",
+      "name": "cookies",
+      "status": 200,
+      "passed": false,
+      "hasH1": false,
+      "h1Text": null,
+      "screenshot": null,
+      "issues": [
+        "Error: page.waitForTimeout is not a function"
+      ],
+      "consoleErrors": [],
+      "timing": "900ms"
+    },
+    {
+      "route": "/acceptable-use",
+      "name": "acceptable-use",
+      "status": 200,
+      "passed": false,
+      "hasH1": false,
+      "h1Text": null,
+      "screenshot": null,
+      "issues": [
+        "Error: page.waitForTimeout is not a function"
+      ],
+      "consoleErrors": [],
+      "timing": "1001ms"
+    },
+    {
+      "route": "/ai-disclaimer",
+      "name": "ai-disclaimer",
+      "status": 200,
+      "passed": false,
+      "hasH1": false,
+      "h1Text": null,
+      "screenshot": null,
+      "issues": [
+        "Error: page.waitForTimeout is not a function"
+      ],
+      "consoleErrors": [],
+      "timing": "942ms"
+    },
+    {
+      "route": "/dpa",
+      "name": "dpa",
+      "status": 200,
+      "passed": false,
+      "hasH1": false,
+      "h1Text": null,
+      "screenshot": null,
+      "issues": [
+        "Error: page.waitForTimeout is not a function"
+      ],
+      "consoleErrors": [],
+      "timing": "994ms"
+    },
+    {
+      "route": "/impressum",
+      "name": "impressum",
+      "status": 200,
+      "passed": false,
+      "hasH1": false,
+      "h1Text": null,
+      "screenshot": null,
+      "issues": [
+        "Error: page.waitForTimeout is not a function"
+      ],
+      "consoleErrors": [],
+      "timing": "997ms"
+    },
+    {
+      "route": "/payment-terms",
+      "name": "payment-terms",
+      "status": null,
+      "passed": false,
+      "hasH1": false,
+      "h1Text": null,
+      "screenshot": null,
+      "issues": [
+        "Error: Navigation timeout of 30000 ms exceeded"
+      ],
+      "consoleErrors": [],
+      "timing": null
+    },
+    {
+      "route": "/offline",
+      "name": "offline",
+      "status": 200,
+      "passed": false,
+      "hasH1": false,
+      "h1Text": null,
+      "screenshot": null,
+      "issues": [
+        "Error: page.waitForTimeout is not a function"
+      ],
+      "consoleErrors": [],
+      "timing": "998ms"
+    }
+  ]
+}

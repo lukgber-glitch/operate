@@ -1,0 +1,293 @@
+{
+  "public": [
+    {
+      "name": "/login",
+      "url": "https://operate.guru/login",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/register",
+      "url": "https://operate.guru/register",
+      "status": 200,
+      "finalUrl": "https://operate.guru/register",
+      "redirected": false,
+      "errors": [
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ],
+      "warnings": [],
+      "success": false
+    },
+    {
+      "name": "/forgot-password",
+      "url": "https://operate.guru/forgot-password",
+      "status": 200,
+      "finalUrl": "https://operate.guru/forgot-password",
+      "redirected": false,
+      "errors": [],
+      "warnings": [],
+      "success": true
+    },
+    {
+      "name": "/pricing",
+      "url": "https://operate.guru/pricing",
+      "status": 200,
+      "finalUrl": "https://operate.guru/pricing",
+      "redirected": false,
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "warnings": [],
+      "success": false
+    },
+    {
+      "name": "/privacy",
+      "url": "https://operate.guru/privacy",
+      "status": 200,
+      "finalUrl": "https://operate.guru/privacy",
+      "redirected": false,
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "warnings": [],
+      "success": false
+    },
+    {
+      "name": "/terms",
+      "url": "https://operate.guru/terms",
+      "status": 200,
+      "finalUrl": "https://operate.guru/terms",
+      "redirected": false,
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "warnings": [],
+      "success": false
+    }
+  ],
+  "auth": [
+    {
+      "name": "/chat",
+      "url": "https://operate.guru/chat",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/dashboard",
+      "url": "https://operate.guru/dashboard",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/dashboard/overview",
+      "url": "https://operate.guru/dashboard/overview",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/finance",
+      "url": "https://operate.guru/finance",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/finance/invoices",
+      "url": "https://operate.guru/finance/invoices",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/finance/expenses",
+      "url": "https://operate.guru/finance/expenses",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/finance/banking",
+      "url": "https://operate.guru/finance/banking",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/hr",
+      "url": "https://operate.guru/hr",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/hr/employees",
+      "url": "https://operate.guru/hr/employees",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/hr/payroll",
+      "url": "https://operate.guru/hr/payroll",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/tax",
+      "url": "https://operate.guru/tax",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/tax/reports",
+      "url": "https://operate.guru/tax/reports",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/documents",
+      "url": "https://operate.guru/documents",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/settings",
+      "url": "https://operate.guru/settings",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/settings/profile",
+      "url": "https://operate.guru/settings/profile",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/settings/billing",
+      "url": "https://operate.guru/settings/billing",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/crm",
+      "url": "https://operate.guru/crm",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/clients",
+      "url": "https://operate.guru/clients",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/vendors",
+      "url": "https://operate.guru/vendors",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/notifications",
+      "url": "https://operate.guru/notifications",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/calendar",
+      "url": "https://operate.guru/calendar",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/time",
+      "url": "https://operate.guru/time",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/mileage",
+      "url": "https://operate.guru/mileage",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/contracts",
+      "url": "https://operate.guru/contracts",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/intelligence",
+      "url": "https://operate.guru/intelligence",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/autopilot",
+      "url": "https://operate.guru/autopilot",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/health-score",
+      "url": "https://operate.guru/health-score",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/developer",
+      "url": "https://operate.guru/developer",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/api-docs",
+      "url": "https://operate.guru/api-docs",
+      "status": 200,
+      "finalUrl": "https://operate.guru/api-docs",
+      "redirected": false,
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 ()"
+      ],
+      "warnings": [],
+      "success": false
+    },
+    {
+      "name": "/help",
+      "url": "https://operate.guru/help",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    },
+    {
+      "name": "/feedback",
+      "url": "https://operate.guru/feedback",
+      "status": 0,
+      "error": "Navigation timeout of 30000 ms exceeded",
+      "success": false
+    }
+  ]
+}

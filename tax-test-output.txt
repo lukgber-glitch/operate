@@ -1,0 +1,3 @@
+Logging in...
+TypeError: page.waitForTimeout is not a function
+    at runTest (C:\Users\grube\op\operate-fresh\test-tax-pages.js:22:14)

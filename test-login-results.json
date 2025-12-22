@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-12-22T15:42:55.429Z",
+  "steps": [
+    {
+      "step": "navigate",
+      "url": "https://operate.guru/login?from=%2F",
+      "success": true
+    },
+    {
+      "step": "fill_email",
+      "success": true
+    },
+    {
+      "step": "fill_password",
+      "success": true
+    },
+    {
+      "step": "click_login",
+      "success": true
+    }
+  ],
+  "success": false,
+  "finalUrl": "https://operate.guru/login?from=%2F",
+  "error": "Login failed - Sign in failedInvalid email or [REDACTED]"
+}

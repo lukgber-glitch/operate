@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-12-21T17:08:53.892Z",
+  "chatPageLoaded": true,
+  "errorShown": false,
+  "errorMessage": null,
+  "screenshot": null,
+  "steps": [
+    "Starting navigation to login page",
+    "Login page loaded",
+    "Credentials entered",
+    "Submit button clicked",
+    "Navigated to: https://operate.guru/chat",
+    "Waited 10 seconds for page load",
+    "No error boundary found",
+    "Chat interface detected",
+    "Page title: Operate - Business Autopilot",
+    "ERROR: ENOENT: no such file or directory, open 'C:\\Users\\grube\\op\\operate-fresh\\Usersgrubeopoperate-fresh\test-screenshotschat-page-verification.png'"
+  ],
+  "error": "ENOENT: no such file or directory, open 'C:\\Users\\grube\\op\\operate-fresh\\Usersgrubeopoperate-fresh\test-screenshotschat-page-verification.png'"
+}

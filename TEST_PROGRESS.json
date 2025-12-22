@@ -1,0 +1,43 @@
+{
+  "started": "2025-12-17T20:00:00Z",
+  "lastUpdated": "2025-12-17T21:30:00Z",
+  "status": "COMPLETED",
+  "prerequisites": {
+    "onboardingFixed": true,
+    "authVerified": true,
+    "note": "Onboarding already complete - completedAt: 2025-12-10T20:58:08.183Z"
+  },
+  "summary": {
+    "tested": 35,
+    "passed": 27,
+    "failed": 4,
+    "notFound404": 4
+  },
+  "passedPages": [
+    "/login", "/register", "/forgot-password", "/onboarding",
+    "/chat", "/dashboard",
+    "/finance", "/finance/transactions", "/finance/banking",
+    "/hr", "/hr/employees",
+    "/tax",
+    "/crm", "/crm/clients", "/crm/vendors",
+    "/documents", "/contracts",
+    "/settings", "/settings/profile", "/settings/billing",
+    "/calendar", "/mileage", "/integrations",
+    "/autopilot", "/intelligence", "/reports", "/admin",
+    "/notifications", "/developer", "/help"
+  ],
+  "errors": [
+    {"route": "/chat", "error": "AI features disabled by default - main feature broken without clicking Enable AI", "priority": "CRITICAL"},
+    {"route": "/finance/invoices", "error": "Something went wrong! An unexpected error occurred.", "priority": "HIGH"},
+    {"route": "/finance/expenses", "error": "Something went wrong! An unexpected error occurred.", "priority": "HIGH"},
+    {"route": "/time", "error": "Something went wrong! An unexpected error occurred.", "priority": "HIGH"}
+  ],
+  "notFound404": [
+    {"route": "/finance/reports", "note": "Route may not be implemented"},
+    {"route": "/finance/recurring", "note": "Route may not be implemented"},
+    {"route": "/hr/payroll", "note": "Route may not be implemented"},
+    {"route": "/tax/returns", "note": "Route may not be implemented"}
+  ],
+  "consoleErrors": [],
+  "apiErrors": []
+}

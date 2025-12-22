@@ -1,0 +1,177 @@
+{
+  "timestamp": "2025-12-22T15:06:10.749Z",
+  "steps": [
+    {
+      "step": 1,
+      "action": "Login page loaded",
+      "status": "SUCCESS"
+    },
+    {
+      "step": 2,
+      "action": "Page analyzed",
+      "data": {
+        "url": "https://operate.guru/login",
+        "title": "Operate - Business Autopilot",
+        "hasEmailInput": true,
+        "hasPasswordInput": true,
+        "hasSubmitButton": true,
+        "inputs": [
+          {
+            "type": "email",
+            "name": "email",
+            "placeholder": "ihre@email.de"
+          },
+          {
+            "type": "password",
+            "name": "password",
+            "placeholder": "Passwort eingeben"
+          },
+          {
+            "type": "checkbox",
+            "name": "",
+            "placeholder": ""
+          }
+        ],
+        "buttons": [
+          {
+            "text": "Select language",
+            "type": "button"
+          },
+          {
+            "text": "",
+            "type": "button"
+          },
+          {
+            "text": "",
+            "type": "button"
+          },
+          {
+            "text": "Sign In",
+            "type": "submit"
+          },
+          {
+            "text": "",
+            "type": "submit"
+          },
+          {
+            "text": "",
+            "type": "submit"
+          },
+          {
+            "text": "",
+            "type": "submit"
+          },
+          {
+            "text": "",
+            "type": "submit"
+          },
+          {
+            "text": "",
+            "type": "submit"
+          },
+          {
+            "text": "",
+            "type": "submit"
+          }
+        ]
+      },
+      "status": "SUCCESS"
+    },
+    {
+      "step": 3,
+      "action": "Email entered",
+      "status": "SUCCESS"
+    },
+    {
+      "step": 4,
+      "action": "Password entered",
+      "status": "SUCCESS"
+    },
+    {
+      "step": 6,
+      "action": "Result captured",
+      "data": {
+        "url": "https://operate.guru/login?from=%2Fchat",
+        "pathname": "/login",
+        "title": "Operate - Business Autopilot",
+        "bodyText": "Skip to main content!function(){try{var d=document.documentElement,c=d.classList;c.remove('light','dark');var e=localStorage.getItem('operate-theme');if('system'===e||(!e&&true)){var t='(prefers-color-scheme: dark)',m=window.matchMedia(t);if(m.media!==t||m.matches){d.style.colorScheme = 'dark';c.add('dark')}else{d.style.colorScheme = 'light';c.add('light')}}else if(e){c.add(e|| '')}if(e==='light'||e==='dark')d.style.colorScheme=e}catch(e){}}()Skip to main contentoperate.guruAI-Powered Business A",
+        "hasErrorVisible": false,
+        "errorText": null
+      },
+      "status": "SUCCESS"
+    }
+  ],
+  "errors": [],
+  "network": [
+    {
+      "url": "https://operate.guru/login",
+      "status": 200,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/app/(auth)/login/page-82c241e8b155667e.js",
+      "status": 200,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/app/(auth)/layout-4933a34b99e99d6e.js",
+      "status": 200,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/api/v1/auth/me",
+      "status": 200,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/login?from=%2F",
+      "status": 200,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/api/v1/auth/login",
+      "status": 200,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/api/v1/auth/me",
+      "status": 200,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/login?from=%2Fchat",
+      "status": 200,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/login?from=%2Fchat",
+      "status": 200,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/app/(auth)/login/page-82c241e8b155667e.js",
+      "status": 200,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/app/(auth)/layout-4933a34b99e99d6e.js",
+      "status": 200,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/api/v1/auth/me",
+      "status": 200,
+      "statusText": ""
+    },
+    {
+      "url": "https://operate.guru/login?from=%2F",
+      "status": 200,
+      "statusText": ""
+    }
+  ],
+  "console": [
+    "<meta name=\"apple-mobile-web-app-capable\" content=\"yes\"> is deprecated. Please include <meta name=\"mobile-web-app-capable\" content=\"yes\">",
+    "<meta name=\"apple-mobile-web-app-capable\" content=\"yes\"> is deprecated. Please include <meta name=\"mobile-web-app-capable\" content=\"yes\">"
+  ],
+  "loginSuccess": false
+}

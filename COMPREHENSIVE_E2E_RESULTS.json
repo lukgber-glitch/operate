@@ -1,0 +1,529 @@
+{
+  "timestamp": "2025-12-20T10:37:31.828Z",
+  "summary": {
+    "passed": 39,
+    "failed": 0,
+    "skipped": 23
+  },
+  "tests": [
+    {
+      "category": "Auth",
+      "name": "Login",
+      "status": "pass",
+      "details": "Redirected to: http://localhost:3000/onboarding",
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:37:39.940Z"
+    },
+    {
+      "category": "Onboarding",
+      "name": "Page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "01-onboarding-start.png",
+      "timestamp": "2025-12-20T10:37:43.446Z"
+    },
+    {
+      "category": "Onboarding",
+      "name": "Get Started button exists",
+      "status": "skip",
+      "details": "May be different text",
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:37:46.447Z"
+    },
+    {
+      "category": "Onboarding",
+      "name": "Step indicators visible",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:37:51.474Z"
+    },
+    {
+      "category": "Onboarding",
+      "name": "Company info inputs",
+      "status": "skip",
+      "details": "Company name field",
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:37:54.481Z"
+    },
+    {
+      "category": "Onboarding",
+      "name": "Country/Currency selects",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:37:56.490Z"
+    },
+    {
+      "category": "Onboarding",
+      "name": "Bank connection section exists",
+      "status": "pass",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:37:58.365Z"
+    },
+    {
+      "category": "Onboarding",
+      "name": "Email connection section exists",
+      "status": "pass",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:37:58.365Z"
+    },
+    {
+      "category": "Onboarding",
+      "name": "Import Data option",
+      "status": "pass",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:37:58.365Z"
+    },
+    {
+      "category": "Dashboard",
+      "name": "Dashboard page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "80-dashboard.png",
+      "timestamp": "2025-12-20T10:38:01.686Z"
+    },
+    {
+      "category": "Dashboard",
+      "name": "Dashboard widgets",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:38:04.698Z"
+    },
+    {
+      "category": "Dashboard",
+      "name": "Charts/Graphs",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:38:06.713Z"
+    },
+    {
+      "category": "Finance",
+      "name": "Invoices page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "30-invoices.png",
+      "timestamp": "2025-12-20T10:38:09.803Z"
+    },
+    {
+      "category": "Finance",
+      "name": "Invoices table",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:38:12.806Z"
+    },
+    {
+      "category": "Finance",
+      "name": "New Invoice button",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:38:15.807Z"
+    },
+    {
+      "category": "Finance",
+      "name": "Invoice filters",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:38:18.819Z"
+    },
+    {
+      "category": "Finance",
+      "name": "New Invoice page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "31-invoice-new.png",
+      "timestamp": "2025-12-20T10:38:21.939Z"
+    },
+    {
+      "category": "Finance",
+      "name": "Customer field",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:38:24.950Z"
+    },
+    {
+      "category": "Finance",
+      "name": "Date fields",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:38:27.958Z"
+    },
+    {
+      "category": "Finance",
+      "name": "Expenses page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "32-expenses.png",
+      "timestamp": "2025-12-20T10:38:31.054Z"
+    },
+    {
+      "category": "Finance",
+      "name": "New Expense page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "33-expense-new.png",
+      "timestamp": "2025-12-20T10:38:34.133Z"
+    },
+    {
+      "category": "Finance",
+      "name": "Receipt scanner page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "34-receipt-scan.png",
+      "timestamp": "2025-12-20T10:38:37.225Z"
+    },
+    {
+      "category": "Finance",
+      "name": "Recurring invoices page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "35-recurring-invoices.png",
+      "timestamp": "2025-12-20T10:38:40.084Z"
+    },
+    {
+      "category": "Finance",
+      "name": "Finance overview page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "36-finance-overview.png",
+      "timestamp": "2025-12-20T10:38:43.131Z"
+    },
+    {
+      "category": "Banking",
+      "name": "Bank Accounts page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "10-bank-accounts.png",
+      "timestamp": "2025-12-20T10:38:46.201Z"
+    },
+    {
+      "category": "Banking",
+      "name": "Connect Bank button",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:38:49.211Z"
+    },
+    {
+      "category": "Banking",
+      "name": "Bank accounts list/table",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:38:52.221Z"
+    },
+    {
+      "category": "Banking",
+      "name": "Banking transactions page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "11-banking-transactions.png",
+      "timestamp": "2025-12-20T10:38:55.334Z"
+    },
+    {
+      "category": "Banking",
+      "name": "Transaction filters",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:38:58.336Z"
+    },
+    {
+      "category": "Banking",
+      "name": "Transactions table",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:39:01.346Z"
+    },
+    {
+      "category": "Banking",
+      "name": "Bank callback page exists",
+      "status": true,
+      "details": "Route accessible",
+      "screenshot": "12-bank-callback.png",
+      "timestamp": "2025-12-20T10:39:03.462Z"
+    },
+    {
+      "category": "Email",
+      "name": "Email management page",
+      "status": "skip",
+      "details": "No dedicated email page found",
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:39:13.495Z"
+    },
+    {
+      "category": "Email",
+      "name": "Extracted invoices page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "21-extracted-invoices.png",
+      "timestamp": "2025-12-20T10:39:16.586Z"
+    },
+    {
+      "category": "Email",
+      "name": "Email extraction features",
+      "status": "pass",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:39:16.587Z"
+    },
+    {
+      "category": "Email",
+      "name": "Email settings available",
+      "status": "pass",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:39:19.457Z"
+    },
+    {
+      "category": "Chat",
+      "name": "Chat page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "40-chat.png",
+      "timestamp": "2025-12-20T10:39:22.536Z"
+    },
+    {
+      "category": "Chat",
+      "name": "Chat input field",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:39:25.541Z"
+    },
+    {
+      "category": "Chat",
+      "name": "Send button",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:39:28.543Z"
+    },
+    {
+      "category": "Chat",
+      "name": "Suggestion chips",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:39:30.553Z"
+    },
+    {
+      "category": "Chat",
+      "name": "AI consent/privacy notice",
+      "status": "pass",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:39:30.553Z"
+    },
+    {
+      "category": "CRM",
+      "name": "Clients page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "70-clients.png",
+      "timestamp": "2025-12-20T10:39:33.631Z"
+    },
+    {
+      "category": "CRM",
+      "name": "Clients list/table",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:39:36.633Z"
+    },
+    {
+      "category": "CRM",
+      "name": "Add Client button",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:39:39.644Z"
+    },
+    {
+      "category": "CRM",
+      "name": "CRM overview page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "71-crm.png",
+      "timestamp": "2025-12-20T10:39:42.731Z"
+    },
+    {
+      "category": "HR",
+      "name": "Time Tracking page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "60-time-tracking.png",
+      "timestamp": "2025-12-20T10:39:45.798Z"
+    },
+    {
+      "category": "HR",
+      "name": "Time input fields",
+      "status": "skip",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:39:48.809Z"
+    },
+    {
+      "category": "HR",
+      "name": "Calendar page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "61-calendar.png",
+      "timestamp": "2025-12-20T10:39:51.882Z"
+    },
+    {
+      "category": "HR",
+      "name": "Contracts page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "62-contracts.png",
+      "timestamp": "2025-12-20T10:39:54.967Z"
+    },
+    {
+      "category": "Documents",
+      "name": "Documents page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "90-documents.png",
+      "timestamp": "2025-12-20T10:39:58.021Z"
+    },
+    {
+      "category": "Documents",
+      "name": "Upload page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "91-documents-upload.png",
+      "timestamp": "2025-12-20T10:40:01.101Z"
+    },
+    {
+      "category": "Documents",
+      "name": "Templates page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "92-documents-templates.png",
+      "timestamp": "2025-12-20T10:40:04.170Z"
+    },
+    {
+      "category": "Autopilot",
+      "name": "Autopilot page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "95-autopilot.png",
+      "timestamp": "2025-12-20T10:40:07.232Z"
+    },
+    {
+      "category": "Autopilot",
+      "name": "Autopilot settings loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "96-autopilot-settings.png",
+      "timestamp": "2025-12-20T10:40:10.288Z"
+    },
+    {
+      "category": "Autopilot",
+      "name": "Autopilot actions loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "97-autopilot-actions.png",
+      "timestamp": "2025-12-20T10:40:13.384Z"
+    },
+    {
+      "category": "Settings",
+      "name": "Settings page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "50-settings.png",
+      "timestamp": "2025-12-20T10:40:16.487Z"
+    },
+    {
+      "category": "Settings",
+      "name": "Profile section",
+      "status": "pass",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:40:16.489Z"
+    },
+    {
+      "category": "Settings",
+      "name": "Company/Organisation section",
+      "status": "pass",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:40:16.489Z"
+    },
+    {
+      "category": "Settings",
+      "name": "Security section",
+      "status": "pass",
+      "details": null,
+      "screenshot": null,
+      "timestamp": "2025-12-20T10:40:16.489Z"
+    },
+    {
+      "category": "Settings",
+      "name": "Billing page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "51-billing.png",
+      "timestamp": "2025-12-20T10:40:19.567Z"
+    },
+    {
+      "category": "Settings",
+      "name": "Developer page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "52-developer.png",
+      "timestamp": "2025-12-20T10:40:22.648Z"
+    },
+    {
+      "category": "Settings",
+      "name": "API Keys page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "53-api-keys.png",
+      "timestamp": "2025-12-20T10:40:25.763Z"
+    },
+    {
+      "category": "Settings",
+      "name": "Webhooks page loads",
+      "status": "pass",
+      "details": null,
+      "screenshot": "54-webhooks.png",
+      "timestamp": "2025-12-20T10:40:28.850Z"
+    }
+  ],
+  "errors": [],
+  "consoleErrors": [
+    {
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "text": "Failed to fetch RSC payload for http://localhost:3000/onboarding. Falling back to browser navigation. JSHandle@error",
+      "url": "http://localhost:3000/onboarding"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "url": "http://localhost:3000/email"
+    },
+    {
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "url": "http://localhost:3000/mail"
+    }
+  ]
+}

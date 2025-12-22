@@ -1,0 +1,33 @@
+======================================================================
+BATCH 01 - AUTHENTICATION FLOW TEST
+======================================================================
+
+Test 1: Login Page
+  FAIL - Navigation timeout of 60000 ms exceeded
+
+Test: Register
+  FAIL - page.waitForTimeout is not a function
+
+Test: ForgotPassword
+  FAIL - page.waitForTimeout is not a function
+
+Test: MFASetup
+  FAIL - Navigation timeout of 60000 ms exceeded
+
+Test: AuthError
+  FAIL - Navigation timeout of 60000 ms exceeded
+
+Test: Onboarding
+  FAIL - Navigation timeout of 60000 ms exceeded
+
+======================================================================
+SUMMARY
+======================================================================
+Total Tests: 6
+Passed: 0
+Failed: 6
+Cookies Saved: NO
+Screenshots: 0
+
+Results saved to: C:\Users\grube\op\operate-fresh\BATCH01_AUTH_TEST_RESULTS.json
+======================================================================

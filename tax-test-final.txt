@@ -1,0 +1,16 @@
+Logging in...
+At login page: https://operate.guru/login
+01/6 Tax Dashboard
+  FAIL
+02/6 Tax Deductions
+  FAIL
+03/6 New Deduction
+  FAIL
+04/6 Tax Filing
+  FAIL
+05/6 Tax Reports
+  FAIL
+06/6 VAT
+  FAIL
+
+Report saved to BROWSER_TEST_TAX_PAGES.md

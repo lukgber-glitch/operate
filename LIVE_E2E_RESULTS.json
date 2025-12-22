@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-12-20T18:37:50.107Z",
+  "results": {
+    "login": {
+      "status": "pass",
+      "error": null
+    },
+    "invoices": {
+      "status": "pass",
+      "error": null
+    },
+    "expenses": {
+      "status": "pass",
+      "error": null
+    },
+    "time": {
+      "status": "pass",
+      "error": null
+    }
+  },
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 401 ()"
+  ],
+  "screenshots": [
+    "e2e-01-login.png",
+    "e2e-02-after-login.png",
+    "e2e-03-invoices.png",
+    "e2e-04-expenses.png",
+    "e2e-05-time.png"
+  ]
+}

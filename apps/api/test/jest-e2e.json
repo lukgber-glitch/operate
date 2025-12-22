@@ -16,6 +16,6 @@
   "testTimeout": 30000,
   "setupFilesAfterEnv": ["<rootDir>/test/setup-e2e.ts"],
   "moduleNameMapper": {
-    "^@operate/(.*)$": "<rootDir>/../../../packages/$1/src"
+    "^@operate/(.*)$": "<rootDir>/../../packages/$1/src"
   }
 }

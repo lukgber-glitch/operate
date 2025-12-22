@@ -1,0 +1,141 @@
+{
+  "baseUrl": "https://operate.guru",
+  "credentials": {
+    "email": "luk.gber@gmail.com",
+    "password": "Schlagzeug1@"
+  },
+  "browserOptions": {
+    "headless": true,
+    "timeout": 30000,
+    "viewport": { "width": 1920, "height": 1080 },
+    "waitUntil": "networkidle0"
+  },
+  "testBatches": {
+    "batch1_auth": [
+      "/login",
+      "/register",
+      "/forgot-password",
+      "/reset-password",
+      "/verify-email",
+      "/mfa-setup",
+      "/mfa-verify",
+      "/auth/callback",
+      "/auth/error"
+    ],
+    "batch2_onboarding": [
+      "/onboarding"
+    ],
+    "batch3_dashboard_core": [
+      "/dashboard",
+      "/chat",
+      "/inbox",
+      "/notifications",
+      "/calendar",
+      "/tasks",
+      "/search"
+    ],
+    "batch4_finance_main": [
+      "/finance",
+      "/finance/accounts",
+      "/finance/banking",
+      "/finance/transactions",
+      "/finance/reconciliation"
+    ],
+    "batch5_finance_invoices": [
+      "/finance/invoices",
+      "/finance/invoices/new",
+      "/finance/invoices/extracted",
+      "/finance/invoices/recurring"
+    ],
+    "batch6_finance_expenses": [
+      "/finance/expenses",
+      "/finance/expenses/new",
+      "/finance/expenses/scan",
+      "/finance/payments"
+    ],
+    "batch7_hr_main": [
+      "/hr",
+      "/hr/employees",
+      "/hr/employees/new",
+      "/hr/employees/onboarding",
+      "/hr/leave",
+      "/hr/leave/requests",
+      "/hr/leave/approvals"
+    ],
+    "batch8_hr_payroll": [
+      "/hr/payroll/run",
+      "/hr/benefits",
+      "/hr/benefits/enroll"
+    ],
+    "batch9_tax": [
+      "/tax",
+      "/tax/deductions",
+      "/tax/deductions/new",
+      "/tax/filing",
+      "/tax/reports",
+      "/tax/vat"
+    ],
+    "batch10_settings": [
+      "/settings",
+      "/profile",
+      "/settings/profile",
+      "/settings/security",
+      "/settings/notifications",
+      "/settings/billing",
+      "/settings/connections",
+      "/settings/automation",
+      "/settings/exports",
+      "/settings/tax",
+      "/settings/verification"
+    ],
+    "batch11_crm": [
+      "/clients",
+      "/crm",
+      "/vendors",
+      "/contracts",
+      "/contracts/new",
+      "/contracts/templates",
+      "/quotes",
+      "/quotes/new"
+    ],
+    "batch12_documents": [
+      "/documents",
+      "/documents/upload",
+      "/documents/templates"
+    ],
+    "batch13_time_mileage": [
+      "/time",
+      "/time/entries",
+      "/time/projects",
+      "/mileage",
+      "/mileage/entries"
+    ],
+    "batch14_intelligence": [
+      "/intelligence",
+      "/intelligence/email",
+      "/intelligence/reviews",
+      "/autopilot",
+      "/autopilot/actions",
+      "/autopilot/settings"
+    ],
+    "batch15_admin_dev": [
+      "/admin",
+      "/developer",
+      "/developer/api-keys",
+      "/developer/webhooks",
+      "/api-docs",
+      "/help",
+      "/feedback",
+      "/health-score"
+    ],
+    "batch16_public": [
+      "/",
+      "/faq",
+      "/pricing",
+      "/privacy",
+      "/terms",
+      "/cookies",
+      "/impressum"
+    ]
+  }
+}

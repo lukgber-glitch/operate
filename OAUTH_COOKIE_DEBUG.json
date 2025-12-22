@@ -1,0 +1,174 @@
+{
+  "timestamp": "2025-12-17T13:06:59.968Z",
+  "steps": [],
+  "networkLog": [
+    {
+      "url": "https://operate.guru/login",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/css/738fc34965cfa4d7.css",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/css/839715038be2149b.css",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/css/02b094e1826cf0d9.css",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/webpack-9ec81ca136f17461.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/main-app-019a8ba65bbca765.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/media/d1eb6e250d92a46a-s.p.woff2",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/media/geist-sans-latin-400-normal.6bb98460.woff2",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/media/geist-sans-latin-500-normal.d1eb6e25.woff2",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/animation-vendor-3ddb9646ba23a7b0.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/8205-84224fe7777f48d4.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/radix-vendor-51628b79387a6035.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/9947-ed42458c637daf24.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/8944-5551cfd61bebed6a.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/forms-vendor-8a63d857e11c3fdd.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/media/geist-sans-latin-700-normal.047656d9.woff2",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/media/geist-sans-latin-600-normal.03e99ac3.woff2",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/app/(auth)/login/page-19776e8717d8f13b.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/6465-fe851fb0c4a1486c.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/app/(auth)/layout-7cf49e5b00f6d060.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/app/not-found-b509737aec963b62.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/app/error-e391c5e73a90e2db.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/app/layout-9c877baae2923281.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/query-vendor-a51310cba3278780.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/vendor-6499d585832cd7d2.js",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/icon.svg",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/api/v1/auth/me",
+      "status": 401,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/manifest.json",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/forgot-password?_rsc=10x2f",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/register?_rsc=10x2f",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/login?from=%2F",
+      "status": 200,
+      "setCookie": "NONE"
+    },
+    {
+      "url": "https://operate.guru/icon.svg",
+      "status": 200,
+      "setCookie": "NONE"
+    }
+  ],
+  "findings": [
+    "ERROR: Navigation timeout of 30000 ms exceeded"
+  ]
+}

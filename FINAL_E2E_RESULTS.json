@@ -1,0 +1,840 @@
+{
+  "timestamp": "2025-12-20T07:56:14.842Z",
+  "summary": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 40
+  },
+  "tests": [
+    {
+      "category": "Auth",
+      "name": "Login",
+      "status": "pass",
+      "details": "http://localhost:3000/onboarding"
+    },
+    {
+      "category": "Onboarding",
+      "name": "Force Complete",
+      "status": "skip",
+      "details": "May need manual"
+    },
+    {
+      "category": "Core",
+      "name": "Dashboard",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Finance",
+      "name": "Finance Home",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Finance",
+      "name": "Invoices",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Finance",
+      "name": "New Invoice",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Finance",
+      "name": "Recurring Invoices",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Finance",
+      "name": "Extracted Invoices",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Finance",
+      "name": "Expenses",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Finance",
+      "name": "New Expense",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Finance",
+      "name": "Receipt Scan",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Banking",
+      "name": "Bank Accounts",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Banking",
+      "name": "Transactions",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "AI",
+      "name": "AI Chat",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "CRM",
+      "name": "Clients",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "CRM",
+      "name": "CRM Dashboard",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Time",
+      "name": "Time Tracking",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Time",
+      "name": "Calendar",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "HR",
+      "name": "Contracts",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "HR",
+      "name": "Contract Templates",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Docs",
+      "name": "Documents",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Docs",
+      "name": "Upload",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Docs",
+      "name": "Doc Templates",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Auto",
+      "name": "Autopilot",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Auto",
+      "name": "Auto Settings",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Auto",
+      "name": "Auto Actions",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Settings",
+      "name": "Settings",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Settings",
+      "name": "Billing",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Settings",
+      "name": "Developer",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Settings",
+      "name": "API Keys",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Settings",
+      "name": "Webhooks",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Settings",
+      "name": "Logs",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Admin",
+      "name": "Admin",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Admin",
+      "name": "Users",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Admin",
+      "name": "Roles",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Admin",
+      "name": "Subscriptions",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Other",
+      "name": "Feedback",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Other",
+      "name": "API Docs",
+      "status": "skip",
+      "details": "404"
+    },
+    {
+      "category": "Chat",
+      "name": "Chat input exists",
+      "status": "skip",
+      "details": null
+    },
+    {
+      "category": "Chat",
+      "name": "Send button exists",
+      "status": "skip",
+      "details": null
+    },
+    {
+      "category": "Invoice",
+      "name": "Invoice form exists",
+      "status": "pass",
+      "details": null
+    },
+    {
+      "category": "Invoice",
+      "name": "Input fields",
+      "status": "skip",
+      "details": "0 inputs"
+    }
+  ],
+  "pageDetails": {
+    "/dashboard": {
+      "name": "Dashboard",
+      "category": "Core",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/finance": {
+      "name": "Finance Home",
+      "category": "Finance",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/finance/invoices": {
+      "name": "Invoices",
+      "category": "Finance",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/finance/invoices/new": {
+      "name": "New Invoice",
+      "category": "Finance",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/finance/invoices/recurring": {
+      "name": "Recurring Invoices",
+      "category": "Finance",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/finance/invoices/extracted": {
+      "name": "Extracted Invoices",
+      "category": "Finance",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/finance/expenses": {
+      "name": "Expenses",
+      "category": "Finance",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/finance/expenses/new": {
+      "name": "New Expense",
+      "category": "Finance",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/finance/expenses/scan": {
+      "name": "Receipt Scan",
+      "category": "Finance",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/finance/bank-accounts": {
+      "name": "Bank Accounts",
+      "category": "Banking",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/finance/banking": {
+      "name": "Transactions",
+      "category": "Banking",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/chat": {
+      "name": "AI Chat",
+      "category": "AI",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/clients": {
+      "name": "Clients",
+      "category": "CRM",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/crm": {
+      "name": "CRM Dashboard",
+      "category": "CRM",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/time": {
+      "name": "Time Tracking",
+      "category": "Time",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/calendar": {
+      "name": "Calendar",
+      "category": "Time",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/contracts": {
+      "name": "Contracts",
+      "category": "HR",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/contracts/templates": {
+      "name": "Contract Templates",
+      "category": "HR",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/documents": {
+      "name": "Documents",
+      "category": "Docs",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/documents/upload": {
+      "name": "Upload",
+      "category": "Docs",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/documents/templates": {
+      "name": "Doc Templates",
+      "category": "Docs",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/autopilot": {
+      "name": "Autopilot",
+      "category": "Auto",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/autopilot/settings": {
+      "name": "Auto Settings",
+      "category": "Auto",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/autopilot/actions": {
+      "name": "Auto Actions",
+      "category": "Auto",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/settings": {
+      "name": "Settings",
+      "category": "Settings",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/billing": {
+      "name": "Billing",
+      "category": "Settings",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/developer": {
+      "name": "Developer",
+      "category": "Settings",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/developer/api-keys": {
+      "name": "API Keys",
+      "category": "Settings",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/developer/webhooks": {
+      "name": "Webhooks",
+      "category": "Settings",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/developer/logs": {
+      "name": "Logs",
+      "category": "Settings",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/admin": {
+      "name": "Admin",
+      "category": "Admin",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/admin/users": {
+      "name": "Users",
+      "category": "Admin",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/admin/roles": {
+      "name": "Roles",
+      "category": "Admin",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/admin/subscriptions": {
+      "name": "Subscriptions",
+      "category": "Admin",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/feedback": {
+      "name": "Feedback",
+      "category": "Other",
+      "actualUrl": "http://localhost:3000/onboarding",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": true,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 3,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 1,
+        "links": 1
+      }
+    },
+    "/api-docs": {
+      "name": "API Docs",
+      "category": "Other",
+      "actualUrl": "http://localhost:3000/api-docs",
+      "hasError": false,
+      "is404": true,
+      "redirectedToOnboarding": false,
+      "redirectedToLogin": false,
+      "elements": {
+        "buttons": 28,
+        "inputs": 0,
+        "tables": 0,
+        "forms": 0,
+        "links": 27
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+    const settingsPages = [
+      { path: '/settings', name: 'Settings Overview', file: 'settings-03-overview.png' },
+      { path: '/settings/profile', name: 'Profile Settings', file: 'settings-04-profile.png' },
+      { path: '/settings/billing', name: 'Billing Settings', file: 'settings-05-billing.png' },
+      { path: '/settings/security', name: 'Security Settings', file: 'settings-06-security.png' },
+      { path: '/settings/notifications', name: 'Notification Preferences', file: 'settings-07-notifications.png' },
+      { path: '/settings/connections', name: 'Integrations', file: 'settings-08-connections.png' },
+      { path: '/settings/automation', name: 'Automation Rules', file: 'settings-09-automation.png' },
+      { path: '/settings/exports', name: 'Data Exports', file: 'settings-10-exports.png' },
+      { path: '/settings/tax', name: 'Tax Settings', file: 'settings-11-tax.png' },
+      { path: '/settings/verification', name: 'Account Verification', file: 'settings-12-verification.png' },
+      { path: '/admin', name: 'Admin Panel', file: 'settings-13-admin.png' },
+      { path: '/admin/subscriptions', name: 'Subscription Management', file: 'settings-14-subscriptions.png' },
+      { path: '/developer', name: 'Developer Tools', file: 'settings-15-developer.png' },
+      { path: '/developer/api-keys', name: 'API Keys', file: 'settings-16-api-keys.png' },
+      { path: '/developer/webhooks', name: 'Webhooks', file: 'settings-17-webhooks.png' }
+    ];

@@ -143,6 +143,23 @@ function ChatPageContent() {
   // Auto-show consent dialog when user needs consent (first visit to chat without consent)
   useEffect(() => {
     if (!consentLoading && needsConsent && !showConsentDialog) {
+      // Check if user just completed onboarding with consent
+      // This handles the race condition where consent state hasn't loaded yet
+      const storedConsent = localStorage.getItem('ai_consent_data');
+      if (storedConsent) {
+        try {
+          const parsed = JSON.parse(storedConsent);
+          if (parsed.hasConsent === true) {
+            // Consent exists in localStorage, don't show dialog
+            // The useAIConsent hook will catch up
+            console.log('[Chat] AI consent found in localStorage, skipping dialog');
+            return;
+          }
+        } catch (e) {
+          // Invalid data, continue to show dialog
+        }
+      }
+
       // Small delay to let page render first
       const timer = setTimeout(() => {
         setShowConsentDialog(true);

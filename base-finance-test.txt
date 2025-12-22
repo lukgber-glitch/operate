@@ -1,0 +1,9 @@
+Get-Content : Der Pfad "C:\Users\grube\op\operate-fresh\Usersgrubeopoperate-freshtest-finance-invoices.js" kann nicht 
+gefunden werden, da er nicht vorhanden ist.
+In Zeile:1 Zeichen:1
++ Get-Content 'C:Usersgrubeopoperate-freshtest-finance-invoices.js'
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Users\grube\...nce-invoices.js:String) [Get-Content], ItemNotFoundEx 
+   ception
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+ 

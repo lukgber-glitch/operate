@@ -1,0 +1,56 @@
+{
+  "timestamp": "2025-12-16T11:39:31.061Z",
+  "steps": [
+    {
+      "step": 1,
+      "action": "Navigate to login",
+      "status": "PASS"
+    },
+    {
+      "step": 2,
+      "action": "Fill email",
+      "status": "PASS"
+    },
+    {
+      "step": 3,
+      "action": "Fill password",
+      "status": "PASS"
+    },
+    {
+      "step": 4,
+      "action": "Click login",
+      "status": "PASS"
+    },
+    {
+      "step": 5,
+      "action": "Post-login redirect",
+      "status": "PASS"
+    },
+    {
+      "step": 6,
+      "action": "Go to onboarding",
+      "status": "PASS"
+    },
+    {
+      "step": 7,
+      "action": "Wait 5 sec",
+      "status": "PASS"
+    },
+    {
+      "step": 8,
+      "action": "Capture state",
+      "status": "PASS"
+    }
+  ],
+  "status": "FAIL",
+  "errors": {
+    "console": [
+      "Failed to load resource: the server responded with a status of 401 ()",
+      "Failed to load resource: the server responded with a status of 401 ()"
+    ],
+    "page": []
+  },
+  "hasMapError": false,
+  "hasSomethingWrong": false,
+  "currentUrl": "https://operate.guru/login?from=%2Fonboarding"
+}

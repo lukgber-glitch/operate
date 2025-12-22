@@ -1,0 +1,127 @@
+{
+  "pass": 20,
+  "fail": 0,
+  "skip": 0,
+  "tests": [
+    {
+      "category": "Core",
+      "name": "AI Chat",
+      "status": "pass",
+      "details": "29btn 1inp 0tbl"
+    },
+    {
+      "category": "Core",
+      "name": "Dashboard",
+      "status": "pass",
+      "details": "27btn 0inp 0tbl"
+    },
+    {
+      "category": "Finance",
+      "name": "Finance Overview",
+      "status": "pass",
+      "details": "20btn 0inp 2tbl"
+    },
+    {
+      "category": "Finance",
+      "name": "Invoices",
+      "status": "pass",
+      "details": "16btn 1inp 1tbl"
+    },
+    {
+      "category": "Finance",
+      "name": "New Invoice",
+      "status": "pass",
+      "details": "20btn 7inp 1tbl"
+    },
+    {
+      "category": "Finance",
+      "name": "Recurring Invoices",
+      "status": "pass",
+      "details": "14btn 1inp 1tbl"
+    },
+    {
+      "category": "Finance",
+      "name": "Expenses",
+      "status": "pass",
+      "details": "32btn 1inp 1tbl"
+    },
+    {
+      "category": "Finance",
+      "name": "New Expense",
+      "status": "pass",
+      "details": "18btn 5inp 0tbl"
+    },
+    {
+      "category": "Finance",
+      "name": "Receipt Scanner",
+      "status": "pass",
+      "details": "15btn 2inp 0tbl"
+    },
+    {
+      "category": "Banking",
+      "name": "Bank Accounts",
+      "status": "pass",
+      "details": "15btn 0inp 0tbl"
+    },
+    {
+      "category": "Banking",
+      "name": "Transactions",
+      "status": "pass",
+      "details": "14btn 0inp 0tbl"
+    },
+    {
+      "category": "Time",
+      "name": "Time Tracking",
+      "status": "pass",
+      "details": "15btn 1inp 0tbl"
+    },
+    {
+      "category": "Time",
+      "name": "Calendar",
+      "status": "pass",
+      "details": "16btn 0inp 0tbl"
+    },
+    {
+      "category": "Time",
+      "name": "Contracts",
+      "status": "pass",
+      "details": "14btn 1inp 1tbl"
+    },
+    {
+      "category": "CRM",
+      "name": "Clients",
+      "status": "pass",
+      "details": "16btn 1inp 0tbl"
+    },
+    {
+      "category": "Docs",
+      "name": "Documents",
+      "status": "pass",
+      "details": "35btn 1inp 0tbl"
+    },
+    {
+      "category": "Auto",
+      "name": "Autopilot",
+      "status": "pass",
+      "details": "18btn 0inp 0tbl"
+    },
+    {
+      "category": "Settings",
+      "name": "Settings",
+      "status": "pass",
+      "details": "21btn 8inp 0tbl"
+    },
+    {
+      "category": "Settings",
+      "name": "Billing",
+      "status": "pass",
+      "details": "23btn 0inp 0tbl"
+    },
+    {
+      "category": "Settings",
+      "name": "Developer",
+      "status": "pass",
+      "details": "19btn 0inp 0tbl"
+    }
+  ]
+}

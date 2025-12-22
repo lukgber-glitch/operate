@@ -1,0 +1,37 @@
+========================================
+BATCH 6 RESULTS: Finance Expenses
+========================================
+
+Test Date: 2025-12-16
+Login: luk.gber@gmail.com
+Base URL: https://operate.guru
+
+/finance/expenses - [FAIL] - User redirected to /onboarding
+/finance/expenses/new - [FAIL] - User redirected to /onboarding
+/finance/expenses/scan - [FAIL] - User redirected to /onboarding
+/finance/payments - [FAIL] - User redirected to /onboarding
+
+CRITICAL ERRORS:
+- User account (luk.gber@gmail.com) is stuck in onboarding flow
+- All finance expense pages redirect to /onboarding
+- Cannot access any expense-related functionality
+- Onboarding completion appears required before accessing features
+
+API ERRORS:
+None - No API errors detected (pages redirect before loading)
+
+ONBOARDING PAGE STATE:
+- Shows "Welcome to Operate" screen
+- Three feature cards: Unlimited, Real-time insights, AI-powered insights
+- Two action buttons: "Get Started" and "Import Data"
+- Completion indicators: 0/3 Completed, 0/25 Hours, 0/3 All AI Completed
+
+RECOMMENDATION:
+The user account needs to complete the onboarding flow or have onboarding 
+bypassed in order to access finance features. All tested pages are 
+inaccessible due to onboarding redirect.
+
+Screenshots saved to: test-screenshots/finance-expenses/
+Report files:
+- BATCH6_FINANCE_EXPENSES_TEST.md
+- BATCH6_FINANCE_EXPENSES_TEST.json

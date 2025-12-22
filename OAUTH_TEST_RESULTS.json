@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "test": "Login page loads",
+      "status": "PASS"
+    },
+    {
+      "test": "Find Google button",
+      "status": "PASS",
+      "button": "Google"
+    },
+    {
+      "test": "Click Google button",
+      "status": "PASS"
+    },
+    {
+      "test": "Redirect to Google",
+      "status": "PASS",
+      "url": "https://accounts.google.com/v3/signin/identifier?opparams=%253F&dsh=S939741811%3A1766418463697606&access_type=offline&client_id=549203354062-pq9off5i553e1so64gm2l81sj10sju2q.apps.googleusercontent.com&o2v=2&prompt=select_account&redirect_uri=https%3A%2F%2Foperate.guru%2Fapi%2Fv1%2Fauth%2Fgoogle%2Fcallback&response_type=code&scope=openid+email+profile&service=lso&flowName=GeneralOAuthFlow&continue=https%3A%2F%2Faccounts.google.com%2Fsignin%2Foauth%2Fconsent%3Fauthuser%3Dunknown%26part%3DAJi8hAPXz4KFGflC0O3O0Sv_6XTCMJVz8rVonXu6fPinLRy9m0Jj_1Ai7Aa67r9G0zHSsbyUjyXGoRbyTyeH_c3IZJ5B7bAgNGfNb4SCmgj7sxRK_qCzgPcSrHC-DoZxyoEaAZ9YOrhvqxY9sZHcJ56QpeWMynqS7G3cltFIdvDWKjJmcO_whJFSwIS-3TurJzTRqRmt6118LqAukV2eycBgf9LQfwwBXUXt9s15cfJraTpGG_Tp1F0MXCi9LVg_KTXoPxv52qkzXwTlBnE2k7uStLKccJiu0Te8Mr4aK52dicKekAaUPqc5bLjV8ivHhRxAXjLc7vPmoIvFGl0X5EZLn0RZU8Tl1_VbOLtO9KavqlNtwEvKa5CDxxSd7UvB-LMdIivlkxTEyXZD8R4CaWB3Wz7kVu37lRx-X3LUlROZvUI7W3mcfRfHwE3inQR8xLyBe8UvquCMB5b7jEvhWFHQ6GTsOwrfkw%26flowName%3DGeneralOAuthFlow%26as%3DS939741811%253A1766418463697606%26client_id%3D549203354062-pq9off5i553e1so64gm2l81sj10sju2q.apps.googleusercontent.com%26requestPath%3D%252Fsignin%252Foauth%252Fconsent%23&app_domain=https%3A%2F%2Foperate.guru&rart=ANgoxcewQ3_pFYVtQ608fW5ifZLBCNsOmXoQb-N_hGvx4_Ch_ahR6VprP5xG3KNu9CPbuYKzjVMD7fQd72NWkI1YnwvQxtgty_Ft9YduCKnUgv_6gK0VaHk"
+    }
+  ],
+  "screenshots": [
+    "oauth-01-login.png",
+    "oauth-02-after-click.png",
+    "oauth-03-google-page.png"
+  ],
+  "success": true,
+  "summary": "OAuth flow works - successfully redirected to Google"
+}

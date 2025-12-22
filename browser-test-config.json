@@ -1,0 +1,300 @@
+{
+  "baseUrl": "https://operate.guru",
+  "credentials": {
+    "primary": {
+      "email": "luk.gber@gmail.com",
+      "password": "Schlagzeug1@"
+    },
+    "fallback": {
+      "email": "test@operate.guru",
+      "password": "TestPassword123!"
+    }
+  },
+  "browser": {
+    "debugPort": 9222,
+    "headless": false,
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "timeouts": {
+    "navigation": 60000,
+    "element": 30000,
+    "action": 15000,
+    "networkIdle": 45000
+  },
+  "retries": 3,
+  "screenshotDir": "./test-screenshots",
+  "cookieFile": "./test-cookies.json",
+  "reportDir": "./test-reports",
+  "batches": [
+    {
+      "id": "01",
+      "name": "Authentication Flow",
+      "agent": "browser-auth",
+      "priority": 1,
+      "requiresAuth": false,
+      "pages": [
+        "/login",
+        "/register",
+        "/forgot-password",
+        "/reset-password",
+        "/verify-email",
+        "/auth/error"
+      ]
+    },
+    {
+      "id": "02",
+      "name": "Public Pages",
+      "agent": "browser-ui",
+      "priority": 2,
+      "requiresAuth": false,
+      "pages": [
+        "/",
+        "/pricing",
+        "/faq",
+        "/privacy",
+        "/terms",
+        "/cookies",
+        "/acceptable-use",
+        "/ai-disclaimer",
+        "/dpa",
+        "/impressum",
+        "/payment-terms",
+        "/offline"
+      ]
+    },
+    {
+      "id": "03",
+      "name": "Dashboard Core",
+      "agent": "browser-e2e",
+      "priority": 3,
+      "requiresAuth": true,
+      "pages": [
+        "/dashboard",
+        "/profile",
+        "/chat",
+        "/inbox",
+        "/calendar",
+        "/search",
+        "/notifications",
+        "/notifications/inbox",
+        "/tasks",
+        "/health-score"
+      ]
+    },
+    {
+      "id": "04",
+      "name": "Finance - Invoices",
+      "agent": "browser-finance",
+      "priority": 3,
+      "requiresAuth": true,
+      "pages": [
+        "/finance",
+        "/finance/invoices",
+        "/finance/invoices/new",
+        "/finance/invoices/extracted",
+        "/finance/invoices/recurring",
+        "/finance/invoices/recurring/new"
+      ]
+    },
+    {
+      "id": "05",
+      "name": "Finance - Expenses & Banking",
+      "agent": "browser-finance",
+      "priority": 3,
+      "requiresAuth": true,
+      "pages": [
+        "/finance/expenses",
+        "/finance/expenses/new",
+        "/finance/expenses/scan",
+        "/finance/accounts",
+        "/finance/banking",
+        "/finance/bank-accounts",
+        "/finance/transactions"
+      ]
+    },
+    {
+      "id": "06",
+      "name": "Finance - Payments",
+      "agent": "browser-finance",
+      "priority": 3,
+      "requiresAuth": true,
+      "pages": [
+        "/finance/payments",
+        "/finance/reconciliation",
+        "/billing"
+      ]
+    },
+    {
+      "id": "07",
+      "name": "HR & Payroll",
+      "agent": "browser-e2e",
+      "priority": 3,
+      "requiresAuth": true,
+      "pages": [
+        "/hr",
+        "/hr/employees",
+        "/hr/employees/new",
+        "/hr/employees/onboarding",
+        "/hr/benefits",
+        "/hr/benefits/enroll",
+        "/hr/payroll/run",
+        "/hr/leave",
+        "/hr/leave/approvals",
+        "/hr/leave/requests"
+      ]
+    },
+    {
+      "id": "08",
+      "name": "Tax Module",
+      "agent": "browser-finance",
+      "priority": 3,
+      "requiresAuth": true,
+      "pages": [
+        "/tax",
+        "/tax/austria",
+        "/tax/germany",
+        "/tax/deductions",
+        "/tax/deductions/new",
+        "/tax/deductions/calculators",
+        "/tax/filing",
+        "/tax/reports",
+        "/tax/vat",
+        "/tax/vat/uk"
+      ]
+    },
+    {
+      "id": "09",
+      "name": "Time & Mileage",
+      "agent": "browser-e2e",
+      "priority": 3,
+      "requiresAuth": true,
+      "pages": [
+        "/time",
+        "/time/entries",
+        "/time/projects",
+        "/time/projects/new",
+        "/mileage",
+        "/mileage/entries",
+        "/mileage/new",
+        "/mileage/tax-report"
+      ]
+    },
+    {
+      "id": "10",
+      "name": "CRM & Contacts",
+      "agent": "browser-e2e",
+      "priority": 3,
+      "requiresAuth": true,
+      "pages": [
+        "/crm",
+        "/clients",
+        "/vendors",
+        "/vendors/new"
+      ]
+    },
+    {
+      "id": "11",
+      "name": "Contracts & Quotes",
+      "agent": "browser-e2e",
+      "priority": 3,
+      "requiresAuth": true,
+      "pages": [
+        "/contracts",
+        "/contracts/new",
+        "/contracts/templates",
+        "/quotes",
+        "/quotes/new"
+      ]
+    },
+    {
+      "id": "12",
+      "name": "Documents",
+      "agent": "browser-e2e",
+      "priority": 3,
+      "requiresAuth": true,
+      "pages": [
+        "/documents",
+        "/documents/upload",
+        "/documents/templates"
+      ]
+    },
+    {
+      "id": "13",
+      "name": "Reports & Intelligence",
+      "agent": "browser-e2e",
+      "priority": 3,
+      "requiresAuth": true,
+      "pages": [
+        "/reports",
+        "/reports/financial",
+        "/reports/sales",
+        "/intelligence",
+        "/intelligence/email",
+        "/intelligence/reviews"
+      ]
+    },
+    {
+      "id": "14",
+      "name": "Automation & Integrations",
+      "agent": "browser-e2e",
+      "priority": 3,
+      "requiresAuth": true,
+      "pages": [
+        "/autopilot",
+        "/autopilot/actions",
+        "/autopilot/settings",
+        "/integrations",
+        "/tax-assistant",
+        "/tax-assistant/deadlines",
+        "/tax-assistant/suggestions"
+      ]
+    },
+    {
+      "id": "15",
+      "name": "Settings",
+      "agent": "browser-e2e",
+      "priority": 3,
+      "requiresAuth": true,
+      "pages": [
+        "/settings",
+        "/settings/profile",
+        "/settings/ai",
+        "/settings/automation",
+        "/settings/billing",
+        "/settings/connections",
+        "/settings/email",
+        "/settings/exports",
+        "/settings/notifications",
+        "/settings/security",
+        "/settings/tax",
+        "/settings/tax/exemptions",
+        "/settings/tax/nexus",
+        "/settings/verification",
+        "/settings/verification/start"
+      ]
+    },
+    {
+      "id": "16",
+      "name": "Admin & Developer",
+      "agent": "browser-e2e",
+      "priority": 4,
+      "requiresAuth": true,
+      "pages": [
+        "/admin",
+        "/admin/users",
+        "/admin/roles",
+        "/admin/subscriptions",
+        "/developer",
+        "/developer/api-keys",
+        "/developer/logs",
+        "/developer/webhooks",
+        "/api-docs",
+        "/help",
+        "/feedback"
+      ]
+    }
+  ]
+}

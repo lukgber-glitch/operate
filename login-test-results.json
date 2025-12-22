@@ -1,0 +1,31 @@
+{
+  "steps": [],
+  "errors": [
+    "Navigation timeout of 30000 ms exceeded"
+  ],
+  "network": [
+    {
+      "url": "https://operate.guru/login",
+      "status": 200
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/app/(auth)/login/page-82c241e8b155667e.js",
+      "status": 200
+    },
+    {
+      "url": "https://operate.guru/_next/static/chunks/app/(auth)/layout-4933a34b99e99d6e.js",
+      "status": 200
+    },
+    {
+      "url": "https://operate.guru/api/v1/auth/me",
+      "status": 200
+    },
+    {
+      "url": "https://operate.guru/login?from=%2F",
+      "status": 200
+    }
+  ],
+  "console": [
+    "<meta name=\"apple-mobile-web-app-capable\" content=\"yes\"> is deprecated. Please include <meta name=\"mobile-web-app-capable\" content=\"yes\">"
+  ]
+}

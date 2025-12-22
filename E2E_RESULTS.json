@@ -1,0 +1,12 @@
+{
+  "authWorked": true,
+  "reachedChat": true,
+  "chatInputFound": true,
+  "messageSent": true,
+  "aiResponse": "Completed wait",
+  "otherPages": {
+    "/finance/invoices": true,
+    "/finance/expenses": true,
+    "/time": true
+  }
+}

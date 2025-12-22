@@ -1,0 +1,196 @@
+{
+  "batch": "10-11",
+  "timestamp": "2025-12-17T16:31:15.513Z",
+  "pages": [
+    {
+      "route": "/tax",
+      "status": 200,
+      "passed": false,
+      "issues": [
+        "Redirected to login page - authentication failed",
+        "1 console errors",
+        "Navigation error: page.waitForTimeout is not a function"
+      ],
+      "redirectedTo": "https://operate.guru/login?from=%2Ftax",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ]
+    },
+    {
+      "route": "/tax/austria",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Navigating frame was detached"
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/tax/germany",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/tax/deductions",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/tax/deductions/new",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/tax/deductions/calculators",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/tax/filing",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/tax/reports",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/tax/vat",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/tax/vat/uk",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/time",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/time/entries",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/time/projects",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/time/projects/new",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/mileage",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/mileage/entries",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/mileage/new",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    },
+    {
+      "route": "/mileage/tax-report",
+      "status": null,
+      "passed": false,
+      "issues": [
+        "Navigation error: Attempted to use detached Frame 'DA25D0FDD8C3D77D2B714EDE5CE04875'."
+      ],
+      "redirectedTo": null,
+      "consoleErrors": []
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "passed": 0,
+    "failed": 18,
+    "passRate": "0%"
+  }
+}

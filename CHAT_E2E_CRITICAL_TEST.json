@@ -1,0 +1,84 @@
+{
+  "timestamp": "2025-12-20T23:11:45.366Z",
+  "steps": [
+    {
+      "step": 1,
+      "action": "Navigate to login",
+      "url": "https://operate.guru/login",
+      "status": "OK"
+    },
+    {
+      "step": 2,
+      "action": "Fill email",
+      "status": "OK"
+    },
+    {
+      "step": 3,
+      "action": "Fill password",
+      "status": "OK"
+    },
+    {
+      "step": 4,
+      "action": "Click Sign in",
+      "status": "OK"
+    },
+    {
+      "step": 5,
+      "action": "Wait after login",
+      "url": "https://operate.guru/onboarding",
+      "status": "OK"
+    },
+    {
+      "step": 6,
+      "action": "Navigate to chat",
+      "url": "https://operate.guru/onboarding",
+      "status": "OK"
+    },
+    {
+      "step": 7,
+      "action": "Chat page analysis complete",
+      "url": "https://operate.guru/onboarding",
+      "status": "OK"
+    }
+  ],
+  "chatPage": {
+    "finalUrl": "https://operate.guru/onboarding",
+    "analysis": {
+      "greeting": "Welcome to Operate",
+      "inputField": null,
+      "suggestionChips": [
+        "Get Started",
+        "Import Data"
+      ],
+      "errorMessage": null,
+      "sidebar": null,
+      "header": null,
+      "textElements": [
+        "Operate",
+        "Your intelligent business management platform. Let's get you set up in minutes.",
+        "Lightning Fast",
+        "Set up your account in under 5 minutes and start automating immediately",
+        "Bank-Level Security",
+        "Your data is encrypted with 256-bit encryption and stored securely",
+        "AI-Powered Insights",
+        "Smart automation classifies transactions and suggests optimizations",
+        "SOC 2 Compliant",
+        "GDPR Ready",
+        "256-bit Encryption"
+      ],
+      "allButtons": [
+        "Get Started",
+        "Import Data"
+      ]
+    },
+    "jsErrors": [],
+    "consoleErrors": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 401 ()",
+        "time": "2025-12-20T23:11:46.149Z"
+      }
+    ]
+  },
+  "status": "SUCCESS"
+}

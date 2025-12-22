@@ -1,0 +1,46 @@
+{
+  "testSuite": "BATCH 01 - Authentication Flow",
+  "timestamp": "2025-12-20T20:04:09.494Z",
+  "pages": [
+    {
+      "name": "Login",
+      "status": "FAIL",
+      "error": "Navigation timeout of 30000 ms exceeded"
+    },
+    {
+      "name": "Chat",
+      "status": "PASS",
+      "url": "https://operate.guru/login?from=%2Fchat"
+    },
+    {
+      "name": "Invoices",
+      "status": "PASS",
+      "url": "https://operate.guru/login?from=%2Ffinance%2Finvoices"
+    },
+    {
+      "name": "Expenses",
+      "status": "PASS",
+      "url": "https://operate.guru/login?from=%2Ffinance%2Fexpenses"
+    },
+    {
+      "name": "Time",
+      "status": "PASS",
+      "url": "https://operate.guru/login?from=%2Ftime"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "passed": 4,
+    "failed": 1
+  },
+  "cookiesSaved": false,
+  "screenshots": [
+    "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\batch-01\\01-login.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\batch-01\\02-filled.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\batch-01\\04-chat.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\batch-01\\05-invoices.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\batch-01\\06-expenses.png",
+    "C:\\Users\\grube\\op\\operate-fresh\\test-screenshots\\batch-01\\07-time.png"
+  ],
+  "completedAt": "2025-12-20T20:04:42.858Z"
+}

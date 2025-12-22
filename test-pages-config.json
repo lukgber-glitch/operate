@@ -1,0 +1,77 @@
+[
+  {
+    "route": "/login",
+    "name": "Login",
+    "inputs": [
+      "input[type=email]",
+      "input[type=password]"
+    ]
+  },
+  {
+    "route": "/register",
+    "name": "Register",
+    "inputs": [
+      "input"
+    ]
+  },
+  {
+    "route": "/forgot-password",
+    "name": "Forgot Password",
+    "inputs": [
+      "input[type=email]"
+    ]
+  },
+  {
+    "route": "/dashboard",
+    "name": "Dashboard",
+    "inputs": []
+  },
+  {
+    "route": "/chat",
+    "name": "Chat (CRITICAL)",
+    "inputs": [
+      "textarea",
+      "input[type=text]"
+    ]
+  },
+  {
+    "route": "/finance/invoices",
+    "name": "Invoices",
+    "inputs": [
+      "input"
+    ]
+  },
+  {
+    "route": "/finance/expenses",
+    "name": "Expenses",
+    "inputs": [
+      "input"
+    ]
+  },
+  {
+    "route": "/time",
+    "name": "Time Tracking",
+    "inputs": [
+      "input"
+    ]
+  },
+  {
+    "route": "/settings",
+    "name": "Settings",
+    "inputs": [
+      "input"
+    ]
+  },
+  {
+    "route": "/clients",
+    "name": "Clients",
+    "inputs": [
+      "input"
+    ]
+  },
+  {
+    "route": "/banking",
+    "name": "Banking",
+    "inputs": []
+  }
+]

@@ -1,0 +1,47 @@
+{
+  "timestamp": "2025-12-20T11:51:57.368Z",
+  "tests": [
+    {
+      "name": "Login Page Load",
+      "url": "https://operate.guru/login",
+      "status": "FAIL",
+      "error": "Navigation timeout of 30000 ms exceeded"
+    },
+    {
+      "name": "Page Styling",
+      "styles": {
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "hasStylesheets": true,
+        "bodyClasses": "__className_222df3"
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "Google OAuth Button",
+      "result": {
+        "found": true,
+        "text": "Sign In",
+        "totalButtons": 10
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "Console Errors",
+      "errors": [],
+      "warnings": [],
+      "totalMessages": 2,
+      "status": "PASS"
+    },
+    {
+      "name": "Protected Route Redirect",
+      "status": "FAIL",
+      "error": "Navigation timeout of 15000 ms exceeded"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 2,
+    "info": 0,
+    "total": 5
+  }
+}

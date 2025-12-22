@@ -1,0 +1,12 @@
+{
+  "steps": [
+    {
+      "step": 1,
+      "desc": "Navigate to login",
+      "status": "PASS"
+    }
+  ],
+  "passed": 1,
+  "failed": 0,
+  "error": "Waiting for selector `button[name=\"provider\"][value=\"google\"]` failed"
+}

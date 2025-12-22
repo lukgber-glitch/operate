@@ -1,9 +1,43 @@
 {
   "summary": {
     "total": 7,
-    "passed": 7,
-    "failed": 0,
-    "warnings": 0
+    "passed": 2,
+    "failed": 4,
+    "warnings": 1
   },
-  "issues": []
+  "issues": [
+    {
+      "page": "login",
+      "type": "frontend",
+      "severity": "critical",
+      "description": "Failed to load: Navigation timeout of 15000 ms exceeded"
+    },
+    {
+      "page": "register",
+      "type": "frontend",
+      "severity": "medium",
+      "description": "Console errors: 1",
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 401 ()"
+      ]
+    },
+    {
+      "page": "mfa-setup",
+      "type": "frontend",
+      "severity": "high",
+      "description": "Page not found (404)"
+    },
+    {
+      "page": "mfa-verify",
+      "type": "frontend",
+      "severity": "high",
+      "description": "Page not found (404)"
+    },
+    {
+      "page": "dashboard-auth-check",
+      "type": "frontend",
+      "severity": "critical",
+      "description": "Failed to load: Navigation timeout of 15000 ms exceeded"
+    }
+  ]
 }

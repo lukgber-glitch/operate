@@ -1,0 +1,46 @@
+[
+  {
+    "url": "https://operate.guru/api/v1/auth/me",
+    "status": 200,
+    "statusText": "",
+    "headers": {
+      "content-length": "0",
+      "content-type": "text/html; charset=UTF-8",
+      "date": "Mon, 22 Dec 2025 15:07:03 GMT",
+      "server": "nginx"
+    }
+  },
+  {
+    "url": "https://operate.guru/api/v1/auth/login",
+    "status": 200,
+    "statusText": "",
+    "headers": {
+      "content-length": "0",
+      "content-type": "text/html; charset=UTF-8",
+      "date": "Mon, 22 Dec 2025 15:07:08 GMT",
+      "server": "nginx"
+    }
+  },
+  {
+    "url": "https://operate.guru/api/v1/auth/me",
+    "status": 200,
+    "statusText": "",
+    "headers": {
+      "content-length": "0",
+      "content-type": "text/html; charset=UTF-8",
+      "date": "Mon, 22 Dec 2025 15:07:08 GMT",
+      "server": "nginx"
+    }
+  },
+  {
+    "url": "https://operate.guru/api/v1/auth/me",
+    "status": 200,
+    "statusText": "",
+    "headers": {
+      "content-length": "0",
+      "content-type": "text/html; charset=UTF-8",
+      "date": "Mon, 22 Dec 2025 15:07:08 GMT",
+      "server": "nginx"
+    }
+  }
+]

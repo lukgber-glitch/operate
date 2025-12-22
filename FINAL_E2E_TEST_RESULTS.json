@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-12-20T23:31:06.853Z",
+  "steps": [
+    {
+      "step": "ERROR",
+      "error": "Navigation timeout of 30000 ms exceeded"
+    }
+  ],
+  "finalUrl": "",
+  "chatInterfacePresent": false,
+  "errorMessages": [],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 401 ()"
+  ],
+  "visibleElements": []
+}

@@ -1,0 +1,112 @@
+{
+  "testName": "BROWSER-AUTH: Google OAuth Login Flow",
+  "testDate": "2025-12-17T13:42:44.414Z",
+  "environment": "Production",
+  "baseUrl": "https://operate.guru",
+  "testResults": [
+    {
+      "test": "Login page loads",
+      "status": "PASS",
+      "notes": "Login page loads successfully at /login with proper styling and UI elements"
+    },
+    {
+      "test": "Google OAuth button presence",
+      "status": "PASS",
+      "notes": "Google OAuth button found as <a> tag with aria-label=\"Sign in with Google\" and href=\"/api/v1/auth/google\""
+    },
+    {
+      "test": "Google OAuth button clickable",
+      "status": "PASS",
+      "notes": "Button is clickable and triggers navigation"
+    },
+    {
+      "test": "OAuth redirect to Google",
+      "status": "PASS",
+      "notes": "Successfully redirects to accounts.google.com OAuth flow with correct client_id and scopes (openid, email, profile)"
+    },
+    {
+      "test": "OAuth callback URL configured",
+      "status": "PASS",
+      "notes": "Callback URL correctly set to https://operate.guru/api/v1/auth/google/callback"
+    },
+    {
+      "test": "Google authentication form",
+      "status": "PASS",
+      "notes": "Email and password fields work correctly, credentials can be entered"
+    },
+    {
+      "test": "2FA handling",
+      "status": "BLOCKED",
+      "notes": "Account luk.gber@gmail.com has 2FA enabled. Manual intervention required to complete authentication (phone prompt or SMS code). This is expected security behavior."
+    },
+    {
+      "test": "OAuth callback completion",
+      "status": "BLOCKED",
+      "notes": "Cannot test automatically due to 2FA requirement. Manual testing needed."
+    },
+    {
+      "test": "op_auth cookie set",
+      "status": "BLOCKED",
+      "notes": "Cannot verify cookie is set due to 2FA blocking OAuth completion"
+    },
+    {
+      "test": "Dashboard redirect after login",
+      "status": "BLOCKED",
+      "notes": "Cannot verify redirect due to 2FA blocking OAuth completion"
+    },
+    {
+      "test": "Session persistence",
+      "status": "NOT_TESTED",
+      "notes": "Requires successful login to test"
+    },
+    {
+      "test": "Logout functionality",
+      "status": "NOT_TESTED",
+      "notes": "Requires successful login to test"
+    }
+  ],
+  "issuesFound": [
+    {
+      "severity": "INFO",
+      "title": "2FA Blocks Automated Testing",
+      "description": "The test account luk.gber@gmail.com has 2-Factor Authentication enabled, which prevents fully automated end-to-end testing of the OAuth flow.",
+      "recommendation": "Either: (1) Create a dedicated test account without 2FA, or (2) Complete the 2FA step manually during testing to verify the full flow"
+    }
+  ],
+  "screenshotsCaptures": [
+    "auth-test-01-login-page.png - Initial login page with Google/Microsoft OAuth buttons",
+    "auth-test-02-after-click.png - After clicking Google OAuth (redirected to Google)",
+    "auth-test-03-email-entered.png - Email entered in Google OAuth form",
+    "auth-test-04-password-entered.png - Password entered in Google OAuth form",
+    "auth-test-05-final-page.png - 2FA challenge page (blocked)"
+  ],
+  "technicalDetails": {
+    "oauthProvider": "Google",
+    "clientId": "549203354062-pq9off5i553e1so64gm2l81sj10sju2q.apps.googleusercontent.com",
+    "scopes": [
+      "openid",
+      "email",
+      "profile"
+    ],
+    "callbackUrl": "https://operate.guru/api/v1/auth/google/callback",
+    "accessType": "offline",
+    "prompt": "select_account"
+  },
+  "summary": {
+    "totalTests": 12,
+    "passed": 6,
+    "failed": 0,
+    "blocked": 4,
+    "notTested": 2,
+    "overallStatus": "PARTIAL_PASS",
+    "conclusion": "Google OAuth integration is correctly configured and functional up to the authentication step. The OAuth flow redirects properly, credentials can be entered, and the callback URL is correctly configured. Full end-to-end testing is blocked by 2FA on the test account, which is expected security behavior. Manual completion of 2FA is required to verify cookie setting and dashboard redirect."
+  },
+  "nextSteps": [
+    "1. Manually complete 2FA on the test account to verify full OAuth flow",
+    "2. Check that op_auth cookie is set after successful authentication",
+    "3. Verify redirect to /chat or /onboarding after login",
+    "4. Test session persistence across page navigations",
+    "5. Test logout functionality",
+    "6. Consider creating a test account without 2FA for automated E2E testing"
+  ]
+}

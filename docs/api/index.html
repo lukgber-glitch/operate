@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Operate API Documentation - AI-powered business automation platform">
+  <title>Operate API Documentation</title>
+  <link rel="icon" type="image/png" href="https://operate.guru/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* Custom header */
+    .custom-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .custom-header .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .custom-header .logo svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .custom-header nav {
+      display: flex;
+      gap: 24px;
+    }
+
+    .custom-header nav a {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .custom-header nav a:hover {
+      color: white;
+    }
+
+    /* Redoc container - add top padding for fixed header */
+    redoc {
+      display: block;
+      padding-top: 64px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Custom Header -->
+  <div class="custom-header">
+    <a href="https://operate.guru" class="logo">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#3b82f6"/>
+        <path d="M2 17l10 5 10-5" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 12l10 5 10-5" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Operate API
+    </a>
+    <nav>
+      <a href="https://operate.guru">Home</a>
+      <a href="https://operate.guru/developer">Developer Portal</a>
+      <a href="https://operate.guru/developer/api-keys">API Keys</a>
+      <a href="https://operate.guru/help">Support</a>
+    </nav>
+  </div>
+
+  <!-- Redoc Element -->
+  <redoc
+    spec-url="./openapi.json"
+    hide-hostname="false"
+    expand-responses="200,201"
+    json-sample-expand-level="2"
+    hide-download-button="false"
+    native-scrollbars="true"
+    theme='{
+      "colors": {
+        "primary": { "main": "#3b82f6" },
+        "success": { "main": "#22c55e" },
+        "warning": { "main": "#f59e0b" },
+        "error": { "main": "#ef4444" },
+        "text": { "primary": "#0f172a", "secondary": "#64748b" },
+        "http": {
+          "get": "#3b82f6",
+          "post": "#22c55e",
+          "put": "#f59e0b",
+          "delete": "#ef4444",
+          "patch": "#8b5cf6"
+        }
+      },
+      "typography": {
+        "fontSize": "15px",
+        "fontFamily": "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+        "headings": { "fontFamily": "Inter, -apple-system, BlinkMacSystemFont, sans-serif" },
+        "code": { "fontFamily": "JetBrains Mono, Consolas, monospace" }
+      },
+      "sidebar": {
+        "backgroundColor": "#f8fafc",
+        "textColor": "#0f172a",
+        "activeTextColor": "#3b82f6"
+      },
+      "rightPanel": {
+        "backgroundColor": "#1e293b"
+      }
+    }'
+  ></redoc>
+
+  <!-- Redoc Standalone JS -->
+  <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+</body>
+</html>

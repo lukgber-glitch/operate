@@ -1,0 +1,25 @@
+# Nginx configuration for docs.operate.guru
+# Add this to your server configuration
+
+server {
+    listen 80;
+    server_name docs.operate.guru;
+
+    root /path/to/docs/api;
+    index index.html;
+
+    # Enable gzip compression
+    gzip on;
+    gzip_types text/html application/json application/javascript text/css;
+
+    # Cache static assets
+    location ~* \.(json|js|css|png|ico)$ {
+        expires 7d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # SPA fallback
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

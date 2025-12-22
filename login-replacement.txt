@@ -1,0 +1,20 @@
+    await page.goto('https://operate.guru/login', { waitUntil: 'networkidle2', timeout: 30000 });
+    await page.screenshot({ path: path.join(__dirname, 'test-screenshots', 'settings-01-login.png'), fullPage: true });
+    console.log('Login page loaded');
+    
+    await delay(2000);
+    
+    // Try email/password login
+    const emailInput = await page.$('input[type="email"]');
+    if (emailInput) {
+      console.log('Using email/password login...');
+      await page.type('input[type="email"]', 'test@operate.guru', { delay: 100 });
+      await page.type('input[type="password"]', 'TestPassword123!', { delay: 100 });
+      await delay(1000);
+      await page.click('button[type="submit"]');
+      await delay(5000);
+    } else {
+      console.log('Email input not found');
+    }
+    
+    console.log('Verifying login...');
