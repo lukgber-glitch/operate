@@ -288,7 +288,7 @@ export class OAuthController {
     res.cookie('op_auth', authData, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict', // Can use strict here since it's same-origin
+      sameSite: 'lax', // Must use lax for OAuth - Google redirects are cross-origin
       maxAge: 604800 * 1000, // 7 days
       path: '/',
     });
