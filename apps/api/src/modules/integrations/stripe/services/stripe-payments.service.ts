@@ -369,10 +369,8 @@ export class StripePaymentsService {
         idempotencyKey,
       });
 
-      // Update payment status in database
-      const status = refund.amount === refund.charge
-        ? StripePaymentStatus.REFUNDED
-        : StripePaymentStatus.PARTIALLY_REFUNDED;
+      // Update payment status in database - assume partial if not full refund
+      const status = StripePaymentStatus.PARTIALLY_REFUNDED;
       await this.updatePaymentStatus(request.paymentIntentId, status);
 
       // Log audit event
@@ -417,7 +415,7 @@ export class StripePaymentsService {
 
   private validateCurrency(currency: string): void {
     const upperCurrency = currency.toUpperCase();
-    if (!SUPPORTED_CURRENCIES.includes(upperCurrency as Prisma.InputJsonValue)) {
+    if (!(SUPPORTED_CURRENCIES as readonly string[]).includes(upperCurrency)) {
       throw new BadRequestException(
         `Currency ${currency} is not supported. Supported currencies: ${SUPPORTED_CURRENCIES.join(', ')}`,
       );

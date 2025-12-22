@@ -1,4 +1,4 @@
-import { Injectable, Logger, TooManyRequestsException } from '@nestjs/common';
+import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 
 /**
  * Plaid Rate Limiter Service
@@ -53,8 +53,9 @@ export class PlaidRateLimiterService {
         `Rate limit exceeded for ${endpoint}. Limit: ${limit} req/min. Reset in ${resetTime}s`,
       );
 
-      throw new TooManyRequestsException(
+      throw new HttpException(
         `Rate limit exceeded for ${endpoint}. Please try again in ${resetTime} seconds.`,
+        HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 

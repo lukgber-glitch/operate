@@ -142,7 +142,8 @@ export class StripeWebhookController {
    * Process webhook event based on type
    */
   private async processEvent(event: Stripe.Event): Promise<void> {
-    switch (event.type) {
+    // Cast to string to handle event types not in SDK type definitions
+    switch (event.type as string) {
       // Connect Account Events
       case STRIPE_WEBHOOK_EVENTS.ACCOUNT_UPDATED:
         await this.handleAccountUpdated(event.data.object as Stripe.Account);

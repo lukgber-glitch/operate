@@ -200,8 +200,8 @@ export class PlaidBankService {
             name: account.name,
             officialName: account.official_name || null,
             mask: account.mask || null,
-            accountType,
-            accountSubtype,
+            accountType: accountType as any, // Cast to Prisma enum
+            accountSubtype: accountSubtype as any, // Cast to Prisma enum
             currentBalance: account.balances.current
               ? Number(account.balances.current)
               : null,
@@ -212,14 +212,14 @@ export class PlaidBankService {
             lastBalanceUpdate: new Date(),
             balanceAsOf: new Date(),
             isActive: true,
-            metadata: account as Prisma.InputJsonValue,
+            metadata: JSON.parse(JSON.stringify(account)), // Convert to plain object
           },
           update: {
             name: account.name,
             officialName: account.official_name || null,
             mask: account.mask || null,
-            accountType,
-            accountSubtype,
+            accountType: accountType as any, // Cast to Prisma enum
+            accountSubtype: accountSubtype as any, // Cast to Prisma enum
             currentBalance: account.balances.current
               ? Number(account.balances.current)
               : null,

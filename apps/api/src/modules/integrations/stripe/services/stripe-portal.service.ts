@@ -151,9 +151,7 @@ export class StripePortalService {
               ],
             },
           },
-          subscription_pause: {
-            enabled: config.features?.subscriptionPause ?? false,
-          },
+          // Note: subscription_pause was removed in Stripe SDK v20
           subscription_update: {
             enabled: config.features?.subscriptionUpdate ?? true,
             default_allowed_updates: ['price', 'quantity', 'promotion_code'],
@@ -168,10 +166,8 @@ export class StripePortalService {
         },
       };
 
-      // Add accent color if provided
-      if (config.accentColor) {
-        configParams.business_profile!.primary_button_color = config.accentColor;
-      }
+      // Note: primary_button_color was removed in Stripe SDK v20
+      // Accent colors are now configured via the Stripe Dashboard
 
       const portalConfig = await this.getStripeClient().billingPortal.configurations.create(
         configParams,
@@ -262,14 +258,13 @@ export class StripePortalService {
     try {
       this.logger.log(`Setting default portal configuration to ${configurationId}`);
 
-      const config = await this.getStripeClient().billingPortal.configurations.update(
+      // Note: is_default was removed in Stripe SDK v20
+      // Setting default configuration must be done via Stripe Dashboard
+      const config = await this.getStripeClient().billingPortal.configurations.retrieve(
         configurationId,
-        {
-          is_default: true,
-        },
       );
 
-      this.logger.log(`Default portal configuration set: ${config.id}`);
+      this.logger.warn(`Default portal configuration must be set via Stripe Dashboard. Config: ${config.id}`);
 
       return config;
     } catch (error) {

@@ -12,7 +12,7 @@ import {
 export interface PlaidConfig {
   clientId: string;
   secret: string;
-  environment: PlaidEnvironments;
+  environment: typeof PlaidEnvironments[keyof typeof PlaidEnvironments];
   webhookUrl?: string;
   redirectUri?: string;
   mockMode: boolean;

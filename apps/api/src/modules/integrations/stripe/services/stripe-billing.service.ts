@@ -17,6 +17,7 @@ import {
   BillingHistoryDto,
   SubscriptionStatus,
   ProrationBehavior,
+  BillingInterval,
 } from '../dto/subscription.dto';
 import Stripe from 'stripe';
 import { randomBytes } from 'crypto';
@@ -106,14 +107,15 @@ export class StripeBillingService {
         subscriptionParams.default_payment_method = dto.defaultPaymentMethod;
       }
 
-      // Add coupon if specified
-      if (dto.couponId) {
-        subscriptionParams.coupon = dto.couponId;
-      }
-
-      // Add promotion code if specified
-      if (dto.promotionCode) {
-        subscriptionParams.promotion_code = dto.promotionCode;
+      // Add discounts (coupon or promotion code) - Stripe SDK v20+ uses discounts array
+      if (dto.couponId || dto.promotionCode) {
+        subscriptionParams.discounts = [];
+        if (dto.couponId) {
+          subscriptionParams.discounts.push({ coupon: dto.couponId });
+        }
+        if (dto.promotionCode) {
+          subscriptionParams.discounts.push({ promotion_code: dto.promotionCode });
+        }
       }
 
       // Create subscription in Stripe
@@ -266,15 +268,14 @@ export class StripeBillingService {
           },
         );
       } else {
-        // Cancel immediately
-        subscription = await this.getStripeClient().subscriptions.cancel(
-          dto.subscriptionId,
-          {
-            metadata: {
-              cancellation_reason: dto.cancellationReason || 'user_requested',
-            },
+        // Cancel immediately - Stripe SDK v20 doesn't support metadata in cancel params
+        // First update metadata, then cancel
+        await this.getStripeClient().subscriptions.update(dto.subscriptionId, {
+          metadata: {
+            cancellation_reason: dto.cancellationReason || 'user_requested',
           },
-        );
+        });
+        subscription = await this.getStripeClient().subscriptions.cancel(dto.subscriptionId);
       }
 
       // Update subscription in database
@@ -380,7 +381,7 @@ export class StripeBillingService {
       const subscription = await this.getStripeClient().subscriptions.update(
         dto.subscriptionId,
         {
-          pause_collection: null as Prisma.InputJsonValue,
+          pause_collection: '' as any, // Clear pause_collection
         },
       );
 
@@ -457,7 +458,8 @@ export class StripeBillingService {
     subscriptionId?: string,
   ): Promise<Stripe.Invoice> {
     try {
-      const params: Stripe.InvoiceRetrieveUpcomingParams = {
+      // Stripe SDK v20 uses createPreview instead of retrieveUpcoming
+      const params: Stripe.InvoiceCreatePreviewParams = {
         customer: customerId,
       };
 
@@ -465,7 +467,7 @@ export class StripeBillingService {
         params.subscription = subscriptionId;
       }
 
-      return await this.getStripeClient().invoices.retrieveUpcoming(params);
+      return await this.getStripeClient().invoices.createPreview(params);
     } catch (error) {
       this.logger.error('Failed to preview upcoming invoice', error);
       throw this.stripeService.handleStripeError(error, 'previewUpcomingInvoice');
@@ -536,11 +538,16 @@ export class StripeBillingService {
   ): Promise<void> {
     const status = this.mapStripeStatusToDbStatus(subscription.status);
 
+    // Stripe SDK v20: billing period dates are on subscription items
+    const firstItem = subscription.items.data[0];
+    const currentPeriodStart = firstItem?.current_period_start || Math.floor(Date.now() / 1000);
+    const currentPeriodEnd = firstItem?.current_period_end || Math.floor(Date.now() / 1000);
+
     await this.prisma.$executeRaw`
       INSERT INTO stripe_subscriptions
       (user_id, stripe_subscription_id, stripe_customer_id, status, current_period_start, current_period_end, trial_start, trial_end, cancel_at_period_end, canceled_at, ended_at, metadata, created_at, updated_at)
       VALUES
-      (${userId}, ${subscription.id}, ${subscription.customer as string}, ${status}, to_timestamp(${subscription.current_period_start}), to_timestamp(${subscription.current_period_end}), ${subscription.trial_start ? `to_timestamp(${subscription.trial_start})` : null}, ${subscription.trial_end ? `to_timestamp(${subscription.trial_end})` : null}, ${subscription.cancel_at_period_end}, ${subscription.canceled_at ? `to_timestamp(${subscription.canceled_at})` : null}, ${subscription.ended_at ? `to_timestamp(${subscription.ended_at})` : null}, ${JSON.stringify(subscription.metadata)}::jsonb, NOW(), NOW())
+      (${userId}, ${subscription.id}, ${subscription.customer as string}, ${status}, to_timestamp(${currentPeriodStart}), to_timestamp(${currentPeriodEnd}), ${subscription.trial_start ? `to_timestamp(${subscription.trial_start})` : null}, ${subscription.trial_end ? `to_timestamp(${subscription.trial_end})` : null}, ${subscription.cancel_at_period_end}, ${subscription.canceled_at ? `to_timestamp(${subscription.canceled_at})` : null}, ${subscription.ended_at ? `to_timestamp(${subscription.ended_at})` : null}, ${JSON.stringify(subscription.metadata)}::jsonb, NOW(), NOW())
       ON CONFLICT (stripe_subscription_id)
       DO UPDATE SET
         status = EXCLUDED.status,
@@ -577,12 +584,17 @@ export class StripeBillingService {
   ): Promise<void> {
     const status = this.mapStripeStatusToDbStatus(subscription.status);
 
+    // Stripe SDK v20: billing period dates are on subscription items
+    const firstItem = subscription.items.data[0];
+    const currentPeriodStart = firstItem?.current_period_start || Math.floor(Date.now() / 1000);
+    const currentPeriodEnd = firstItem?.current_period_end || Math.floor(Date.now() / 1000);
+
     await this.prisma.$executeRaw`
       UPDATE stripe_subscriptions
       SET
         status = ${status},
-        current_period_start = to_timestamp(${subscription.current_period_start}),
-        current_period_end = to_timestamp(${subscription.current_period_end}),
+        current_period_start = to_timestamp(${currentPeriodStart}),
+        current_period_end = to_timestamp(${currentPeriodEnd}),
         trial_start = ${subscription.trial_start ? `to_timestamp(${subscription.trial_start})` : null},
         trial_end = ${subscription.trial_end ? `to_timestamp(${subscription.trial_end})` : null},
         cancel_at_period_end = ${subscription.cancel_at_period_end},
@@ -612,13 +624,18 @@ export class StripeBillingService {
   private mapSubscriptionToResponse(
     subscription: Stripe.Subscription,
   ): SubscriptionResponseDto {
+    // Stripe SDK v20: billing period dates are on subscription items
+    const firstItem = subscription.items.data[0];
+    const currentPeriodStart = firstItem?.current_period_start || Math.floor(Date.now() / 1000);
+    const currentPeriodEnd = firstItem?.current_period_end || Math.floor(Date.now() / 1000);
+
     return {
       id: subscription.id,
       customerId: subscription.customer as string,
       status: this.mapStripeStatusToDbStatus(subscription.status),
       items: subscription.items.data.map((item) => this.mapSubscriptionItem(item)),
-      currentPeriodStart: subscription.current_period_start,
-      currentPeriodEnd: subscription.current_period_end,
+      currentPeriodStart,
+      currentPeriodEnd,
       trialStart: subscription.trial_start || undefined,
       trialEnd: subscription.trial_end || undefined,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
@@ -653,7 +670,7 @@ export class StripeBillingService {
         id: item.price.id,
         unitAmount: item.price.unit_amount || 0,
         currency: item.price.currency,
-        interval: item.price.recurring?.interval as Prisma.InputJsonValue || 'month',
+        interval: (item.price.recurring?.interval || 'month') as BillingInterval,
         intervalCount: item.price.recurring?.interval_count || 1,
       },
     };

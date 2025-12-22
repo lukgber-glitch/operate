@@ -19,6 +19,7 @@ import {
   TrueLayerBalance,
   TrueLayerTransaction,
   TrueLayerConnectionStatus,
+  TrueLayerEnvironment,
   TRUELAYER_DEFAULT_SCOPES,
   TrueLayerScope,
 } from './truelayer.types';
@@ -54,7 +55,7 @@ export class TrueLayerService {
   private readonly apiClient: AxiosInstance;
   private readonly authClient: AxiosInstance;
   private readonly encryptionKey: string;
-  private readonly isConfigured: boolean = false;
+  private isConfigured: boolean = false;
 
   // Caching layer with TTL
   private readonly cache = new Map<string, { data: unknown; expiresAt: number }>();
@@ -85,7 +86,7 @@ export class TrueLayerService {
     this.config = {
       clientId: this.configService.get<string>('TRUELAYER_CLIENT_ID') || '',
       clientSecret: this.configService.get<string>('TRUELAYER_CLIENT_SECRET') || '',
-      environment: isProduction ? 'production' as Prisma.InputJsonValue : 'sandbox' as Prisma.InputJsonValue,
+      environment: isProduction ? TrueLayerEnvironment.PRODUCTION : TrueLayerEnvironment.SANDBOX,
       redirectUri: this.configService.get<string>('TRUELAYER_REDIRECT_URI') ||
         'http://localhost:3000/integrations/truelayer/callback',
       webhookUrl: this.configService.get<string>('TRUELAYER_WEBHOOK_URL') || '',

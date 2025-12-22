@@ -12,7 +12,7 @@ export default registerAs('plaid', (): PlaidConfig => {
   const mockMode = process.env.PLAID_MOCK_MODE === 'true';
 
   // Map string to PlaidEnvironments enum
-  let environment: PlaidEnvironments;
+  let environment: typeof PlaidEnvironments[keyof typeof PlaidEnvironments];
   switch (envString) {
     case 'production':
       environment = PlaidEnvironments.production;
@@ -57,7 +57,7 @@ export function validatePlaidConfig(config: PlaidConfig): void {
 /**
  * Get environment name for logging
  */
-export function getPlaidEnvironmentName(env: PlaidEnvironments): string {
+export function getPlaidEnvironmentName(env: typeof PlaidEnvironments[keyof typeof PlaidEnvironments]): string {
   switch (env) {
     case PlaidEnvironments.production:
       return 'production';

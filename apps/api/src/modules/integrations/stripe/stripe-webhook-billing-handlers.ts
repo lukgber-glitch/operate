@@ -22,16 +22,16 @@ import Stripe from 'stripe';
  */
 const PRICE_TO_TIER: Record<string, SubscriptionTier> = {
   // Monthly prices
-  'price_starter_monthly': SubscriptionTier.PRO,
+  'price_starter_monthly': SubscriptionTier.STARTER,
   'price_pro_monthly': SubscriptionTier.PRO,
-  'price_business_monthly': SubscriptionTier.ENTERPRISE,
-  'price_enterprise_monthly': SubscriptionTier.ENTERPRISE,
+  'price_business_monthly': SubscriptionTier.BUSINESS,
+  'price_enterprise_monthly': SubscriptionTier.BUSINESS,
 
   // Annual prices
-  'price_starter_annual': SubscriptionTier.PRO,
+  'price_starter_annual': SubscriptionTier.STARTER,
   'price_pro_annual': SubscriptionTier.PRO,
-  'price_business_annual': SubscriptionTier.ENTERPRISE,
-  'price_enterprise_annual': SubscriptionTier.ENTERPRISE,
+  'price_business_annual': SubscriptionTier.BUSINESS,
+  'price_enterprise_annual': SubscriptionTier.BUSINESS,
 };
 
 export class StripeBillingWebhookHandlers {
@@ -79,8 +79,10 @@ export class StripeBillingWebhookHandlers {
       seats: subscription.items.data[0]?.quantity?.toString() || '1',
     };
 
-    const currentPeriodStart = subscription.current_period_start || Math.floor(Date.now() / 1000);
-    const currentPeriodEnd = subscription.current_period_end || Math.floor(Date.now() / 1000);
+    // Stripe SDK v20: billing period dates are on subscription items
+    const firstItem = subscription.items.data[0];
+    const currentPeriodStart = firstItem?.current_period_start || Math.floor(Date.now() / 1000);
+    const currentPeriodEnd = firstItem?.current_period_end || Math.floor(Date.now() / 1000);
 
     await this.prisma.$executeRaw`
       INSERT INTO stripe_subscriptions
@@ -125,14 +127,16 @@ export class StripeBillingWebhookHandlers {
     const orgId = subscription.metadata?.orgId;
 
     // Update metadata with tier
+    const firstItem = subscription.items.data[0];
     const metadata = {
       ...subscription.metadata,
       tier,
-      seats: subscription.items.data[0]?.quantity?.toString() || '1',
+      seats: firstItem?.quantity?.toString() || '1',
     };
 
-    const currentPeriodStart = subscription.current_period_start || Math.floor(Date.now() / 1000);
-    const currentPeriodEnd = subscription.current_period_end || Math.floor(Date.now() / 1000);
+    // Stripe SDK v20: billing period dates are on subscription items
+    const currentPeriodStart = firstItem?.current_period_start || Math.floor(Date.now() / 1000);
+    const currentPeriodEnd = firstItem?.current_period_end || Math.floor(Date.now() / 1000);
 
     await this.prisma.$executeRaw`
       UPDATE stripe_subscriptions
@@ -239,7 +243,9 @@ export class StripeBillingWebhookHandlers {
     }
 
     const userId = customer[0].user_id;
-    const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+    // Stripe SDK v20: use type assertion for subscription property
+    const invoiceAny = invoice as any;
+    const subscriptionId = typeof invoiceAny.subscription === 'string' ? invoiceAny.subscription : invoiceAny.subscription?.id;
 
     // Store billing history
     await this.prisma.$executeRaw`
@@ -265,7 +271,9 @@ export class StripeBillingWebhookHandlers {
     this.logger.log(`Processing invoice.payment_failed for ${invoice.id}`);
 
     // Update subscription status to PAST_DUE if applicable
-    const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+    // Stripe SDK v20: use type assertion for subscription property
+    const invoiceAny = invoice as any;
+    const subscriptionId = typeof invoiceAny.subscription === 'string' ? invoiceAny.subscription : invoiceAny.subscription?.id;
     if (subscriptionId) {
       await this.prisma.$executeRaw`
         UPDATE stripe_subscriptions

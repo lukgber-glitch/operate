@@ -51,7 +51,7 @@ export class PlaidService {
   private readonly config: PlaidConfig;
   private readonly plaidClient: PlaidApi;
   private readonly encryptionKey: string;
-  private readonly isConfigured: boolean = false;
+  private isConfigured: boolean = false;
 
   constructor(
     private readonly configService: ConfigService,
@@ -98,7 +98,7 @@ export class PlaidService {
     this.plaidClient = new PlaidApi(configuration);
 
     // Mark as configured
-    (this as Prisma.InputJsonValue).isConfigured = true;
+    this.isConfigured = true;
     this.logger.log(
       `Plaid Service initialized (${getPlaidEnvironmentName(this.config.environment)} mode, Mock: ${this.config.mockMode})`,
     );
@@ -107,7 +107,7 @@ export class PlaidService {
   /**
    * Get Plaid environment from config
    */
-  private getPlaidEnvironment(): PlaidEnvironments {
+  private getPlaidEnvironment(): typeof PlaidEnvironments[keyof typeof PlaidEnvironments] {
     const envString = (this.configService.get<string>('PLAID_ENV') || 'sandbox').toLowerCase();
 
     switch (envString) {
@@ -124,7 +124,7 @@ export class PlaidService {
   /**
    * Get Plaid API base path for environment
    */
-  private getBasePath(environment: PlaidEnvironments): string {
+  private getBasePath(environment: typeof PlaidEnvironments[keyof typeof PlaidEnvironments]): string {
     switch (environment) {
       case PlaidEnvironments.production:
         return 'https://production.plaid.com';
