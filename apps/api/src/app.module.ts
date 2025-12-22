@@ -217,8 +217,7 @@ import configuration from './config/configuration';
     GmailModule,
     TinkModule,
     StripeModule,
-    PlaidModule,
-    TrueLayerModule,
+    // PlaidModule and TrueLayerModule use BullMQ - conditionally loaded below when QUEUES_ENABLED=true
     AvalaraModule,
     QuickBooksModule,
     XeroModule,
@@ -300,7 +299,7 @@ import configuration from './config/configuration';
 
     // Queue and Jobs modules - conditionally loaded when ENABLE_QUEUES=true
     // These require Redis for Bull queues and scheduled tasks
-    ...(QUEUES_ENABLED ? [QueueModule, JobsModule] : []),
+    ...(QUEUES_ENABLED ? [QueueModule, JobsModule, PlaidModule, TrueLayerModule] : []),
   ],
   controllers: [],
   providers: [
