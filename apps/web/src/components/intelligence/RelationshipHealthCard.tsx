@@ -10,11 +10,11 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 const healthColors = {
-  EXCELLENT: { bg: 'bg-green-500', text: 'text-green-700', label: 'Excellent' },
-  GOOD: { bg: 'bg-blue-500', text: 'text-blue-700', label: 'Good' },
-  NEEDS_ATTENTION: { bg: 'bg-yellow-500', text: 'text-yellow-700', label: 'Needs Attention' },
-  AT_RISK: { bg: 'bg-orange-500', text: 'text-orange-700', label: 'At Risk' },
-  DORMANT: { bg: 'bg-gray-500', text: 'text-gray-700', label: 'Dormant' },
+  EXCELLENT: { bg: 'bg-green-500', text: 'text-white', label: 'Excellent' },
+  GOOD: { bg: 'bg-blue-500', text: 'text-white', label: 'Good' },
+  NEEDS_ATTENTION: { bg: 'bg-yellow-500', text: 'text-yellow-900', label: 'Needs Attention' },
+  AT_RISK: { bg: 'bg-orange-500', text: 'text-white', label: 'At Risk' },
+  DORMANT: { bg: 'bg-gray-500', text: 'text-white', label: 'Dormant' },
 };
 
 export function RelationshipHealthCard() {
