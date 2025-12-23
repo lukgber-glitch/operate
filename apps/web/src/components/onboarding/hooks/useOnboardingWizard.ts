@@ -198,6 +198,22 @@ export function useOnboardingWizard({
       setIsSubmitting(true)
 
       try {
+        // If AI consent was given during onboarding, save it to the user profile
+        if (data.preferences?.aiConsent) {
+          try {
+            await fetch('/api/v1/users/me/ai-consent', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              credentials: 'include',
+            })
+          } catch (aiError) {
+            console.error('Failed to save AI consent:', aiError)
+            // Continue with onboarding even if AI consent save fails
+          }
+        }
+
         // Call API to mark onboarding as complete
         const response = await fetch('/api/v1/onboarding/complete', {
           method: 'POST',
@@ -205,6 +221,9 @@ export function useOnboardingWizard({
             'Content-Type': 'application/json',
           },
           credentials: 'include',
+          body: JSON.stringify({
+            aiConsent: data.preferences?.aiConsent,
+          }),
         })
 
         if (!response.ok) {

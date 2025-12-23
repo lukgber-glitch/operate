@@ -142,9 +142,10 @@ export class OnboardingController {
   async completeOnboarding(
     @Req() req: any,
     @Res({ passthrough: true }) res: Response,
+    @Body() body?: { aiConsent?: boolean },
   ): Promise<OnboardingProgressDto> {
     const { orgId, userId } = req.user;
-    const result = await this.onboardingService.completeOnboarding(orgId, userId);
+    const result = await this.onboardingService.completeOnboarding(orgId, userId, body?.aiConsent);
 
     // Set onboarding_complete cookie so middleware allows access to protected routes
     this.authService.setOnboardingCompleteCookie(res);

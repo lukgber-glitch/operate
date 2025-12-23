@@ -251,7 +251,7 @@ export class OnboardingService {
   /**
    * Mark onboarding as complete
    */
-  async completeOnboarding(orgId: string, userId?: string): Promise<OnboardingProgressDto> {
+  async completeOnboarding(orgId: string, userId?: string, aiConsent?: boolean): Promise<OnboardingProgressDto> {
     let progress = await this.repository.findByOrgId(orgId);
 
     // Auto-create progress record if it doesn't exist
@@ -281,6 +281,20 @@ export class OnboardingService {
       where: { id: orgId },
       data: { onboardingCompleted: true },
     });
+
+    // Save AI consent if provided during onboarding
+    if (aiConsent && userId) {
+      try {
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: { aiConsentAt: new Date() },
+        });
+        this.logger.log(`AI consent saved for user ${userId} during onboarding`);
+      } catch (error) {
+        this.logger.warn(`Failed to save AI consent for user ${userId}: ${error.message}`);
+        // Don't fail onboarding if AI consent save fails
+      }
+    }
 
     return this.mapToDto(updatedProgress);
   }
