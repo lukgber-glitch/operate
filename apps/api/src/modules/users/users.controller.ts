@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Post,
   Patch,
   Body,
   UseGuards,
@@ -95,5 +96,47 @@ export class UsersController {
     }
 
     return this.usersService.update(req.user.userId, updateUserDto);
+  }
+
+  /**
+   * Get AI consent status
+   */
+  @Get('me/ai-consent')
+  @ApiOperation({
+    summary: 'Get AI consent status',
+    description: 'Check if user has given AI consent',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'AI consent status retrieved',
+  })
+  async getAIConsent(@Req() req: Request): Promise<{ hasConsent: boolean; consentedAt: string | null }> {
+    if (!req.user?.userId) {
+      throw new NotFoundException('User not authenticated');
+    }
+
+    const consent = await this.usersService.getAIConsent(req.user.userId);
+    return consent;
+  }
+
+  /**
+   * Grant AI consent
+   */
+  @Post('me/ai-consent')
+  @ApiOperation({
+    summary: 'Grant AI consent',
+    description: 'Record user consent for AI features',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'AI consent recorded',
+  })
+  async grantAIConsent(@Req() req: Request): Promise<{ hasConsent: boolean; consentedAt: string }> {
+    if (!req.user?.userId) {
+      throw new NotFoundException('User not authenticated');
+    }
+
+    const consent = await this.usersService.grantAIConsent(req.user.userId);
+    return consent;
   }
 }

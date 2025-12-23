@@ -246,6 +246,7 @@ model User {
   mfaSecret    String?
   backupCodes  String[]  @default([])
   lastLoginAt  DateTime?
+  aiConsentAt  DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
@@ -1269,8 +1270,9 @@ model TimeEntry {
   approvedBy String?
   approvedAt DateTime?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   approver User?    @relation("TimeEntryApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
@@ -2306,8 +2308,9 @@ model Quote {
   terms       String?
   publicToken String? @unique
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([organisationId])
   @@index([status])
@@ -9017,8 +9020,9 @@ model Contract {
 
   signatureToken String? @unique
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([organisationId])
   @@index([clientId])
@@ -9228,8 +9232,9 @@ model Project {
   startDate DateTime?
   endDate   DateTime?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@index([organisationId])
   @@index([clientId])

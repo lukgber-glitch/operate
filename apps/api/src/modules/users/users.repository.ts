@@ -92,4 +92,14 @@ export class UsersRepository {
       },
     });
   }
+
+  /**
+   * Update AI consent timestamp
+   */
+  async updateAIConsent(id: string, consentAt: Date): Promise<User> {
+    return this.prisma.user.update({
+      where: { id },
+      data: { aiConsentAt: consentAt },
+    });
+  }
 }

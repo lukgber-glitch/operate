@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useSecureStorage } from './useSecureStorage';
+import { useAuth } from './use-auth';
 
 /**
  * AI Consent Management Hook
@@ -12,14 +13,15 @@ import { useSecureStorage } from './useSecureStorage';
  * - Data protection regulations
  *
  * Features:
- * - Secure consent storage
+ * - Database persistence (primary)
+ * - LocalStorage cache (for quick access)
  * - Timestamp tracking
  * - Easy opt-in/opt-out
- * - Offline support with localStorage fallback
+ * - Syncs across browsers/devices via database
  *
  * CRITICAL: This hook handles SSR hydration carefully to prevent
  * the consent dialog from flashing. We start with isLoading=true
- * and only set it to false after checking localStorage on the client.
+ * and only set it to false after checking the backend.
  */
 
 const CONSENT_KEY = 'ai_consent_data';
@@ -32,7 +34,7 @@ export interface AIConsentData {
   ip?: string; // Optional for audit trail
 }
 
-// Helper to get consent data synchronously from localStorage
+// Helper to get consent data synchronously from localStorage (cache only)
 function getConsentFromLocalStorage(): AIConsentData | null {
   if (typeof window === 'undefined') return null;
 
@@ -51,40 +53,129 @@ function getConsentFromLocalStorage(): AIConsentData | null {
   return null;
 }
 
+// Helper to get token from cookie
+function getTokenFromCookie(): string | null {
+  if (typeof document === 'undefined') return null;
+
+  try {
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+      const parts = cookie.trim().split('=');
+      const name = parts[0];
+      const value = parts.slice(1).join('='); // Handle values with '=' in them
+      if (name === 'op_auth' && value) {
+        const decoded = decodeURIComponent(value);
+        const authData = JSON.parse(decoded);
+        return authData.a || null; // 'a' is the access token
+      }
+    }
+  } catch (error) {
+    console.error('[useAIConsent] Failed to get token from cookie:', error);
+  }
+  return null;
+}
+
 export function useAIConsent() {
   // CRITICAL: Start with isLoading=true ALWAYS to prevent flash during SSR hydration
-  // During SSR: window is undefined, so we can't read localStorage
-  // During hydration: React keeps the server state (null consent, loading=true)
-  // After hydration: useEffect runs and syncs from localStorage
   const [consentData, setConsentData] = useState<AIConsentData | null>(null);
   const [isLoading, setIsLoading] = useState(true); // ALWAYS start as true
   const hasInitialized = useRef(false);
   const { storeToken, retrieveToken, removeToken, isNativeSecure } = useSecureStorage();
+  const { isAuthenticated } = useAuth();
 
-  // CRITICAL: Sync from localStorage IMMEDIATELY on client mount
-  // This runs synchronously before any async operations
+  // Fetch consent status from backend API
+  const fetchConsentFromBackend = useCallback(async (): Promise<AIConsentData | null> => {
+    const token = getTokenFromCookie();
+    if (!token) return null;
+
+    try {
+      const response = await fetch('/api/v1/users/me/ai-consent', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.hasConsent) {
+          return {
+            hasConsent: true,
+            timestamp: data.consentedAt,
+            version: CONSENT_VERSION,
+          };
+        }
+      }
+    } catch (error) {
+      console.error('[useAIConsent] Failed to fetch from backend:', error);
+    }
+    return null;
+  }, []);
+
+  // Save consent to backend API
+  const saveConsentToBackend = useCallback(async (): Promise<boolean> => {
+    const token = getTokenFromCookie();
+    if (!token) return false;
+
+    try {
+      const response = await fetch('/api/v1/users/me/ai-consent', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      return response.ok;
+    } catch (error) {
+      console.error('[useAIConsent] Failed to save to backend:', error);
+      return false;
+    }
+  }, []);
+
+  // CRITICAL: Sync from localStorage IMMEDIATELY on client mount, then check backend
   useEffect(() => {
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
-    // Immediately sync from localStorage (synchronous)
+    // Immediately sync from localStorage (synchronous cache)
     const localData = getConsentFromLocalStorage();
     if (localData) {
       setConsentData(localData);
-      setIsLoading(false);
-      console.log('[useAIConsent] Loaded from localStorage:', localData.hasConsent);
-      return; // Don't need async load if we found data
+      console.log('[useAIConsent] Loaded from localStorage cache:', localData.hasConsent);
     }
 
-    // Only do async load if localStorage didn't have data
+    // Then check backend for authoritative state
     loadConsentDataAsync();
   }, []);
 
+  // Re-check backend when auth state changes
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadConsentDataAsync();
+    }
+  }, [isAuthenticated]);
+
   const loadConsentDataAsync = async () => {
     try {
-      // Try secure storage (for native apps)
-      const stored = await retrieveToken(CONSENT_KEY);
+      // First priority: Check backend (authoritative source)
+      const token = getTokenFromCookie();
+      if (token) {
+        const backendData = await fetchConsentFromBackend();
+        if (backendData) {
+          setConsentData(backendData);
+          // Update localStorage cache
+          localStorage.setItem(CONSENT_KEY, JSON.stringify(backendData));
+          console.log('[useAIConsent] Loaded from backend:', backendData.hasConsent);
+          setIsLoading(false);
+          return;
+        }
+      }
 
+      // Fallback: Check secure storage (for native apps)
+      const stored = await retrieveToken(CONSENT_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as AIConsentData;
         setConsentData(parsed);
@@ -123,6 +214,14 @@ export function useAIConsent() {
       localStorage.setItem(CONSENT_KEY, serialized);
       console.log('[useAIConsent] Consent saved to localStorage');
 
+      // Save to backend (primary persistence)
+      const backendSuccess = await saveConsentToBackend();
+      if (backendSuccess) {
+        console.log('[useAIConsent] Consent saved to backend');
+      } else {
+        console.warn('[useAIConsent] Could not save to backend');
+      }
+
       // Then try secure storage (async, may fail)
       try {
         await storeToken(CONSENT_KEY, serialized);
@@ -137,7 +236,7 @@ export function useAIConsent() {
       console.error('[useAIConsent] Failed to store AI consent:', error);
       return false;
     }
-  }, [storeToken]);
+  }, [storeToken, saveConsentToBackend]);
 
   const revokeConsent = useCallback(async () => {
     const revokedData: AIConsentData = {

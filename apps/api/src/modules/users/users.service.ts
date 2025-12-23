@@ -87,4 +87,30 @@ export class UsersService {
   async isEmailTaken(email: string): Promise<boolean> {
     return this.usersRepository.emailExists(email);
   }
+
+  /**
+   * Get AI consent status for user
+   */
+  async getAIConsent(userId: string): Promise<{ hasConsent: boolean; consentedAt: string | null }> {
+    const user = await this.usersRepository.findById(userId);
+    if (!user) {
+      return { hasConsent: false, consentedAt: null };
+    }
+    return {
+      hasConsent: !!user.aiConsentAt,
+      consentedAt: user.aiConsentAt?.toISOString() || null,
+    };
+  }
+
+  /**
+   * Grant AI consent for user
+   */
+  async grantAIConsent(userId: string): Promise<{ hasConsent: boolean; consentedAt: string }> {
+    const now = new Date();
+    await this.usersRepository.updateAIConsent(userId, now);
+    return {
+      hasConsent: true,
+      consentedAt: now.toISOString(),
+    };
+  }
 }
