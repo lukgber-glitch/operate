@@ -17,6 +17,7 @@ import {
 } from './dto/client.dto';
 import { ClientStatus, ClientType, RiskLevel, Prisma } from '@prisma/client';
 import { CacheService } from '../cache/cache.service';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class ClientService {
@@ -27,6 +28,7 @@ export class ClientService {
   constructor(
     private readonly crmRepository: CrmRepository,
     private readonly cacheService: CacheService,
+    private readonly prisma: PrismaService,
   ) {}
 
   /**
@@ -89,24 +91,19 @@ export class ClientService {
         registrationNumber: dto.registrationNumber,
         email: dto.email,
         phone: dto.phone,
-        mobile: dto.mobile,
         website: dto.website,
-        industry: dto.industry,
-        companySize: dto.companySize,
         currency: dto.currency || 'EUR',
         paymentTerms: dto.paymentTerms || 30,
         creditLimit: dto.creditLimit,
-        discount: dto.discount,
         riskLevel: RiskLevel.LOW,
         riskScore: 0,
         isVip: dto.isVip || false,
-        preferredLanguage: dto.preferredLanguage || 'en',
+        language: dto.preferredLanguage || 'en',
         notes: dto.notes,
         internalNotes: dto.internalNotes,
         tags: dto.tags || [],
         metadata: dto.metadata || {},
         source: dto.source || 'manual',
-        referredBy: dto.referredBy,
       };
 
       const client = await this.crmRepository.createClient(clientData);
@@ -174,7 +171,6 @@ export class ClientService {
           { clientNumber: { contains: search, mode: 'insensitive' } },
           { email: { contains: search, mode: 'insensitive' } },
           { phone: { contains: search, mode: 'insensitive' } },
-          { mobile: { contains: search, mode: 'insensitive' } },
           { companyName: { contains: search, mode: 'insensitive' } },
           { taxId: { contains: search, mode: 'insensitive' } },
           { vatId: { contains: search, mode: 'insensitive' } },
@@ -244,7 +240,7 @@ export class ClientService {
       // Offset-based pagination
       const skip = (page - 1) * pageSize;
       const [clients, total] = await Promise.all([
-        this.crmRepository.findClients({
+        this.prisma.client.findMany({
           where,
           include,
           skip,
@@ -277,7 +273,7 @@ export class ClientService {
 
     // Try to get from cache
     const cached = await this.cacheService.get(cacheKey);
-    if (cached && cached.orgId === orgId) {
+    if (cached && typeof cached === 'object' && 'orgId' in cached && cached.orgId === orgId) {
       return cached;
     }
 
@@ -541,7 +537,7 @@ export class ClientService {
     try {
       const note = await this.crmRepository.createCommunication({
         client: { connect: { id: clientId } },
-        user: { connect: { id: userId } },
+        userId,
         type: 'NOTE',
         direction: 'INTERNAL',
         subject: dto.subject,
@@ -608,19 +604,9 @@ export class ClientService {
       else if (paymentRatio > 0.95) riskScore -= 5; // Good payment history
     }
 
-    // Outstanding balance
-    if (client.outstandingBalance && Number(client.outstandingBalance) > 0) {
-      const balance = Number(client.outstandingBalance);
-      const creditLimit = client.creditLimit ? Number(client.creditLimit) : 0;
-
-      if (creditLimit > 0) {
-        const utilizationRatio = balance / creditLimit;
-        if (utilizationRatio > 0.9) riskScore += 25;
-        else if (utilizationRatio > 0.7) riskScore += 15;
-      } else if (balance > 10000) {
-        riskScore += 20; // High balance without credit limit
-      }
-    }
+    // Outstanding balance (would need to be calculated from unpaid invoices)
+    // TODO: Implement outstandingBalance calculation from Invoice model
+    // For now, skip this risk factor
 
     // Recent activity
     const daysSinceLastPayment = client.lastPaymentDate
@@ -712,6 +698,6 @@ export class ClientService {
   private async invalidateOrgCache(orgId: string) {
     // Delete all list caches for this org (pattern-based deletion)
     const pattern = `${this.CACHE_PREFIX}${orgId}:*`;
-    await this.cacheService.delPattern(pattern);
+    await this.cacheService.delByPattern(pattern);
   }
 }

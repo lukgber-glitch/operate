@@ -38,9 +38,9 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/rbac/guards/roles.guard';
-import { Roles } from '../auth/rbac/decorators/roles.decorator';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '@/modules/auth/guards/roles.guard';
+import { Roles } from '@/modules/auth/decorators/roles.decorator';
 import { TaxDeadlineService } from './tax-deadline.service';
 import {
   CreateTaxDeadlineDto,

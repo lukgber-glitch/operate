@@ -48,22 +48,28 @@ export class GetProjectStatusHandler extends BaseActionHandler {
 
       const normalized = this.normalizeParams(params);
 
-      const status = await this.timeTrackingService.getProjectStatus(
+      const project = await this.timeTrackingService.findOneProject(
+        normalized.projectId,
+        context.organizationId,
+      );
+
+      // Calculate project status metrics
+      const profitability = await this.timeTrackingService.getProjectProfitability(
         normalized.projectId,
         context.organizationId,
       );
 
       return this.success(
-        `Project status for "${status.name}"`,
-        status.id,
+        `Project status for "${project.name}"`,
+        project.id,
         'ProjectStatus',
         {
-          id: status.id,
-          name: status.name,
-          hoursLogged: status.hoursLogged,
-          budgetHours: status.budgetHours,
-          percentComplete: status.percentComplete,
-          profitability: status.profitability,
+          id: project.id,
+          name: project.name,
+          status: project.status,
+          budgetHours: project.budgetHours,
+          budgetAmount: project.budgetAmount,
+          profitability,
         },
       );
     } catch (error) {

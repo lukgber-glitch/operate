@@ -6,7 +6,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { FinanzOnlineClient } from '../finanzonline.client';
 import { FinanzOnlineEnvironment } from '../finanzonline.constants';
 import { UVASubmissionDto } from '../dto/uva.dto';

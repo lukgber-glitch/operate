@@ -1,5 +1,5 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import {
   GenerateTaxSummaryDto,
   GenerateVatReportDto,
@@ -78,7 +78,7 @@ export class TaxReportService {
     this.logger.log(`Generating tax summary for org ${dto.organizationId}, year ${dto.taxYear}`);
 
     // Verify organization exists
-    const organization = await this.prisma.organization.findUnique({
+    const organization = await this.prisma.organisation.findUnique({
       where: { id: dto.organizationId },
       include: {
         settings: true,
@@ -156,7 +156,7 @@ export class TaxReportService {
   async generateVatReport(dto: GenerateVatReportDto): Promise<VatReportResponse> {
     this.logger.log(`Generating VAT report for org ${dto.organizationId}`);
 
-    const organization = await this.prisma.organization.findUnique({
+    const organization = await this.prisma.organisation.findUnique({
       where: { id: dto.organizationId },
     });
 
@@ -213,7 +213,7 @@ export class TaxReportService {
   async generateIncomeTaxReport(dto: GenerateIncomeTaxReportDto): Promise<IncomeTaxReportResponse> {
     this.logger.log(`Generating income tax report for org ${dto.organizationId}`);
 
-    const organization = await this.prisma.organization.findUnique({
+    const organization = await this.prisma.organisation.findUnique({
       where: { id: dto.organizationId },
     });
 
@@ -670,7 +670,7 @@ export class TaxReportService {
   async generateElsterExport(dto: TaxExportDto): Promise<TaxExportResponse> {
     this.logger.log(`Generating ELSTER export for org ${dto.organizationId}`);
 
-    const organization = await this.prisma.organization.findUnique({
+    const organization = await this.prisma.organisation.findUnique({
       where: { id: dto.organizationId },
       include: { settings: true },
     });
@@ -722,7 +722,7 @@ export class TaxReportService {
   async generateFinanzOnlineExport(dto: TaxExportDto): Promise<TaxExportResponse> {
     this.logger.log(`Generating FinanzOnline export for org ${dto.organizationId}`);
 
-    const organization = await this.prisma.organization.findUnique({
+    const organization = await this.prisma.organisation.findUnique({
       where: { id: dto.organizationId },
       include: { settings: true },
     });

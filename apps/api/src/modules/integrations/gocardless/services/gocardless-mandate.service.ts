@@ -1,13 +1,13 @@
 import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { GoCardlessService } from '../gocardless.service';
 import { GoCardlessAuthService } from './gocardless-auth.service';
 import {
   CreateMandateRequest,
   GoCardlessMandate,
-  GoCardlessMandateStatus,
   GoCardlessMandateScheme,
 } from '../gocardless.types';
+import { GoCardlessMandateStatus } from '@prisma/client';
 
 /**
  * GoCardless Mandate Service
@@ -36,6 +36,22 @@ export class GoCardlessMandateService {
   ) {}
 
   /**
+   * Map GoCardless API status (lowercase snake_case) to Prisma enum (UPPERCASE)
+   */
+  private mapMandateStatus(status: string): GoCardlessMandateStatus {
+    const statusMap: Record<string, GoCardlessMandateStatus> = {
+      pending_customer_approval: GoCardlessMandateStatus.PENDING_CUSTOMER_APPROVAL,
+      pending_submission: GoCardlessMandateStatus.PENDING_SUBMISSION,
+      submitted: GoCardlessMandateStatus.SUBMITTED,
+      active: GoCardlessMandateStatus.ACTIVE,
+      failed: GoCardlessMandateStatus.FAILED,
+      cancelled: GoCardlessMandateStatus.CANCELLED,
+      expired: GoCardlessMandateStatus.EXPIRED,
+    };
+    return statusMap[status] || GoCardlessMandateStatus.PENDING_SUBMISSION;
+  }
+
+  /**
    * Create a new mandate via redirect flow
    * Returns a redirect URL where the customer can authorize the mandate
    */
@@ -56,26 +72,30 @@ export class GoCardlessMandateService {
       // Get customer details
       const customer = await this.prisma.customer.findUnique({
         where: { id: customerId },
-        include: { organisation: true },
       });
 
       if (!customer) {
         throw new NotFoundException('Customer not found');
       }
 
+      // Get organization details
+      const organization = await this.prisma.organisation.findUnique({
+        where: { id: customer.orgId },
+      });
+
       // Generate session token (unique identifier for this flow)
       const sessionToken = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
       // Create redirect flow
       const redirectFlow = await this.gocardlessService.createRedirectFlow({
-        description: description || `Direct Debit setup for ${customer.organisation.name}`,
+        description: description || `Direct Debit setup for ${organization?.name || 'your organization'}`,
         sessionToken,
         successRedirectUrl,
         scheme,
         prefilled_customer: {
-          given_name: customer.firstName,
-          family_name: customer.lastName,
-          email: customer.email,
+          given_name: customer.firstName || undefined,
+          family_name: customer.lastName || undefined,
+          email: customer.email || undefined,
         },
       });
 
@@ -145,8 +165,8 @@ export class GoCardlessMandateService {
           mandateId: mandate.id,
           orgId: redirectFlow.orgId,
           customerId: redirectFlow.customerId,
-          scheme: mandate.scheme as Prisma.InputJsonValue,
-          status: mandate.status as Prisma.InputJsonValue,
+          scheme: mandate.scheme,
+          status: this.mapMandateStatus(mandate.status),
           reference: mandate.reference,
           nextPossibleChargeDate: new Date(mandate.next_possible_charge_date),
           customerBankAccountId: mandate.links.customer_bank_account,
@@ -196,7 +216,7 @@ export class GoCardlessMandateService {
       await this.prisma.goCardlessMandate.update({
         where: { mandateId },
         data: {
-          status: gcMandate.status as Prisma.InputJsonValue,
+          status: this.mapMandateStatus(gcMandate.status),
           nextPossibleChargeDate: new Date(gcMandate.next_possible_charge_date),
         },
       });
@@ -231,7 +251,7 @@ export class GoCardlessMandateService {
           await this.prisma.goCardlessMandate.update({
             where: { mandateId: mandate.mandateId },
             data: {
-              status: gcMandate.status as Prisma.InputJsonValue,
+              status: this.mapMandateStatus(gcMandate.status),
               nextPossibleChargeDate: new Date(gcMandate.next_possible_charge_date),
             },
           });
@@ -271,7 +291,7 @@ export class GoCardlessMandateService {
       await this.prisma.goCardlessMandate.update({
         where: { mandateId },
         data: {
-          status: 'CANCELLED',
+          status: GoCardlessMandateStatus.CANCELLED,
           cancelledAt: new Date(),
           cancelledBy: userId,
         },
@@ -296,7 +316,7 @@ export class GoCardlessMandateService {
       await this.prisma.goCardlessMandate.update({
         where: { mandateId },
         data: {
-          status: mandate.status as Prisma.InputJsonValue,
+          status: this.mapMandateStatus(mandate.status),
           cancelledAt: null,
           cancelledBy: null,
         },
@@ -316,7 +336,7 @@ export class GoCardlessMandateService {
    */
   async getMandateStatus(mandateId: string): Promise<GoCardlessMandateStatus> {
     const mandate = await this.getMandate(mandateId);
-    return mandate.status;
+    return this.mapMandateStatus(mandate.status);
   }
 
   /**

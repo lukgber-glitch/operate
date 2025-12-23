@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { GobdService } from './gobd.service';
 import { GobdBuilderService } from './gobd-builder.service';
 import { GobdController } from './gobd.controller';
-import { DatabaseModule } from '../../../database/database.module';
+import { DatabaseModule } from '@/modules/database/database.module';
 
 /**
  * GoBD Export Module

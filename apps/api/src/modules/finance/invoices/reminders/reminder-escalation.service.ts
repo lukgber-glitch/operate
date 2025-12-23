@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import {
   Invoice,
   PaymentReminder,
   ReminderSettings,
-  ReminderType,
+  PaymentReminderType,
   ReminderStatus,
   InvoiceStatus,
 } from '@prisma/client';
@@ -87,7 +87,7 @@ export class ReminderEscalationService {
       data: {
         organisationId: invoice.orgId,
         invoiceId: invoice.id,
-        reminderType: ReminderType.ESCALATION,
+        reminderType: PaymentReminderType.ESCALATION,
         scheduledFor: new Date(), // Send immediately
         subject,
         body,
@@ -226,7 +226,7 @@ Regards`,
     const invoices = await this.prisma.invoice.findMany({
       where,
       include: {
-        reminders: {
+        paymentReminders: {
           orderBy: { escalationLevel: 'desc' },
           take: 1,
         },
@@ -324,7 +324,7 @@ Regards`,
         },
       },
       include: {
-        reminders: {
+        paymentReminders: {
           orderBy: { escalationLevel: 'desc' },
           take: 1,
         },

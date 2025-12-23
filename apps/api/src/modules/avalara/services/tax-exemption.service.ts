@@ -207,9 +207,6 @@ export class TaxExemptionService {
           lte: expirationDate,
         },
       },
-      include: {
-        // Include customer info if needed
-      },
     });
 
     this.logger.debug(

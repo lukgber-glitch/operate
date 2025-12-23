@@ -183,17 +183,22 @@ export class SubscriptionFeaturesService {
       },
       invoicesCreated,
       teamMembersActive,
+      activeUsers: teamMembersActive, // Alias for compatibility
       aiMessagesUsed,
       bankConnectionsUsed,
       limits: {
         invoices: tierConfig.invoices,
+        invoicesPerMonth: tierConfig.invoices, // Alias for compatibility
         teamMembers: tierConfig.teamMembers,
+        maxUsers: tierConfig.teamMembers, // Alias for compatibility
+        users: tierConfig.teamMembers, // Alias for compatibility
         aiMessages: tierConfig.aiMessages,
         bankConnections: tierConfig.bankConnections,
       },
       percentUsed: {
         invoices: invoicesPercent,
         teamMembers: teamMembersPercent,
+        users: teamMembersPercent, // Alias for compatibility
         aiMessages: aiMessagesPercent,
         bankConnections: bankConnectionsPercent,
       },

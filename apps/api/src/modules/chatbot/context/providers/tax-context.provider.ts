@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { BaseContextProvider } from './base-context.provider';
 
 @Injectable()
@@ -35,7 +35,7 @@ export class TaxContextProvider extends BaseContextProvider {
     const invoices = await this.prisma.invoice.findMany({
       where: {
         orgId,
-        status: { in: ['PENDING', 'PAID'] },
+        status: { in: ['SENT', 'PAID'] },
         issueDate: {
           gte: startDate,
           lte: endDate,

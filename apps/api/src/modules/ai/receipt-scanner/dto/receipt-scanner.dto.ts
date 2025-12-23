@@ -12,7 +12,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class ScanReceiptDto {
   @ApiProperty({ description: 'Organisation ID' })
   @IsString()
-  organisationId: string;
+  orgId: string;
 
   @ApiProperty({ description: 'File buffer' })
   file: Buffer;
@@ -120,7 +120,7 @@ export interface ReceiptParseResult {
 export class CreateExpenseFromScanDto {
   @ApiProperty({ description: 'Organisation ID' })
   @IsString()
-  organisationId: string;
+  orgId: string;
 
   @ApiProperty({ description: 'Scan result ID' })
   @IsString()
@@ -177,7 +177,7 @@ export class ScanHistoryFiltersDto {
  */
 export interface ReceiptScan {
   id: string;
-  organisationId: string;
+  orgId: string;
 
   // File info
   fileName: string;

@@ -4,7 +4,7 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { EmailService } from '../../../notifications/channels/email.service';
 import {
   CreateReminderDto,
@@ -16,7 +16,7 @@ import {
   ReminderSettings,
   Invoice,
   ReminderStatus,
-  ReminderType,
+  PaymentReminderType,
   InvoiceStatus,
 } from '@prisma/client';
 import { addDays, differenceInDays, isBefore } from 'date-fns';
@@ -227,13 +227,13 @@ export class PaymentReminderService {
       // Only schedule if date is in the future
       if (isBefore(now, scheduledDate)) {
         const reminder = await this.createReminder(invoice.orgId, invoice.id, {
-          reminderType: ReminderType.BEFORE_DUE,
+          reminderType: PaymentReminderType.BEFORE_DUE,
           scheduledFor: scheduledDate.toISOString(),
-          subject: this.generateSubject(invoice, ReminderType.BEFORE_DUE),
+          subject: this.generateSubject(invoice, PaymentReminderType.BEFORE_DUE),
           body: this.generateBody(
             invoice,
             settings.beforeDueTemplate,
-            ReminderType.BEFORE_DUE,
+            PaymentReminderType.BEFORE_DUE,
           ),
           escalationLevel: 1,
         });
@@ -244,13 +244,13 @@ export class PaymentReminderService {
     // Schedule on-due reminder
     if (isBefore(now, invoice.dueDate)) {
       const reminder = await this.createReminder(invoice.orgId, invoice.id, {
-        reminderType: ReminderType.ON_DUE,
+        reminderType: PaymentReminderType.ON_DUE,
         scheduledFor: invoice.dueDate.toISOString(),
-        subject: this.generateSubject(invoice, ReminderType.ON_DUE),
+        subject: this.generateSubject(invoice, PaymentReminderType.ON_DUE),
         body: this.generateBody(
           invoice,
           settings.onDueTemplate,
-          ReminderType.ON_DUE,
+          PaymentReminderType.ON_DUE,
         ),
         escalationLevel: 1,
       });
@@ -262,13 +262,13 @@ export class PaymentReminderService {
       const scheduledDate = addDays(invoice.dueDate, days);
 
       const reminder = await this.createReminder(invoice.orgId, invoice.id, {
-        reminderType: ReminderType.AFTER_DUE,
+        reminderType: PaymentReminderType.AFTER_DUE,
         scheduledFor: scheduledDate.toISOString(),
-        subject: this.generateSubject(invoice, ReminderType.AFTER_DUE),
+        subject: this.generateSubject(invoice, PaymentReminderType.AFTER_DUE),
         body: this.generateBody(
           invoice,
           settings.afterDueTemplate,
-          ReminderType.AFTER_DUE,
+          PaymentReminderType.AFTER_DUE,
         ),
         escalationLevel: 1,
       });
@@ -408,7 +408,7 @@ export class PaymentReminderService {
   /**
    * Get reminders that are due to be sent
    */
-  async getDueReminders(): Promise<PaymentReminder[]> {
+  async getDueReminders() {
     const now = new Date();
 
     return this.prisma.paymentReminder.findMany({
@@ -427,12 +427,12 @@ export class PaymentReminderService {
   /**
    * Generate subject line for reminder
    */
-  private generateSubject(invoice: Invoice, type: ReminderType): string {
+  private generateSubject(invoice: Invoice, type: PaymentReminderType): string {
     const prefix = {
-      [ReminderType.BEFORE_DUE]: 'Upcoming payment',
-      [ReminderType.ON_DUE]: 'Payment due today',
-      [ReminderType.AFTER_DUE]: 'Payment overdue',
-      [ReminderType.ESCALATION]: 'URGENT: Payment required',
+      [PaymentReminderType.BEFORE_DUE]: 'Upcoming payment',
+      [PaymentReminderType.ON_DUE]: 'Payment due today',
+      [PaymentReminderType.AFTER_DUE]: 'Payment overdue',
+      [PaymentReminderType.ESCALATION]: 'URGENT: Payment required',
     }[type];
 
     return `${prefix} - Invoice ${invoice.number}`;
@@ -444,7 +444,7 @@ export class PaymentReminderService {
   private generateBody(
     invoice: Invoice,
     template: string | null,
-    type: ReminderType,
+    type: PaymentReminderType,
   ): string {
     if (template) {
       return this.replaceTemplatePlaceholders(template, invoice);
@@ -452,10 +452,10 @@ export class PaymentReminderService {
 
     // Default templates
     const defaultTemplates = {
-      [ReminderType.BEFORE_DUE]: `Dear ${invoice.customerName},\n\nThis is a friendly reminder that Invoice ${invoice.number} for ${invoice.totalAmount.toString()} ${invoice.currency} is due on ${invoice.dueDate.toLocaleDateString()}.\n\nPlease ensure payment is made by the due date to avoid any late fees.\n\nBest regards`,
-      [ReminderType.ON_DUE]: `Dear ${invoice.customerName},\n\nInvoice ${invoice.number} for ${invoice.totalAmount.toString()} ${invoice.currency} is due today.\n\nPlease process payment at your earliest convenience.\n\nBest regards`,
-      [ReminderType.AFTER_DUE]: `Dear ${invoice.customerName},\n\nInvoice ${invoice.number} for ${invoice.totalAmount.toString()} ${invoice.currency} is now overdue.\n\nPlease arrange payment immediately to avoid further action.\n\nBest regards`,
-      [ReminderType.ESCALATION]: `Dear ${invoice.customerName},\n\nDespite previous reminders, Invoice ${invoice.number} for ${invoice.totalAmount.toString()} ${invoice.currency} remains unpaid.\n\nImmediate payment is required. If payment is not received within 7 days, we may need to take further action.\n\nBest regards`,
+      [PaymentReminderType.BEFORE_DUE]: `Dear ${invoice.customerName},\n\nThis is a friendly reminder that Invoice ${invoice.number} for ${invoice.totalAmount.toString()} ${invoice.currency} is due on ${invoice.dueDate.toLocaleDateString()}.\n\nPlease ensure payment is made by the due date to avoid any late fees.\n\nBest regards`,
+      [PaymentReminderType.ON_DUE]: `Dear ${invoice.customerName},\n\nInvoice ${invoice.number} for ${invoice.totalAmount.toString()} ${invoice.currency} is due today.\n\nPlease process payment at your earliest convenience.\n\nBest regards`,
+      [PaymentReminderType.AFTER_DUE]: `Dear ${invoice.customerName},\n\nInvoice ${invoice.number} for ${invoice.totalAmount.toString()} ${invoice.currency} is now overdue.\n\nPlease arrange payment immediately to avoid further action.\n\nBest regards`,
+      [PaymentReminderType.ESCALATION]: `Dear ${invoice.customerName},\n\nDespite previous reminders, Invoice ${invoice.number} for ${invoice.totalAmount.toString()} ${invoice.currency} remains unpaid.\n\nImmediate payment is required. If payment is not received within 7 days, we may need to take further action.\n\nBest regards`,
     };
 
     return defaultTemplates[type];

@@ -162,26 +162,26 @@ export class HealthScoreService {
 
     // Get cash balance from bank accounts
     const bankAccounts = await this.prisma.plaidBankAccount.findMany({
-      where: { organisationId },
+      where: { orgId: organisationId },
       select: { availableBalance: true },
     });
 
     const cashBalance = bankAccounts.reduce(
-      (sum, acc) => sum + (acc.availableBalance || 0),
+      (sum, acc) => sum + Number(acc.availableBalance || 0),
       0,
     );
 
     // Get expenses for last 3 months to calculate burn rate
     const recentExpenses = await this.prisma.transaction.aggregate({
       where: {
-        organisationId,
+        orgId: organisationId,
         date: { gte: threeMonthsAgo },
         amount: { lt: 0 }, // Expenses are negative
       },
       _sum: { amount: true },
     });
 
-    const monthlyBurn = Math.abs((recentExpenses._sum.amount || 0) / 3);
+    const monthlyBurn = Math.abs(Number(recentExpenses._sum.amount || 0) / 3);
     const runwayMonths = monthlyBurn > 0 ? cashBalance / monthlyBurn : 12;
 
     // Get AR data (unpaid invoices)
@@ -210,13 +210,13 @@ export class HealthScoreService {
         AND status = 'PENDING'
     `;
 
-    const { totalBills = 0n, lateBills = 0n } = apData[0] || {};
+    const { totalBills = BigInt(0), lateBills = BigInt(0) } = apData[0] || {};
 
     // Get overdue tax filings
     const overdueTaxFilings = await this.prisma.taxDeadlineReminder.count({
       where: {
-        organisationId,
-        deadline: { lt: now },
+        organizationId: organisationId,
+        dueDate: { lt: now },
         status: 'PENDING',
       },
     });
@@ -224,7 +224,7 @@ export class HealthScoreService {
     // Get revenue and expenses for last month
     const monthlyTransactions = await this.prisma.transaction.aggregate({
       where: {
-        organisationId,
+        orgId: organisationId,
         date: { gte: oneMonthAgo },
       },
       _sum: { amount: true },
@@ -232,7 +232,7 @@ export class HealthScoreService {
 
     const recentRevenue = await this.prisma.transaction.aggregate({
       where: {
-        organisationId,
+        orgId: organisationId,
         date: { gte: oneMonthAgo },
         amount: { gt: 0 }, // Revenue is positive
       },
@@ -241,15 +241,15 @@ export class HealthScoreService {
 
     const recentExpensesMonth = await this.prisma.transaction.aggregate({
       where: {
-        organisationId,
+        orgId: organisationId,
         date: { gte: oneMonthAgo },
         amount: { lt: 0 }, // Expenses are negative
       },
       _sum: { amount: true },
     });
 
-    const revenue = recentRevenue._sum.amount || 0;
-    const expenses = Math.abs(recentExpensesMonth._sum.amount || 0);
+    const revenue = Number(recentRevenue._sum.amount || 0);
+    const expenses = Math.abs(Number(recentExpensesMonth._sum.amount || 0));
     const profitMargin = revenue > 0 ? ((revenue - expenses) / revenue) * 100 : 0;
 
     return {

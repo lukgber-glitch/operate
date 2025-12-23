@@ -5,7 +5,7 @@ import { ZatcaCertificateService } from '../zatca-certificate.service';
 import { ZatcaCsrService } from '../zatca-csr.service';
 import { ZatcaAuditService } from '../zatca-audit.service';
 import { KeyManagementService } from '@/modules/security/key-management.service';
-import { PrismaService } from '../../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { of } from 'rxjs';
 
 describe('ZatcaCertificateService', () => {

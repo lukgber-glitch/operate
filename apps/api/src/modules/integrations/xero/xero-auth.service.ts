@@ -416,7 +416,7 @@ export class XeroAuthService {
       // Set refresh token and refresh
       this.xeroClient.setTokenSet({
         refresh_token: refreshToken,
-      } as Prisma.InputJsonValue);
+      } as unknown as import('xero-node').TokenSetParameters);
 
       const tokenSet = await this.xeroClient.refreshToken();
 
@@ -532,7 +532,7 @@ export class XeroAuthService {
       // Set token in Xero client
       this.xeroClient.setTokenSet({
         access_token: accessToken,
-      } as Prisma.InputJsonValue);
+      } as unknown as import('xero-node').TokenSetParameters);
 
       // Revoke tokens (best effort - don't fail if revocation fails)
       try {

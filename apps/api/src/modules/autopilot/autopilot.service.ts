@@ -1015,17 +1015,12 @@ export class AutopilotService {
             gte: thirtyDaysAgo,
           },
           OR: [
-            // Documents tagged as receipts
-            { type: { contains: 'receipt', mode: 'insensitive' } },
-            { type: { contains: 'expense', mode: 'insensitive' } },
             // Documents with receipt-like names
             { name: { contains: 'receipt', mode: 'insensitive' } },
             { name: { contains: 'quittung', mode: 'insensitive' } }, // German for receipt
             { name: { contains: 'beleg', mode: 'insensitive' } }, // German for voucher/receipt
             { name: { contains: 'kassenbon', mode: 'insensitive' } }, // German for cash register receipt
           ],
-          // Not already linked to an expense
-          expenseId: null,
         },
         orderBy: {
           createdAt: 'desc',
@@ -1086,19 +1081,17 @@ export class AutopilotService {
       // Also check for email attachments that look like receipts
       const emailAttachments = await this.prisma.emailAttachment.findMany({
         where: {
-          email: {
-            emailAccount: {
-              orgId: organisationId,
-            },
+          emailId: {
+            not: null,
           },
           createdAt: {
             gte: thirtyDaysAgo,
           },
           OR: [
-            { fileName: { contains: 'receipt', mode: 'insensitive' } },
-            { fileName: { contains: 'invoice', mode: 'insensitive' } },
-            { fileName: { contains: 'rechnung', mode: 'insensitive' } }, // German for invoice
-            { fileName: { contains: 'quittung', mode: 'insensitive' } },
+            { filename: { contains: 'receipt', mode: 'insensitive' } },
+            { filename: { contains: 'invoice', mode: 'insensitive' } },
+            { filename: { contains: 'rechnung', mode: 'insensitive' } }, // German for invoice
+            { filename: { contains: 'quittung', mode: 'insensitive' } },
             { mimeType: { equals: 'application/pdf' } },
             { mimeType: { startsWith: 'image/' } },
           ],
@@ -1141,7 +1134,7 @@ export class AutopilotService {
           continue;
         }
 
-        const description = `Extract receipt from email attachment: ${attachment.fileName} (from: ${attachment.email.from})`;
+        const description = `Extract receipt from email attachment: ${attachment.filename} (from: ${attachment.email.from})`;
 
         await this.prisma.autopilotAction.create({
           data: {
@@ -1153,9 +1146,9 @@ export class AutopilotService {
             status: AutopilotActionStatus.PENDING,
             requiresApproval: false,
             newValue: {
-              fileName: attachment.fileName,
+              filename: attachment.filename,
               mimeType: attachment.mimeType,
-              fileSize: attachment.fileSize,
+              fileSize: attachment.size,
               emailSubject: attachment.email.subject,
               emailFrom: attachment.email.from,
             },
@@ -1163,7 +1156,7 @@ export class AutopilotService {
         });
 
         this.logger.log(
-          `Created EXTRACT_RECEIPT action for email attachment ${attachment.fileName}`,
+          `Created EXTRACT_RECEIPT action for email attachment ${attachment.filename}`,
         );
       }
     } catch (error) {

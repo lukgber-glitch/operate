@@ -1,5 +1,5 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { PersonaInquiryService } from '../../integrations/persona/services/persona-inquiry.service';
 import { PersonaVerificationService } from '../../integrations/persona/services/persona-verification.service';
 import {

@@ -3,7 +3,7 @@ import { LeaveService } from '../leave.service';
 import { LeaveRepository } from '../leave.repository';
 import { EntitlementsService } from '../entitlements/entitlements.service';
 import { EntitlementsCalculator } from '../entitlements/entitlements.calculator';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import {
   NotFoundException,
   BadRequestException,

@@ -4,7 +4,7 @@ import { HttpService } from '@nestjs/axios';
 import { of, throwError } from 'rxjs';
 import { ElsterEslService } from '../elster-esl.service';
 import { ElsterCertificateService } from '../elster-certificate.service';
-import { PrismaService } from '../../../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import {
   ZMData,
   ZMTransactionType,

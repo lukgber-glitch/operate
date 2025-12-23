@@ -7,7 +7,7 @@
 
 import { EntityExtractorService } from '../entity-extractor.service';
 import { EmailClassifierService } from '../email-classifier.service';
-import { EmailInput } from '../types/extracted-entities.types';
+import { EmailInput } from '../types/email-classification.types';
 
 /**
  * Example 1: Extract entities with org-specific confidence filtering
@@ -32,6 +32,7 @@ export async function example1_EntityExtractionWithFiltering(
     `,
     from: 'john.smith@acme.com',
     to: 'billing@mycompany.com',
+    hasAttachments: false,
   };
 
   console.log('=== Example 1: Entity Extraction with Confidence Filtering ===\n');
@@ -78,6 +79,7 @@ export async function example2_ClassificationConfidenceCheck(
     body: 'Please find the invoice attached.',
     from: 'vendor@example.com',
     to: 'billing@mycompany.com',
+    hasAttachments: false,
   };
 
   console.log('=== Example 2: Classification Confidence Check ===\n');
@@ -123,6 +125,7 @@ export async function example3_ReviewDecision(
     body: 'We need to discuss the terms of our contract...',
     from: 'legal@client.com',
     to: 'legal@mycompany.com',
+    hasAttachments: false,
   };
 
   console.log('=== Example 3: Review Decision ===\n');
@@ -163,18 +166,21 @@ export async function example4_BatchProcessing(
       body: 'Invoice for €100',
       from: 'vendor1@example.com',
       to: 'billing@mycompany.com',
+      hasAttachments: false,
     },
     {
       subject: 'Meeting tomorrow',
       body: 'Can we meet at 2pm?',
       from: 'client@example.com',
       to: 'sales@mycompany.com',
+      hasAttachments: false,
     },
     {
       subject: 'Payment received',
       body: 'We received your payment of $500',
       from: 'accounts@partner.com',
       to: 'finance@mycompany.com',
+      hasAttachments: false,
     },
   ];
 

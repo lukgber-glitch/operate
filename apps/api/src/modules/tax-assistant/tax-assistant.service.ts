@@ -54,8 +54,8 @@ export class TaxAssistantService {
 
     const uncategorizedExpenses = await this.prisma.transaction.count({
       where: {
-        organisationId,
-        type: 'EXPENSE',
+        orgId: organisationId,
+        type: 'expense',
         category: null,
         date: { gte: threeMonthsAgo },
       },
@@ -65,8 +65,8 @@ export class TaxAssistantService {
       // Estimate potential savings (assume 25% of expenses could be deductible)
       const expenseTotal = await this.prisma.transaction.aggregate({
         where: {
-          organisationId,
-          type: 'EXPENSE',
+          orgId: organisationId,
+          type: 'expense',
           category: null,
           date: { gte: threeMonthsAgo },
         },
@@ -124,8 +124,8 @@ export class TaxAssistantService {
 
     const income = await this.prisma.transaction.aggregate({
       where: {
-        organisationId,
-        type: 'INCOME',
+        orgId: organisationId,
+        type: 'income',
         date: { gte: quarterStart, lte: quarterEnd },
       },
       _sum: { amount: true },
@@ -237,8 +237,8 @@ export class TaxAssistantService {
     // Check if they have any home office related expenses
     const homeOfficeExpenses = await this.prisma.transaction.count({
       where: {
-        organisationId,
-        type: 'EXPENSE',
+        orgId: organisationId,
+        type: 'expense',
         OR: [
           { description: { contains: 'rent', mode: 'insensitive' } },
           { description: { contains: 'mortgage', mode: 'insensitive' } },
@@ -285,8 +285,8 @@ export class TaxAssistantService {
 
     const equipmentExpenses = await this.prisma.transaction.findMany({
       where: {
-        organisationId,
-        type: 'EXPENSE',
+        orgId: organisationId,
+        type: 'expense',
         amount: { gte: new Decimal(500) }, // Equipment over $500
         date: { gte: yearStart },
         OR: [
@@ -348,8 +348,8 @@ export class TaxAssistantService {
     // Check if they have any retirement-related transactions
     const retirementExpenses = await this.prisma.transaction.count({
       where: {
-        organisationId,
-        type: 'EXPENSE',
+        orgId: organisationId,
+        type: 'expense',
         OR: [
           { description: { contains: '401k', mode: 'insensitive' } },
           { description: { contains: 'ira', mode: 'insensitive' } },
@@ -393,15 +393,15 @@ export class TaxAssistantService {
     // Count expenses by categorization status
     const totalExpenses = await this.prisma.transaction.count({
       where: {
-        organisationId,
-        type: 'EXPENSE',
+        orgId: organisationId,
+        type: 'expense',
       },
     });
 
     const categorizedExpenses = await this.prisma.transaction.count({
       where: {
-        organisationId,
-        type: 'EXPENSE',
+        orgId: organisationId,
+        type: 'expense',
         category: { not: null },
       },
     });
@@ -469,7 +469,7 @@ export class TaxAssistantService {
 
           const deadline = await this.prisma.taxDeadline.create({
             data: {
-              organisationId,
+              orgId: organisationId,
               name: `${template.name} - ${this.getMonthName(month)}`,
               description: template.description,
               country: targetCountry,
@@ -493,7 +493,7 @@ export class TaxAssistantService {
 
           const deadline = await this.prisma.taxDeadline.create({
             data: {
-              organisationId,
+              orgId: organisationId,
               name: `${template.name} - Q${i + 1}`,
               description: template.description,
               country: targetCountry,
@@ -514,7 +514,7 @@ export class TaxAssistantService {
 
         const deadline = await this.prisma.taxDeadline.create({
           data: {
-            organisationId,
+            orgId: organisationId,
             name: template.name,
             description: template.description,
             country: targetCountry,
@@ -542,7 +542,7 @@ export class TaxAssistantService {
 
     return this.prisma.taxDeadline.findMany({
       where: {
-        organisationId,
+        orgId: organisationId,
         dueDate: {
           gte: now,
           lte: futureDate,
@@ -565,7 +565,7 @@ export class TaxAssistantService {
 
     return this.prisma.taxDeadline.findMany({
       where: {
-        organisationId,
+        orgId: organisationId,
         dueDate: { lt: now },
         status: { not: 'FILED' },
       },
@@ -735,7 +735,7 @@ export class TaxAssistantService {
     // Mark as DUE_SOON (within 7 days)
     await this.prisma.taxDeadline.updateMany({
       where: {
-        organisationId,
+        orgId: organisationId,
         dueDate: {
           gte: now,
           lte: sevenDaysFromNow,
@@ -750,7 +750,7 @@ export class TaxAssistantService {
     // Mark as OVERDUE
     await this.prisma.taxDeadline.updateMany({
       where: {
-        organisationId,
+        orgId: organisationId,
         dueDate: { lt: now },
         status: { not: 'FILED' },
       },

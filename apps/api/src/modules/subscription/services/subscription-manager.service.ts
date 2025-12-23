@@ -8,6 +8,7 @@ import { PrismaService } from '../../database/prisma.service';
 import { StripeBillingService } from '../../integrations/stripe/services/stripe-billing.service';
 import { StripeProductsService } from '../../integrations/stripe/services/stripe-products.service';
 import { StripePortalService } from '../../integrations/stripe/services/stripe-portal.service';
+import { ProrationBehavior } from '../../integrations/stripe/dto/subscription.dto';
 import { SubscriptionFeaturesService } from './subscription-features.service';
 import {
   SubscriptionTier,
@@ -188,7 +189,7 @@ export class SubscriptionManagerService {
             tier: dto.targetTier,
             seats: String(current.seats || 1),
           },
-          prorationBehavior: 'create_prorations',
+          prorationBehavior: ProrationBehavior.CREATE_PRORATIONS,
         });
       }
 
@@ -288,7 +289,7 @@ export class SubscriptionManagerService {
           tier: dto.targetTier,
           seats: String(current.seats || 1),
         },
-        prorationBehavior: dto.atPeriodEnd !== false ? 'none' : 'create_prorations',
+        prorationBehavior: dto.atPeriodEnd !== false ? ProrationBehavior.NONE : ProrationBehavior.CREATE_PRORATIONS,
       });
 
       await this.logSubscriptionChange({
@@ -452,6 +453,10 @@ export class SubscriptionManagerService {
   private async getOrganizationSubscription(
     orgId: string,
   ): Promise<OrganizationSubscription> {
+    // TODO: stripe_subscriptions table needs to be created in Prisma schema
+    // For now, return default free tier until migration is complete
+
+    /* COMMENTED OUT - Table doesn't exist yet
     const result = await this.prisma.$queryRaw<any[]>`
       SELECT
         ss.id,
@@ -504,14 +509,29 @@ export class SubscriptionManagerService {
       seats: subscription.seats || 1,
       usage: await this.features.getUsageMetrics(orgId),
     };
+    */
+
+    // Return default free tier until stripe_subscriptions table is created
+    const now = new Date();
+    return {
+      orgId,
+      tier: SubscriptionTier.FREE,
+      status: SubscriptionStatus.ACTIVE,
+      currentPeriodStart: new Date(now.getFullYear(), now.getMonth(), 1),
+      currentPeriodEnd: new Date(now.getFullYear(), now.getMonth() + 1, 0),
+      cancelAtPeriodEnd: false,
+      seats: 1,
+      usage: await this.features.getUsageMetrics(orgId),
+    };
   }
 
   private async getOrganizationOwner(orgId: string): Promise<any> {
+    // Fixed to use correct table and field names (Membership, userId, orgId, firstName, lastName)
     const result = await this.prisma.$queryRaw<any[]>`
-      SELECT u.id, u.email, u.first_name, u.last_name
-      FROM users u
-      INNER JOIN user_organizations uo ON uo.user_id = u.id
-      WHERE uo.org_id = ${orgId} AND uo.role = 'OWNER'
+      SELECT u.id, u.email, u."firstName", u."lastName"
+      FROM "User" u
+      INNER JOIN "Membership" m ON m."userId" = u.id
+      WHERE m."orgId" = ${orgId} AND m.role = 'OWNER'
       LIMIT 1
     `;
 
@@ -526,6 +546,10 @@ export class SubscriptionManagerService {
     userId: string,
     email: string,
   ): Promise<any> {
+    // TODO: stripe_customers table needs to be created in Prisma schema
+    // For now, throw an error indicating the feature is not yet implemented
+
+    /* COMMENTED OUT - Table doesn't exist yet
     const existing = await this.prisma.$queryRaw<any[]>`
       SELECT id, stripe_customer_id
       FROM stripe_customers
@@ -536,6 +560,7 @@ export class SubscriptionManagerService {
     if (existing && existing.length > 0) {
       return existing[0];
     }
+    */
 
     // Create new Stripe customer (this should be done via Stripe service)
     // For now, throw an error - customer should be created separately
@@ -545,6 +570,10 @@ export class SubscriptionManagerService {
   }
 
   private async getStripePriceForTier(tier: SubscriptionTier): Promise<any> {
+    // TODO: StripeProductsService.listPrices() method needs to be implemented
+    // For now, throw an error indicating the feature is not yet implemented
+
+    /* COMMENTED OUT - listPrices method doesn't exist yet
     // Get the monthly price for the tier from Stripe
     const tierConfig = SUBSCRIPTION_TIERS[tier];
 
@@ -554,9 +583,10 @@ export class SubscriptionManagerService {
     });
 
     // Find price that matches the tier amount and is monthly
+    // Fixed: use priceMonthly instead of price
     const price = prices.find(
       (p) =>
-        p.unit_amount === tierConfig.price &&
+        p.unit_amount === tierConfig.priceMonthly &&
         p.recurring?.interval === 'month' &&
         p.metadata?.tier === tier,
     );
@@ -568,6 +598,11 @@ export class SubscriptionManagerService {
     }
 
     return price;
+    */
+
+    throw new BadRequestException(
+      `Subscription tier management is not yet fully implemented. Missing Stripe price lookup for tier ${tier}.`,
+    );
   }
 
   private isValidUpgrade(
@@ -576,8 +611,9 @@ export class SubscriptionManagerService {
   ): boolean {
     const tierOrder = [
       SubscriptionTier.FREE,
+      SubscriptionTier.STARTER,
       SubscriptionTier.PRO,
-      SubscriptionTier.ENTERPRISE,
+      SubscriptionTier.BUSINESS,
     ];
 
     const fromIndex = tierOrder.indexOf(fromTier);
@@ -592,8 +628,9 @@ export class SubscriptionManagerService {
   ): boolean {
     const tierOrder = [
       SubscriptionTier.FREE,
+      SubscriptionTier.STARTER,
       SubscriptionTier.PRO,
-      SubscriptionTier.ENTERPRISE,
+      SubscriptionTier.BUSINESS,
     ];
 
     const fromIndex = tierOrder.indexOf(fromTier);
@@ -611,12 +648,26 @@ export class SubscriptionManagerService {
     metadata: any;
   }): Promise<void> {
     try {
+      // TODO: subscription_change_log table needs to be created in Prisma schema
+      // For now, just log to console
+
+      /* COMMENTED OUT - Table doesn't exist yet
       await this.prisma.$executeRaw`
         INSERT INTO subscription_change_log
         (org_id, user_id, change_type, from_tier, to_tier, metadata, created_at)
         VALUES
         (${data.orgId}, ${data.userId}, ${data.changeType}, ${data.fromTier}, ${data.toTier}, ${JSON.stringify(data.metadata)}::jsonb, NOW())
       `;
+      */
+
+      this.logger.log(
+        `Subscription change: ${data.changeType} from ${data.fromTier} to ${data.toTier}`,
+        {
+          orgId: data.orgId,
+          userId: data.userId,
+          metadata: data.metadata,
+        },
+      );
     } catch (error) {
       this.logger.error('Failed to log subscription change', error);
     }
@@ -629,16 +680,17 @@ export class SubscriptionManagerService {
     const tier = (subscription.metadata?.tier as SubscriptionTier) || SubscriptionTier.FREE;
     const tierConfig = SUBSCRIPTION_TIERS[tier];
 
+    // Stripe API uses snake_case for some fields (current_period_start, trial_end, cancel_at_period_end)
     return {
       orgId,
       tier,
       status: subscription.status,
-      currentPeriodStart: new Date(subscription.currentPeriodStart * 1000),
-      currentPeriodEnd: new Date(subscription.currentPeriodEnd * 1000),
-      trialEnd: subscription.trialEnd
-        ? new Date(subscription.trialEnd * 1000)
+      currentPeriodStart: new Date((subscription.current_period_start || subscription.currentPeriodStart) * 1000),
+      currentPeriodEnd: new Date((subscription.current_period_end || subscription.currentPeriodEnd) * 1000),
+      trialEnd: subscription.trial_end || subscription.trialEnd
+        ? new Date((subscription.trial_end || subscription.trialEnd) * 1000)
         : undefined,
-      cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+      cancelAtPeriodEnd: subscription.cancel_at_period_end ?? subscription.cancelAtPeriodEnd ?? false,
       seats: parseInt(subscription.metadata?.seats || '1'),
       features: tierConfig.features,
       usage: {

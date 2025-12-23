@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { TrueLayerService } from '../truelayer.service';
 import { TrueLayerConnectionStatus } from '../truelayer.types';
 import { addHours, addSeconds } from 'date-fns';

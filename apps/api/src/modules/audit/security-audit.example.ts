@@ -5,6 +5,8 @@
  * into your authentication and authorization flows.
  */
 
+import { UnauthorizedException } from '@nestjs/common';
+import { Request } from 'express';
 import { SecurityAuditService, SecurityEventType } from './security-audit.service';
 
 /**

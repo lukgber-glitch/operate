@@ -65,7 +65,7 @@ export class ImapSyncService {
         : DEFAULT_SYNC_FOLDERS;
 
       // Get last sync date
-      const lastSyncDate = options.since || emailConnection.lastSyncedAt || undefined;
+      const lastSyncDate = options.since || emailConnection.lastSyncAt || undefined;
 
       // Sync each folder
       for (const folder of foldersToSync) {
@@ -97,8 +97,8 @@ export class ImapSyncService {
       await this.prisma.emailConnection.update({
         where: { id: connectionId },
         data: {
-          lastSyncedAt: new Date(),
-          syncStatus: errors.length > 0 ? 'ERROR' : 'SYNCED',
+          lastSyncAt: new Date(),
+          syncStatus: errors.length > 0 ? 'FAILED' : 'COMPLETED',
         },
       });
 
@@ -124,7 +124,7 @@ export class ImapSyncService {
       await this.prisma.emailConnection.update({
         where: { id: connectionId },
         data: {
-          syncStatus: 'ERROR',
+          syncStatus: 'FAILED',
         },
       });
 
@@ -215,21 +215,32 @@ export class ImapSyncService {
     options: ImapSyncOptions,
   ): Promise<void> {
     try {
+      // Get the email connection to get provider and userId
+      const emailConnection = await this.prisma.emailConnection.findUnique({
+        where: { id: connectionId },
+      });
+
+      if (!emailConnection) {
+        throw new Error('Email connection not found');
+      }
+
       // Check if message already exists
-      const existing = await this.prisma.email.findFirst({
+      const externalId = message.envelope?.messageId || `${connectionId}-${message.uid}`;
+      const existing = await this.prisma.syncedEmail.findFirst({
         where: {
-          messageId: message.envelope?.messageId,
-          emailConnectionId: connectionId,
+          externalId,
+          connectionId,
         },
       });
 
       if (existing) {
         // Update flags if changed
-        await this.prisma.email.update({
+        await this.prisma.syncedEmail.update({
           where: { id: existing.id },
           data: {
-            flags: message.flags,
             isRead: message.flags.includes('\\Seen'),
+            isImportant: message.flags.includes('\\Flagged'),
+            isDraft: message.flags.includes('\\Draft'),
           },
         });
         return;
@@ -261,12 +272,17 @@ export class ImapSyncService {
         );
       }
 
+      // Create snippet from text or html
+      const snippet = text?.substring(0, 250) || html?.substring(0, 250);
+
       // Save email to database
-      const email = await this.prisma.email.create({
+      const email = await this.prisma.syncedEmail.create({
         data: {
-          emailConnectionId: connectionId,
+          connectionId,
           orgId,
-          messageId: message.envelope?.messageId || `${connectionId}-${message.uid}`,
+          userId: emailConnection.userId,
+          provider: emailConnection.provider,
+          externalId,
           threadId: this.parserService.calculateThreadId(
             message.envelope?.messageId || '',
             metadata.references,
@@ -278,27 +294,33 @@ export class ImapSyncService {
           to: message.envelope?.to?.map((a) => a.address) || [],
           cc: message.envelope?.cc?.map((a) => a.address) || [],
           bcc: message.envelope?.bcc?.map((a) => a.address) || [],
-          replyTo: message.envelope?.replyTo?.map((a) => a.address) || [],
-          date: message.envelope?.date || message.internalDate,
-          textContent: text,
-          htmlContent: html,
-          folder,
-          flags: message.flags,
+          sentAt: message.envelope?.date,
+          receivedAt: message.internalDate || new Date(),
+          internalDate: message.internalDate,
+          snippet,
+          bodyPreview: snippet,
+          hasHtmlBody: !!html,
+          hasTextBody: !!text,
+          hasAttachments: attachments.length > 0,
+          attachmentCount: attachments.length,
+          attachmentNames: attachments.map((a) => a.filename),
+          attachmentSizes: attachments.map((a) => a.size),
+          attachmentMimeTypes: attachments.map((a) => a.contentType),
           isRead: message.flags.includes('\\Seen'),
-          isFlagged: message.flags.includes('\\Flagged'),
+          isImportant: message.flags.includes('\\Flagged'),
           isDraft: message.flags.includes('\\Draft'),
-          size: message.size,
-          metadata: {
-            ...metadata,
-            uid: message.uid,
-            seq: message.seq,
-          },
         },
       });
 
       // Save attachments
       if (attachments.length > 0) {
-        await this.saveAttachments(email.id, attachments);
+        await this.saveAttachments(
+          email.id,
+          orgId,
+          emailConnection.userId,
+          emailConnection.provider,
+          attachments,
+        );
       }
 
       this.logger.debug(`Saved message: ${message.envelope?.subject || 'No subject'}`);
@@ -311,20 +333,34 @@ export class ImapSyncService {
   /**
    * Save email attachments
    */
-  private async saveAttachments(emailId: string, attachments: any[]): Promise<void> {
+  private async saveAttachments(
+    emailId: string,
+    orgId: string,
+    userId: string,
+    provider: any,
+    attachments: any[],
+  ): Promise<void> {
     for (const attachment of attachments) {
       try {
         // In a real implementation, you'd upload to S3 or similar
-        // For now, we'll just store metadata
+        // For now, we'll just store metadata with local storage
+        const storagePath = `/attachments/${orgId}/${emailId}/${attachment.filename}`;
+
         await this.prisma.emailAttachment.create({
           data: {
             emailId,
+            orgId,
+            userId,
+            provider,
+            externalId: attachment.contentId || `${emailId}-${attachment.filename}`,
             filename: attachment.filename,
-            contentType: attachment.contentType,
+            originalFilename: attachment.filename,
+            mimeType: attachment.contentType,
             size: attachment.size,
-            contentId: attachment.contentId,
-            // Store attachment in external storage and save URL
-            // url: await uploadToStorage(attachment.content),
+            extension: attachment.filename.split('.').pop() || null,
+            storageBackend: 'LOCAL',
+            storagePath,
+            storageUrl: null,
           },
         });
       } catch (error) {
@@ -417,7 +453,7 @@ export class ImapSyncService {
    */
   async getSyncStatus(connectionId: string): Promise<{
     isIdle: boolean;
-    lastSyncedAt: Date | null;
+    lastSyncAt: Date | null;
     syncStatus: string;
   }> {
     const emailConnection = await this.prisma.emailConnection.findUnique({
@@ -430,7 +466,7 @@ export class ImapSyncService {
 
     return {
       isIdle: this.activeIdleConnections.has(connectionId),
-      lastSyncedAt: emailConnection.lastSyncedAt,
+      lastSyncAt: emailConnection.lastSyncAt,
       syncStatus: emailConnection.syncStatus || 'PENDING',
     };
   }

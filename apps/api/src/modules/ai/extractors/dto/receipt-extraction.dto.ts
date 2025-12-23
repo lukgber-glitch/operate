@@ -173,7 +173,7 @@ export class ReceiptExtractionResultDto {
 
   @ApiProperty({ description: 'Organisation ID' })
   @IsString()
-  organisationId: string;
+  orgId: string;
 
   @ApiProperty({ description: 'User ID who uploaded' })
   @IsString()
@@ -252,7 +252,7 @@ export class ExtractReceiptRequestDto {
 
   @ApiProperty({ description: 'Organisation ID' })
   @IsString()
-  organisationId: string;
+  orgId: string;
 
   @ApiProperty({ description: 'User ID' })
   @IsString()

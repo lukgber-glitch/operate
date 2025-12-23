@@ -1,5 +1,5 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../../../prisma/prisma.service';
+import { PrismaService } from '../../database/prisma.service';
 import { SubmitUvaDto } from './dto';
 import { TaxContextService } from '../shared/tax-context.service';
 import axios from 'axios';
@@ -131,7 +131,7 @@ export class AustriaTaxService {
           gte: startDate,
           lte: endDate,
         },
-        status: { notIn: ['DRAFT', 'REJECTED'] },
+        status: { notIn: ['REJECTED'] },
       },
       select: {
         id: true,
@@ -308,7 +308,7 @@ export class AustriaTaxService {
    * @returns Submission result with reference number or errors
    */
   async submitUva(dto: SubmitUvaDto): Promise<FinanzOnlineResult> {
-    const orgId = dto.orgId || dto.organizationId; // Support both for backwards compatibility
+    const orgId = dto.organizationId;
     this.logger.log(`Submitting UVA for org ${orgId}, period ${dto.period}`);
 
     try {
@@ -320,26 +320,28 @@ export class AustriaTaxService {
         throw new BadRequestException('Invalid total revenue (KZ 000)');
       }
 
-      // Store submission in database
-      const submission = await this.prisma.taxSubmission.create({
+      // Store submission in database using IntegrationSubmission
+      const submission = await this.prisma.integrationSubmission.create({
         data: {
-          orgId,
-          country: 'AT',
-          taxType: 'UVA',
-          period: dto.period,
-          periodType: dto.periodType?.toUpperCase() || 'MONTHLY',
+          organizationId: orgId,
+          provider: 'FinanzOnline',
+          submissionType: 'UVA',
           status: 'SUBMITTED',
+          confirmationNumber: this.generateReferenceNumber(),
           submittedAt: new Date(),
-          data: dto.uva as Record<string, unknown>,
-          referenceNumber: this.generateReferenceNumber(),
+          details: {
+            period: dto.period,
+            periodType: dto.periodType?.toUpperCase() || 'MONTHLY',
+            uva: dto.uva,
+          } as any,
         },
       });
 
       return {
         success: true,
         submissionId: submission.id,
-        referenceNumber: submission.referenceNumber,
-        timestamp: submission.submittedAt.toISOString(),
+        referenceNumber: submission.confirmationNumber!,
+        timestamp: submission.submittedAt!.toISOString(),
       };
     } catch (error) {
       this.logger.error(`UVA submission failed: ${error.message}`, error.stack);
@@ -365,10 +367,10 @@ export class AustriaTaxService {
    * @returns Submission status with reference number
    */
   async getSubmissionStatus(orgId: string, submissionId: string) {
-    const submission = await this.prisma.taxSubmission.findFirst({
+    const submission = await this.prisma.integrationSubmission.findFirst({
       where: {
         id: submissionId,
-        orgId,
+        organizationId: orgId,
       },
     });
 
@@ -376,13 +378,15 @@ export class AustriaTaxService {
       throw new BadRequestException('Submission not found');
     }
 
+    const details = submission.details as any;
+
     return {
       submissionId: submission.id,
       status: submission.status.toLowerCase(),
-      referenceNumber: submission.referenceNumber,
+      referenceNumber: submission.confirmationNumber,
       submittedAt: submission.submittedAt?.toISOString(),
-      period: submission.period,
-      taxType: submission.taxType,
+      period: details?.period,
+      taxType: submission.submissionType,
     };
   }
 
@@ -393,26 +397,31 @@ export class AustriaTaxService {
    * @returns Buffer containing receipt content (text for now, PDF in production)
    */
   async generateReceipt(submissionId: string): Promise<Buffer> {
-    const submission = await this.prisma.taxSubmission.findUnique({
+    const submission = await this.prisma.integrationSubmission.findUnique({
       where: { id: submissionId },
-      include: { organisation: true },
     });
 
     if (!submission) {
       throw new BadRequestException('Submission not found');
     }
 
+    const org = await this.prisma.organisation.findUnique({
+      where: { id: submission.organizationId },
+    });
+
+    const details = submission.details as any;
+
     // TODO: Generate actual PDF using a library like pdfkit or puppeteer
     // For now, return a simple text buffer
     const receiptText = `
 FinanzOnline UVA Einreichungsbestätigung
 
-Referenznummer: ${submission.referenceNumber}
-Zeitraum: ${submission.period}
+Referenznummer: ${submission.confirmationNumber}
+Zeitraum: ${details?.period}
 Eingereicht am: ${submission.submittedAt?.toLocaleString('de-AT')}
 Status: ${submission.status}
 
-Organisation: ${submission.organisation?.name || 'N/A'}
+Organisation: ${org?.name || 'N/A'}
 
 Dies ist eine vorläufige Bestätigung.
 Die offizielle Bestätigung erhalten Sie von FinanzOnline.

@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ReminderType, ReminderStatus } from '@prisma/client';
+import { PaymentReminderType, ReminderStatus } from '@prisma/client';
 
 /**
  * DTO for creating a payment reminder
@@ -19,10 +19,10 @@ import { ReminderType, ReminderStatus } from '@prisma/client';
 export class CreateReminderDto {
   @ApiProperty({
     description: 'Type of reminder',
-    enum: ReminderType,
+    enum: PaymentReminderType,
     example: 'AFTER_DUE',
   })
-  reminderType: ReminderType;
+  reminderType: PaymentReminderType;
 
   @ApiProperty({
     description: 'When to send the reminder',
@@ -158,11 +158,11 @@ export class ReminderQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filter by reminder type',
-    enum: ReminderType,
+    enum: PaymentReminderType,
     example: 'AFTER_DUE',
   })
   @IsOptional()
-  reminderType?: ReminderType;
+  reminderType?: PaymentReminderType;
 
   @ApiPropertyOptional({
     description: 'Page number',
@@ -195,8 +195,8 @@ export class ReminderHistoryDto {
   @ApiProperty()
   id: string;
 
-  @ApiProperty({ enum: ReminderType })
-  reminderType: ReminderType;
+  @ApiProperty({ enum: PaymentReminderType })
+  reminderType: PaymentReminderType;
 
   @ApiProperty()
   scheduledFor: Date;

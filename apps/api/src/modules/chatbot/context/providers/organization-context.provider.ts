@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { OrgContext } from '../context.types';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class OrganizationContextProvider {
    * Get organization context
    */
   async getOrgContext(orgId: string): Promise<OrgContext> {
-    const org = await this.prisma.organization.findUnique({
+    const org = await this.prisma.organisation.findUnique({
       where: { id: orgId },
       select: {
         id: true,
@@ -23,9 +23,8 @@ export class OrganizationContextProvider {
         country: true,
         currency: true,
         industry: true,
-        taxId: true,
-        fiscalYearEnd: true,
-        plan: true,
+        vatNumber: true,
+        subscriptionTier: true,
         settings: true,
       },
     });
@@ -37,7 +36,7 @@ export class OrganizationContextProvider {
     // Determine tax regime based on country
     const taxRegime = this.getTaxRegime(org.country);
 
-    // Extract features from plan or settings
+    // Extract features from subscription tier and settings
     const features = this.getFeatures(org);
 
     return {
@@ -47,9 +46,7 @@ export class OrganizationContextProvider {
       currency: org.currency,
       industry: org.industry || undefined,
       taxRegime,
-      fiscalYearEnd: org.fiscalYearEnd
-        ? this.formatFiscalYearEnd(org.fiscalYearEnd)
-        : undefined,
+      fiscalYearEnd: undefined, // fiscalYearEnd not in Organisation model
       features,
     };
   }
@@ -76,9 +73,9 @@ export class OrganizationContextProvider {
   private getFeatures(org: any): string[] {
     const features: string[] = [];
 
-    // Add based on plan
-    if (org.plan) {
-      features.push(`${org.plan} Plan`);
+    // Add based on subscription tier
+    if (org.subscriptionTier) {
+      features.push(`${org.subscriptionTier} Plan`);
     }
 
     // Add based on settings (if settings is JSON)

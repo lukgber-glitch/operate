@@ -188,6 +188,15 @@ model Organisation {
   bills   Bill[]
   quotes  Quote[]
 
+  // Product, Payment, and QuickBooks Migration Relations
+  products                 Product[]
+  payments                 Payment[]
+  quickBooksMigrations     QuickBooksMigration[]
+  quickBooksSyncMappings   QuickBooksSyncMapping[]
+  quickBooksEntityMappings QuickBooksEntityMapping[]
+  quickBooksSyncLogs       QuickBooksSyncLog[]
+  freeeConnections         FreeeConnection[]
+
   // Email Intelligence Relations
   relationshipMetrics RelationshipMetrics[]
   emailFilterConfig   EmailFilterConfig?
@@ -955,6 +964,10 @@ enum ReminderType {
   ONE_DAY
   SAME_DAY
   OVERDUE
+  ON_DUE
+  BEFORE_DUE
+  AFTER_DUE
+  ESCALATION
 }
 
 enum DeliveryStatus {
@@ -1111,6 +1124,10 @@ model Employee {
   status          EmploymentStatus @default(ACTIVE)
   hireDate        DateTime
   terminationDate DateTime?
+  department      String?
+  position        String?
+  jobTitle        String?
+  manager         String? // Manager's employee ID or name
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -1712,16 +1729,29 @@ model Transaction {
   currency    String   @default("EUR")
   description String
   date        DateTime @db.Date
+  reference   String? // External reference
+  type        String? // income, expense, transfer, etc.
 
   // Classification (from OP-040)
   category           String?
+  subcategory        String?
   categoryConfidence Decimal? @db.Decimal(3, 2)
 
   // Metadata
   metadata Json? // Receipt info, business purpose, etc.
 
   // Status
-  isReconciled Boolean @default(false)
+  isReconciled Boolean   @default(false)
+  reconciledAt DateTime?
+
+  // Tax info for deduction tracking
+  taxInfo Json?
+
+  // Relations to invoices and vendors
+  invoiceId String?
+  vendorId  String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  vendor    Vendor?  @relation(fields: [vendorId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1736,6 +1766,8 @@ model Transaction {
   @@index([date])
   @@index([category])
   @@index([deletedAt])
+  @@index([invoiceId])
+  @@index([vendorId])
   // Compound indexes for performance
   @@index([date, orgId])
   @@index([createdAt, orgId])
@@ -2032,6 +2064,13 @@ model Customer {
   phone   String?
   address String?
   vatId   String?
+  taxId   String?
+
+  // Address fields
+  billingAddress  Json?
+  shippingAddress Json?
+  firstName       String?
+  lastName        String?
 
   // Flags
   isActive Boolean @default(true)
@@ -2058,6 +2097,7 @@ enum InvoiceStatus {
   DRAFT
   SENT
   PAID
+  PARTIALLY_PAID
   OVERDUE
   CANCELLED
   VOID
@@ -2096,12 +2136,15 @@ enum ExpenseCategory {
 }
 
 enum BillStatus {
+  REJECTED
   DRAFT
   PENDING
+  PENDING_APPROVAL
   APPROVED
   PAID
   OVERDUE
   CANCELLED
+  PARTIAL
 }
 
 enum BillSourceType {
@@ -2140,10 +2183,14 @@ model Invoice {
   paidDate  DateTime?
 
   // Amounts
-  subtotal    Decimal @db.Decimal(12, 2)
-  taxAmount   Decimal @db.Decimal(12, 2)
-  totalAmount Decimal @db.Decimal(12, 2)
-  currency    String  @default("EUR")
+  subtotal        Decimal  @db.Decimal(12, 2)
+  taxAmount       Decimal  @db.Decimal(12, 2)
+  vatAmount       Decimal? @db.Decimal(12, 2) // Alias for taxAmount
+  totalAmount     Decimal  @db.Decimal(12, 2)
+  total           Decimal  @db.Decimal(12, 2) // Alias for totalAmount
+  customerCountry String?
+  currency        String   @default("EUR")
+  invoiceNumber   String? // Alias for number
 
   // Multi-currency support (W20-T5)
   exchangeRate       Decimal? @db.Decimal(12, 6) // Exchange rate at time of creation
@@ -2183,6 +2230,7 @@ model Invoice {
   items            InvoiceItem[]
   paymentReminders PaymentReminder[]
   allocations      PaymentAllocation[]
+  transactions     Transaction[]
 
   @@unique([orgId, number])
   @@index([orgId])
@@ -2306,8 +2354,9 @@ model Expense {
   subcategory String?
 
   // Vendor
-  vendorName  String?
-  vendorVatId String?
+  vendorName    String?
+  vendorVatId   String?
+  vendorCountry String?
 
   // Receipt
   receiptUrl    String?
@@ -2452,11 +2501,13 @@ model Bill {
   description String?
 
   // Amounts
-  amount      Decimal @db.Decimal(12, 2) // Subtotal before tax
-  currency    String  @default("EUR")
-  taxAmount   Decimal @default(0) @db.Decimal(12, 2)
-  totalAmount Decimal @db.Decimal(12, 2) // Total including tax
-  paidAmount  Decimal @default(0) @db.Decimal(12, 2) // Amount paid so far
+  amount          Decimal @db.Decimal(12, 2) // Subtotal before tax
+  currency        String  @default("EUR")
+  taxAmount       Decimal @default(0) @db.Decimal(12, 2)
+  totalAmount     Decimal @db.Decimal(12, 2) // Total including tax
+  total           Decimal @db.Decimal(12, 2) // Alias for totalAmount
+  customerCountry String?
+  paidAmount      Decimal @default(0) @db.Decimal(12, 2) // Amount paid so far
 
   // Status
   status        BillStatus    @default(DRAFT)
@@ -2706,7 +2757,16 @@ model BankTransaction {
 
   // Categorization (manual or AI)
   category     String?
-  isReconciled Boolean @default(false)
+  subcategory  String?
+  isReconciled Boolean   @default(false)
+  reconciledAt DateTime?
+
+  // Tax info for deduction tracking
+  taxInfo Json?
+
+  // Relations to invoices and vendors
+  invoiceId String?
+  vendorId  String?
 
   // Link to internal transaction
   transactionId String?
@@ -2726,6 +2786,7 @@ model BankTransaction {
   @@index([isReconciled])
   @@index([externalId])
   @@index([transactionId])
+  @@index([category])
   @@index([deletedAt])
   // Compound indexes for performance
   @@index([bankAccountId, date])
@@ -3193,8 +3254,12 @@ enum AutomationMode {
 
 model AutomationSettings {
   id             String       @id @default(cuid())
+  orgId          String       @unique // Alias for organisationId
   organisationId String
   organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  // General settings
+  feature String? // Current feature context
 
   // Feature-specific automation modes
   invoiceCreation    AutomationMode @default(SEMI_AUTO)
@@ -3425,6 +3490,89 @@ model IntegrationAccount {
   @@index([isActive])
   @@index([accountType])
   @@index([externalId])
+}
+
+// Integration Submission - Track tax filings, return submissions, etc.
+model IntegrationSubmission {
+  id             String @id @default(uuid())
+  organizationId String
+
+  // Submission details
+  provider           String // CRA, HMRC, IRS, etc.
+  submissionType     String // GST34, GST62, VAT100, 1040, etc.
+  status             String // DRAFT, SUBMITTED, ACCEPTED, REJECTED, ERROR
+  confirmationNumber String? @unique
+
+  // Submission data and response
+  details Json // Contains return data, calculations, etc.
+
+  // Timestamps
+  submittedAt DateTime?
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([organizationId])
+  @@index([provider])
+  @@index([status])
+  @@index([confirmationNumber])
+  @@index([organizationId, provider])
+  @@index([createdAt])
+}
+
+// Integration Audit Log - Track all integration actions
+model IntegrationAuditLog {
+  id             String @id @default(uuid())
+  organizationId String
+
+  // Action details
+  provider String // CRA, HMRC, TrueLayer, Tink, etc.
+  action   String // AUTHENTICATE, VALIDATE_RETURN, SUBMIT_RETURN, CHECK_STATUS, etc.
+  details  Json? // Context-specific details
+
+  // Request context
+  ipAddress String?
+  userAgent String?
+
+  // Result
+  success      Boolean @default(true)
+  errorMessage String?
+
+  // Timestamp
+  timestamp DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([provider])
+  @@index([action])
+  @@index([timestamp])
+  @@index([organizationId, provider])
+  @@index([organizationId, timestamp])
+}
+
+// Integration Credentials - Encrypted credentials storage
+model IntegrationCredentials {
+  id             String @id @default(uuid())
+  organizationId String
+  provider       String // CRA, HMRC, IRS, etc.
+
+  // Encrypted credentials
+  encryptedData String  @db.Text // Encrypted JSON containing credentials
+  iv            String // Initialization vector for decryption
+  authTag       String? // Authentication tag for AES-GCM
+
+  // Metadata
+  expiresAt  DateTime?
+  lastUsedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, provider], name: "organizationId_provider")
+  @@index([organizationId])
+  @@index([provider])
+  @@index([expiresAt])
 }
 
 enum OnboardingStepStatus {
@@ -3862,6 +4010,7 @@ model Client {
   legalName   String? // Legal entity name for contracts
 
   // Company info
+  company            String? // Alias for companyName
   companyName        String?
   vatId              String? // VAT/Tax ID (e.g., VAT, GSTIN, EIN)
   taxId              String?
@@ -4201,8 +4350,9 @@ model Vendor {
   deletedBy String?   @map("deleted_by")
 
   // Relations
-  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  organisation Organisation  @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   bills        Bill[] // Bills from this vendor (will be created by other VAULT agent)
+  transactions Transaction[]
 
   @@unique([organisationId, taxId])
   @@index([organisationId])
@@ -4979,8 +5129,9 @@ model QuickBooksConnection {
   updatedAt      DateTime  @updatedAt
 
   // Relations
-  organisation Organisation         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  organisation Organisation          @relation(fields: [orgId], references: [id], onDelete: Cascade)
   auditLogs    QuickBooksAuditLog[]
+  migrations   QuickBooksMigration[]
 
   @@unique([orgId, companyId])
   @@index([orgId])
@@ -5825,7 +5976,7 @@ enum GoCardlessRedirectFlowStatus {
 
 model GoCardlessConnection {
   id    String @id @default(uuid())
-  orgId String
+  orgId String @unique
 
   // GoCardless creditor details
   creditorId   String // GoCardless creditor ID
@@ -5862,7 +6013,6 @@ model GoCardlessConnection {
   organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@unique([orgId, creditorId])
-  @@index([orgId])
   @@index([creditorId])
   @@index([status])
   @@index([isConnected])
@@ -6433,6 +6583,8 @@ enum VatReturnStatus {
   SUBMITTED
   ACCEPTED
   REJECTED
+  FILED
+  OPEN
 }
 
 model HmrcVatReturn {
@@ -7974,6 +8126,7 @@ model SyncedEmail {
   // Sync metadata
   syncJobId    String? // Reference to sync job
   lastSyncedAt DateTime @default(now())
+  metadata     Json? // Additional metadata
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -8475,25 +8628,37 @@ model ReceiptScan {
   id           String       @id @default(uuid())
   orgId        String
   organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  userId       String
 
   filename String
+  fileName String? // Alias for filename
   mimeType String
   fileSize Int
   status   ReceiptScanStatus @default(PENDING)
 
   // Extracted data
-  merchantName String?
-  amount       Decimal?  @db.Decimal(12, 2)
-  currency     String?
-  date         DateTime? @db.Date
-  category     String?
-  subcategory  String?
-  confidence   Decimal?  @db.Decimal(5, 2)
+  merchantName         String?
+  amount               Decimal?  @db.Decimal(12, 2)
+  currency             String?
+  date                 DateTime? @db.Date
+  category             String?
+  subcategory          String?
+  confidence           Decimal?  @db.Decimal(5, 2)
+  extractedData        Json?
+  suggestedCategory    String?
+  suggestedSubcategory String?
+  taxDeductible        Boolean?
+  overallConfidence    Decimal?  @db.Decimal(5, 2)
+  ocrConfidence        Decimal?  @db.Decimal(5, 2)
+  fieldConfidences     Json?
+  receiptType          String? // RETAIL, RESTAURANT, GAS_STATION, HOTEL, etc.
+  paymentMethod        String? // Payment method used
 
   // AI processing
-  rawText    String? @db.Text
-  ocrData    Json?
-  aiResponse Json?
+  rawText      String? @db.Text
+  ocrData      Json?
+  aiResponse   Json?
+  errorMessage String?
 
   // Relations
   expenseId String?  @unique
@@ -8503,10 +8668,12 @@ model ReceiptScan {
   updatedAt DateTime @updatedAt
 
   @@index([orgId])
+  @@index([userId])
   @@index([status])
   @@index([expenseId])
   // Compound indexes for performance
   @@index([orgId, status])
+  @@index([orgId, userId])
   @@index([date, orgId])
   @@index([createdAt, orgId])
   @@index([category, orgId])
@@ -8634,6 +8801,7 @@ model EmailSuggestion {
   actionType    EmailSuggestionActionType?
   actionPayload Json?
   actionLabel   String?
+  actionTaken   String?
 
   // Metadata
   confidence  Decimal? @db.Decimal(3, 2) // AI confidence (0.00-1.00)
@@ -8667,19 +8835,30 @@ model EmailSuggestion {
 // ============================================================================
 
 model VatReturn {
-  id             String @id @default(uuid())
-  organisationId String
+  id    String @id @default(uuid())
+  orgId String
 
   // Period
-  period      String // "2025-Q1" or "2025-01" or "2025"
-  periodType  String // "monthly" | "quarterly" | "yearly"
-  periodStart DateTime
-  periodEnd   DateTime
+  period     String // "2025-Q1" or "2025-01" or "2025"
+  periodType String // "monthly" | "quarterly" | "yearly"
+  year       Int?
+  quarter    Int?
+  month      Int?
+  startDate  DateTime
+  endDate    DateTime
 
   // VAT amounts
-  outputVat Decimal @db.Decimal(12, 2) // Total VAT on sales
-  inputVat  Decimal @db.Decimal(12, 2) // Total VAT on purchases
-  netVat    Decimal @db.Decimal(12, 2) // outputVat - inputVat (negative = refund due)
+  outputVat      Decimal  @db.Decimal(12, 2) // Total VAT on sales
+  inputVat       Decimal  @db.Decimal(12, 2) // Total VAT on purchases
+  netVat         Decimal  @db.Decimal(12, 2) // outputVat - inputVat (negative = refund due)
+  totalSales     Decimal? @db.Decimal(12, 2)
+  totalPurchases Decimal? @db.Decimal(12, 2)
+  vatOwed        Decimal? @db.Decimal(12, 2)
+  vatRecoverable Decimal? @db.Decimal(12, 2)
+
+  // Dates
+  dueDate   DateTime?
+  filedDate DateTime?
 
   // Status
   status VatReturnStatus @default(DRAFT)
@@ -8711,15 +8890,15 @@ model VatReturn {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([organisationId, period])
-  @@index([organisationId])
+  @@unique([orgId, period])
+  @@index([orgId])
   @@index([status])
-  @@index([periodStart])
-  @@index([periodEnd])
+  @@index([startDate])
+  @@index([endDate])
   @@index([submittedAt])
   @@index([receiptId])
   // Compound indexes for performance
-  @@index([organisationId, status])
+  @@index([orgId, status])
   @@map("vat_returns")
 }
 
@@ -9252,15 +9431,16 @@ model TaxSuggestion {
 }
 
 model TaxDeadline {
-  id             String       @id @default(cuid())
-  organisationId String
-  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  id           String       @id @default(cuid())
+  orgId        String
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   name        String // "Q4 VAT Return", "Annual Tax Filing"
   description String?
 
-  country String // ISO country code
-  type    TaxDeadlineType
+  country  String // ISO country code
+  type     TaxDeadlineType
+  priority String? // "high" | "medium" | "low"
 
   dueDate      DateTime
   reminderDate DateTime?
@@ -9269,12 +9449,13 @@ model TaxDeadline {
   filedAt DateTime?
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([organisationId])
+  @@index([orgId])
   @@index([dueDate])
   @@index([status])
-  @@index([organisationId, status])
-  @@index([organisationId, dueDate])
+  @@index([orgId, status])
+  @@index([orgId, dueDate])
   @@map("tax_deadlines")
 }
 
@@ -9306,4 +9487,291 @@ enum DeadlineStatus {
   DUE_SOON
   OVERDUE
   FILED
+  COMPLETED
+}
+
+// ============================================================================
+// PRODUCT MODEL
+// ============================================================================
+
+model Product {
+  id           String       @id @default(uuid())
+  orgId        String
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  sku         String?
+  category    String?
+
+  unitPrice Decimal @db.Decimal(12, 2)
+  currency  String  @default("EUR")
+
+  taxRate     Decimal? @db.Decimal(5, 2)
+  taxCategory String?
+
+  isActive Boolean @default(true)
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([orgId, sku])
+  @@index([orgId])
+  @@index([category])
+  @@index([isActive])
+  @@map("products")
+}
+
+// ============================================================================
+// PAYMENT MODEL  
+// ============================================================================
+
+model Payment {
+  id           String       @id @default(uuid())
+  orgId        String
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  type   PaymentType
+  status PaymentStatus @default(PENDING)
+
+  amount   Decimal @db.Decimal(12, 2)
+  currency String  @default("EUR")
+
+  reference   String?
+  description String?
+
+  invoiceId  String?
+  billId     String?
+  customerId String?
+  vendorId   String?
+
+  bankAccountId String?
+  transactionId String?
+
+  method String?
+
+  paymentDate DateTime?
+  dueDate     DateTime?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([status])
+  @@index([type])
+  @@index([invoiceId])
+  @@index([billId])
+  @@index([paymentDate])
+  @@map("payments")
+}
+
+enum PaymentType {
+  INCOMING
+  OUTGOING
+  REFUND
+  TRANSFER
+}
+
+// ============================================================================
+// QUICKBOOKS MIGRATION MODELS
+// ============================================================================
+
+model QuickBooksMigration {
+  id           String               @id @default(cuid())
+  orgId        String
+  organisation Organisation         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  connectionId String
+  connection   QuickBooksConnection @relation(fields: [connectionId], references: [id])
+
+  status   MigrationStatus @default(PENDING)
+  progress Json?
+
+  totalItems     Int @default(0)
+  processedItems Int @default(0)
+  failedItems    Int @default(0)
+
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  config       Json?
+  errorMessage String?
+  metadata     Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  errors QuickBooksMigrationError[]
+
+  @@index([orgId])
+  @@index([connectionId])
+  @@index([status])
+  @@map("quickbooks_migrations")
+}
+
+model QuickBooksMigrationError {
+  id          String              @id @default(cuid())
+  migrationId String
+  migration   QuickBooksMigration @relation(fields: [migrationId], references: [id], onDelete: Cascade)
+
+  entityType String
+  entityId   String?
+  errorCode  String?
+  message    String  @db.Text
+  details    Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([migrationId])
+  @@index([entityType])
+  @@map("quickbooks_migration_errors")
+}
+
+model QuickBooksSyncMapping {
+  id           String       @id @default(cuid())
+  orgId        String
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  connectionId String
+
+  entityType String
+  localId    String
+  operateId  String? // Alias for localId
+  externalId String
+
+  lastSyncedAt DateTime?
+  syncStatus   SyncStatus @default(IDLE)
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([connectionId, entityType, localId])
+  @@unique([connectionId, entityType, operateId])
+  @@unique([connectionId, entityType, externalId])
+  @@index([orgId])
+  @@index([connectionId])
+  @@index([entityType])
+  @@map("quickbooks_sync_mappings")
+}
+
+model QuickBooksEntityMapping {
+  id           String       @id @default(cuid())
+  orgId        String
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  connectionId String
+
+  entityType      String
+  quickbooksId    String
+  operateEntityId String
+
+  syncToken    String?
+  lastSyncedAt DateTime?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([connectionId, entityType, quickbooksId])
+  @@unique([connectionId, entityType, operateEntityId])
+  @@index([orgId])
+  @@index([connectionId])
+  @@map("quickbooks_entity_mappings")
+}
+
+model QuickBooksSyncLog {
+  id           String       @id @default(cuid())
+  orgId        String
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  connectionId String
+
+  syncType String
+  status   SyncStatus
+
+  itemsProcessed Int @default(0)
+  itemsFailed    Int @default(0)
+
+  duration     Int?
+  errorMessage String?
+  details      Json?
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@index([orgId])
+  @@index([connectionId])
+  @@index([status])
+  @@map("quickbooks_sync_logs")
+}
+
+// ============================================================================
+// FREEE CONNECTION MODEL
+// ============================================================================
+
+model FreeeConnection {
+  id           String       @id @default(uuid())
+  orgId        String
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  companyId      Int
+  companyName    String?
+  freeeCompanyId String?
+
+  accessToken           String    @db.Text
+  refreshToken          String?   @db.Text
+  expiresAt             DateTime?
+  tokenExpiresAt        DateTime?
+  refreshTokenExpiresAt DateTime?
+  tokenType             String?
+  scope                 String?
+  freeeCompanyName      String?
+
+  status        ConnectionStatus @default(ACTIVE)
+  isActive      Boolean          @default(true)
+  lastSyncedAt  DateTime?
+  lastSyncAt    DateTime? // Alias for lastSyncedAt
+  fiscalYearEnd Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  auditLogs FreeeAuditLog[]
+
+  @@unique([orgId])
+  @@index([companyId])
+  @@index([status])
+  @@map("freee_connections")
+}
+
+model FreeeAuditLog {
+  id           String          @id @default(cuid())
+  connectionId String
+  connection   FreeeConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  action       String
+  endpoint     String?
+  requestData  Json?
+  responseData Json?
+
+  status       String
+  errorMessage String?
+
+  createdAt DateTime @default(now())
+
+  @@index([connectionId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("freee_audit_logs")
+}
+
+// Migration Status enum
+enum MigrationStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
 }

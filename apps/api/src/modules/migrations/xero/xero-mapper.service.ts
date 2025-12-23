@@ -5,6 +5,7 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { InvoiceStatus } from '@prisma/client';
 import {
   XeroContact,
   XeroItem,
@@ -35,12 +36,14 @@ export class XeroMapperService {
     conflictStrategy: ConflictStrategy,
   ): Promise<MappedEntity> {
     try {
-      // Check for existing contact by Xero ID
+      // Check for existing contact by Xero ID stored in metadata
       const existing = await this.prisma.customer.findFirst({
         where: {
           orgId,
-          externalId: xeroContact.ContactID,
-          externalSystem: 'XERO',
+          metadata: {
+            path: ['xeroContactId'],
+            equals: xeroContact.ContactID,
+          },
         },
       });
 
@@ -66,6 +69,17 @@ export class XeroMapperService {
         (p) => p.PhoneType === 'DEFAULT',
       );
 
+      // Build address string
+      const addressParts = [
+        primaryAddress?.AddressLine1,
+        primaryAddress?.AddressLine2,
+        primaryAddress?.City,
+        primaryAddress?.Region,
+        primaryAddress?.PostalCode,
+        primaryAddress?.Country,
+      ].filter(Boolean);
+      const address = addressParts.length > 0 ? addressParts.join(', ') : undefined;
+
       // Create or update customer
       const customer = existing
         ? await this.prisma.customer.update({
@@ -74,20 +88,17 @@ export class XeroMapperService {
               name: xeroContact.Name,
               email: xeroContact.EmailAddress,
               phone: primaryPhone?.PhoneNumber,
-              taxNumber: xeroContact.TaxNumber,
-              addressLine1: primaryAddress?.AddressLine1,
-              addressLine2: primaryAddress?.AddressLine2,
-              city: primaryAddress?.City,
-              state: primaryAddress?.Region,
-              postalCode: primaryAddress?.PostalCode,
-              country: primaryAddress?.Country,
-              currency: xeroContact.DefaultCurrency,
+              vatId: xeroContact.TaxNumber,
+              taxId: xeroContact.TaxNumber,
+              address,
               isActive: xeroContact.ContactStatus === 'ACTIVE',
-              externalMetadata: {
+              metadata: {
+                xeroContactId: xeroContact.ContactID,
                 xeroContactNumber: xeroContact.ContactNumber,
                 xeroAccountNumber: xeroContact.AccountNumber,
                 isSupplier: xeroContact.IsSupplier,
                 isCustomer: xeroContact.IsCustomer,
+                defaultCurrency: xeroContact.DefaultCurrency,
               },
             },
           })
@@ -97,22 +108,17 @@ export class XeroMapperService {
               name: xeroContact.Name,
               email: xeroContact.EmailAddress,
               phone: primaryPhone?.PhoneNumber,
-              taxNumber: xeroContact.TaxNumber,
-              addressLine1: primaryAddress?.AddressLine1,
-              addressLine2: primaryAddress?.AddressLine2,
-              city: primaryAddress?.City,
-              state: primaryAddress?.Region,
-              postalCode: primaryAddress?.PostalCode,
-              country: primaryAddress?.Country,
-              currency: xeroContact.DefaultCurrency || 'USD',
+              vatId: xeroContact.TaxNumber,
+              taxId: xeroContact.TaxNumber,
+              address,
               isActive: xeroContact.ContactStatus === 'ACTIVE',
-              externalId: xeroContact.ContactID,
-              externalSystem: 'XERO',
-              externalMetadata: {
+              metadata: {
+                xeroContactId: xeroContact.ContactID,
                 xeroContactNumber: xeroContact.ContactNumber,
                 xeroAccountNumber: xeroContact.AccountNumber,
                 isSupplier: xeroContact.IsSupplier,
                 isCustomer: xeroContact.IsCustomer,
+                defaultCurrency: xeroContact.DefaultCurrency || 'USD',
               },
             },
           });
@@ -152,7 +158,12 @@ export class XeroMapperService {
         where: {
           orgId,
           OR: [
-            { externalId: xeroItem.ItemID },
+            {
+              metadata: {
+                path: ['xeroItemId'],
+                equals: xeroItem.ItemID,
+              },
+            },
             { sku: xeroItem.Code },
           ],
         },
@@ -176,14 +187,15 @@ export class XeroMapperService {
               name: xeroItem.Name,
               description: xeroItem.Description,
               sku: xeroItem.Code,
-              salesPrice: xeroItem.SalesDetails?.UnitPrice,
-              purchasePrice: xeroItem.PurchaseDetails?.UnitPrice,
+              unitPrice: xeroItem.SalesDetails?.UnitPrice || existing.unitPrice,
               isActive: true,
-              externalMetadata: {
+              metadata: {
+                xeroItemId: xeroItem.ItemID,
                 isSold: xeroItem.IsSold,
                 isPurchased: xeroItem.IsPurchased,
                 isTrackedAsInventory: xeroItem.IsTrackedAsInventory,
                 quantityOnHand: xeroItem.QuantityOnHand,
+                purchasePrice: xeroItem.PurchaseDetails?.UnitPrice,
               },
             },
           })
@@ -193,16 +205,15 @@ export class XeroMapperService {
               name: xeroItem.Name,
               description: xeroItem.Description,
               sku: xeroItem.Code,
-              salesPrice: xeroItem.SalesDetails?.UnitPrice || 0,
-              purchasePrice: xeroItem.PurchaseDetails?.UnitPrice,
+              unitPrice: xeroItem.SalesDetails?.UnitPrice || 0,
               isActive: true,
-              externalId: xeroItem.ItemID,
-              externalSystem: 'XERO',
-              externalMetadata: {
+              metadata: {
+                xeroItemId: xeroItem.ItemID,
                 isSold: xeroItem.IsSold,
                 isPurchased: xeroItem.IsPurchased,
                 isTrackedAsInventory: xeroItem.IsTrackedAsInventory,
                 quantityOnHand: xeroItem.QuantityOnHand,
+                purchasePrice: xeroItem.PurchaseDetails?.UnitPrice,
               },
             },
           });
@@ -241,7 +252,10 @@ export class XeroMapperService {
       const existing = await this.prisma.invoice.findFirst({
         where: {
           orgId,
-          externalId: xeroInvoice.InvoiceID,
+          metadata: {
+            path: ['xeroInvoiceId'],
+            equals: xeroInvoice.InvoiceID,
+          },
         },
       });
 
@@ -260,7 +274,10 @@ export class XeroMapperService {
       const customer = await this.prisma.customer.findFirst({
         where: {
           orgId,
-          externalId: xeroInvoice.Contact.ContactID,
+          metadata: {
+            path: ['xeroContactId'],
+            equals: xeroInvoice.Contact.ContactID,
+          },
         },
       });
 
@@ -274,30 +291,35 @@ export class XeroMapperService {
         };
       }
 
-      // Map invoice type
-      const invoiceType = xeroInvoice.Type === 'ACCREC' ? 'SALES' : 'PURCHASE';
+      // Map invoice type - STANDARD is the default, use CREDIT_NOTE for credits
+      const invoiceType = xeroInvoice.Type === 'ACCREC' ? 'STANDARD' : 'STANDARD'; // Both AR and AP use STANDARD
       const invoiceStatus = this.mapInvoiceStatus(xeroInvoice.Status);
 
       const invoice = existing
         ? await this.prisma.invoice.update({
             where: { id: existing.id },
             data: {
+              number: xeroInvoice.InvoiceNumber || existing.number,
               invoiceNumber: xeroInvoice.InvoiceNumber,
               type: invoiceType,
               status: invoiceStatus,
               issueDate: new Date(xeroInvoice.Date),
               dueDate: xeroInvoice.DueDate
                 ? new Date(xeroInvoice.DueDate)
-                : undefined,
+                : new Date(xeroInvoice.Date), // Fallback to issue date
               subtotal: xeroInvoice.SubTotal,
               taxAmount: xeroInvoice.TotalTax,
+              totalAmount: xeroInvoice.Total,
               total: xeroInvoice.Total,
-              amountDue: xeroInvoice.AmountDue,
               currency: xeroInvoice.CurrencyCode,
               notes: xeroInvoice.Reference,
-              externalMetadata: {
+              customerName: xeroInvoice.Contact.Name,
+              customerEmail: xeroInvoice.Contact.EmailAddress,
+              metadata: {
+                xeroInvoiceId: xeroInvoice.InvoiceID,
                 xeroLineAmountTypes: xeroInvoice.LineAmountTypes,
                 xeroUrl: xeroInvoice.Url,
+                xeroType: xeroInvoice.Type,
               },
             },
           })
@@ -305,24 +327,27 @@ export class XeroMapperService {
             data: {
               orgId,
               customerId: customer.id,
-              invoiceNumber: xeroInvoice.InvoiceNumber || `XER-${xeroInvoice.InvoiceID.substring(0, 8)}`,
+              number: xeroInvoice.InvoiceNumber || `XER-${xeroInvoice.InvoiceID.substring(0, 8)}`,
+              invoiceNumber: xeroInvoice.InvoiceNumber,
               type: invoiceType,
               status: invoiceStatus,
               issueDate: new Date(xeroInvoice.Date),
               dueDate: xeroInvoice.DueDate
                 ? new Date(xeroInvoice.DueDate)
-                : undefined,
+                : new Date(xeroInvoice.Date), // Fallback to issue date
               subtotal: xeroInvoice.SubTotal,
               taxAmount: xeroInvoice.TotalTax,
+              totalAmount: xeroInvoice.Total,
               total: xeroInvoice.Total,
-              amountDue: xeroInvoice.AmountDue,
               currency: xeroInvoice.CurrencyCode,
               notes: xeroInvoice.Reference,
-              externalId: xeroInvoice.InvoiceID,
-              externalSystem: 'XERO',
-              externalMetadata: {
+              customerName: xeroInvoice.Contact.Name,
+              customerEmail: xeroInvoice.Contact.EmailAddress,
+              metadata: {
+                xeroInvoiceId: xeroInvoice.InvoiceID,
                 xeroLineAmountTypes: xeroInvoice.LineAmountTypes,
                 xeroUrl: xeroInvoice.Url,
+                xeroType: xeroInvoice.Type,
               },
             },
           });
@@ -361,14 +386,14 @@ export class XeroMapperService {
     orgId: string,
   ): Promise<void> {
     // Delete existing line items
-    await this.prisma.invoiceLineItem.deleteMany({
+    await this.prisma.invoiceItem.deleteMany({
       where: { invoiceId },
     });
 
     // Create new line items
     for (const item of lineItems) {
       // Try to find mapped product
-      let productId: string | undefined;
+      let productCode: string | undefined;
       if (item.ItemCode) {
         const product = await this.prisma.product.findFirst({
           where: {
@@ -376,19 +401,18 @@ export class XeroMapperService {
             sku: item.ItemCode,
           },
         });
-        productId = product?.id;
+        productCode = product?.sku || item.ItemCode;
       }
 
-      await this.prisma.invoiceLineItem.create({
+      await this.prisma.invoiceItem.create({
         data: {
           invoiceId,
-          productId,
+          productCode,
           description: item.Description,
           quantity: item.Quantity,
           unitPrice: item.UnitAmount,
+          amount: item.LineAmount,
           taxAmount: item.TaxAmount,
-          lineTotal: item.LineAmount,
-          discountPercent: item.DiscountRate,
         },
       });
     }
@@ -406,7 +430,10 @@ export class XeroMapperService {
       const existing = await this.prisma.payment.findFirst({
         where: {
           orgId,
-          externalId: xeroPayment.PaymentID,
+          metadata: {
+            path: ['xeroPaymentId'],
+            equals: xeroPayment.PaymentID,
+          },
         },
       });
 
@@ -427,7 +454,10 @@ export class XeroMapperService {
         invoice = await this.prisma.invoice.findFirst({
           where: {
             orgId,
-            externalId: xeroPayment.Invoice.InvoiceID,
+            metadata: {
+              path: ['xeroInvoiceId'],
+              equals: xeroPayment.Invoice.InvoiceID,
+            },
           },
         });
       }
@@ -449,20 +479,25 @@ export class XeroMapperService {
               amount: xeroPayment.Amount,
               paymentDate: new Date(xeroPayment.Date),
               reference: xeroPayment.Reference,
-              isReconciled: xeroPayment.IsReconciled,
+              metadata: {
+                xeroPaymentId: xeroPayment.PaymentID,
+                isReconciled: xeroPayment.IsReconciled,
+              },
             },
           })
         : await this.prisma.payment.create({
             data: {
               orgId,
               invoiceId: invoice?.id,
+              type: 'INCOMING', // Default to incoming, can be refined based on invoice type
               amount: xeroPayment.Amount,
               paymentDate: new Date(xeroPayment.Date),
-              paymentMethod: 'BANK_TRANSFER',
+              method: 'BANK_TRANSFER',
               reference: xeroPayment.Reference,
-              isReconciled: xeroPayment.IsReconciled,
-              externalId: xeroPayment.PaymentID,
-              externalSystem: 'XERO',
+              metadata: {
+                xeroPaymentId: xeroPayment.PaymentID,
+                isReconciled: xeroPayment.IsReconciled,
+              },
             },
           });
 
@@ -491,15 +526,15 @@ export class XeroMapperService {
   /**
    * Map Xero invoice status to Operate status
    */
-  private mapInvoiceStatus(xeroStatus: string): string {
-    const statusMap: Record<string, string> = {
-      DRAFT: 'DRAFT',
-      SUBMITTED: 'PENDING',
-      AUTHORISED: 'SENT',
-      PAID: 'PAID',
-      VOIDED: 'CANCELLED',
+  private mapInvoiceStatus(xeroStatus: string): InvoiceStatus {
+    const statusMap: Record<string, InvoiceStatus> = {
+      DRAFT: InvoiceStatus.DRAFT,
+      SUBMITTED: InvoiceStatus.SENT,
+      AUTHORISED: InvoiceStatus.SENT,
+      PAID: InvoiceStatus.PAID,
+      VOIDED: InvoiceStatus.CANCELLED,
     };
-    return statusMap[xeroStatus] || 'DRAFT';
+    return statusMap[xeroStatus] || InvoiceStatus.DRAFT;
   }
 
   /**

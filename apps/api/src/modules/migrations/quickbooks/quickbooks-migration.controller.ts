@@ -302,11 +302,11 @@ export class QuickBooksMigrationController {
       percentComplete:
         m.totalItems > 0 ? (m.processedItems / m.totalItems) * 100 : 0,
       totalItems: m.totalItems,
-      successfulItems: m.successfulItems,
+      successfulItems: ((m.metadata as any)?.successfulItems) || 0,
       failedItems: m.failedItems,
       startedAt: m.startedAt,
       completedAt: m.completedAt,
-      createdBy: m.createdBy,
+      createdBy: ((m.metadata as any)?.createdBy) || 'system',
     }));
   }
 

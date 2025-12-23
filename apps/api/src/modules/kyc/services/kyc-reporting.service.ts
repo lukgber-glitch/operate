@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { KycStatus, KycRiskLevel, KycProvider, KycStatistics } from '../types/kyc.types';
 import { KycStatisticsDto, PendingReviewItemDto } from '../dto/kyc-report.dto';
 

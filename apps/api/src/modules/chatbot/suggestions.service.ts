@@ -1,4 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { RedisService } from '../cache/redis.service';
 import { ContextAnalyzerService } from './context-analyzer.service';
@@ -13,7 +14,7 @@ import {
  * Template for creating suggestions from analysis
  */
 interface SuggestionTemplate {
-  type: string;
+  type: SuggestionType;
   priority: SuggestionPriority;
   title: string;
   description: string;
@@ -51,20 +52,6 @@ interface PrismaSuggestion {
 interface ActionResult {
   action: string;
   [key: string]: unknown;
-}
-
-/**
- * Where clause for suggestion queries
- */
-interface SuggestionWhereClause {
-  orgId: string;
-  status: { in: string[] };
-  showAfter: { lte: Date };
-  OR: Array<{ userId: string } | { userId: null }>;
-  AND: Array<{
-    OR: Array<{ expiresAt: null } | { expiresAt: { gt: Date } }>;
-  }>;
-  priority?: { in: SuggestionPriority[] };
 }
 
 @Injectable()
@@ -263,7 +250,7 @@ export class SuggestionsService {
   ): Promise<SuggestionDto[]> {
     const now = new Date();
 
-    const where: SuggestionWhereClause = {
+    const where: Prisma.SuggestionWhereInput = {
       orgId,
       status: { in: ['PENDING', 'VIEWED'] },
       showAfter: { lte: now },
@@ -338,9 +325,9 @@ export class SuggestionsService {
           actionLabel: template.actionLabel,
           entityType: template.entityType,
           entityId: template.entityId,
-          data: template.data || {},
+          data: (template.data || {}) as Prisma.InputJsonValue,
           actionType: template.actionType,
-          actionParams: template.actionParams || {},
+          actionParams: (template.actionParams || {}) as Prisma.InputJsonValue,
           status: 'PENDING',
           showAfter: now,
         },

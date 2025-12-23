@@ -4,7 +4,7 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { FraudPreventionService } from '../fraud-prevention.service';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 
 describe('FraudPreventionService', () => {
   let service: FraudPreventionService;

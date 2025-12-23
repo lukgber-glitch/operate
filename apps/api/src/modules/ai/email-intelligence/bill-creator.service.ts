@@ -203,8 +203,8 @@ export class BillCreatorService {
     const status = options.autoApprove ? BillStatus.PENDING : BillStatus.DRAFT;
 
     const billData = {
-      organisationId: orgId,
-      vendorId,
+      organisation: { connect: { id: orgId } },
+      vendor: { connect: { id: vendorId } },
       vendorName: extractedInvoice.vendorName!,
       billNumber: extractedInvoice.invoiceNumber,
       description: this.generateDescription(extractedInvoice),
@@ -212,6 +212,7 @@ export class BillCreatorService {
       currency: extractedInvoice.currency || 'EUR',
       taxAmount: new Decimal(extractedInvoice.taxAmount || 0),
       totalAmount: new Decimal(extractedInvoice.total),
+      total: new Decimal(extractedInvoice.total),
       paidAmount: new Decimal(0),
       status,
       paymentStatus: PaymentStatus.PENDING,

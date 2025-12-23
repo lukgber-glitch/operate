@@ -11,7 +11,7 @@ import {
   ActionContext,
   ParameterDefinition,
 } from '../action.types';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 
 interface TaxAdvice {
   question: string;
@@ -69,7 +69,7 @@ export class TaxConsultationHandler extends BaseActionHandler {
       const country = normalized.country || 'DE';
 
       // Get organization tax settings
-      const org = await this.prisma.organization.findUnique({
+      const org = await this.prisma.organisation.findUnique({
         where: { id: context.organizationId },
         select: {
           country: true,

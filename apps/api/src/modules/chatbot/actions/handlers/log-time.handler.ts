@@ -74,21 +74,25 @@ export class LogTimeHandler extends BaseActionHandler {
 
       const normalized = this.normalizeParams(params);
 
-      const date = normalized.date
+      const startTime = normalized.date
         ? new Date(normalized.date)
         : new Date();
+
+      const endTime = new Date(startTime);
+      endTime.setHours(endTime.getHours() + normalized.hours);
 
       const createDto = {
         description: normalized.description,
         projectId: normalized.projectId,
         billable: normalized.billable !== false,
-        date,
-        duration: normalized.hours * 3600, // Convert hours to seconds
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+        duration: normalized.hours * 60, // Convert hours to minutes
       };
 
-      const entry = await this.timeTrackingService.logTime(
-        context.userId,
+      const entry = await this.timeTrackingService.createTimeEntry(
         context.organizationId,
+        context.userId,
         createDto,
       );
 
@@ -104,7 +108,8 @@ export class LogTimeHandler extends BaseActionHandler {
           id: entry.id,
           description: entry.description,
           hours: normalized.hours,
-          date: entry.date,
+          startTime: entry.startTime,
+          endTime: entry.endTime,
           billable: entry.billable,
         },
       );

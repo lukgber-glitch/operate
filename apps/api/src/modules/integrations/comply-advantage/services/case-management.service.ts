@@ -4,7 +4,7 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { AlertStatus, ScreeningStatus, RiskLevel } from '../types/comply-advantage.types';
 import { ReviewAlertDto } from '../dto/alert.dto';
 
@@ -58,7 +58,7 @@ export class CaseManagementService {
       // Log audit entry
       await this.logAuditEntry({
         action: 'alert_reviewed',
-        organizationId: alert.screening.organizationId,
+        organisationId: alert.screening.organisationId,
         userId: dto.reviewedBy,
         metadata: {
           alertId,
@@ -129,11 +129,11 @@ export class CaseManagementService {
   /**
    * Get alert statistics for organization
    */
-  async getAlertStatistics(organizationId: string): Promise<any> {
+  async getAlertStatistics(organisationId: string): Promise<any> {
     const totalAlerts = await this.prisma.amlAlert.count({
       where: {
         screening: {
-          organizationId,
+          organisationId,
         },
       },
     });
@@ -141,7 +141,7 @@ export class CaseManagementService {
     const openAlerts = await this.prisma.amlAlert.count({
       where: {
         screening: {
-          organizationId,
+          organisationId,
         },
         status: AlertStatus.OPEN,
       },
@@ -150,7 +150,7 @@ export class CaseManagementService {
     const confirmedMatches = await this.prisma.amlAlert.count({
       where: {
         screening: {
-          organizationId,
+          organisationId,
         },
         status: AlertStatus.CONFIRMED,
       },
@@ -159,7 +159,7 @@ export class CaseManagementService {
     const dismissedAlerts = await this.prisma.amlAlert.count({
       where: {
         screening: {
-          organizationId,
+          organisationId,
         },
         status: AlertStatus.DISMISSED,
       },
@@ -169,7 +169,7 @@ export class CaseManagementService {
       by: ['alertType'],
       where: {
         screening: {
-          organizationId,
+          organisationId,
         },
       },
       _count: true,
@@ -187,10 +187,10 @@ export class CaseManagementService {
   /**
    * Get pending review cases
    */
-  async getPendingReviewCases(organizationId: string): Promise<any> {
+  async getPendingReviewCases(organisationId: string): Promise<any> {
     const screenings = await this.prisma.amlScreening.findMany({
       where: {
-        organizationId,
+        organisationId,
         status: ScreeningStatus.PENDING_REVIEW,
       },
       include: {
@@ -237,7 +237,7 @@ export class CaseManagementService {
       // Log audit entry
       await this.logAuditEntry({
         action: 'alert_escalated',
-        organizationId: alert.screening.organizationId,
+        organisationId: alert.screening.organisationId,
         userId: escalatedBy,
         metadata: {
           alertId,
@@ -328,12 +328,12 @@ export class CaseManagementService {
   /**
    * Get overdue reviews
    */
-  async getOverdueReviews(organizationId: string): Promise<any> {
+  async getOverdueReviews(organisationId: string): Promise<any> {
     const now = new Date();
 
     const overdueScreenings = await this.prisma.amlScreening.findMany({
       where: {
-        organizationId,
+        organisationId,
         nextReviewAt: {
           lt: now,
         },

@@ -9,12 +9,12 @@ import { QuickBooksMigrationService } from './quickbooks-migration.service';
 import { QuickBooksMigrationController } from './quickbooks-migration.controller';
 import { QuickBooksDataFetcherService } from './quickbooks-data-fetcher.service';
 import { QuickBooksMapperService } from './quickbooks-mapper.service';
-import { PrismaModule } from '../../database/prisma.module';
+import { DatabaseModule } from '../../database/database.module';
 import { QuickBooksModule } from '../../quickbooks/quickbooks.module';
 
 @Module({
   imports: [
-    PrismaModule,
+    DatabaseModule,
     QuickBooksModule,
     EventEmitterModule.forRoot(),
   ],

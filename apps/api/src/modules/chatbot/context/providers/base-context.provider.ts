@@ -4,7 +4,7 @@
  */
 
 import { Logger } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { EntityContext, ContextProviderInterface } from '../context.types';
 
 export abstract class BaseContextProvider implements ContextProviderInterface {

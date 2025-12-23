@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../database/prisma.service';
-import { Message, MemoryType as PrismaMemoryType } from '@prisma/client';
+import { Message } from '@prisma/client';
 import {
   ConversationContext,
   Memory,
@@ -72,7 +72,7 @@ export class ConversationMemoryService {
       const userMemories = await this.getUserMemories(conversation.userId);
 
       // Get existing summary
-      const summaryRecord = await this.prisma.conversationSummary.findUnique({
+      const summaryRecord = await this.prisma.conversationSummary.findFirst({
         where: { conversationId },
       });
 
@@ -135,20 +135,33 @@ export class ConversationMemoryService {
       const summary = await this.callClaudeForSummary(messagesToSummarize);
 
       // Store summary in database
-      const summaryRecord = await this.prisma.conversationSummary.upsert({
+      const tokenCount = this.tokenEstimator.estimateTextTokens(summary);
+
+      // Check if summary already exists
+      const existingSummary = await this.prisma.conversationSummary.findFirst({
         where: { conversationId },
-        create: {
-          conversationId,
-          summary,
-          messagesIncluded: messagesToSummarize.length,
-          tokensUsed: this.tokenEstimator.estimateTextTokens(summary),
-        },
-        update: {
-          summary,
-          messagesIncluded: messagesToSummarize.length,
-          tokensUsed: this.tokenEstimator.estimateTextTokens(summary),
-        },
       });
+
+      let summaryRecord;
+      if (existingSummary) {
+        summaryRecord = await this.prisma.conversationSummary.update({
+          where: { id: existingSummary.id },
+          data: {
+            summary,
+            tokenCount,
+            keyPoints: [], // Update keyPoints if needed
+          },
+        });
+      } else {
+        summaryRecord = await this.prisma.conversationSummary.create({
+          data: {
+            conversationId,
+            summary,
+            tokenCount,
+            keyPoints: [], // Add keyPoints if needed
+          },
+        });
+      }
 
       // Cache the summary
       await this.cache.cacheSummary(conversationId, summary);
@@ -195,8 +208,7 @@ export class ConversationMemoryService {
       // Get existing memories to check for conflicts
       const existingMemories = await this.prisma.conversationMemory.findMany({
         where: {
-          userId: conversation.userId,
-          organizationId: conversation.orgId,
+          conversationId,
         },
       });
 
@@ -208,7 +220,7 @@ export class ConversationMemoryService {
         const conflict = this.extractor.detectConflicts(
           memory,
           existingMemories.map((m) => ({
-            type: this.mapPrismaMemoryType(m.type),
+            type: this.mapStringToMemoryType(m.type),
             content: m.content,
           })),
         );
@@ -222,13 +234,10 @@ export class ConversationMemoryService {
         // Create new memory
         const created = await this.prisma.conversationMemory.create({
           data: {
-            userId: conversation.userId,
-            organizationId: conversation.orgId,
             conversationId,
-            type: this.mapMemoryTypeToPrisma(memory.type),
+            type: this.mapMemoryTypeToString(memory.type),
             content: memory.content,
-            confidence: memory.confidence,
-            source: memory.source,
+            importance: Math.floor(memory.confidence * 10), // Map confidence (0-1) to importance (0-10)
             metadata: memory.metadata,
           },
         });
@@ -261,11 +270,18 @@ export class ConversationMemoryService {
         return cached;
       }
 
-      // Get from database
+      // Get all conversations for this user
+      const conversations = await this.prisma.conversation.findMany({
+        where: { userId },
+        select: { id: true },
+      });
+
+      const conversationIds = conversations.map((c) => c.id);
+
+      // Get memories from all user's conversations
       const memories = await this.prisma.conversationMemory.findMany({
         where: {
-          userId,
-          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+          conversationId: { in: conversationIds },
         },
         orderBy: {
           createdAt: 'desc',
@@ -364,17 +380,17 @@ Do not include pleasantries or small talk.`;
   }
 
   /**
-   * Map Prisma MemoryType to app MemoryType
+   * Map string to app MemoryType
    */
-  private mapPrismaMemoryType(type: PrismaMemoryType): MemoryType {
-    return MemoryType[type as keyof typeof MemoryType];
+  private mapStringToMemoryType(type: string): MemoryType {
+    return MemoryType[type.toUpperCase() as keyof typeof MemoryType] || MemoryType.FACT;
   }
 
   /**
-   * Map app MemoryType to Prisma MemoryType
+   * Map app MemoryType to string
    */
-  private mapMemoryTypeToPrisma(type: MemoryType): PrismaMemoryType {
-    return type as unknown as PrismaMemoryType;
+  private mapMemoryTypeToString(type: MemoryType): string {
+    return MemoryType[type];
   }
 
   /**
@@ -383,15 +399,15 @@ Do not include pleasantries or small talk.`;
   private mapPrismaMemoryToMemory(prismaMemory: any): Memory {
     return {
       id: prismaMemory.id,
-      type: this.mapPrismaMemoryType(prismaMemory.type),
+      type: this.mapStringToMemoryType(prismaMemory.type),
       content: prismaMemory.content,
-      confidence: prismaMemory.confidence,
-      source: prismaMemory.source as MemorySource,
+      confidence: (prismaMemory.importance || 0) / 10, // Map importance (0-10) back to confidence (0-1)
+      source: 'extracted' as MemorySource, // Default source since it's not in schema
       conversationId: prismaMemory.conversationId,
       metadata: prismaMemory.metadata,
       createdAt: prismaMemory.createdAt,
-      updatedAt: prismaMemory.updatedAt,
-      expiresAt: prismaMemory.expiresAt,
+      updatedAt: new Date(), // Schema doesn't have updatedAt, use current time
+      expiresAt: null, // Schema doesn't have expiresAt
     };
   }
 
@@ -414,7 +430,7 @@ Do not include pleasantries or small talk.`;
       }
 
       // Get existing summary
-      const existingSummary = await this.prisma.conversationSummary.findUnique({
+      const existingSummary = await this.prisma.conversationSummary.findFirst({
         where: { conversationId },
       });
 

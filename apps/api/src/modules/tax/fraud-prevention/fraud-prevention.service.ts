@@ -7,7 +7,7 @@
 
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { FraudDetector, Transaction as FraudTransaction } from '@operate/ai';
+import { FraudDetector, Transaction as FraudTransaction, FraudAlertSeverity as AIFraudAlertSeverity } from '@operate/ai';
 import { FraudAlertSeverity, FraudAlertStatus } from '@prisma/client';
 import {
   FraudAlertDto,
@@ -30,7 +30,7 @@ export class FraudPreventionService {
       anomalyStdDeviationThreshold: 2,
       velocityIncreaseThreshold: 1.5,
       autoBlockDuplicateScore: 0.95,
-      autoBlockSeverity: 'critical' as Prisma.InputJsonValue, // FraudDetector uses string, not enum
+      autoBlockSeverity: AIFraudAlertSeverity.CRITICAL,
       requireReviewAbove: 100000, // €1,000
       requireReviewForCategories: ['VEHICLE_BUSINESS', 'TRAVEL_BUSINESS'],
       logAllChecks: true,
@@ -88,14 +88,14 @@ export class FraudPreventionService {
 
     // Store alerts
     for (const alert of result.alerts) {
-      await this.storeAlert(alert as Prisma.InputJsonValue);
+      await this.storeAlert(alert);
     }
 
     this.logger.log(
       `Fraud check complete: ${result.alerts.length} alerts generated`,
     );
 
-    return result as Prisma.InputJsonValue;
+    return result as unknown as FraudCheckResultDto;
   }
 
   /**
@@ -208,7 +208,7 @@ export class FraudPreventionService {
     await this.prisma.fraudAlert.update({
       where: { id: alertId },
       data: {
-        status: decision.decision === 'confirm' ? FraudAlertStatus.REVIEWED : FraudAlertStatus.DISMISSED,
+        status: decision.decision === 'confirm' ? FraudAlertStatus.RESOLVED : FraudAlertStatus.DISMISSED,
         resolvedBy: userId,
         resolvedAt: new Date(),
         resolution: decision.note,
@@ -318,9 +318,9 @@ export class FraudPreventionService {
     // Calculate statistics
     const totalAlerts = alerts.length;
     const reviewedAlerts = alerts.filter(
-      (a) => a.status === FraudAlertStatus.REVIEWED || a.status === FraudAlertStatus.DISMISSED || a.status === FraudAlertStatus.RESOLVED,
+      (a) => a.status === FraudAlertStatus.RESOLVED || a.status === FraudAlertStatus.DISMISSED,
     ).length;
-    const confirmedFraud = alerts.filter((a) => a.status === FraudAlertStatus.REVIEWED)
+    const confirmedFraud = alerts.filter((a) => a.status === FraudAlertStatus.RESOLVED)
       .length;
     const falsePositives = alerts.filter((a) => a.status === FraudAlertStatus.DISMISSED)
       .length;
@@ -364,8 +364,8 @@ export class FraudPreventionService {
     // Top categories
     const categoryCount = new Map<string, number>();
     for (const alert of alerts) {
-      if (alert.details && (alert.details as Prisma.InputJsonValue).categoryCode) {
-        const cat = (alert.details as Prisma.InputJsonValue).categoryCode;
+      if (alert.details && typeof alert.details === 'object' && 'categoryCode' in alert.details) {
+        const cat = (alert.details as any).categoryCode as string;
         categoryCount.set(cat, (categoryCount.get(cat) || 0) + 1);
       }
     }
@@ -382,8 +382,8 @@ export class FraudPreventionService {
         end: endDate,
       },
       totalAlerts,
-      alertsBySeverity: alertsBySeverity as Prisma.InputJsonValue,
-      alertsByType: alertsByType as Prisma.InputJsonValue,
+      alertsBySeverity,
+      alertsByType,
       reviewedAlerts,
       confirmedFraud,
       falsePositives,
@@ -486,7 +486,7 @@ export class FraudPreventionService {
    * Convert Prisma alert to DTO
    */
   private toAlertDto(alert: any): FraudAlertDto {
-    const details = alert.details as Prisma.InputJsonValue || {};
+    const details = (alert.details || {}) as any;
     return {
       id: alert.id,
       type: alert.type,

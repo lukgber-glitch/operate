@@ -3,7 +3,7 @@ import {
   Logger,
   BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { StripeService } from '../../../integrations/stripe/stripe.service';
 import { UsageFeature } from '@prisma/client';
 import Stripe from 'stripe';

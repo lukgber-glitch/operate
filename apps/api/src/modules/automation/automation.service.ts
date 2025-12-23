@@ -39,35 +39,52 @@ export class AutomationService {
       throw new NotFoundException(`Organisation ${orgId} not found`);
     }
 
-    // Get all settings from database
-    const settingsRows = await this.prisma.automationSettings.findMany({
-      where: { orgId },
+    // Get or create settings from database
+    let settings = await this.prisma.automationSettings.findUnique({
+      where: { organisationId: orgId },
     });
 
-    const features = ['classification', 'expense', 'deduction', 'invoice'];
-    const result: any = {};
-
-    for (const feature of features) {
-      const row = settingsRows.find((s) => s.feature === feature);
-
-      if (row) {
-        result[feature] = {
-          enabled: row.enabled,
-          mode: row.mode,
-          confidenceThreshold: row.confidenceThreshold?.toNumber() || 0.9,
-          amountThreshold: row.amountThreshold?.toNumber() || null,
-        };
-      } else {
-        // Return defaults for missing features
-        const defaults: any = {
-          classification: { enabled: true, mode: AutomationMode.SEMI_AUTO, confidenceThreshold: 0.9, amountThreshold: null },
-          expense: { enabled: true, mode: AutomationMode.SEMI_AUTO, confidenceThreshold: 0.85, amountThreshold: 50000 },
-          deduction: { enabled: true, mode: AutomationMode.SEMI_AUTO, confidenceThreshold: 0.95, amountThreshold: 100000 },
-          invoice: { enabled: true, mode: AutomationMode.MANUAL, confidenceThreshold: 0.95, amountThreshold: 100000 },
-        };
-        result[feature] = defaults[feature];
-      }
+    if (!settings) {
+      // Create default settings
+      settings = await this.prisma.automationSettings.create({
+        data: {
+          orgId: orgId,
+          organisation: { connect: { id: orgId } },
+          invoiceCreation: AutomationMode.SEMI_AUTO,
+          expenseApproval: AutomationMode.SEMI_AUTO,
+          bankReconciliation: AutomationMode.SEMI_AUTO,
+          taxClassification: AutomationMode.SEMI_AUTO,
+          paymentReminders: AutomationMode.SEMI_AUTO,
+          invoiceConfidenceThreshold: 85,
+          expenseConfidenceThreshold: 80,
+          taxConfidenceThreshold: 90,
+        },
+      });
     }
+
+    // Map to feature-based response format
+    const result: any = {
+      invoice: {
+        mode: settings.invoiceCreation,
+        confidenceThreshold: settings.invoiceConfidenceThreshold / 100,
+        amountThreshold: settings.maxAutoApproveAmount?.toNumber() || null,
+      },
+      expense: {
+        mode: settings.expenseApproval,
+        confidenceThreshold: settings.expenseConfidenceThreshold / 100,
+        amountThreshold: settings.maxAutoApproveAmount?.toNumber() || null,
+      },
+      classification: {
+        mode: settings.taxClassification,
+        confidenceThreshold: settings.taxConfidenceThreshold / 100,
+        amountThreshold: null,
+      },
+      deduction: {
+        mode: settings.taxClassification,
+        confidenceThreshold: settings.taxConfidenceThreshold / 100,
+        amountThreshold: null,
+      },
+    };
 
     return result;
   }
@@ -129,41 +146,75 @@ export class AutomationService {
       ...dto,
     };
 
-    // Upsert settings in database using compound unique key
+    // Map feature to database fields
+    const updateData: any = {};
+
+    if (feature === 'invoice') {
+      if (dto.mode !== undefined) updateData.invoiceCreation = dto.mode;
+      if (dto.confidenceThreshold !== undefined) {
+        updateData.invoiceConfidenceThreshold = Math.round(dto.confidenceThreshold * 100);
+      }
+    } else if (feature === 'expense') {
+      if (dto.mode !== undefined) updateData.expenseApproval = dto.mode;
+      if (dto.confidenceThreshold !== undefined) {
+        updateData.expenseConfidenceThreshold = Math.round(dto.confidenceThreshold * 100);
+      }
+    } else if (feature === 'classification' || feature === 'deduction') {
+      if (dto.mode !== undefined) updateData.taxClassification = dto.mode;
+      if (dto.confidenceThreshold !== undefined) {
+        updateData.taxConfidenceThreshold = Math.round(dto.confidenceThreshold * 100);
+      }
+    }
+
+    if (dto.amountThreshold !== undefined) {
+      updateData.maxAutoApproveAmount = dto.amountThreshold;
+    }
+
+    // Upsert settings in database
     const result = await this.prisma.automationSettings.upsert({
       where: {
-        orgId_feature: {
-          orgId: orgId,
-          feature: feature,
-        },
+        organisationId: orgId,
       },
       create: {
         orgId: orgId,
-        feature: feature,
-        mode: updatedFeatureSettings.mode || AutomationMode.SEMI_AUTO,
-        confidenceThreshold: updatedFeatureSettings.confidenceThreshold || null,
-        amountThreshold: updatedFeatureSettings.amountThreshold || null,
-        enabled: updatedFeatureSettings.enabled !== undefined ? updatedFeatureSettings.enabled : true,
+        organisation: { connect: { id: orgId } },
+        invoiceCreation: AutomationMode.SEMI_AUTO,
+        expenseApproval: AutomationMode.SEMI_AUTO,
+        bankReconciliation: AutomationMode.SEMI_AUTO,
+        taxClassification: AutomationMode.SEMI_AUTO,
+        paymentReminders: AutomationMode.SEMI_AUTO,
+        invoiceConfidenceThreshold: 85,
+        expenseConfidenceThreshold: 80,
+        taxConfidenceThreshold: 90,
+        ...updateData,
       },
-      update: {
-        mode: updatedFeatureSettings.mode,
-        confidenceThreshold: updatedFeatureSettings.confidenceThreshold,
-        amountThreshold: updatedFeatureSettings.amountThreshold,
-        enabled: updatedFeatureSettings.enabled,
-        updatedAt: new Date(),
-      },
+      update: updateData,
     });
 
     this.logger.log(
       `Updated automation settings for org: ${orgId}, feature: ${feature}`,
     );
 
-    return {
-      enabled: result.enabled,
-      mode: result.mode,
-      confidenceThreshold: result.confidenceThreshold?.toNumber() || null,
-      amountThreshold: result.amountThreshold?.toNumber() || null,
-    };
+    // Return in the expected format
+    if (feature === 'invoice') {
+      return {
+        mode: result.invoiceCreation,
+        confidenceThreshold: result.invoiceConfidenceThreshold / 100,
+        amountThreshold: result.maxAutoApproveAmount?.toNumber() || null,
+      };
+    } else if (feature === 'expense') {
+      return {
+        mode: result.expenseApproval,
+        confidenceThreshold: result.expenseConfidenceThreshold / 100,
+        amountThreshold: result.maxAutoApproveAmount?.toNumber() || null,
+      };
+    } else {
+      return {
+        mode: result.taxClassification,
+        confidenceThreshold: result.taxConfidenceThreshold / 100,
+        amountThreshold: null,
+      };
+    }
   }
 
   /**
@@ -177,8 +228,8 @@ export class AutomationService {
   ): Promise<boolean> {
     const settings = await this.getSettingsByFeature(orgId, feature);
 
-    // If disabled or manual mode, never auto-approve
-    if (!settings.enabled || settings.mode === AutomationMode.MANUAL) {
+    // If manual mode, never auto-approve
+    if (settings.mode === AutomationMode.MANUAL) {
       return false;
     }
 
@@ -220,12 +271,14 @@ export class AutomationService {
 
     return this.prisma.automationAuditLog.create({
       data: {
-        orgId: data.organisationId,
+        organisation: { connect: { id: data.organisationId } },
         feature: data.feature,
         action: data.action,
+        mode: AutomationMode.SEMI_AUTO, // Default mode, could be passed in dto
         entityType: 'transaction',
         entityId: data.resourceId,
-        confidence: data.confidence,
+        confidenceScore: data.confidence,
+        wasAutoApproved: false, // Could be passed in dto
       },
     });
   }
@@ -245,7 +298,7 @@ export class AutomationService {
     }
 
     const where: any = {
-      orgId: orgId,
+      organisationId: orgId,
     };
 
     // Apply filters
@@ -258,12 +311,12 @@ export class AutomationService {
     }
 
     if (filters.startDate || filters.endDate) {
-      where.executedAt = {};
+      where.createdAt = {};
       if (filters.startDate) {
-        where.executedAt.gte = new Date(filters.startDate);
+        where.createdAt.gte = new Date(filters.startDate);
       }
       if (filters.endDate) {
-        where.executedAt.lte = new Date(filters.endDate);
+        where.createdAt.lte = new Date(filters.endDate);
       }
     }
 
@@ -278,7 +331,7 @@ export class AutomationService {
         skip,
         take: limit,
         orderBy: {
-          executedAt: 'desc',
+          createdAt: 'desc',
         },
       }),
       this.prisma.automationAuditLog.count({ where }),
@@ -341,9 +394,7 @@ export class AutomationService {
   ): string[] {
     const reasons: string[] = [];
 
-    if (!settings.enabled) {
-      reasons.push('Automation is disabled for this feature');
-    } else if (settings.mode === AutomationMode.MANUAL) {
+    if (settings.mode === AutomationMode.MANUAL) {
       reasons.push('Feature is in manual mode');
     } else {
       if (confidence >= settings.confidenceThreshold) {

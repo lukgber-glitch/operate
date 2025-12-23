@@ -5,7 +5,7 @@ import {
   BadRequestException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { TrueLayerService } from '../truelayer.service';
 import { ConfigService } from '@nestjs/config';
 import { TrueLayerEncryptionUtil } from '../utils/truelayer-encryption.util';
@@ -205,7 +205,7 @@ export class TrueLayerBankingService {
             accountNumber: account.account_number?.number || null,
             swiftBic: account.account_number?.swift_bic || null,
             isActive: true,
-            metadata: account as Prisma.InputJsonValue,
+            metadata: account as unknown as Prisma.InputJsonValue,
           },
           update: {
             displayName: account.display_name,
@@ -469,7 +469,7 @@ export class TrueLayerBankingService {
         status: 'POSTED',
         pending: false,
         isIncome,
-        rawData: txn as Prisma.InputJsonValue,
+        rawData: txn as unknown as Prisma.InputJsonValue,
         syncedAt: new Date(),
         updatedFromTrueLayer: new Date(),
       },

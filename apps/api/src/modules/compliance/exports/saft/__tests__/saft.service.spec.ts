@@ -5,7 +5,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SaftService } from '../saft.service';
 import { SaftBuilderService } from '../saft-builder.service';
-import { PrismaService } from '../../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { CreateSaftExportDto } from '../dto';
 import { SaftVariant, ExportScope, ExportStatus } from '../interfaces';
 import { BadRequestException, NotFoundException } from '@nestjs/common';

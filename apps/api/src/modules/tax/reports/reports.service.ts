@@ -51,7 +51,7 @@ export class ReportsService {
           category: true,
         },
       }),
-      this.prisma.taxDeduction.findMany({
+      this.prisma.taxDeductionEntry.findMany({
         where: {
           orgId,
           taxYear: yearNum,

@@ -228,6 +228,7 @@ export class InvoicesService {
       subtotal: new Decimal(subtotal),
       taxAmount: new Decimal(taxAmount),
       totalAmount: new Decimal(totalAmount),
+      total: new Decimal(totalAmount),
       currency: invoiceCurrency,
       exchangeRate: exchangeRate ? new Decimal(exchangeRate) : undefined,
       baseCurrencyAmount: baseCurrencyAmount
@@ -546,6 +547,7 @@ export class InvoicesService {
       subtotal: invoiceWithItems.subtotal,
       taxAmount: invoiceWithItems.taxAmount,
       totalAmount: invoiceWithItems.totalAmount,
+      total: invoiceWithItems.totalAmount,
       currency: invoiceWithItems.currency,
       vatRate: invoiceWithItems.vatRate ?? undefined,
       reverseCharge: invoiceWithItems.reverseCharge,

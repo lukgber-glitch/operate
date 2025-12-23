@@ -214,7 +214,7 @@ export interface ComplyAdvantageApiError {
 export interface AuditLogEntry {
   action: 'search_created' | 'monitoring_started' | 'alert_reviewed' | 'webhook_received';
   userId?: string;
-  organizationId: string;
+  organisationId: string;
   metadata?: Record<string, unknown>;
   timestamp: Date;
 }

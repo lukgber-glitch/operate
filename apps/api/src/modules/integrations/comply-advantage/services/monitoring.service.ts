@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import axios, { AxiosInstance } from 'axios';
 import * as https from 'https';
 import {
@@ -189,12 +189,12 @@ export class MonitoringService {
   /**
    * List all active monitoring
    */
-  async listActiveMonitoring(organizationId: string): Promise<any> {
+  async listActiveMonitoring(organisationId: string): Promise<any> {
     const monitoringRecords = await this.prisma.amlMonitoring.findMany({
       where: {
         isActive: true,
         screening: {
-          organizationId,
+          organisationId,
         },
       },
       include: {

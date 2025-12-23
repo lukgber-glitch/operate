@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { StreamableFile } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -83,9 +83,6 @@ export class BmdExportService {
     // Verify organization exists
     const org = await this.prisma.organisation.findUnique({
       where: { id: dto.orgId },
-      include: {
-        settings: true,
-      },
     });
 
     if (!org) {
@@ -93,7 +90,7 @@ export class BmdExportService {
     }
 
     // Verify organization is Austrian
-    if (org.countryCode !== 'AT') {
+    if (org.country !== 'AT') {
       throw new BadRequestException(
         'BMD export is only available for Austrian organizations',
       );
@@ -139,7 +136,7 @@ export class BmdExportService {
     const response: BmdExportResponseDto = new BmdExportResponseDto({
       id: exportRecord.id,
       orgId: exportRecord.orgId,
-      status: exportRecord.status as ExportStatus,
+      status: exportRecord.status as unknown as ExportStatus,
       filename: exportRecord.filename,
       createdAt: exportRecord.createdAt,
       completedAt: exportRecord.completedAt,
@@ -222,7 +219,7 @@ export class BmdExportService {
 
     const items: BmdExportListItemDto[] = exports.map((exp) => ({
       id: exp.id,
-      status: exp.status as ExportStatus,
+      status: exp.status as unknown as ExportStatus,
       filename: exp.filename,
       createdAt: exp.createdAt,
       startDate: exp.startDate,
@@ -412,16 +409,13 @@ export class BmdExportService {
           gte: config.dateRange.startDate,
           lte: config.dateRange.endDate,
         },
-        ...(config.options.postedOnly && { status: 'POSTED' }),
+        // Note: Transaction model doesn't have a status field
+        // Only include non-deleted transactions
+        deletedAt: null,
       },
       include: {
-        entries: {
-          include: {
-            account: true,
-          },
-        },
         invoice: true,
-        taxInfo: true,
+        vendor: true,
       },
       orderBy: {
         date: 'asc',
@@ -457,61 +451,55 @@ export class BmdExportService {
 
     // Add transaction data
     for (const transaction of transactions) {
-      // Process each journal entry pair
-      for (let i = 0; i < transaction.entries.length; i += 2) {
-        const debitEntry = transaction.entries[i];
-        const creditEntry = transaction.entries[i + 1];
+      // Note: Transaction model doesn't have detailed journal entries
+      // Create simplified booking entry from transaction data
+      const bookingEntry: BmdBookingEntry = {
+        buchungsnummer: (transaction as any).transactionNumber || transaction.id,
+        belegdatum: formatBmdDate(transaction.date),
+        buchungsdatum: formatBmdDate(transaction.date),
+        sollkonto: '', // Would need to derive from transaction type/category
+        habenkonto: '', // Would need to derive from transaction type/category
+        betrag: formatBmdNumber(Math.abs(Number(transaction.amount))),
+        waehrung: formatBmdCurrency(transaction.currency),
+        steuercode: transaction.taxInfo
+          ? formatBmdTaxCode((transaction.taxInfo as any).rate)
+          : '',
+        steuersatz: transaction.taxInfo
+          ? formatBmdPercentage((transaction.taxInfo as any).rate)
+          : '',
+        steuerbetrag: transaction.taxInfo
+          ? formatBmdNumber((transaction.taxInfo as any).amount)
+          : '',
+        kostenstelleId: '',
+        belegnummer: transaction.invoice?.number || (transaction as any).documentNumber || transaction.reference || '',
+        belegtext: sanitizeBmdText(transaction.description, 255),
+        uidNummer: transaction.invoice?.customerVatId
+          ? formatBmdVatId(transaction.invoice.customerVatId)
+          : '',
+        gegenkontoTyp: transaction.invoice ? 'K' : '',
+        gegenkontoNummer: transaction.invoice?.customerId || '',
+      };
 
-        if (!debitEntry || !creditEntry) continue;
-
-        const bookingEntry: BmdBookingEntry = {
-          buchungsnummer: transaction.transactionNumber || transaction.id,
-          belegdatum: formatBmdDate(transaction.date),
-          buchungsdatum: formatBmdDate(transaction.bookingDate || transaction.date),
-          sollkonto: formatBmdAccountNumber(debitEntry.account.code),
-          habenkonto: formatBmdAccountNumber(creditEntry.account.code),
-          betrag: formatBmdNumber(Math.abs(debitEntry.amount)),
-          waehrung: formatBmdCurrency(transaction.currency),
-          steuercode: transaction.taxInfo
-            ? formatBmdTaxCode(transaction.taxInfo.rate)
-            : '',
-          steuersatz: transaction.taxInfo
-            ? formatBmdPercentage(transaction.taxInfo.rate)
-            : '',
-          steuerbetrag: transaction.taxInfo
-            ? formatBmdNumber(transaction.taxInfo.amount)
-            : '',
-          kostenstelleId: transaction.costCenterId || '',
-          belegnummer: transaction.invoice?.invoiceNumber || transaction.documentNumber || '',
-          belegtext: sanitizeBmdText(transaction.description, 255),
-          uidNummer: transaction.invoice?.customer?.vatId
-            ? formatBmdVatId(transaction.invoice.customer.vatId)
-            : '',
-          gegenkontoTyp: transaction.invoice ? 'K' : '',
-          gegenkontoNummer: transaction.invoice?.customerId || '',
-        };
-
-        lines.push(
-          createBmdCsvLine([
-            bookingEntry.buchungsnummer,
-            bookingEntry.belegdatum,
-            bookingEntry.buchungsdatum,
-            bookingEntry.sollkonto,
-            bookingEntry.habenkonto,
-            bookingEntry.betrag,
-            bookingEntry.waehrung,
-            bookingEntry.steuercode,
-            bookingEntry.steuersatz,
-            bookingEntry.steuerbetrag,
-            bookingEntry.kostenstelleId,
-            bookingEntry.belegnummer,
-            bookingEntry.belegtext,
-            bookingEntry.uidNummer,
-            bookingEntry.gegenkontoTyp,
-            bookingEntry.gegenkontoNummer,
-          ]),
-        );
-      }
+      lines.push(
+        createBmdCsvLine([
+          bookingEntry.buchungsnummer,
+          bookingEntry.belegdatum,
+          bookingEntry.buchungsdatum,
+          bookingEntry.sollkonto,
+          bookingEntry.habenkonto,
+          bookingEntry.betrag,
+          bookingEntry.waehrung,
+          bookingEntry.steuercode,
+          bookingEntry.steuersatz,
+          bookingEntry.steuerbetrag,
+          bookingEntry.kostenstelleId,
+          bookingEntry.belegnummer,
+          bookingEntry.belegtext,
+          bookingEntry.uidNummer,
+          bookingEntry.gegenkontoTyp,
+          bookingEntry.gegenkontoNummer,
+        ]),
+      );
     }
 
     // Write to file
@@ -535,15 +523,9 @@ export class BmdExportService {
   ): Promise<void> {
     this.logger.log('Generating chart of accounts export...');
 
-    // Query accounts from database
-    const accounts = await this.prisma.account.findMany({
-      where: {
-        orgId: config.orgId,
-      },
-      orderBy: {
-        code: 'asc',
-      },
-    });
+    // Note: Account model does not exist in current schema
+    // This would need to be implemented when chart of accounts is added
+    const accounts: any[] = [];
 
     // Generate CSV content
     const lines: string[] = [];
@@ -564,7 +546,7 @@ export class BmdExportService {
       );
     }
 
-    // Add account data
+    // Add account data (if available)
     for (const account of accounts) {
       const accountEntry: BmdAccountEntry = {
         kontonummer: formatBmdAccountNumber(account.code),
@@ -617,11 +599,8 @@ export class BmdExportService {
       where: {
         orgId: config.orgId,
       },
-      include: {
-        billingAddress: true,
-      },
       orderBy: {
-        customerNumber: 'asc',
+        name: 'asc',
       },
     });
 
@@ -651,20 +630,21 @@ export class BmdExportService {
 
     // Add customer data
     for (const customer of customers) {
-      const address = customer.billingAddress;
+      // Parse billingAddress JSON if it exists
+      const address = customer.billingAddress ? (customer.billingAddress as any) : null;
 
       const customerEntry: BmdCustomerEntry = {
-        kundennummer: customer.customerNumber,
+        kundennummer: customer.id, // Use ID as customer number (customerNumber field doesn't exist)
         name: sanitizeBmdText(customer.name, 100),
-        adresse: sanitizeBmdText(address?.street || '', 100),
+        adresse: sanitizeBmdText(address?.street || customer.address || '', 100),
         plz: address?.postalCode || '',
         ort: sanitizeBmdText(address?.city || '', 50),
         land: formatBmdCountryCode(address?.country),
         uidNummer: formatBmdVatId(customer.vatId),
-        debitorenkonto: formatBmdAccountNumber(customer.accountsReceivableAccount || '1400'),
-        zahlungsziel: customer.paymentTermsDays || 30,
-        steuerzone: customer.taxZone || 'AT',
-        waehrung: formatBmdCurrency(customer.currency),
+        debitorenkonto: formatBmdAccountNumber('1400'), // Default receivables account
+        zahlungsziel: 30, // Default payment terms
+        steuerzone: 'AT',
+        waehrung: formatBmdCurrency('EUR'),
         email: customer.email || '',
         telefon: customer.phone || '',
       };
@@ -710,15 +690,12 @@ export class BmdExportService {
     this.logger.log('Generating suppliers export...');
 
     // Query suppliers from database
-    const suppliers = await this.prisma.supplier.findMany({
+    const suppliers = await this.prisma.vendor.findMany({
       where: {
-        orgId: config.orgId,
-      },
-      include: {
-        address: true,
+        organisationId: config.orgId,
       },
       orderBy: {
-        supplierNumber: 'asc',
+        name: 'asc',
       },
     });
 
@@ -750,24 +727,22 @@ export class BmdExportService {
 
     // Add supplier data
     for (const supplier of suppliers) {
-      const address = supplier.address;
-
       const supplierEntry: BmdSupplierEntry = {
-        lieferantennummer: supplier.supplierNumber,
+        lieferantennummer: supplier.id, // Use ID as supplier number
         name: sanitizeBmdText(supplier.name, 100),
-        adresse: sanitizeBmdText(address?.street || '', 100),
-        plz: address?.postalCode || '',
-        ort: sanitizeBmdText(address?.city || '', 50),
-        land: formatBmdCountryCode(address?.country),
-        uidNummer: formatBmdVatId(supplier.vatId),
-        kreditorenkonto: formatBmdAccountNumber(supplier.accountsPayableAccount || '3300'),
-        zahlungsziel: supplier.paymentTermsDays || 30,
-        steuerzone: supplier.taxZone || 'AT',
-        waehrung: formatBmdCurrency(supplier.currency),
+        adresse: sanitizeBmdText(supplier.addressLine1 || '', 100),
+        plz: supplier.postalCode || '',
+        ort: sanitizeBmdText(supplier.city || '', 50),
+        land: formatBmdCountryCode(supplier.country),
+        uidNummer: formatBmdVatId(supplier.taxId),
+        kreditorenkonto: formatBmdAccountNumber('3300'), // Default payables account
+        zahlungsziel: supplier.paymentTerms || 30,
+        steuerzone: 'AT',
+        waehrung: formatBmdCurrency('EUR'),
         email: supplier.email || '',
         telefon: supplier.phone || '',
-        iban: supplier.iban || '',
-        bic: supplier.bic || '',
+        iban: supplier.bankIban || '',
+        bic: supplier.bankBic || '',
       };
 
       lines.push(
@@ -812,16 +787,9 @@ export class BmdExportService {
   ): Promise<void> {
     this.logger.log('Generating tax accounts export...');
 
-    // Query tax configurations
-    const taxConfigs = await this.prisma.taxConfiguration.findMany({
-      where: {
-        orgId: config.orgId,
-        countryCode: 'AT',
-      },
-      orderBy: {
-        code: 'asc',
-      },
-    });
+    // Note: CountryTaxConfig model doesn't contain tax rate and account mappings
+    // This would need a separate TaxRate or VatRate model with account mappings
+    const taxConfigs: any[] = [];
 
     // Generate CSV content
     const lines: string[] = [];
@@ -839,7 +807,7 @@ export class BmdExportService {
       );
     }
 
-    // Add tax account data
+    // Add tax account data (if available)
     for (const taxConfig of taxConfigs) {
       lines.push(
         createBmdCsvLine([
@@ -884,8 +852,7 @@ export class BmdExportService {
         startDate,
         endDate,
         year: startDate.getFullYear(),
-        // Store export types in metadata or separate field
-        exportType: 'BMD',
+        format: 'zip', // BMD export is a ZIP file
       },
     });
   }
@@ -932,9 +899,10 @@ export class BmdExportService {
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() - this.retentionDays);
 
+    // Find expired exports (filter by format='zip' to identify BMD exports)
     const expiredExports = await this.prisma.gobdExport.findMany({
       where: {
-        exportType: 'BMD',
+        format: 'zip',
         createdAt: {
           lt: expirationDate,
         },

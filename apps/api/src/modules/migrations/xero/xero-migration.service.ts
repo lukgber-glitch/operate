@@ -4,6 +4,7 @@
  */
 
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { XeroDataFetcherService } from './xero-data-fetcher.service';
 import { XeroMapperService } from './xero-mapper.service';
@@ -444,14 +445,14 @@ export class XeroMigrationService {
           orgId: progress.config.orgId,
           xeroTenantId: progress.config.xeroTenantId,
           status: progress.status,
-          config: progress.config as Prisma.InputJsonValue,
-          progress: progress as Prisma.InputJsonValue,
+          config: progress.config as unknown as Prisma.InputJsonValue,
+          progress: progress as unknown as Prisma.InputJsonValue,
           startedAt: progress.startedAt,
           completedAt: progress.completedAt,
         },
         update: {
           status: progress.status,
-          progress: progress as Prisma.InputJsonValue,
+          progress: progress as unknown as Prisma.InputJsonValue,
           completedAt: progress.completedAt,
         },
       });
@@ -476,7 +477,7 @@ export class XeroMigrationService {
 
       if (!migration) return null;
 
-      return migration.progress as Prisma.InputJsonValue;
+      return migration.progress as unknown as MigrationProgress;
     } catch (error) {
       this.logger.error(
         `Failed to load migration state: ${error.message}`,
@@ -525,7 +526,7 @@ export class XeroMigrationService {
       xeroTenantId: m.xeroTenantId,
       startedAt: m.startedAt,
       completedAt: m.completedAt,
-      overallProgress: (m.progress as Prisma.InputJsonValue)?.overallProgress || 0,
+      overallProgress: (m.progress as any)?.overallProgress || 0,
     }));
   }
 }

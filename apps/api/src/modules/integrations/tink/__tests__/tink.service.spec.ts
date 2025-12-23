@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { TinkService } from '../tink.service';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { TinkMockDataUtil } from '../utils/tink-mock-data.util';
 
 describe('TinkService', () => {

@@ -18,7 +18,7 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 import { VatReturnService } from './vat-return.service';
 import { VatReturnPreviewService } from './vat-return-preview.service';
 import { CreateVatReturnDto } from './dto/create-vat-return.dto';

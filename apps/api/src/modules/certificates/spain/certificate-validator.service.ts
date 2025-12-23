@@ -301,12 +301,13 @@ export class CertificateValidatorService {
   private extractKeyUsage(cert: forge.pki.Certificate): string[] {
     try {
       const keyUsageExt = cert.getExtension('keyUsage');
-      if (!keyUsageExt || !keyUsageExt.value) {
+      if (!keyUsageExt) {
         return [];
       }
 
       const usage: string[] = [];
-      const keyUsage = keyUsageExt as Prisma.InputJsonValue;
+      // Cast to any to access node-forge extension properties
+      const keyUsage = keyUsageExt as any;
 
       if (keyUsage.digitalSignature) usage.push('digitalSignature');
       if (keyUsage.nonRepudiation) usage.push('nonRepudiation');
@@ -333,8 +334,9 @@ export class CertificateValidatorService {
         return [];
       }
 
-      const extKeyUsage = extKeyUsageExt as Prisma.InputJsonValue;
-      return extKeyUsage.value || [];
+      // Cast to any to access node-forge extension properties
+      const extKeyUsage = extKeyUsageExt as any;
+      return (extKeyUsage.value as string[]) || [];
     } catch (error) {
       this.logger.warn(
         `Failed to extract extended key usage: ${error.message}`,

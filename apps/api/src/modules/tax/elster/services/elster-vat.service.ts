@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { HttpService } from '@nestjs/axios';
 import { ElsterCertificateService } from './elster-certificate.service';
 import { firstValueFrom } from 'rxjs';
+import { Prisma } from '@prisma/client';
 import {
   UStVAData,
   SubmitOptions,
@@ -159,9 +160,9 @@ export class ElsterVatService {
           submissionId: result.transferTicket,
           transferTicket: result.transferTicket,
           submittedAt: result.success ? new Date() : null,
-          data: data as Prisma.InputJsonValue,
-          response: result.rawResponse,
-          errors: result.errors ? { errors: result.errors } : null,
+          data: data as unknown as Prisma.InputJsonValue,
+          response: result.rawResponse as unknown as Prisma.InputJsonValue,
+          errors: result.errors ? ({ errors: result.errors } as unknown as Prisma.InputJsonValue) : null,
           certificateId: certificate.id,
           createdBy: 'system', // TODO: Get from request context
         },
@@ -220,7 +221,7 @@ export class ElsterVatService {
       submittedAt: filing.submittedAt,
       responseAt: filing.responseAt,
       transferTicket: filing.transferTicket,
-      errors: filing.errors ? (filing.errors as Prisma.InputJsonValue).errors : undefined,
+      errors: filing.errors ? (filing.errors as any)?.errors : undefined,
       response: filing.response as Prisma.InputJsonValue,
     };
   }
@@ -501,14 +502,14 @@ export class ElsterVatService {
       submissionId: f.submissionId,
       submittedAt: f.submittedAt,
       responseAt: f.responseAt,
-      data: f.data as Prisma.InputJsonValue,
-      response: f.response as Prisma.InputJsonValue,
-      errors: f.errors as Prisma.InputJsonValue,
+      data: f.data,
+      response: f.response,
+      errors: f.errors,
       certificateId: f.certificateId,
       createdAt: f.createdAt,
       updatedAt: f.updatedAt,
       createdBy: f.createdBy,
-    }));
+    } as unknown as ElsterFiling));
   }
 
   /**
@@ -543,7 +544,7 @@ export class ElsterVatService {
         period: data.period.month || data.period.quarter || 12,
         periodType: this.determinePeriodType(data.period),
         status: ElsterFilingStatus.DRAFT,
-        data: data as Prisma.InputJsonValue,
+        data: data as unknown as Prisma.InputJsonValue,
         createdBy: 'system', // TODO: Get from request context
       },
     });
@@ -556,11 +557,11 @@ export class ElsterVatService {
       period: filing.period,
       periodType: filing.periodType as VATFilingPeriod,
       status: filing.status as ElsterFilingStatus,
-      data: filing.data as Prisma.InputJsonValue,
+      data: filing.data,
       createdAt: filing.createdAt,
       updatedAt: filing.updatedAt,
       createdBy: filing.createdBy,
-    };
+    } as unknown as ElsterFiling;
   }
 
   /**

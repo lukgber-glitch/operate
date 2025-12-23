@@ -5,6 +5,7 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { InvoiceStatus } from '@prisma/client';
 import {
   QBCustomer,
   QBVendor,
@@ -111,6 +112,7 @@ export class QuickBooksMapperService {
         // Create entity mapping
         await this.prisma.quickBooksEntityMapping.create({
           data: {
+            orgId,
             connectionId,
             entityType: 'CUSTOMER',
             quickbooksId: qbCustomer.Id,
@@ -164,21 +166,25 @@ export class QuickBooksMapperService {
         return { success: true, skipped: true, action: 'skipped' };
       }
 
+      const address = this.mapAddress(qbVendor.BillAddr);
       const vendorData = {
-        orgId,
+        organisationId: orgId,
         name: qbVendor.DisplayName,
-        companyName: qbVendor.CompanyName || null,
+        displayName: qbVendor.DisplayName,
         email: qbVendor.PrimaryEmailAddr?.Address || null,
         phone: qbVendor.PrimaryPhone?.FreeFormNumber || null,
-        address: this.mapAddress(qbVendor.BillAddr),
+        addressLine1: address ? address.split(',')[0] : null,
+        city: qbVendor.BillAddr?.City || null,
+        state: qbVendor.BillAddr?.CountrySubDivisionCode || null,
+        postalCode: qbVendor.BillAddr?.PostalCode || null,
+        country: qbVendor.BillAddr?.Country || null,
         taxId: qbVendor.TaxIdentifier || null,
-        accountNumber: qbVendor.AcctNum || null,
-        is1099Vendor: qbVendor.Vendor1099 || false,
-        notes: `Imported from QuickBooks. QB ID: ${qbVendor.Id}`,
         metadata: {
           quickbooksId: qbVendor.Id,
           quickbooksSyncToken: qbVendor.SyncToken,
           quickbooksBalance: qbVendor.Balance,
+          accountNumber: qbVendor.AcctNum,
+          is1099Vendor: qbVendor.Vendor1099,
           importedAt: new Date().toISOString(),
         },
       };
@@ -200,6 +206,7 @@ export class QuickBooksMapperService {
 
         await this.prisma.quickBooksEntityMapping.create({
           data: {
+            orgId,
             connectionId,
             entityType: 'VENDOR',
             quickbooksId: qbVendor.Id,
@@ -276,6 +283,7 @@ export class QuickBooksMapperService {
 
         await this.prisma.quickBooksEntityMapping.create({
           data: {
+            orgId,
             connectionId,
             entityType: 'ITEM',
             quickbooksId: qbItem.Id,
@@ -335,18 +343,22 @@ export class QuickBooksMapperService {
       const invoiceData = {
         orgId,
         customerId: customerMapping.operateEntityId,
+        customerName: qbInvoice.CustomerRef.name || 'Unknown',
+        number: qbInvoice.DocNumber || `QB-${qbInvoice.Id}`,
         invoiceNumber: qbInvoice.DocNumber,
-        invoiceDate: new Date(qbInvoice.TxnDate),
-        dueDate: qbInvoice.DueDate ? new Date(qbInvoice.DueDate) : null,
+        issueDate: new Date(qbInvoice.TxnDate),
+        dueDate: qbInvoice.DueDate ? new Date(qbInvoice.DueDate) : new Date(),
         subtotal: this.calculateSubtotal(qbInvoice),
         taxAmount: qbInvoice.TxnTaxDetail?.TotalTax || 0,
+        vatAmount: qbInvoice.TxnTaxDetail?.TotalTax || 0,
         totalAmount: qbInvoice.TotalAmt,
-        balanceDue: qbInvoice.Balance,
+        total: qbInvoice.TotalAmt,
         status: this.determineInvoiceStatus(qbInvoice),
-        notes: qbInvoice.CustomerMemo?.value || null,
         metadata: {
           quickbooksId: qbInvoice.Id,
           quickbooksSyncToken: qbInvoice.SyncToken,
+          balanceDue: qbInvoice.Balance,
+          notes: qbInvoice.CustomerMemo?.value,
           importedAt: new Date().toISOString(),
         },
       };
@@ -362,7 +374,7 @@ export class QuickBooksMapperService {
         action = 'updated';
 
         // Delete old line items
-        await this.prisma.invoiceLineItem.deleteMany({
+        await this.prisma.invoiceItem.deleteMany({
           where: { invoiceId: invoice.id },
         });
       } else {
@@ -373,6 +385,7 @@ export class QuickBooksMapperService {
 
         await this.prisma.quickBooksEntityMapping.create({
           data: {
+            orgId,
             connectionId,
             entityType: 'INVOICE',
             quickbooksId: qbInvoice.Id,
@@ -435,11 +448,13 @@ export class QuickBooksMapperService {
       const paymentData = {
         orgId,
         customerId: customerMapping.operateEntityId,
+        type: 'INCOMING' as const,
+        status: 'COMPLETED' as const,
         amount: qbPayment.TotalAmt,
         paymentDate: new Date(qbPayment.TxnDate),
-        paymentMethod: qbPayment.PaymentMethodRef?.name || 'Other',
-        referenceNumber: qbPayment.Id,
-        notes: `Imported from QuickBooks. QB ID: ${qbPayment.Id}`,
+        method: qbPayment.PaymentMethodRef?.name || 'Other',
+        reference: qbPayment.Id,
+        description: `Imported from QuickBooks. QB ID: ${qbPayment.Id}`,
         metadata: {
           quickbooksId: qbPayment.Id,
           unappliedAmount: qbPayment.UnappliedAmt,
@@ -465,6 +480,7 @@ export class QuickBooksMapperService {
 
         await this.prisma.quickBooksEntityMapping.create({
           data: {
+            orgId,
             connectionId,
             entityType: 'PAYMENT',
             quickbooksId: qbPayment.Id,
@@ -530,7 +546,7 @@ export class QuickBooksMapperService {
   /**
    * Helper: Determine invoice status
    */
-  private determineInvoiceStatus(invoice: QBInvoice): string {
+  private determineInvoiceStatus(invoice: QBInvoice): InvoiceStatus {
     if (invoice.Balance === 0) {
       return 'PAID';
     }
@@ -541,7 +557,7 @@ export class QuickBooksMapperService {
     if (dueDate && dueDate < new Date()) {
       return 'OVERDUE';
     }
-    return 'UNPAID';
+    return 'SENT'; // Default for unpaid invoices
   }
 
   /**
@@ -569,15 +585,15 @@ export class QuickBooksMapperService {
         },
       });
 
-      await this.prisma.invoiceLineItem.create({
+      await this.prisma.invoiceItem.create({
         data: {
           invoiceId,
-          productId: productMapping?.operateEntityId || null,
+          productCode: productMapping?.operateEntityId || detail.ItemRef.value || null,
           description: line.Description || detail.ItemRef.name || '',
-          quantity: detail.Qty,
-          unitPrice: detail.UnitPrice,
-          amount: line.Amount,
-          sortOrder: line.LineNum,
+          quantity: detail.Qty || 1,
+          unitPrice: detail.UnitPrice || 0,
+          amount: line.Amount || 0,
+          sortOrder: line.LineNum || 0,
         },
       });
     }

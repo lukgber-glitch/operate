@@ -117,7 +117,7 @@ export class TaxReportingService {
     }>();
 
     for (const tx of transactions) {
-      const summary = tx.jurisdictionSummary as Prisma.InputJsonValue[];
+      const summary = tx.jurisdictionSummary as any[];
 
       if (!summary || !Array.isArray(summary)) {
         continue;
@@ -237,7 +237,14 @@ export class TaxReportingService {
       taxableAmount: juris.taxableAmount,
       exemptAmount: juris.exemptAmount,
       transactionCount: juris.transactionCount,
-      transactions: [] as Prisma.InputJsonValue[], // Populated separately if needed
+      transactions: [] as Array<{
+        transactionCode: string;
+        transactionDate: string;
+        customerCode: string;
+        totalAmount: number;
+        totalTax: number;
+        documentType: string;
+      }>, // Populated separately if needed
     }));
 
     // Fetch transaction details if needed
@@ -266,7 +273,7 @@ export class TaxReportingService {
 
     // Group transactions by jurisdiction
     for (const tx of transactions) {
-      const summary = tx.jurisdictionSummary as Prisma.InputJsonValue[];
+      const summary = tx.jurisdictionSummary as any[];
       if (!summary || !Array.isArray(summary)) continue;
 
       for (const juris of summary) {

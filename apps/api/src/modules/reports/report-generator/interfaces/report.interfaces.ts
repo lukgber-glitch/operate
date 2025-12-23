@@ -186,7 +186,7 @@ export interface ReportOptions {
 export interface ReportData {
   metadata: ReportMetadata;
   summary: ReportSummary;
-  sections: ReportSection[];
+  sections: ReportSection[] | Record<string, ReportSection>;
   annotations?: ReportAnnotation[];
   template?: ReportTemplate;
 }
@@ -251,7 +251,8 @@ export interface PerformanceMetrics {
   memoryUsedMb?: number;
 }
 
-export interface ProfitAndLossData extends ReportData {
+export interface ProfitAndLossData {
+  metadata: ReportMetadata;
   summary: {
     totalRevenue: number;
     costOfGoodsSold: number;
@@ -271,9 +272,12 @@ export interface ProfitAndLossData extends ReportData {
     operatingExpenses: ReportSection;
     otherIncomeExpenses: ReportSection;
   };
+  annotations?: ReportAnnotation[];
+  template?: ReportTemplate;
 }
 
-export interface CashFlowData extends ReportData {
+export interface CashFlowData {
+  metadata: ReportMetadata;
   summary: {
     operatingCashFlow: number;
     investingCashFlow: number;
@@ -287,9 +291,12 @@ export interface CashFlowData extends ReportData {
     investing: ReportSection;
     financing: ReportSection;
   };
+  annotations?: ReportAnnotation[];
+  template?: ReportTemplate;
 }
 
-export interface TaxSummaryData extends ReportData {
+export interface TaxSummaryData {
+  metadata: ReportMetadata;
   summary: {
     totalTaxLiability: number;
     totalDeductions: number;
@@ -302,9 +309,12 @@ export interface TaxSummaryData extends ReportData {
     deductions: ReportSection;
     credits: ReportSection;
   };
+  annotations?: ReportAnnotation[];
+  template?: ReportTemplate;
 }
 
-export interface VatReportData extends ReportData {
+export interface VatReportData {
+  metadata: ReportMetadata;
   summary: {
     vatCollected: number;
     vatPaid: number;
@@ -315,9 +325,12 @@ export interface VatReportData extends ReportData {
     sales: ReportSection;
     purchases: ReportSection;
   };
+  annotations?: ReportAnnotation[];
+  template?: ReportTemplate;
 }
 
-export interface BalanceSheetData extends ReportData {
+export interface BalanceSheetData {
+  metadata: ReportMetadata;
   summary: {
     totalAssets: number;
     totalLiabilities: number;
@@ -332,6 +345,8 @@ export interface BalanceSheetData extends ReportData {
     longTermLiabilities: ReportSection;
     equity: ReportSection;
   };
+  annotations?: ReportAnnotation[];
+  template?: ReportTemplate;
 }
 
 export interface AgingReportData extends ReportData {

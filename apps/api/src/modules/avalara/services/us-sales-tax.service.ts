@@ -7,6 +7,7 @@ import {
   CommitTransactionDto,
 } from '../dto';
 import { TransactionStatus, NexusStatus } from '@prisma/client';
+import { ProductTaxability } from '../types/us-tax-jurisdiction.types';
 
 /**
  * DTO for calculating tax on an invoice
@@ -44,7 +45,7 @@ export interface CalculateCartTaxDto {
     description: string;
     quantity: number;
     amount: number;
-    taxCode?: string;
+    taxCode?: ProductTaxability;
   }>;
 }
 
@@ -193,7 +194,7 @@ export class USSalesTaxService {
           description: item.description,
           quantity: item.quantity,
           amount: item.amount,
-          taxCode: item.taxCode,
+          taxCode: item.taxCode || this.mapTaxCode(item.description),
         })),
         exemptionNo,
         commit: false, // Never commit cart calculations
@@ -411,19 +412,32 @@ export class USSalesTaxService {
     };
   }
 
-  private mapTaxCode(description: string): string | undefined {
-    // Map product descriptions to Avalara tax codes
+  private mapTaxCode(description: string): ProductTaxability | undefined {
+    // Map product descriptions to ProductTaxability enum
     const desc = description.toLowerCase();
     if (desc.includes('software') || desc.includes('saas')) {
-      return 'SW054161'; // SaaS
+      return ProductTaxability.SAAS;
     }
     if (desc.includes('digital')) {
-      return 'D0000000'; // Digital goods
+      return ProductTaxability.DIGITAL_GOODS;
     }
-    if (desc.includes('shipping')) {
-      return 'FR'; // Freight/shipping
+    if (desc.includes('professional') || desc.includes('consulting')) {
+      return ProductTaxability.SERVICES_PROFESSIONAL;
     }
-    return undefined;
+    if (desc.includes('repair')) {
+      return ProductTaxability.SERVICES_REPAIR;
+    }
+    if (desc.includes('clothing') || desc.includes('apparel')) {
+      return ProductTaxability.CLOTHING;
+    }
+    if (desc.includes('food') || desc.includes('grocery') || desc.includes('groceries')) {
+      return ProductTaxability.GROCERIES;
+    }
+    if (desc.includes('prescription') || desc.includes('medication')) {
+      return ProductTaxability.PRESCRIPTION_DRUGS;
+    }
+    // Default to physical goods for unrecognized items
+    return ProductTaxability.PHYSICAL_GOODS;
   }
 
   private async saveTaxTransaction(data: {

@@ -18,9 +18,10 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { RbacGuard } from '../../auth/rbac/rbac.guard';
-import { RequirePermissions } from '../../auth/rbac/decorators/permissions.decorator';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { RbacGuard } from '@/modules/auth/rbac/rbac.guard';
+import { RequirePermissions } from '@/common/decorators/require-permissions.decorator';
+import { Permission } from '@/modules/auth/rbac/permissions';
 import { RevenueRecognitionService } from './revenue-recognition.service';
 import { RevenueReportsService } from './revenue-reports.service';
 import {
@@ -48,7 +49,7 @@ export class RevenueController {
    * Get current MRR breakdown
    */
   @Get('mrr')
-  @RequirePermissions('reports:revenue:read')
+  @RequirePermissions(Permission.REPORTS_READ)
   @ApiOperation({
     summary: 'Get MRR breakdown',
     description: 'Returns Monthly Recurring Revenue breakdown for the current month',
@@ -69,7 +70,7 @@ export class RevenueController {
    * Get Annual Recurring Revenue
    */
   @Get('arr')
-  @RequirePermissions('reports:revenue:read')
+  @RequirePermissions(Permission.REPORTS_READ)
   @ApiOperation({
     summary: 'Get ARR metrics',
     description: 'Returns Annual Recurring Revenue calculated from current MRR',
@@ -89,7 +90,7 @@ export class RevenueController {
    * Get MRR movement over time
    */
   @Get('movement')
-  @RequirePermissions('reports:revenue:read')
+  @RequirePermissions(Permission.REPORTS_READ)
   @ApiOperation({
     summary: 'Get MRR movement report',
     description:
@@ -114,7 +115,7 @@ export class RevenueController {
    * Get churn metrics
    */
   @Get('churn')
-  @RequirePermissions('reports:revenue:read')
+  @RequirePermissions(Permission.REPORTS_READ)
   @ApiOperation({
     summary: 'Get churn metrics',
     description:
@@ -136,7 +137,7 @@ export class RevenueController {
    * Get revenue by subscription tier
    */
   @Get('tiers')
-  @RequirePermissions('reports:revenue:read')
+  @RequirePermissions(Permission.REPORTS_READ)
   @ApiOperation({
     summary: 'Get revenue by tier',
     description: 'Returns revenue breakdown by subscription tier',
@@ -157,7 +158,7 @@ export class RevenueController {
    * Get cohort analysis
    */
   @Get('cohort')
-  @RequirePermissions('reports:revenue:read')
+  @RequirePermissions(Permission.REPORTS_READ)
   @ApiOperation({
     summary: 'Get cohort analysis',
     description:
@@ -183,7 +184,7 @@ export class RevenueController {
    * Get deferred revenue schedule
    */
   @Get('deferred')
-  @RequirePermissions('reports:revenue:read')
+  @RequirePermissions(Permission.REPORTS_READ)
   @ApiOperation({
     summary: 'Get deferred revenue schedule',
     description:
@@ -209,7 +210,7 @@ export class RevenueController {
    * Get revenue forecast
    */
   @Get('forecast')
-  @RequirePermissions('reports:revenue:read')
+  @RequirePermissions(Permission.REPORTS_READ)
   @ApiOperation({
     summary: 'Get revenue forecast',
     description:
@@ -235,7 +236,7 @@ export class RevenueController {
    * Create revenue recognition entry (manual override)
    */
   @Post('recognition')
-  @RequirePermissions('reports:revenue:write')
+  @RequirePermissions(Permission.REPORTS_CREATE)
   @ApiOperation({
     summary: 'Create revenue recognition entry',
     description: 'Manually create a revenue recognition entry',
@@ -258,7 +259,7 @@ export class RevenueController {
    * Create deferred revenue schedule
    */
   @Post('deferred')
-  @RequirePermissions('reports:revenue:write')
+  @RequirePermissions(Permission.REPORTS_CREATE)
   @ApiOperation({
     summary: 'Create deferred revenue schedule',
     description: 'Create a deferred revenue schedule for a subscription payment',
@@ -290,7 +291,7 @@ export class RevenueController {
    * Get comprehensive revenue metrics summary
    */
   @Get('metrics/summary')
-  @RequirePermissions('reports:revenue:read')
+  @RequirePermissions(Permission.REPORTS_READ)
   @ApiOperation({
     summary: 'Get revenue metrics summary',
     description: 'Returns comprehensive summary of all key revenue metrics',

@@ -4,7 +4,7 @@ import { SpainCertificateService } from '../spain-certificate.service';
 import { CertificateStorageService } from '../certificate-storage.service';
 import { CertificateValidatorService } from '../certificate-validator.service';
 import { CertificateRotationService } from '../certificate-rotation.service';
-import { PrismaService } from '../../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import {
   SpainCertificateError,
   SpainCertificateErrorCode,

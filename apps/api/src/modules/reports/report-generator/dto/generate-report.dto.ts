@@ -142,6 +142,38 @@ export class ReportOptionsDto {
   @IsOptional()
   @IsString()
   templateId?: string;
+
+  /**
+   * Convert DTO to domain interface
+   * Maps DTO types to their interface equivalents
+   */
+  toReportOptions(): import('../interfaces/report.interfaces').ReportOptions {
+    return {
+      currency: this.currency,
+      comparison: this.comparison ? {
+        type: this.comparison.type,
+        startDate: this.comparison.startDate ? new Date(this.comparison.startDate) : new Date(),
+        endDate: this.comparison.endDate ? new Date(this.comparison.endDate) : new Date(),
+        label: this.comparison.label,
+      } : undefined,
+      groupBy: this.groupBy,
+      filters: this.filters,
+      includeDetails: this.includeDetails,
+      cache: this.cache ? {
+        enabled: this.cache.enabled ?? true,
+        ttlSeconds: this.cache.ttlSeconds ?? 3600,
+        key: '', // Will be set by service
+        tags: this.cache.tags ?? [],
+      } : undefined,
+      customFields: this.customFields?.map(field => ({
+        name: field.name,
+        formula: field.formula,
+        value: 0, // Will be calculated by service
+        dependencies: field.dependencies ?? [],
+      })),
+      templateId: this.templateId,
+    };
+  }
 }
 
 export class GenerateReportDto {

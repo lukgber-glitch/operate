@@ -134,6 +134,13 @@ export enum Permission {
   SETTINGS_UPDATE = 'settings:update',
 
   // ============================
+  // Migrations Permissions
+  // ============================
+  MIGRATIONS_READ = 'migrations:read',
+  MIGRATIONS_CREATE = 'migrations:create',
+  MIGRATIONS_DELETE = 'migrations:delete',
+
+  // ============================
   // Admin Permissions
   // ============================
   ADMIN_FULL = 'admin:full', // Wildcard - grants all permissions
@@ -575,6 +582,23 @@ export const PermissionMetadata: Record<
     name: 'Update Settings',
     description: 'Modify system settings',
     category: 'Settings',
+  },
+
+  // Migrations
+  [Permission.MIGRATIONS_READ]: {
+    name: 'Read Migrations',
+    description: 'View migration status and history',
+    category: 'Migrations',
+  },
+  [Permission.MIGRATIONS_CREATE]: {
+    name: 'Create Migrations',
+    description: 'Create and execute data migrations',
+    category: 'Migrations',
+  },
+  [Permission.MIGRATIONS_DELETE]: {
+    name: 'Delete Migrations',
+    description: 'Rollback and delete migrations',
+    category: 'Migrations',
   },
 
   // Admin

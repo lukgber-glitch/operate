@@ -78,7 +78,7 @@ export class TaxDeductionClassifierService {
       description: deduction.description,
       amount: deduction.amount,
       currency: deduction.currency,
-      date: deduction.date,
+      date: deduction.date instanceof Date ? deduction.date.toISOString() : deduction.date,
       counterparty: deduction.supplierId,
     });
 

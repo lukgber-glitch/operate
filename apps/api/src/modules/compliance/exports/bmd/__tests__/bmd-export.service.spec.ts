@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { BmdExportService } from '../bmd-export.service';
-import { PrismaService } from '../../../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 
 describe('BmdExportService', () => {
   let service: BmdExportService;

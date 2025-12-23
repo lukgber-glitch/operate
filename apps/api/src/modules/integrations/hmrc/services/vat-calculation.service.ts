@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import {
   VatCalculationInput,
   VatCalculationResult,
@@ -53,15 +53,15 @@ export class VatCalculationService {
     const invoices = await this.prisma.invoice.findMany({
       where: {
         orgId,
-        invoiceDate: {
+        issueDate: {
           gte: periodFrom,
           lte: periodTo,
         },
-        status: { in: ['SENT', 'PAID', 'PARTIAL'] },
+        status: { in: ['SENT', 'PAID', 'PARTIALLY_PAID'] },
       },
       include: {
         items: true,
-        customer: true,
+        client: true,
       },
     });
 
@@ -69,14 +69,11 @@ export class VatCalculationService {
     const expenses = await this.prisma.expense.findMany({
       where: {
         orgId,
-        expenseDate: {
+        date: {
           gte: periodFrom,
           lte: periodTo,
         },
-        status: { in: ['APPROVED', 'PAID'] },
-      },
-      include: {
-        vendor: true,
+        status: { in: ['APPROVED', 'REIMBURSED'] },
       },
     });
 
@@ -119,8 +116,8 @@ export class VatCalculationService {
       box5NetVatDue: this.poundsToPence(netVatDue),
       box6TotalValueSalesExVat: this.poundsToPence(totalSalesExVat),
       box7TotalValuePurchasesExVat: this.poundsToPence(totalPurchasesExVat),
-      box8TotalValueGoodsSupplied: this.poundsToPence(ecSupplies.totalAmount),
-      box9TotalAcquisitionsExVat: this.poundsToPence(ecAcquisitions.totalAmount),
+      box8TotalValueGoodsSupplied: this.poundsToPence(ecSupplies.totalNetAmount),
+      box9TotalAcquisitionsExVat: this.poundsToPence(ecAcquisitions.totalNetAmount),
       breakdown: {
         salesVat,
         ecAcquisitionsVat,
@@ -152,7 +149,7 @@ export class VatCalculationService {
 
     for (const invoice of invoices) {
       // Skip EC sales (they go in Box 8, not Box 1)
-      const isEcSale = this.isEcCountry(invoice.customer?.country);
+      const isEcSale = this.isEcCountry(invoice.customerCountry);
       if (isEcSale) continue;
 
       // Calculate VAT from invoice items
@@ -193,7 +190,7 @@ export class VatCalculationService {
 
     for (const expense of expenses) {
       // Only include EC acquisitions (reverse charge)
-      const isEcAcquisition = this.isEcCountry(expense.vendor?.country);
+      const isEcAcquisition = this.isEcCountry(expense.vendorCountry);
       if (!isEcAcquisition) continue;
 
       const netAmount = parseFloat(expense.amount?.toString() || '0');
@@ -230,10 +227,10 @@ export class VatCalculationService {
 
     for (const expense of expenses) {
       const netAmount = parseFloat(expense.amount?.toString() || '0');
-      const vatRate = this.getVatRate(expense.taxRate);
+      const vatRate = this.getVatRate(expense.vatRate);
 
       // For EC acquisitions, include the reverse charge VAT as reclaimable
-      const isEcAcquisition = this.isEcCountry(expense.vendor?.country);
+      const isEcAcquisition = this.isEcCountry(expense.vendorCountry);
       const vatAmount = isEcAcquisition
         ? (netAmount * this.VAT_RATES.STANDARD) / 100
         : (netAmount * vatRate) / 100;
@@ -267,7 +264,7 @@ export class VatCalculationService {
     const details: any[] = [];
 
     for (const invoice of invoices) {
-      const isEcSale = this.isEcCountry(invoice.customer?.country);
+      const isEcSale = this.isEcCountry(invoice.customerCountry);
       if (!isEcSale) continue;
 
       const netAmount = parseFloat(invoice.totalAmount?.toString() || '0');
@@ -276,7 +273,7 @@ export class VatCalculationService {
       details.push({
         invoiceId: invoice.id,
         invoiceNumber: invoice.number,
-        customerCountry: invoice.customer?.country,
+        customerCountry: invoice.customerCountry,
         netAmount,
       });
     }
@@ -297,7 +294,7 @@ export class VatCalculationService {
     const details: any[] = [];
 
     for (const expense of expenses) {
-      const isEcAcquisition = this.isEcCountry(expense.vendor?.country);
+      const isEcAcquisition = this.isEcCountry(expense.vendorCountry);
       if (!isEcAcquisition) continue;
 
       const netAmount = parseFloat(expense.amount?.toString() || '0');
@@ -306,7 +303,7 @@ export class VatCalculationService {
       details.push({
         expenseId: expense.id,
         description: expense.description,
-        vendorCountry: expense.vendor?.country,
+        vendorCountry: expense.vendorCountry,
         netAmount,
       });
     }

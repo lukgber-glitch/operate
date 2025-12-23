@@ -45,5 +45,5 @@ export class CreateSearchDto {
   userId?: string; // User being screened
 
   @IsString()
-  organizationId: string;
+  organisationId: string;
 }

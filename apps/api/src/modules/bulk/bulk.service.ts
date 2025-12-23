@@ -224,14 +224,13 @@ export class BulkService {
           data: {
             organisationId: orgId,
             billId: id,
-            vendorId: bill.vendorId || undefined,
-            vendorName: bill.vendorName,
             amount: bill.totalAmount,
             currency: bill.currency,
             scheduledDate: new Date(dto.scheduledDate),
             paymentMethod: dto.paymentMethod || 'BANK_TRANSFER',
             status: 'PENDING',
-            description: `Payment for bill ${bill.billNumber || id}`,
+            reference: bill.billNumber || undefined,
+            notes: `Payment for bill ${bill.billNumber || id}${bill.vendorName ? ` - ${bill.vendorName}` : ''}`,
           },
         });
 
@@ -343,7 +342,6 @@ export class BulkService {
         data: {
           isReconciled: true,
           reconciledAt,
-          reconciledNotes: dto.notes || null,
         },
       });
 

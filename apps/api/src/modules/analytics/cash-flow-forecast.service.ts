@@ -151,26 +151,34 @@ export class CashFlowForecastService {
     // 1. Analyze recurring invoices
     const recurringInvoices = await this.prisma.recurringInvoice.findMany({
       where: {
-        orgId: organisationId,
-        status: 'ACTIVE',
+        organisationId: organisationId,
+        isActive: true,
       },
       select: {
         id: true,
-        description: true,
-        amount: true,
+        notes: true,
+        lineItems: true,
         frequency: true,
-        lastGeneratedAt: true,
+        lastRunDate: true,
       },
     });
 
     for (const invoice of recurringInvoices) {
+      // Calculate total from lineItems JSON
+      let totalAmount = 0;
+      if (Array.isArray(invoice.lineItems)) {
+        totalAmount = (invoice.lineItems as any[]).reduce((sum, item) => {
+          return sum + (item.amount || item.total || 0);
+        }, 0);
+      }
+
       patterns.push({
         id: invoice.id,
         type: 'income',
-        description: invoice.description || 'Recurring invoice',
-        averageAmount: invoice.amount.toNumber(),
+        description: invoice.notes || 'Recurring invoice',
+        averageAmount: totalAmount,
         frequency: this.mapFrequency(invoice.frequency),
-        lastOccurrence: invoice.lastGeneratedAt || new Date(),
+        lastOccurrence: invoice.lastRunDate || new Date(),
         confidence: 0.95, // High confidence for explicit recurring invoices
         occurrences: 12, // Estimated based on subscription
       });
@@ -292,7 +300,7 @@ export class CashFlowForecastService {
         category: true,
         amount: true,
         date: true,
-        merchant: true,
+        description: true,
       },
       orderBy: {
         date: 'asc',
@@ -339,7 +347,7 @@ export class CashFlowForecastService {
     const scheduled = await this.prisma.scheduledPayment.findMany({
       where: {
         organisationId,
-        status: 'ACTIVE',
+        status: 'PENDING',
         scheduledDate: {
           lte: endDate,
         },
@@ -347,14 +355,14 @@ export class CashFlowForecastService {
       select: {
         scheduledDate: true,
         amount: true,
-        description: true,
+        notes: true,
       },
     });
 
     return scheduled.map((s) => ({
       date: s.scheduledDate,
       amount: s.amount.toNumber(),
-      description: s.description || 'Scheduled payment',
+      description: s.notes || 'Scheduled payment',
     }));
   }
 
@@ -405,8 +413,9 @@ export class CashFlowForecastService {
     const bills = await this.prisma.bill.findMany({
       where: {
         organisationId,
-        paymentStatus: {
-          in: ['PENDING', 'OVERDUE'],
+        paymentStatus: 'PENDING',
+        status: {
+          in: ['PENDING', 'APPROVED', 'OVERDUE'],
         },
         dueDate: {
           lte: endDate,
@@ -638,6 +647,13 @@ export class CashFlowForecastService {
   private mapFrequency(
     frequency: string,
   ): 'monthly' | 'weekly' | 'quarterly' | 'annual' {
+    const upper = frequency.toUpperCase();
+    // Handle RecurringFrequency enum values: DAILY, WEEKLY, BIWEEKLY, MONTHLY, QUARTERLY, YEARLY
+    if (upper === 'WEEKLY' || upper === 'BIWEEKLY') return 'weekly';
+    if (upper === 'QUARTERLY') return 'quarterly';
+    if (upper === 'YEARLY') return 'annual';
+    if (upper === 'MONTHLY') return 'monthly';
+    // Fallback for other string formats
     const lower = frequency.toLowerCase();
     if (lower.includes('week')) return 'weekly';
     if (lower.includes('quarter')) return 'quarterly';

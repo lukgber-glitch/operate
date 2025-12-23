@@ -5,7 +5,7 @@ import { CraService } from './cra.service';
 import { CraAuthService } from './cra-auth.service';
 import { CraNetFileClient } from './cra-netfile.client';
 import { CraEfilerService } from './services/cra-efiler.service';
-import { PrismaModule } from '../../database/prisma.module';
+import { DatabaseModule } from '../../database/database.module';
 
 /**
  * CRA NetFile Integration Module
@@ -21,7 +21,7 @@ import { PrismaModule } from '../../database/prisma.module';
  * - Comprehensive audit logging
  */
 @Module({
-  imports: [ConfigModule, PrismaModule],
+  imports: [ConfigModule, DatabaseModule],
   controllers: [CraController],
   providers: [
     CraService,

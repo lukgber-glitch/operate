@@ -3,7 +3,7 @@ import { BadRequestException } from '@nestjs/common';
 import { CraEfilerService } from '../services/cra-efiler.service';
 import { CraAuthService } from '../cra-auth.service';
 import { CraNetFileClient } from '../cra-netfile.client';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import {
   GstHstReturn,
   GstHstReturnType,

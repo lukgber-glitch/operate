@@ -261,7 +261,7 @@ export class SevDeskMigrationService {
     const mapped = this.mapper.mapContact(contact, organizationId);
 
     // Check for duplicates
-    const existing = await this.prisma.contact.findFirst({
+    const existing = await this.prisma.clientContact.findFirst({
       where: {
         organizationId,
         OR: [
@@ -276,7 +276,7 @@ export class SevDeskMigrationService {
       return existing.id;
     }
 
-    const created = await this.prisma.contact.create({
+    const created = await this.prisma.clientContact.create({
       data: mapped,
     });
 
@@ -291,7 +291,7 @@ export class SevDeskMigrationService {
     let contactId: string | undefined;
 
     if (invoice.contactName) {
-      const contact = await this.prisma.contact.findFirst({
+      const contact = await this.prisma.clientContact.findFirst({
         where: {
           organizationId,
           name: { contains: invoice.contactName, mode: 'insensitive' },
@@ -404,7 +404,7 @@ export class SevDeskMigrationService {
       // Delete migrated records based on entity type
       switch (job.entityType) {
         case SevDeskEntityType.CONTACT:
-          await this.prisma.contact.deleteMany({
+          await this.prisma.clientContact.deleteMany({
             where: { id: { in: successfulIds } },
           });
           break;

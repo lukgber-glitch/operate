@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { TaxContextService } from '../shared/tax-context.service';
 
@@ -215,29 +215,36 @@ export class VatService {
 
     // Transform to VAT transactions format
     const transactions = [
-      ...invoices.map((invoice) => ({
-        id: invoice.id,
-        date: invoice.issueDate.toISOString(),
-        description: `Invoice ${invoice.invoiceNumber} - ${invoice.client?.name || 'Unknown Client'}`,
-        type: 'SALE' as const,
-        netAmount: invoice.subtotal,
-        vatAmount: invoice.vatAmount,
-        vatRate: invoice.subtotal > 0 ? (invoice.vatAmount / invoice.subtotal) * 100 : 19,
-        category: 'Sales',
-        invoiceNumber: invoice.invoiceNumber,
-      })),
-      ...expenses.map((expense) => ({
-        id: expense.id,
-        date: expense.date.toISOString(),
-        description: expense.description,
-        type: 'PURCHASE' as const,
-        netAmount: expense.amount - (expense.vatAmount || 0),
-        vatAmount: expense.vatAmount || 0,
-        vatRate: (expense.amount - (expense.vatAmount || 0)) > 0
-          ? ((expense.vatAmount || 0) / (expense.amount - (expense.vatAmount || 0))) * 100
-          : 19,
-        category: expense.category || 'Other',
-      })),
+      ...invoices.map((invoice) => {
+        const subtotal = Number(invoice.subtotal);
+        const vatAmount = Number(invoice.vatAmount);
+        return {
+          id: invoice.id,
+          date: invoice.issueDate.toISOString(),
+          description: `Invoice ${invoice.invoiceNumber} - ${invoice.client?.name || 'Unknown Client'}`,
+          type: 'SALE' as const,
+          netAmount: invoice.subtotal,
+          vatAmount: invoice.vatAmount,
+          vatRate: subtotal > 0 ? (vatAmount / subtotal) * 100 : 19,
+          category: 'Sales',
+          invoiceNumber: invoice.invoiceNumber,
+        };
+      }),
+      ...expenses.map((expense) => {
+        const amount = Number(expense.amount);
+        const vatAmount = Number(expense.vatAmount || 0);
+        const netAmount = amount - vatAmount;
+        return {
+          id: expense.id,
+          date: expense.date.toISOString(),
+          description: expense.description,
+          type: 'PURCHASE' as const,
+          netAmount: expense.amount - (expense.vatAmount || 0),
+          vatAmount: expense.vatAmount || 0,
+          vatRate: netAmount > 0 ? (vatAmount / netAmount) * 100 : 19,
+          category: expense.category || 'Other',
+        };
+      }),
     ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     return {
@@ -250,10 +257,21 @@ export class VatService {
    * File VAT return
    */
   async fileVatReturn(orgId: string, periodId: string, userId: string) {
-    const period = await this.prisma.vatReturn.update({
+    // First verify the VAT return belongs to this organization
+    const existing = await this.prisma.vatReturn.findFirst({
       where: {
         id: periodId,
         orgId,
+      },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('VAT return not found or access denied');
+    }
+
+    const period = await this.prisma.vatReturn.update({
+      where: {
+        id: periodId,
       },
       data: {
         status: 'FILED',

@@ -74,24 +74,23 @@ export class GetTimeSummaryHandler extends BaseActionHandler {
       }
 
       const summary = await this.timeTrackingService.getSummary(
-        context.userId,
         context.organizationId,
-        startDate,
-        new Date(),
+        {
+          startDate: startDate.toISOString(),
+          endDate: new Date().toISOString(),
+        },
       );
 
-      const totalHours = Number((summary.totalDuration / 3600).toFixed(2));
-
       return this.success(
-        `Time summary for ${period}: ${totalHours} hours`,
+        `Time summary for ${period}: ${summary.totalHours.toFixed(2)} hours`,
         undefined,
         'TimeSummary',
         {
           period,
-          totalHours,
-          totalDuration: summary.totalDuration,
+          totalHours: summary.totalHours,
           billableHours: summary.billableHours,
-          entries: summary.entries,
+          totalRevenue: summary.totalRevenue,
+          entryCount: summary.entryCount,
         },
       );
     } catch (error) {

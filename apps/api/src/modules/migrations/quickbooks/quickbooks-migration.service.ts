@@ -11,6 +11,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { Prisma, MigrationStatus as PrismaMigrationStatus } from '@prisma/client';
 import { QuickBooksAuthService } from '../../quickbooks/quickbooks-auth.service';
 import { QuickBooksDataFetcherService } from './quickbooks-data-fetcher.service';
 import { QuickBooksMapperService } from './quickbooks-mapper.service';
@@ -43,6 +44,29 @@ export class QuickBooksMigrationService {
   ) {}
 
   /**
+   * Map internal MigrationStatus to Prisma MigrationStatus
+   */
+  private mapStatusToPrisma(status: MigrationStatus): PrismaMigrationStatus {
+    switch (status) {
+      case MigrationStatus.PENDING:
+        return PrismaMigrationStatus.PENDING;
+      case MigrationStatus.IN_PROGRESS:
+        return PrismaMigrationStatus.IN_PROGRESS;
+      case MigrationStatus.COMPLETED:
+        return PrismaMigrationStatus.COMPLETED;
+      case MigrationStatus.FAILED:
+        return PrismaMigrationStatus.FAILED;
+      case MigrationStatus.PAUSED:
+      case MigrationStatus.ROLLING_BACK:
+      case MigrationStatus.ROLLED_BACK:
+        // Store extended status in metadata
+        return PrismaMigrationStatus.IN_PROGRESS;
+      default:
+        return PrismaMigrationStatus.PENDING;
+    }
+  }
+
+  /**
    * Start a new migration
    */
   async startMigration(
@@ -57,7 +81,7 @@ export class QuickBooksMigrationService {
       where: {
         orgId,
         status: {
-          in: [MigrationStatus.IN_PROGRESS, MigrationStatus.PENDING],
+          in: [PrismaMigrationStatus.IN_PROGRESS, PrismaMigrationStatus.PENDING],
         },
       },
     });
@@ -101,19 +125,18 @@ export class QuickBooksMigrationService {
       data: {
         orgId,
         connectionId: connection.id,
-        status: MigrationStatus.PENDING,
-        config: config as Prisma.InputJsonValue,
-        progress: [],
+        status: PrismaMigrationStatus.PENDING,
+        config: config as unknown as Prisma.InputJsonValue,
+        progress: [] as unknown as Prisma.InputJsonValue,
         totalItems: 0,
         processedItems: 0,
-        successfulItems: 0,
         failedItems: 0,
-        skippedItems: 0,
-        createdBy: userId,
         metadata: {
           companyName: testResult.companyName,
           startedFrom: 'web',
-        },
+          createdBy: userId,
+          extendedStatus: MigrationStatus.PENDING,
+        } as unknown as Prisma.InputJsonValue,
       },
     });
 
@@ -146,7 +169,7 @@ export class QuickBooksMigrationService {
       await this.prisma.quickBooksMigration.update({
         where: { id: migrationId },
         data: {
-          status: MigrationStatus.IN_PROGRESS,
+          status: PrismaMigrationStatus.IN_PROGRESS,
           startedAt: new Date(),
         },
       });
@@ -160,7 +183,7 @@ export class QuickBooksMigrationService {
         throw new Error('Migration not found');
       }
 
-      const config = migration.config as Prisma.InputJsonValue as MigrationConfig;
+      const config = migration.config as unknown as MigrationConfig;
       const progress: EntityMigrationProgress[] = [];
       const errors: MigrationError[] = [];
       const rollbackPoints: RollbackPoint[] = [];
@@ -199,22 +222,24 @@ export class QuickBooksMigrationService {
       const duration = Date.now() - startTime;
 
       // Update final status
+      const currentMetadata = (migration.metadata as Record<string, any>) || {};
       await this.prisma.quickBooksMigration.update({
         where: { id: migrationId },
         data: {
-          status: MigrationStatus.COMPLETED,
-          progress: progress as Prisma.InputJsonValue,
+          status: PrismaMigrationStatus.COMPLETED,
+          progress: progress as unknown as Prisma.InputJsonValue,
           totalItems: totals.total,
           processedItems: totals.processed,
-          successfulItems: totals.successful,
           failedItems: totals.failed,
-          skippedItems: totals.skipped,
           completedAt: new Date(),
           metadata: {
-            ...(migration.metadata as Prisma.InputJsonValue),
+            ...currentMetadata,
+            successfulItems: totals.successful,
+            skippedItems: totals.skipped,
             duration,
             rollbackPoints,
-          },
+            extendedStatus: MigrationStatus.COMPLETED,
+          } as unknown as Prisma.InputJsonValue,
         },
       });
 
@@ -225,10 +250,9 @@ export class QuickBooksMigrationService {
             migrationId,
             entityType: err.entityType,
             entityId: err.entityId,
-            entityData: err.entityData,
-            error: err.error,
+            message: err.error,
             errorCode: err.errorCode,
-            timestamp: err.timestamp,
+            details: err.entityData as unknown as Prisma.InputJsonValue,
           })),
         });
       }
@@ -255,11 +279,13 @@ export class QuickBooksMigrationService {
       await this.prisma.quickBooksMigration.update({
         where: { id: migrationId },
         data: {
-          status: MigrationStatus.FAILED,
+          status: PrismaMigrationStatus.FAILED,
+          errorMessage: error.message,
           metadata: {
             error: error.message,
             stack: error.stack,
-          },
+            extendedStatus: MigrationStatus.FAILED,
+          } as unknown as Prisma.InputJsonValue,
         },
       });
 
@@ -299,10 +325,19 @@ export class QuickBooksMigrationService {
     };
 
     try {
-      // Update current entity
+      // Update current entity in metadata
+      const migration = await this.prisma.quickBooksMigration.findUnique({
+        where: { id: migrationId },
+      });
+      const currentMetadata = (migration?.metadata as Record<string, any>) || {};
       await this.prisma.quickBooksMigration.update({
         where: { id: migrationId },
-        data: { currentEntity: entityType },
+        data: {
+          metadata: {
+            ...currentMetadata,
+            currentEntity: entityType,
+          } as unknown as Prisma.InputJsonValue,
+        },
       });
 
       // Fetch data
@@ -457,7 +492,7 @@ export class QuickBooksMigrationService {
       where: { id: migrationId },
       include: {
         errors: {
-          orderBy: { timestamp: 'desc' },
+          orderBy: { createdAt: 'desc' },
           take: 10,
         },
       },
@@ -467,30 +502,31 @@ export class QuickBooksMigrationService {
       throw new NotFoundException('Migration not found');
     }
 
-    const progress = (migration.progress as Prisma.InputJsonValue) || [];
+    const metadata = (migration.metadata as Record<string, any>) || {};
+    const progress = (migration.progress as unknown as EntityMigrationProgress[]) || [];
     const percentComplete = this.calculatePercentComplete(progress);
     const estimatedTimeRemaining = this.estimateTimeRemaining(migration, percentComplete);
 
     return {
       id: migration.id,
       orgId: migration.orgId,
-      status: migration.status as MigrationStatus,
-      config: migration.config as Prisma.InputJsonValue,
+      status: (metadata.extendedStatus as MigrationStatus) || migration.status as unknown as MigrationStatus,
+      config: migration.config as unknown as MigrationConfig,
       progress,
       totalItems: migration.totalItems,
       processedItems: migration.processedItems,
-      successfulItems: migration.successfulItems,
+      successfulItems: metadata.successfulItems || 0,
       failedItems: migration.failedItems,
-      skippedItems: migration.skippedItems,
-      currentEntity: migration.currentEntity as MigrationEntityType,
+      skippedItems: metadata.skippedItems || 0,
+      currentEntity: metadata.currentEntity as MigrationEntityType,
       startedAt: migration.startedAt,
       completedAt: migration.completedAt,
-      pausedAt: migration.pausedAt,
+      pausedAt: metadata.pausedAt,
       estimatedCompletionTime: estimatedTimeRemaining
         ? new Date(Date.now() + estimatedTimeRemaining)
         : undefined,
-      createdBy: migration.createdBy,
-      metadata: migration.metadata as Prisma.InputJsonValue,
+      createdBy: metadata.createdBy || 'system',
+      metadata,
     };
   }
 
@@ -506,17 +542,21 @@ export class QuickBooksMigrationService {
       throw new NotFoundException('Migration not found');
     }
 
-    if (migration.status !== MigrationStatus.IN_PROGRESS) {
+    if (migration.status !== PrismaMigrationStatus.IN_PROGRESS) {
       throw new BadRequestException('Only in-progress migrations can be paused');
     }
 
     this.activeMigrations.set(migrationId, true); // Set pause flag
 
+    const currentMetadata = (migration.metadata as Record<string, any>) || {};
     await this.prisma.quickBooksMigration.update({
       where: { id: migrationId },
       data: {
-        status: MigrationStatus.PAUSED,
-        pausedAt: new Date(),
+        metadata: {
+          ...currentMetadata,
+          extendedStatus: MigrationStatus.PAUSED,
+          pausedAt: new Date(),
+        } as unknown as Prisma.InputJsonValue,
       },
     });
 
@@ -535,7 +575,8 @@ export class QuickBooksMigrationService {
       throw new NotFoundException('Migration not found');
     }
 
-    if (migration.status !== MigrationStatus.PAUSED) {
+    const metadata = (migration.metadata as Record<string, any>) || {};
+    if (metadata.extendedStatus !== MigrationStatus.PAUSED) {
       throw new BadRequestException('Only paused migrations can be resumed');
     }
 
@@ -546,8 +587,12 @@ export class QuickBooksMigrationService {
     await this.prisma.quickBooksMigration.update({
       where: { id: migrationId },
       data: {
-        status: MigrationStatus.IN_PROGRESS,
-        pausedAt: null,
+        status: PrismaMigrationStatus.IN_PROGRESS,
+        metadata: {
+          ...metadata,
+          extendedStatus: MigrationStatus.IN_PROGRESS,
+          pausedAt: null,
+        } as unknown as Prisma.InputJsonValue,
       },
     });
 
@@ -573,18 +618,22 @@ export class QuickBooksMigrationService {
 
     this.logger.log(`Starting rollback for migration ${migrationId}`);
 
+    const metadata = (migration.metadata as Record<string, any>) || {};
     await this.prisma.quickBooksMigration.update({
       where: { id: migrationId },
-      data: { status: MigrationStatus.ROLLING_BACK },
+      data: {
+        metadata: {
+          ...metadata,
+          extendedStatus: MigrationStatus.ROLLING_BACK,
+        } as unknown as Prisma.InputJsonValue,
+      },
     });
 
-    const rollbackPoints = (migration.metadata as Prisma.InputJsonValue)?.rollbackPoints || [];
+    const rollbackPoints = (metadata.rollbackPoints as RollbackPoint[]) || [];
     let totalRolledBack = 0;
 
     // Rollback in reverse order
-    for (const point of rollbackPoints.reverse()) {
-      const rollbackPoint = point as RollbackPoint;
-
+    for (const rollbackPoint of rollbackPoints.reverse()) {
       // Delete created entities and mappings
       for (const operateId of rollbackPoint.operateIds) {
         try {
@@ -608,12 +657,12 @@ export class QuickBooksMigrationService {
     await this.prisma.quickBooksMigration.update({
       where: { id: migrationId },
       data: {
-        status: MigrationStatus.ROLLED_BACK,
         metadata: {
-          ...(migration.metadata as Prisma.InputJsonValue),
+          ...metadata,
+          extendedStatus: MigrationStatus.ROLLED_BACK,
           rolledBackAt: new Date(),
           entitiesRolledBack: totalRolledBack,
-        },
+        } as unknown as Prisma.InputJsonValue,
       },
     });
 
@@ -708,9 +757,20 @@ export class QuickBooksMigrationService {
    * Helper: Update migration status
    */
   private async updateMigrationStatus(migrationId: string, status: MigrationStatus) {
+    const migration = await this.prisma.quickBooksMigration.findUnique({
+      where: { id: migrationId },
+    });
+    const metadata = (migration?.metadata as Record<string, any>) || {};
+
     await this.prisma.quickBooksMigration.update({
       where: { id: migrationId },
-      data: { status },
+      data: {
+        status: this.mapStatusToPrisma(status),
+        metadata: {
+          ...metadata,
+          extendedStatus: status,
+        } as unknown as Prisma.InputJsonValue,
+      },
     });
   }
 
@@ -725,7 +785,7 @@ export class QuickBooksMigrationService {
       where: { id: migrationId },
     });
 
-    const progress = (migration.progress as Prisma.InputJsonValue[]) || [];
+    const progress = (migration.progress as unknown as EntityMigrationProgress[]) || [];
     const index = progress.findIndex((p) => p.entityType === entityProgress.entityType);
 
     if (index >= 0) {
@@ -735,15 +795,19 @@ export class QuickBooksMigrationService {
     }
 
     const totals = this.calculateTotals(progress);
+    const metadata = (migration?.metadata as Record<string, any>) || {};
 
     await this.prisma.quickBooksMigration.update({
       where: { id: migrationId },
       data: {
-        progress: progress as Prisma.InputJsonValue,
+        progress: progress as unknown as Prisma.InputJsonValue,
         processedItems: totals.processed,
-        successfulItems: totals.successful,
         failedItems: totals.failed,
-        skippedItems: totals.skipped,
+        metadata: {
+          ...metadata,
+          successfulItems: totals.successful,
+          skippedItems: totals.skipped,
+        } as unknown as Prisma.InputJsonValue,
       },
     });
   }
@@ -827,11 +891,17 @@ export class QuickBooksMigrationService {
     limit = 20,
     offset = 0,
   ) {
+    const where: Prisma.QuickBooksMigrationWhereInput = {
+      orgId,
+    };
+
+    // Map status if provided
+    if (status) {
+      where.status = this.mapStatusToPrisma(status);
+    }
+
     return this.prisma.quickBooksMigration.findMany({
-      where: {
-        orgId,
-        ...(status && { status }),
-      },
+      where,
       orderBy: {
         startedAt: 'desc',
       },
@@ -846,7 +916,7 @@ export class QuickBooksMigrationService {
   async getMigrationErrors(migrationId: string) {
     return this.prisma.quickBooksMigrationError.findMany({
       where: { migrationId },
-      orderBy: { timestamp: 'desc' },
+      orderBy: { createdAt: 'desc' },
     });
   }
 

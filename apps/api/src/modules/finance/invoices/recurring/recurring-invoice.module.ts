@@ -5,7 +5,7 @@ import { RecurringInvoiceController } from './recurring-invoice.controller';
 import { RecurringInvoiceService } from './recurring-invoice.service';
 import { RecurringInvoiceProcessor } from './recurring-invoice.processor';
 import { RecurringInvoiceScheduler } from './recurring-invoice.scheduler';
-import { DatabaseModule } from '../../../database/database.module';
+import { DatabaseModule } from '@/modules/database/database.module';
 import { InvoicesModule } from '../invoices.module';
 import { RbacModule } from '../../../auth/rbac/rbac.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';

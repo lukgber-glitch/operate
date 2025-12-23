@@ -1,8 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { XeroMappingService, XeroSyncEntityType } from './xero-mapping.service';
 import { XeroClient } from 'xero-node';
 import { Contact } from 'xero-node/dist/gen/model/accounting/contact';
+import { Address } from 'xero-node/dist/gen/model/accounting/address';
+import { Phone } from 'xero-node/dist/gen/model/accounting/phone';
 
 /**
  * Xero Customer/Contact Sync Service
@@ -135,24 +137,51 @@ export class XeroCustomerSyncService {
    * Map Xero contact to Operate customer format
    */
   private mapXeroContactToOperate(xeroContact: Contact): any {
+    const streetAddress = xeroContact.addresses?.find((a) => a.addressType === Address.AddressTypeEnum.STREET);
+    const postalAddress = xeroContact.addresses?.find((a) => a.addressType === Address.AddressTypeEnum.POBOX);
+
+    // Build address string from Xero address parts
+    const addressParts: string[] = [];
+    if (streetAddress?.addressLine1) addressParts.push(streetAddress.addressLine1);
+    if (streetAddress?.addressLine2) addressParts.push(streetAddress.addressLine2);
+    if (streetAddress?.city) addressParts.push(streetAddress.city);
+    if (streetAddress?.postalCode) addressParts.push(streetAddress.postalCode);
+    if (streetAddress?.country) addressParts.push(streetAddress.country);
+
     return {
       name: xeroContact.name || '',
       email: xeroContact.emailAddress || null,
-      phone: xeroContact.phones?.find((p) => p.phoneType === 'DEFAULT')?.phoneNumber || null,
-      taxNumber: xeroContact.taxNumber || null,
-      // Address mapping
-      street: xeroContact.addresses?.find((a) => a.addressType === 'STREET')?.addressLine1 || null,
-      city: xeroContact.addresses?.find((a) => a.addressType === 'STREET')?.city || null,
-      postalCode:
-        xeroContact.addresses?.find((a) => a.addressType === 'STREET')?.postalCode || null,
-      country: xeroContact.addresses?.find((a) => a.addressType === 'STREET')?.country || null,
+      phone: xeroContact.phones?.find((p) => p.phoneType === Phone.PhoneTypeEnum.DEFAULT)?.phoneNumber || null,
+      vatId: xeroContact.taxNumber || null,
+      taxId: xeroContact.taxNumber || null,
+      firstName: xeroContact.firstName || null,
+      lastName: xeroContact.lastName || null,
+      address: addressParts.length > 0 ? addressParts.join(', ') : null,
+      // Store full address details in billingAddress
+      billingAddress: streetAddress ? {
+        addressLine1: streetAddress.addressLine1 || '',
+        addressLine2: streetAddress.addressLine2 || '',
+        city: streetAddress.city || '',
+        region: streetAddress.region || '',
+        postalCode: streetAddress.postalCode || '',
+        country: streetAddress.country || '',
+        addressType: streetAddress.addressType,
+      } : null,
+      // Store postal address in shippingAddress if different
+      shippingAddress: postalAddress ? {
+        addressLine1: postalAddress.addressLine1 || '',
+        addressLine2: postalAddress.addressLine2 || '',
+        city: postalAddress.city || '',
+        region: postalAddress.region || '',
+        postalCode: postalAddress.postalCode || '',
+        country: postalAddress.country || '',
+        addressType: postalAddress.addressType,
+      } : null,
       // Metadata
       metadata: {
         xeroContactId: xeroContact.contactID,
         xeroContactNumber: xeroContact.contactNumber,
         xeroContactStatus: xeroContact.contactStatus,
-        firstName: xeroContact.firstName,
-        lastName: xeroContact.lastName,
       },
     };
   }
@@ -229,30 +258,50 @@ export class XeroCustomerSyncService {
     const contact: Contact = {
       name: customer.name,
       emailAddress: customer.email || undefined,
-      taxNumber: customer.taxNumber || undefined,
+      taxNumber: customer.vatId || customer.taxId || undefined,
+      firstName: customer.firstName || undefined,
+      lastName: customer.lastName || undefined,
     };
 
     // Add phone if available
     if (customer.phone) {
       contact.phones = [
         {
-          phoneType: 'DEFAULT' as Prisma.InputJsonValue,
+          phoneType: Phone.PhoneTypeEnum.DEFAULT,
           phoneNumber: customer.phone,
         },
       ];
     }
 
-    // Add address if available
-    if (customer.street || customer.city || customer.postalCode) {
+    // Add address from billingAddress JSON if available
+    if (customer.billingAddress) {
+      const billing = customer.billingAddress;
       contact.addresses = [
         {
-          addressType: 'STREET' as Prisma.InputJsonValue,
-          addressLine1: customer.street || undefined,
-          city: customer.city || undefined,
-          postalCode: customer.postalCode || undefined,
-          country: customer.country || undefined,
+          addressType: Address.AddressTypeEnum.STREET,
+          addressLine1: billing.addressLine1 || undefined,
+          addressLine2: billing.addressLine2 || undefined,
+          city: billing.city || undefined,
+          region: billing.region || undefined,
+          postalCode: billing.postalCode || undefined,
+          country: billing.country || undefined,
         },
       ];
+    }
+
+    // Add shipping/postal address if available
+    if (customer.shippingAddress) {
+      const shipping = customer.shippingAddress;
+      if (!contact.addresses) contact.addresses = [];
+      contact.addresses.push({
+        addressType: Address.AddressTypeEnum.POBOX,
+        addressLine1: shipping.addressLine1 || undefined,
+        addressLine2: shipping.addressLine2 || undefined,
+        city: shipping.city || undefined,
+        region: shipping.region || undefined,
+        postalCode: shipping.postalCode || undefined,
+        country: shipping.country || undefined,
+      });
     }
 
     return contact;

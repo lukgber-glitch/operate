@@ -457,7 +457,7 @@ export class NotificationService {
 // generators/bills-suggestions.generator.spec.ts
 import { Test } from '@nestjs/testing';
 import { BillsSuggestionsGenerator } from './bills-suggestions.generator';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 
 describe('BillsSuggestionsGenerator', () => {
   let generator: BillsSuggestionsGenerator;

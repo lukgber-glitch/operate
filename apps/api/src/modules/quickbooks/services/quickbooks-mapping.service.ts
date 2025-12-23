@@ -1,6 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { QuickBooksSyncEntityType } from '@prisma/client';
+
+/**
+ * Entity types for QuickBooks sync
+ */
+export type QuickBooksSyncEntityType =
+  | 'CUSTOMER'
+  | 'INVOICE'
+  | 'PAYMENT'
+  | 'ACCOUNT'
+  | 'ITEM'
+  | 'PRODUCT'
+  | 'VENDOR'
+  | 'BILL'
+  | 'EXPENSE';
 
 /**
  * QuickBooks Mapping Service
@@ -35,20 +48,16 @@ export class QuickBooksMappingService {
         connectionId: params.connectionId,
         orgId: params.orgId,
         entityType: params.entityType,
+        localId: params.operateId,
         operateId: params.operateId,
-        quickbooksId: params.quickbooksId,
+        externalId: params.quickbooksId,
         metadata: params.metadata || {},
-        lastSyncAt: new Date(),
-        lastModifiedAt: new Date(),
+        lastSyncedAt: new Date(),
       },
       update: {
-        quickbooksId: params.quickbooksId,
+        externalId: params.quickbooksId,
         metadata: params.metadata || {},
-        lastSyncAt: new Date(),
-        lastModifiedAt: new Date(),
-        syncVersion: {
-          increment: 1,
-        },
+        lastSyncedAt: new Date(),
       },
     });
 
@@ -73,10 +82,10 @@ export class QuickBooksMappingService {
           operateId,
         },
       },
-      select: { quickbooksId: true },
+      select: { externalId: true },
     });
 
-    return mapping?.quickbooksId || null;
+    return mapping?.externalId || null;
   }
 
   /**
@@ -89,10 +98,10 @@ export class QuickBooksMappingService {
   ): Promise<string | null> {
     const mapping = await this.prisma.quickBooksSyncMapping.findUnique({
       where: {
-        connectionId_entityType_quickbooksId: {
+        connectionId_entityType_externalId: {
           connectionId,
           entityType,
-          quickbooksId,
+          externalId: quickbooksId,
         },
       },
       select: { operateId: true },
@@ -152,7 +161,7 @@ export class QuickBooksMappingService {
         entityType,
       },
       orderBy: {
-        lastModifiedAt: 'desc',
+        updatedAt: 'desc',
       },
     });
   }
@@ -169,7 +178,7 @@ export class QuickBooksMappingService {
       where: {
         connectionId,
         entityType,
-        lastModifiedAt: {
+        updatedAt: {
           gt: since,
         },
       },
@@ -178,6 +187,7 @@ export class QuickBooksMappingService {
 
   /**
    * Mark mapping as having conflict
+   * Note: Conflict tracking is done via QuickBooksSyncConflict model
    */
   async markConflict(
     connectionId: string,
@@ -185,6 +195,7 @@ export class QuickBooksMappingService {
     operateId: string,
     conflictData?: Record<string, any>,
   ): Promise<void> {
+    // Update metadata to indicate conflict
     await this.prisma.quickBooksSyncMapping.update({
       where: {
         connectionId_entityType_operateId: {
@@ -194,8 +205,10 @@ export class QuickBooksMappingService {
         },
       },
       data: {
-        hasConflict: true,
-        conflictData,
+        metadata: {
+          ...(typeof conflictData === 'object' ? conflictData : {}),
+          hasConflict: true,
+        },
       },
     });
   }
@@ -208,7 +221,7 @@ export class QuickBooksMappingService {
     entityType: QuickBooksSyncEntityType,
     operateId: string,
   ): Promise<void> {
-    await this.prisma.quickBooksSyncMapping.update({
+    const mapping = await this.prisma.quickBooksSyncMapping.findUnique({
       where: {
         connectionId_entityType_operateId: {
           connectionId,
@@ -216,11 +229,25 @@ export class QuickBooksMappingService {
           operateId,
         },
       },
-      data: {
-        hasConflict: false,
-        conflictData: null,
-      },
     });
+
+    if (mapping && mapping.metadata) {
+      const metadata = mapping.metadata as Record<string, any>;
+      delete metadata.hasConflict;
+
+      await this.prisma.quickBooksSyncMapping.update({
+        where: {
+          connectionId_entityType_operateId: {
+            connectionId,
+            entityType,
+            operateId,
+          },
+        },
+        data: {
+          metadata,
+        },
+      });
+    }
   }
 
   /**
@@ -230,11 +257,14 @@ export class QuickBooksMappingService {
     return this.prisma.quickBooksSyncMapping.findMany({
       where: {
         connectionId,
-        hasConflict: true,
         ...(entityType && { entityType }),
+        metadata: {
+          path: ['hasConflict'],
+          equals: true,
+        },
       },
       orderBy: {
-        lastModifiedAt: 'desc',
+        updatedAt: 'desc',
       },
     });
   }
@@ -285,19 +315,26 @@ export class QuickBooksMappingService {
         where: { connectionId, entityType },
       }),
       this.prisma.quickBooksSyncMapping.count({
-        where: { connectionId, entityType, hasConflict: true },
+        where: {
+          connectionId,
+          entityType,
+          metadata: {
+            path: ['hasConflict'],
+            equals: true,
+          },
+        },
       }),
       this.prisma.quickBooksSyncMapping.findFirst({
         where: { connectionId, entityType },
-        select: { lastSyncAt: true },
-        orderBy: { lastSyncAt: 'desc' },
+        select: { lastSyncedAt: true },
+        orderBy: { lastSyncedAt: 'desc' },
       }),
     ]);
 
     return {
       total,
       withConflicts,
-      lastSyncAt: latest?.lastSyncAt || null,
+      lastSyncAt: latest?.lastSyncedAt || null,
     };
   }
 }

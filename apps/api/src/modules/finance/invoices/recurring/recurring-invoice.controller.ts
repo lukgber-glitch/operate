@@ -27,7 +27,8 @@ import {
 } from './dto/recurring-invoice.dto';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 import { RbacGuard } from '@/modules/auth/rbac/rbac.guard';
-import { RequirePermissions } from '@/modules/auth/rbac/permissions';
+import { RequirePermissions } from '@/common/decorators/require-permissions.decorator';
+import { Permission } from '@/modules/auth/rbac/permissions';
 
 @ApiTags('Recurring Invoices')
 @ApiBearerAuth()
@@ -39,7 +40,7 @@ export class RecurringInvoiceController {
   ) {}
 
   @Post()
-  @RequirePermissions('invoices:create')
+  @RequirePermissions(Permission.INVOICES_CREATE)
   @ApiOperation({ summary: 'Create a recurring invoice' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -63,7 +64,7 @@ export class RecurringInvoiceController {
   }
 
   @Get()
-  @RequirePermissions('invoices:read')
+  @RequirePermissions(Permission.INVOICES_READ)
   @ApiOperation({ summary: 'Get all recurring invoices' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -78,7 +79,7 @@ export class RecurringInvoiceController {
   }
 
   @Get(':id')
-  @RequirePermissions('invoices:read')
+  @RequirePermissions(Permission.INVOICES_READ)
   @ApiOperation({ summary: 'Get a recurring invoice by ID' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -95,7 +96,7 @@ export class RecurringInvoiceController {
   }
 
   @Patch(':id')
-  @RequirePermissions('invoices:update')
+  @RequirePermissions(Permission.INVOICES_UPDATE)
   @ApiOperation({ summary: 'Update a recurring invoice' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -116,7 +117,7 @@ export class RecurringInvoiceController {
   }
 
   @Delete(':id')
-  @RequirePermissions('invoices:delete')
+  @RequirePermissions(Permission.INVOICES_DELETE)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a recurring invoice' })
   @ApiResponse({
@@ -134,7 +135,7 @@ export class RecurringInvoiceController {
   }
 
   @Post(':id/activate')
-  @RequirePermissions('invoices:update')
+  @RequirePermissions(Permission.INVOICES_UPDATE)
   @ApiOperation({ summary: 'Activate a recurring invoice' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -151,7 +152,7 @@ export class RecurringInvoiceController {
   }
 
   @Post(':id/deactivate')
-  @RequirePermissions('invoices:update')
+  @RequirePermissions(Permission.INVOICES_UPDATE)
   @ApiOperation({ summary: 'Deactivate a recurring invoice' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -168,7 +169,7 @@ export class RecurringInvoiceController {
   }
 
   @Post(':id/generate-now')
-  @RequirePermissions('invoices:create')
+  @RequirePermissions(Permission.INVOICES_CREATE)
   @ApiOperation({ summary: 'Manually generate an invoice from template now' })
   @ApiResponse({
     status: HttpStatus.CREATED,

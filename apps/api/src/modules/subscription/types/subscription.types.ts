@@ -65,7 +65,9 @@ export interface TierConfig {
   aiMessages: number; // -1 = unlimited
   bankConnections: number; // -1 = unlimited
   invoices: number; // -1 = unlimited
+  invoicesPerMonth: number; // Alias for invoices
   teamMembers: number; // -1 = unlimited
+  maxUsers: number; // Alias for teamMembers
   features: PlatformFeature[];
   displayName: string;
   description: string;
@@ -82,7 +84,9 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
     aiMessages: 50,
     bankConnections: 1,
     invoices: 5,
+    invoicesPerMonth: 5,
     teamMembers: 1,
+    maxUsers: 1,
     features: [
       PlatformFeature.BASIC_INVOICING,
       PlatformFeature.BASIC_EXPENSE_TRACKING,
@@ -99,7 +103,9 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
     aiMessages: 200,
     bankConnections: 3,
     invoices: -1, // unlimited
+    invoicesPerMonth: -1, // unlimited
     teamMembers: 1,
+    maxUsers: 1,
     features: [
       // All FREE features
       PlatformFeature.BASIC_INVOICING,
@@ -123,7 +129,9 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
     aiMessages: -1, // unlimited
     bankConnections: 10,
     invoices: -1, // unlimited
+    invoicesPerMonth: -1, // unlimited
     teamMembers: 3,
+    maxUsers: 3,
     features: [
       // All FREE features
       PlatformFeature.BASIC_INVOICING,
@@ -154,7 +162,9 @@ export const SUBSCRIPTION_TIERS: Record<SubscriptionTier, TierConfig> = {
     aiMessages: -1, // unlimited
     bankConnections: -1, // unlimited
     invoices: -1, // unlimited
+    invoicesPerMonth: -1, // unlimited
     teamMembers: -1, // unlimited
+    maxUsers: -1, // unlimited
     features: Object.values(PlatformFeature), // All features
     displayName: 'Business',
     description: 'Complete solution with unlimited access and priority support',
@@ -175,17 +185,22 @@ export interface UsageMetrics {
   bankConnectionsUsed: number;
   invoicesCreated: number;
   teamMembersActive: number;
+  activeUsers: number; // Alias for teamMembersActive
   limits: {
     aiMessages: number; // -1 = unlimited
     bankConnections: number; // -1 = unlimited
     invoices: number; // -1 = unlimited
+    invoicesPerMonth: number; // Alias for invoices
     teamMembers: number; // -1 = unlimited
+    maxUsers: number; // Alias for teamMembers
+    users: number; // Alias for teamMembers
   };
   percentUsed: {
     aiMessages: number; // 0-100, -1 for unlimited
     bankConnections: number; // 0-100, -1 for unlimited
     invoices: number; // 0-100, -1 for unlimited
     teamMembers: number; // 0-100, -1 for unlimited
+    users: number; // Alias for teamMembers
   };
 }
 

@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import * as https from 'https';
 import {
@@ -128,7 +128,7 @@ export class ScreeningService {
       this.logger.log('Creating AML screening search', {
         searchTerm: dto.searchTerm,
         searchType: dto.searchType,
-        organizationId: dto.organizationId,
+        organisationId: dto.organisationId,
       });
 
       // Build search request
@@ -143,7 +143,7 @@ export class ScreeningService {
         },
         exact_match: dto.exactMatch,
         fuzziness: dto.fuzziness,
-        client_ref: `${dto.organizationId}-${Date.now()}`,
+        client_ref: `${dto.organisationId}-${Date.now()}`,
       };
 
       // Call ComplyAdvantage API
@@ -169,7 +169,7 @@ export class ScreeningService {
           dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
           countryCode: dto.countryCode,
           userId: dto.userId,
-          organizationId: dto.organizationId,
+          organisationId: dto.organisationId,
           riskLevel,
           matchCount: searchResponse.total_hits,
           status,
@@ -190,7 +190,7 @@ export class ScreeningService {
       // Log audit entry
       await this.logAuditEntry({
         action: 'search_created',
-        organizationId: dto.organizationId,
+        organisationId: dto.organisationId,
         userId: dto.userId,
         metadata: {
           screeningId: screening.id,
@@ -251,12 +251,12 @@ export class ScreeningService {
   /**
    * List screenings for organization
    */
-  async listScreenings(organizationId: string, filters?: any): Promise<any> {
+  async listScreenings(organisationId: string, filters?: any): Promise<any> {
     if (!this.isConfigured) {
       throw new BadRequestException('ComplyAdvantage service is not configured. Please configure COMPLY_ADVANTAGE_API_KEY environment variable.');
     }
 
-    const where: any = { organizationId };
+    const where: any = { organisationId };
 
     if (filters?.userId) {
       where.userId = filters.userId;
@@ -307,7 +307,7 @@ export class ScreeningService {
       searchType: existingScreening.entityType as SearchType,
       dateOfBirth: existingScreening.dateOfBirth?.toISOString(),
       countryCode: existingScreening.countryCode || undefined,
-      organizationId: existingScreening.organizationId,
+      organisationId: existingScreening.organisationId,
       userId: existingScreening.userId || undefined,
     };
 

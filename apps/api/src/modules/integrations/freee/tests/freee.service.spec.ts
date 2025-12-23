@@ -5,7 +5,7 @@ import { FreeeOAuthService } from '../freee-oauth.service';
 import { FreeeContactMapper } from '../mappers/contact.mapper';
 import { FreeeInvoiceMapper } from '../mappers/invoice.mapper';
 import { FreeeTransactionMapper } from '../mappers/transaction.mapper';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 
 describe('FreeeService', () => {
   let service: FreeeService;

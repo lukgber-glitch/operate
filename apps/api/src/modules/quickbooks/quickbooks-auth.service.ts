@@ -190,7 +190,7 @@ export class QuickBooksAuthService {
         throw new InternalServerErrorException('Failed to exchange code for tokens');
       }
 
-      const token = tokenResponse.token as Prisma.InputJsonValue;
+      const token = tokenResponse.token as any;
 
       // Encrypt tokens
       const encryptedAccess = QuickBooksEncryptionUtil.encrypt(
@@ -204,9 +204,9 @@ export class QuickBooksAuthService {
 
       // Calculate expiry times
       const now = new Date();
-      const tokenExpiresAt = new Date(now.getTime() + token.expires_in * 1000);
+      const tokenExpiresAt = new Date(now.getTime() + (token.expires_in || 3600) * 1000);
       const refreshTokenExpiresAt = new Date(
-        now.getTime() + token.x_refresh_token_expires_in * 1000,
+        now.getTime() + (token.x_refresh_token_expires_in || 8726400) * 1000,
       );
 
       // Save connection to database
@@ -377,7 +377,7 @@ export class QuickBooksAuthService {
       this.oauthClient.token.setToken({
         refresh_token: refreshToken,
         realmId: connection.companyId,
-      } as Prisma.InputJsonValue);
+      } as any);
 
       // Refresh the token
       const tokenResponse = await this.oauthClient.refresh();
@@ -386,7 +386,7 @@ export class QuickBooksAuthService {
         throw new InternalServerErrorException('Failed to refresh tokens');
       }
 
-      const token = tokenResponse.token as Prisma.InputJsonValue;
+      const token = tokenResponse.token as any;
 
       // Encrypt new tokens
       const encryptedAccess = QuickBooksEncryptionUtil.encrypt(
@@ -400,9 +400,9 @@ export class QuickBooksAuthService {
 
       // Calculate new expiry times
       const now = new Date();
-      const tokenExpiresAt = new Date(now.getTime() + token.expires_in * 1000);
+      const tokenExpiresAt = new Date(now.getTime() + (token.expires_in || 3600) * 1000);
       const refreshTokenExpiresAt = new Date(
-        now.getTime() + token.x_refresh_token_expires_in * 1000,
+        now.getTime() + (token.x_refresh_token_expires_in || 8726400) * 1000,
       );
 
       // Update connection
@@ -491,7 +491,7 @@ export class QuickBooksAuthService {
       this.oauthClient.token.setToken({
         access_token: accessToken,
         realmId: connection.companyId,
-      } as Prisma.InputJsonValue);
+      } as any);
 
       // Revoke tokens (best effort - don't fail if revocation fails)
       try {

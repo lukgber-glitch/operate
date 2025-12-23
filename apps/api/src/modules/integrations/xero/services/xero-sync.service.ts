@@ -1,5 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { XeroAuthService } from '../xero-auth.service';
 import { XeroMappingService, XeroSyncEntityType } from './xero-mapping.service';
 import { XeroCustomerSyncService } from './xero-customer-sync.service';
@@ -118,7 +118,7 @@ export class XeroSyncService {
     const xeroClient = new XeroClient();
     xeroClient.setTokenSet({
       access_token: accessToken,
-    } as Prisma.InputJsonValue);
+    } as unknown as import('xero-node').TokenSetParameters);
 
     // Sync contacts first (dependencies)
     const contactsResult = await this.syncContactsFromXero(
@@ -195,7 +195,7 @@ export class XeroSyncService {
     const xeroClient = new XeroClient();
     xeroClient.setTokenSet({
       access_token: accessToken,
-    } as Prisma.InputJsonValue);
+    } as unknown as import('xero-node').TokenSetParameters);
 
     // Sync only modified entities
     const contactsResult = await this.syncContactsFromXero(
@@ -604,7 +604,7 @@ export class XeroSyncService {
     const xeroClient = new XeroClient();
     xeroClient.setTokenSet({
       access_token: accessToken,
-    } as Prisma.InputJsonValue);
+    } as unknown as import('xero-node').TokenSetParameters);
 
     switch (entityType) {
       case XeroSyncEntityType.CONTACT:

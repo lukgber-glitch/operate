@@ -15,7 +15,7 @@ import {
 } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { RevenueRecognitionService } from '../revenue-recognition.service';
 import { Decimal } from '@prisma/client/runtime/library';
 

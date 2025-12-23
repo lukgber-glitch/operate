@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TaxReportService } from './tax-report.service';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import {
   TaxReportCountry,

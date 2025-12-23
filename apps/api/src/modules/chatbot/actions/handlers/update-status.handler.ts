@@ -11,7 +11,7 @@ import {
   ActionContext,
   ParameterDefinition,
 } from '../action.types';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { InvoiceStatus, ExpenseStatus } from '@prisma/client';
 
 @Injectable()

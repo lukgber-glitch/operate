@@ -18,7 +18,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BankImportProcessor, BANK_IMPORT_QUEUE } from './bank-import.processor';
 import { BankImportScheduler } from './bank-import.scheduler';
 import type { BankSyncModule } from '../bank-sync.module';
-import { DatabaseModule } from '../../../database/database.module';
+import { DatabaseModule } from '@/modules/database/database.module';
 
 /**
  * Bank Import Job Module

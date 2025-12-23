@@ -1,5 +1,5 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { KeyManagementService } from '@/modules/security/key-management.service';
 import { ZatcaCsrService } from './zatca-csr.service';
 import { ZatcaAuditService } from './zatca-audit.service';

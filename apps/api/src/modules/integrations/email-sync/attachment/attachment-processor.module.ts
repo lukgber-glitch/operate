@@ -5,7 +5,7 @@ import { AttachmentProcessorService, ATTACHMENT_PROCESSING_QUEUE } from './attac
 import { AttachmentProcessorProcessor } from './attachment-processor.processor';
 import { AttachmentStorageService } from './attachment-storage.service';
 import { AttachmentClassifierService } from './attachment-classifier.service';
-import { PrismaModule } from '../../../database/prisma.module';
+import { DatabaseModule } from '@/modules/database/database.module';
 import { GmailModule } from '../../gmail/gmail.module';
 import { OutlookModule } from '../../outlook/outlook.module';
 import { InvoiceExtractorModule } from '../../../ai/extractors/invoice-extractor.module';
@@ -39,7 +39,7 @@ import { ReceiptExtractorModule } from '../../../ai/extractors/receipt-extractor
 @Module({
   imports: [
     ConfigModule,
-    PrismaModule,
+    DatabaseModule,
     GmailModule,
     OutlookModule,
     InvoiceExtractorModule,

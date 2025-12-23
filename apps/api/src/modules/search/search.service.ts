@@ -143,6 +143,9 @@ export class SearchService {
   ): Promise<SearchResultDto | null> {
     const expense = await this.prisma.transaction.findUnique({
       where: { id: indexedEntity.entityId, orgId },
+      include: {
+        vendor: true,
+      },
     });
 
     if (!expense) return null;
@@ -152,13 +155,13 @@ export class SearchService {
     return {
       entityType: SearchableEntityType.EXPENSE,
       entityId: expense.id,
-      title: metadata.vendor || expense.vendor || 'Expense',
+      title: metadata.vendor || expense.vendor?.name || 'Expense',
       subtitle: `${metadata.category || expense.category} - ${this.formatCurrency(metadata.amount || expense.amount)}`,
       description: metadata.description || expense.description || '',
       url: `/expenses/${expense.id}`,
       relevanceScore: this.calculateRelevance(indexedEntity),
       metadata: {
-        vendor: expense.vendor,
+        vendor: expense.vendor?.name,
         category: expense.category,
         amount: expense.amount,
         date: expense.date,

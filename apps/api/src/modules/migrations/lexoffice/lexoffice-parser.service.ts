@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx';
 import * as Papa from 'papaparse';
 import * as dayjs from 'dayjs';
 import * as customParseFormat from 'dayjs/plugin/customParseFormat';
+import { Prisma } from '@prisma/client';
 import {
   LexofficeMigrationType,
   ParsedMigrationData,
@@ -135,7 +136,7 @@ export class LexofficeParserService {
           companyName: mapped.companyName,
           firstName: mapped.firstName,
           lastName: mapped.lastName,
-          type: mapped.type as Prisma.InputJsonValue,
+          type: mapped.type,
           email: mapped.email,
           phone: mapped.phone,
           mobile: mapped.mobile,
@@ -249,7 +250,7 @@ export class LexofficeParserService {
 
         const invoice: LexofficeInvoice = {
           invoiceNumber: mapped.invoiceNumber,
-          status: status as Prisma.InputJsonValue || 'open',
+          status: status || 'open',
           customerNumber: mapped.customerNumber,
           customerName: mapped.customerName,
           customerAddress: mapped.customerAddress,
@@ -363,7 +364,7 @@ export class LexofficeParserService {
         const voucher: LexofficeVoucher = {
           voucherNumber: mapped.voucherNumber,
           receiptNumber: mapped.receiptNumber,
-          type: type as Prisma.InputJsonValue,
+          type: type,
           vendorName: mapped.vendorName,
           vendorVatId: this.cleanVatId(mapped.vendorVatId),
           date,

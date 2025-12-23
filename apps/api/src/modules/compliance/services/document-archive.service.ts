@@ -199,13 +199,13 @@ export class DocumentArchiveService {
         id,
         organisationId: tenantId,
       },
-      include: {
-        versions: includeVersions
-          ? {
+      include: includeVersions
+        ? {
+            versions: {
               orderBy: { version: 'desc' },
-            }
-          : false,
-      },
+            },
+          }
+        : undefined,
     });
 
     if (!doc) {
@@ -218,8 +218,28 @@ export class DocumentArchiveService {
 
     // Prepare result
     const result: RetrievedDocument = {
-      ...doc,
-      versions: includeVersions ? (doc.versions as DocumentVersion[]) : undefined,
+      id: doc.id,
+      organisationId: doc.organisationId,
+      originalFilename: doc.originalFilename,
+      mimeType: doc.mimeType,
+      fileSizeBytes: doc.fileSizeBytes,
+      contentHash: doc.contentHash,
+      storagePath: doc.storagePath,
+      status: doc.status,
+      retentionCategory: doc.retentionCategory,
+      archivedAt: doc.archivedAt,
+      retentionEndDate: doc.retentionEndDate,
+      lastAccessedAt: doc.lastAccessedAt || undefined,
+      lastVerifiedAt: doc.lastVerifiedAt || undefined,
+      verificationResult: doc.verificationResult || undefined,
+      entityType: doc.entityType || undefined,
+      entityId: doc.entityId || undefined,
+      metadata: (doc.metadata as Record<string, any>) || undefined,
+      tags: doc.tags as string[],
+      uploadedBy: doc.uploadedBy,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      versions: includeVersions && doc.versions ? (doc.versions as DocumentVersion[]) : undefined,
     };
 
     // Decrypt content if requested

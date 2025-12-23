@@ -241,6 +241,8 @@ export interface CraFilingResponse {
   confirmationNumber?: string;
   /** Timestamp of filing */
   filedAt?: Date;
+  /** Timestamp when processed by CRA */
+  processedAt?: Date;
   /** Validation errors if any */
   errors?: Array<{
     code: string;

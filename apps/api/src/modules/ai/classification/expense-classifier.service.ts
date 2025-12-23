@@ -58,7 +58,7 @@ export class ExpenseClassifierService {
       description: expense.description,
       amount: expense.amount,
       currency: expense.currency,
-      date: expense.date,
+      date: expense.date instanceof Date ? expense.date.toISOString() : expense.date,
       counterparty: expense.merchantName,
     };
 

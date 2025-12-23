@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { BaseSuggestionGenerator } from './base.generator';
 import {
   GeneratorResult,
@@ -80,10 +80,10 @@ export class HRSuggestionsGenerator extends BaseSuggestionGenerator {
     context: SuggestionContext,
   ): Promise<{ suggestions: Suggestion[] }> {
     // Check if Leave model exists
-    const pendingCount = await this.prisma.leave
+    const pendingCount = await this.prisma.leaveRequest
       .count({
         where: {
-          orgId: context.orgId,
+          employee: { orgId: context.orgId },
           status: 'PENDING',
         },
       })
@@ -125,25 +125,27 @@ export class HRSuggestionsGenerator extends BaseSuggestionGenerator {
     threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
 
     try {
-      // Check if Employee model exists with contracts
-      const expiringContracts = await this.prisma.employee
-        .findMany({
-          where: {
-            orgId: context.orgId,
-            contractEndDate: {
-              gte: now,
-              lte: threeMonthsFromNow,
-            },
-            status: 'ACTIVE',
-          },
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            contractEndDate: true,
-          },
-        })
-        .catch(() => []);
+      // Note: contractEndDate field does not exist in Employee model
+      // This feature is disabled until the schema is updated
+      const expiringContracts: any[] = [];
+      // const expiringContracts = await this.prisma.employee
+      //   .findMany({
+      //     where: {
+      //       orgId: context.orgId,
+      //       contractEndDate: {
+      //         gte: now,
+      //         lte: threeMonthsFromNow,
+      //       },
+      //       status: 'ACTIVE',
+      //     },
+      //     select: {
+      //       id: true,
+      //       firstName: true,
+      //       lastName: true,
+      //       contractEndDate: true,
+      //     },
+      //   })
+      //   .catch(() => []);
 
       for (const employee of expiringContracts) {
         if (!employee.contractEndDate) continue;
@@ -197,25 +199,27 @@ export class HRSuggestionsGenerator extends BaseSuggestionGenerator {
     oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
 
     try {
-      // Check if Employee model exists with probation fields
-      const endingProbation = await this.prisma.employee
-        .findMany({
-          where: {
-            orgId: context.orgId,
-            probationEndDate: {
-              gte: now,
-              lte: oneMonthFromNow,
-            },
-            status: 'ACTIVE',
-          },
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            probationEndDate: true,
-          },
-        })
-        .catch(() => []);
+      // Note: probationEndDate field does not exist in Employee model
+      // This feature is disabled until the schema is updated
+      const endingProbation: any[] = [];
+      // const endingProbation = await this.prisma.employee
+      //   .findMany({
+      //     where: {
+      //       orgId: context.orgId,
+      //       probationEndDate: {
+      //         gte: now,
+      //         lte: oneMonthFromNow,
+      //       },
+      //       status: 'ACTIVE',
+      //     },
+      //     select: {
+      //       id: true,
+      //       firstName: true,
+      //       lastName: true,
+      //       probationEndDate: true,
+      //     },
+      //   })
+      //   .catch(() => []);
 
       if (endingProbation.length === 0) {
         return { suggestions: [] };

@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { GobdService } from '../gobd.service';
 import { GobdBuilderService } from '../gobd-builder.service';
-import { PrismaService } from '../../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { CreateGobdExportDto } from '../dto/create-gobd-export.dto';
 import { ExportStatus, DocumentType } from '../interfaces/gobd-config.interface';
 

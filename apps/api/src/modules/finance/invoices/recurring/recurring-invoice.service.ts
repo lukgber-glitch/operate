@@ -4,14 +4,14 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import {
   CreateRecurringInvoiceDto,
   UpdateRecurringInvoiceDto,
   RecurringInvoiceFiltersDto,
   RecurringFrequency,
 } from './dto/recurring-invoice.dto';
-import { Prisma, RecurringInvoice, Invoice } from '@prisma/client';
+import { Prisma, RecurringInvoice, Invoice, Customer } from '@prisma/client';
 import { InvoicesService } from '../invoices.service';
 
 /**
@@ -69,7 +69,7 @@ export class RecurringInvoiceService {
         startDate,
         endDate: dto.endDate ? new Date(dto.endDate) : null,
         nextRunDate,
-        lineItems: dto.lineItems,
+        lineItems: dto.lineItems as unknown as Prisma.InputJsonValue,
         currency: dto.currency || 'EUR',
         taxRate: dto.taxRate,
         notes: dto.notes,
@@ -202,7 +202,9 @@ export class RecurringInvoiceService {
       if (!customer) {
         throw new NotFoundException('Customer not found');
       }
-      updateData.customerId = dto.customerId;
+      updateData.customer = {
+        connect: { id: dto.customerId },
+      };
     }
 
     if (dto.frequency) updateData.frequency = dto.frequency;
@@ -213,7 +215,7 @@ export class RecurringInvoiceService {
     if (dto.endDate !== undefined) {
       updateData.endDate = dto.endDate ? new Date(dto.endDate) : null;
     }
-    if (dto.lineItems) updateData.lineItems = dto.lineItems as Prisma.InputJsonValue;
+    if (dto.lineItems) updateData.lineItems = dto.lineItems as unknown as Prisma.InputJsonValue;
     if (dto.currency) updateData.currency = dto.currency;
     if (dto.taxRate !== undefined) updateData.taxRate = dto.taxRate;
     if (dto.notes !== undefined) updateData.notes = dto.notes;
@@ -295,7 +297,9 @@ export class RecurringInvoiceService {
   /**
    * Generate an invoice from a recurring invoice template
    */
-  async generateInvoice(recurringInvoice: RecurringInvoice): Promise<Invoice> {
+  async generateInvoice(
+    recurringInvoice: RecurringInvoice & { customer?: Customer },
+  ): Promise<Invoice> {
     // Load full data if not included
     if (!recurringInvoice.customer) {
       recurringInvoice = await this.findOne(recurringInvoice.id);
@@ -311,14 +315,18 @@ export class RecurringInvoiceService {
       : [];
 
     // Create invoice items from template
-    const items = lineItems.map((item: any, index: number) => ({
-      description: item.description,
-      quantity: item.quantity,
-      unitPrice: item.unitPrice,
-      productCode: item.productCode,
-      unit: item.unit,
-      sortOrder: item.sortOrder || index,
-    }));
+    const items = lineItems.map((item: any, index: number) => {
+      const amount = item.quantity * item.unitPrice;
+      return {
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        amount,
+        productCode: item.productCode,
+        unit: item.unit,
+        sortOrder: item.sortOrder || index,
+      };
+    });
 
     // Calculate totals
     let subtotal = 0;
@@ -352,10 +360,13 @@ export class RecurringInvoiceService {
         subtotal,
         taxAmount,
         totalAmount,
+        total: totalAmount, // Alias for totalAmount
         currency: recurringInvoice.currency,
         vatRate: recurringInvoice.taxRate,
         notes: recurringInvoice.notes,
-        recurringInvoiceId: recurringInvoice.id,
+        recurringInvoice: {
+          connect: { id: recurringInvoice.id },
+        },
         items: {
           create: items,
         },

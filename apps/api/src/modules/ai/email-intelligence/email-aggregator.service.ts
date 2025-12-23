@@ -225,7 +225,12 @@ export class EmailAggregatorService {
     const domainMap = new Map<string, DomainGroup>();
 
     for (const entity of entities) {
-      const data = entity.entities as Prisma.InputJsonValue; // Full ExtractedEntities object
+      const data = entity.entities as unknown as {
+        contacts?: any[];
+        companies?: any[];
+        addresses?: any[];
+        [key: string]: any;
+      }; // Full ExtractedEntities object
 
       // Extract all email addresses from contacts
       const contactEmails = entity.contactEmails || [];
@@ -310,7 +315,11 @@ export class EmailAggregatorService {
       let address: string | null = null;
 
       for (const entity of group.entities) {
-        const data = entity.entities as Prisma.InputJsonValue;
+        const data = entity.entities as unknown as {
+          companies?: any[];
+          addresses?: any[];
+          [key: string]: any;
+        };
         if (data.companies && Array.isArray(data.companies)) {
           for (const company of data.companies) {
             if (company.vatId && !vatId) {

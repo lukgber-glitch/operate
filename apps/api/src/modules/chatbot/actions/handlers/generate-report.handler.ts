@@ -89,35 +89,32 @@ export class GenerateReportHandler extends BaseActionHandler {
       switch (reportType) {
         case 'income':
         case 'expense':
-          reportResult = await this.reportsService.generateFinancialReport(
+          reportResult = await this.reportsService.getFinancialReport(
             context.organizationId,
             {
               fromDate: normalized.fromDate,
               toDate: normalized.toDate,
-              format: normalized.format || 'pdf',
             },
           );
           break;
 
         case 'profit-loss':
         case 'balance-sheet':
-          reportResult = await this.reportsService.generateFinancialReport(
+          reportResult = await this.reportsService.getFinancialReport(
             context.organizationId,
             {
               fromDate: normalized.fromDate,
               toDate: normalized.toDate,
-              format: normalized.format || 'pdf',
             },
           );
           break;
 
         case 'tax':
-          reportResult = await this.reportsService.generateFinancialReport(
+          reportResult = await this.reportsService.getTaxReport(
             context.organizationId,
             {
               fromDate: normalized.fromDate,
               toDate: normalized.toDate,
-              format: normalized.format || 'pdf',
             },
           );
           break;
@@ -132,14 +129,14 @@ export class GenerateReportHandler extends BaseActionHandler {
 
       return this.success(
         `${this.capitalizeFirst(reportType)} report generated successfully for ${this.formatDateRange(fromDate, toDate)}`,
-        reportResult.id,
+        undefined,
         'Report',
         {
           reportType: reportType,
           format: normalized.format || 'pdf',
           fromDate: normalized.fromDate,
           toDate: normalized.toDate,
-          downloadUrl: reportResult.url,
+          reportData: reportResult,
         },
       );
     } catch (error) {

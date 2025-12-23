@@ -12,7 +12,7 @@ import {
   ParameterDefinition,
 } from '../action.types';
 import { EmployeesService } from '../../../hr/employees/employees.service';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { EmploymentStatus } from '@prisma/client';
 
 @Injectable()

@@ -5,19 +5,33 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  S3Client,
-  PutObjectCommand,
-  GetObjectCommand,
-  DeleteObjectCommand,
-  HeadObjectCommand,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { Readable } from 'stream';
 import { createHash } from 'crypto';
 import { AttachmentStorageBackend } from '@prisma/client';
+
+// Conditional AWS SDK imports - only available if package is installed
+let S3Client: any;
+let PutObjectCommand: any;
+let GetObjectCommand: any;
+let DeleteObjectCommand: any;
+let HeadObjectCommand: any;
+let getSignedUrl: any;
+
+try {
+  const s3Client = require('@aws-sdk/client-s3');
+  const s3Presigner = require('@aws-sdk/s3-request-presigner');
+
+  S3Client = s3Client.S3Client;
+  PutObjectCommand = s3Client.PutObjectCommand;
+  GetObjectCommand = s3Client.GetObjectCommand;
+  DeleteObjectCommand = s3Client.DeleteObjectCommand;
+  HeadObjectCommand = s3Client.HeadObjectCommand;
+  getSignedUrl = s3Presigner.getSignedUrl;
+} catch (error) {
+  // AWS SDK not installed - S3 backend will not be available
+}
 
 /**
  * Attachment Storage Service
@@ -44,7 +58,7 @@ export class AttachmentStorageService {
   private readonly logger = new Logger(AttachmentStorageService.name);
   private readonly storageBackend: AttachmentStorageBackend;
   private readonly localStoragePath: string;
-  private readonly s3Client?: S3Client;
+  private readonly s3Client?: any;
   private readonly s3Bucket?: string;
   private readonly s3Region?: string;
 
@@ -64,6 +78,12 @@ export class AttachmentStorageService {
 
     // S3 configuration
     if (this.storageBackend === AttachmentStorageBackend.S3) {
+      if (!S3Client) {
+        throw new Error(
+          'AWS SDK (@aws-sdk/client-s3) is not installed. Install it to use S3 storage backend or switch to LOCAL storage.',
+        );
+      }
+
       this.s3Bucket = this.configService.get<string>('AWS_S3_BUCKET');
       this.s3Region = this.configService.get<string>('AWS_S3_REGION');
 
@@ -125,7 +145,7 @@ export class AttachmentStorageService {
     size: number;
   }> {
     // Calculate content hash for deduplication
-    const buffer = content instanceof Buffer ? content : await this.streamToBuffer(content);
+    const buffer = Buffer.isBuffer(content) ? content : await this.streamToBuffer(content);
     const contentHash = this.calculateHash(buffer);
 
     // Generate storage path/key

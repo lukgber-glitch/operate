@@ -457,8 +457,8 @@ export class BillMatcherService {
       // Create bill
       const bill = await this.prisma.bill.create({
         data: {
-          organisationId: orgId,
-          vendorId: vendor.id,
+          organisation: { connect: { id: orgId } },
+          vendor: { connect: { id: vendor.id } },
           vendorName: vendor.name,
           billNumber: billNumber,
           description: payment.description || `Payment to ${vendor.name}`,
@@ -466,6 +466,7 @@ export class BillMatcherService {
           currency: 'EUR',
           taxAmount: 0,
           totalAmount: payment.amount,
+          total: payment.amount,
           paidAmount: payment.amount,
           status: BillStatus.PAID,
           issueDate: payment.date,

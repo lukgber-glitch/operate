@@ -10,7 +10,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { StreamableFile } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { SaftBuilderService } from './saft-builder.service';
 import { SaftValidator } from './utils/saft-validator.util';
 import {

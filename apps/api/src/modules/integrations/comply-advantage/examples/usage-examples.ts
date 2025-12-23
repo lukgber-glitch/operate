@@ -4,7 +4,7 @@
  */
 
 import { ComplyAdvantageService } from '../comply-advantage.service';
-import { SearchType, MonitoringFrequency, AlertStatus } from '../types/comply-advantage.types';
+import { SearchType, MonitoringFrequency, AlertStatus, MatchType } from '../types/comply-advantage.types';
 
 /**
  * Example 1: Screen a new customer
@@ -13,14 +13,14 @@ async function screenNewCustomer(
   service: ComplyAdvantageService,
   customerName: string,
   dateOfBirth: string,
-  organizationId: string,
+  organisationId: string,
 ) {
   const screening = await service.screening.createSearch({
     searchTerm: customerName,
     searchType: SearchType.PERSON,
     dateOfBirth,
-    organizationId,
-    matchTypes: ['pep', 'sanction', 'watchlist'],
+    organisationId,
+    matchTypes: [MatchType.PEP, MatchType.SANCTION, MatchType.WATCHLIST],
     fuzziness: 0.7, // 70% match threshold
   });
 
@@ -113,16 +113,16 @@ async function confirmAndEscalateMatch(
  */
 async function getPendingReviewDashboard(
   service: ComplyAdvantageService,
-  organizationId: string,
+  organisationId: string,
 ) {
   // Get all pending reviews
-  const pendingReviews = await service.caseManagement.getPendingReviewCases(organizationId);
+  const pendingReviews = await service.caseManagement.getPendingReviewCases(organisationId);
 
   // Get overdue reviews
-  const overdueReviews = await service.caseManagement.getOverdueReviews(organizationId);
+  const overdueReviews = await service.caseManagement.getOverdueReviews(organisationId);
 
   // Get statistics
-  const statistics = await service.caseManagement.getAlertStatistics(organizationId);
+  const statistics = await service.caseManagement.getAlertStatistics(organisationId);
 
   console.log('Dashboard data:', {
     pendingCount: pendingReviews.length,
@@ -144,14 +144,14 @@ async function screenCompany(
   service: ComplyAdvantageService,
   companyName: string,
   countryCode: string,
-  organizationId: string,
+  organisationId: string,
 ) {
   const screening = await service.screening.createSearch({
     searchTerm: companyName,
     searchType: SearchType.COMPANY,
     countryCode,
-    organizationId,
-    matchTypes: ['sanction', 'watchlist', 'adverse_media'],
+    organisationId,
+    matchTypes: [MatchType.SANCTION, MatchType.WATCHLIST, MatchType.ADVERSE_MEDIA],
     exactMatch: false,
   });
 
@@ -189,9 +189,9 @@ async function performPeriodicRescreen(
  */
 async function listAllMonitoring(
   service: ComplyAdvantageService,
-  organizationId: string,
+  organisationId: string,
 ) {
-  const activeMonitoring = await service.monitoring.listActiveMonitoring(organizationId);
+  const activeMonitoring = await service.monitoring.listActiveMonitoring(organisationId);
 
   console.log(`Active monitoring: ${activeMonitoring.length} entities`);
 
@@ -213,7 +213,7 @@ async function listAllMonitoring(
 async function bulkOnboardingWorkflow(
   service: ComplyAdvantageService,
   customers: Array<{ name: string; dob: string; userId: string }>,
-  organizationId: string,
+  organisationId: string,
 ) {
   console.log(`Starting bulk screening for ${customers.length} customers...`);
 
@@ -225,7 +225,7 @@ async function bulkOnboardingWorkflow(
           searchType: SearchType.PERSON,
           dateOfBirth: customer.dob,
           userId: customer.userId,
-          organizationId,
+          organisationId,
         });
 
         // Enable monitoring for medium/high/critical risk
@@ -271,18 +271,18 @@ async function bulkOnboardingWorkflow(
  */
 async function dailyComplianceReview(
   service: ComplyAdvantageService,
-  organizationId: string,
+  organisationId: string,
 ) {
   // 1. Get all pending reviews
-  const pending = await service.caseManagement.getPendingReviewCases(organizationId);
+  const pending = await service.caseManagement.getPendingReviewCases(organisationId);
   console.log(`Pending reviews: ${pending.length}`);
 
   // 2. Get overdue reviews
-  const overdue = await service.caseManagement.getOverdueReviews(organizationId);
+  const overdue = await service.caseManagement.getOverdueReviews(organisationId);
   console.log(`Overdue reviews: ${overdue.length}`);
 
   // 3. Get today's statistics
-  const stats = await service.caseManagement.getAlertStatistics(organizationId);
+  const stats = await service.caseManagement.getAlertStatistics(organisationId);
   console.log('Statistics:', stats);
 
   // 4. Prioritize critical risks

@@ -121,6 +121,160 @@ export class CrmRepository {
     });
   }
 
+  async softDeleteClient(id: string) {
+    // Soft delete with deletedAt timestamp
+    return this.prisma.client.update({
+      where: { id },
+      data: {
+        status: ClientStatus.CHURNED,
+        deletedAt: new Date(),
+      },
+    });
+  }
+
+  async getLastClientByOrg(orgId: string) {
+    return this.prisma.client.findFirst({
+      where: { orgId },
+      orderBy: { clientNumber: 'desc' },
+      select: { clientNumber: true },
+    });
+  }
+
+  async findClientByEmail(orgId: string, email: string) {
+    return this.prisma.client.findFirst({
+      where: { orgId, email },
+    });
+  }
+
+  async findClientByTaxId(orgId: string, taxId: string) {
+    return this.prisma.client.findFirst({
+      where: { orgId, taxId },
+    });
+  }
+
+  async findClientByNumber(orgId: string, clientNumber: string) {
+    return this.prisma.client.findFirst({
+      where: { orgId, clientNumber },
+      include: {
+        contacts: true,
+        addresses: true,
+        communications: {
+          take: 10,
+          orderBy: { occurredAt: 'desc' },
+        },
+      },
+    });
+  }
+
+  async findClientByIdWithRelations(id: string, includeAll = true) {
+    return this.prisma.client.findUnique({
+      where: { id },
+      include: includeAll ? {
+        contacts: {
+          where: { isActive: true },
+          orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }],
+        },
+        addresses: {
+          orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }],
+        },
+        communications: {
+          take: 20,
+          orderBy: { occurredAt: 'desc' },
+        },
+        payments: {
+          take: 20,
+          orderBy: { createdAt: 'desc' },
+        },
+        _count: {
+          select: {
+            contacts: true,
+            addresses: true,
+            communications: true,
+            invoices: true,
+            payments: true,
+          },
+        },
+      } : {
+        _count: {
+          select: {
+            contacts: true,
+            addresses: true,
+            communications: true,
+            invoices: true,
+            payments: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findClientsWithCursor(params: {
+    where: Prisma.ClientWhereInput;
+    include?: Prisma.ClientInclude;
+    cursor: Prisma.ClientWhereUniqueInput;
+    take: number;
+    orderBy: Prisma.ClientOrderByWithRelationInput;
+  }) {
+    return this.prisma.client.findMany({
+      where: params.where,
+      include: params.include,
+      cursor: params.cursor,
+      take: params.take,
+      orderBy: params.orderBy,
+    });
+  }
+
+  async countClients(where: Prisma.ClientWhereInput) {
+    return this.prisma.client.count({ where });
+  }
+
+  async findClientsByIds(ids: string[]) {
+    return this.prisma.client.findMany({
+      where: { id: { in: ids } },
+    });
+  }
+
+  async bulkUpdateClients(ids: string[], data: Prisma.ClientUpdateInput) {
+    return this.prisma.client.updateMany({
+      where: { id: { in: ids } },
+      data,
+    });
+  }
+
+  async bulkSoftDeleteClients(ids: string[]) {
+    return this.prisma.client.updateMany({
+      where: { id: { in: ids } },
+      data: {
+        status: ClientStatus.CHURNED,
+        deletedAt: new Date(),
+      },
+    });
+  }
+
+  async searchClients(orgId: string, query: string, limit = 20) {
+    return this.prisma.client.findMany({
+      where: {
+        orgId,
+        OR: [
+          { name: { contains: query, mode: 'insensitive' } },
+          { clientNumber: { contains: query, mode: 'insensitive' } },
+          { email: { contains: query, mode: 'insensitive' } },
+          { phone: { contains: query, mode: 'insensitive' } },
+          { companyName: { contains: query, mode: 'insensitive' } },
+          { taxId: { contains: query, mode: 'insensitive' } },
+          { vatId: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+      take: limit,
+      include: {
+        contacts: {
+          where: { isPrimary: true },
+          take: 1,
+        },
+      },
+    });
+  }
+
   async updateClientMetrics(clientId: string) {
     // Calculate payment metrics from ClientPayment records
     const payments = await this.prisma.clientPayment.findMany({
@@ -218,6 +372,66 @@ export class CrmRepository {
     return this.prisma.clientContact.update({
       where: { id: contactId },
       data: { isPrimary: true },
+    });
+  }
+
+  async unsetOtherPrimaryContacts(clientId: string, excludeContactId: string) {
+    return this.prisma.clientContact.updateMany({
+      where: {
+        clientId,
+        isPrimary: true,
+        id: { not: excludeContactId },
+      },
+      data: { isPrimary: false },
+    });
+  }
+
+  // ============================================================================
+  // ADDRESS OPERATIONS
+  // ============================================================================
+
+  async createAddress(data: Prisma.ClientAddressCreateInput) {
+    return this.prisma.clientAddress.create({
+      data,
+      include: {
+        client: true,
+      },
+    });
+  }
+
+  async findAddressesByClient(clientId: string) {
+    return this.prisma.clientAddress.findMany({
+      where: { clientId },
+      orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }],
+    });
+  }
+
+  async unsetOtherPrimaryAddresses(clientId: string, excludeAddressId: string) {
+    return this.prisma.clientAddress.updateMany({
+      where: {
+        clientId,
+        isPrimary: true,
+        id: { not: excludeAddressId },
+      },
+      data: { isPrimary: false },
+    });
+  }
+
+  async findRecentActivity(clientId: string, limit = 20) {
+    return this.prisma.clientCommunication.findMany({
+      where: { clientId },
+      orderBy: { occurredAt: 'desc' },
+      take: limit,
+    });
+  }
+
+  async countRecentCommunications(clientId: string, days: number) {
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    return this.prisma.clientCommunication.count({
+      where: {
+        clientId,
+        occurredAt: { gte: since },
+      },
     });
   }
 

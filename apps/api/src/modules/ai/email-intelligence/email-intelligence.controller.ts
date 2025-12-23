@@ -98,14 +98,14 @@ export class EmailIntelligenceController {
     const limitNum = limit ? parseInt(limit, 10) : 50;
 
     // Get recent emails with their metadata
-    const emails = await this.prisma.emailMessage.findMany({
-      where: { organisationId: orgId },
+    const emails = await this.prisma.syncedEmail.findMany({
+      where: { orgId: orgId },
       orderBy: { receivedAt: 'desc' },
       take: limitNum,
       select: {
         id: true,
         subject: true,
-        fromAddress: true,
+        from: true,
         receivedAt: true,
         metadata: true,
       },
@@ -147,7 +147,7 @@ export class EmailIntelligenceController {
         id: email.id,
         date: email.receivedAt,
         subject: email.subject || 'No subject',
-        from: email.fromAddress,
+        from: email.from || '',
         category: classification?.category || 'GENERAL',
         action,
         entityType,
@@ -173,7 +173,7 @@ export class EmailIntelligenceController {
     // Get all customers and vendors with their metadata
     const [customers, vendors] = await Promise.all([
       this.prisma.customer.findMany({
-        where: { organisationId: orgId },
+        where: { orgId: orgId },
         select: { id: true, metadata: true },
       }),
       this.prisma.vendor.findMany({
@@ -231,7 +231,7 @@ export class EmailIntelligenceController {
 
     // Get customers with AT_RISK or DORMANT status
     const customers = await this.prisma.customer.findMany({
-      where: { organisationId: orgId },
+      where: { orgId: orgId },
       select: {
         id: true,
         name: true,
@@ -412,7 +412,7 @@ export class EmailIntelligenceController {
     // Get auto-created customers
     const customers = await this.prisma.customer.findMany({
       where: {
-        organisationId: orgId,
+        orgId: orgId,
         ...(Object.keys(dateFilter).length > 0 ? { createdAt: dateFilter } : {}),
       },
       select: {

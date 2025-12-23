@@ -6,7 +6,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Modelo303Service } from '../modelo-303.service';
 import { SpainReportCalculatorService } from '../spain-report-calculator.service';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import {
   SpainReportType,
   SpainReportStatus,

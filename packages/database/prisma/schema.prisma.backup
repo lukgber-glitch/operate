@@ -94,45 +94,60 @@ model Organisation {
   commercialRegistration    String? // CR for Saudi Arabia
   tradeLicenseNumber        String? // UAE Trade License
 
+  // Business Context for Email Processing
+  industry           String? // e.g., 'technology', 'consulting', 'retail'
+  businessModel      String? // 'B2B', 'B2C', 'HYBRID'
+  targetCustomerType String? // 'BUSINESS', 'CONSUMER', 'BOTH'
+
+  // Onboarding status
+  onboardingCompleted Boolean @default(false)
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  memberships           Membership[]
-  auditLogs             AuditLog[]
-  auditLogSequences     AuditLogSequence[]     @relation("AuditLogSequence")
-  organisationCountries OrganisationCountry[]
-  taxCredentials        TaxCredential[]
-  employees             Employee[]
-  payrollPeriods        PayrollPeriod[]
-  transactions          Transaction[]
-  deductionSuggestions  DeductionSuggestion[]
-  taxDeductionSummaries TaxDeductionSummary[]
-  fraudAlerts           FraudAlert[]
-  costEntries           CostEntry[]
-  budgets               Budget[]
-  automationSettings    AutomationSettings?
-  automationAuditLogs   AutomationAuditLog[]
-  recurringInvoices     RecurringInvoice[]
-  paymentReminders      PaymentReminder[]
-  correctionRecords     CorrectionRecord[]
-  learningPatterns      LearningPattern[]
-  reminderSettings      ReminderSettings?
-  bankConnections       BankConnection[]
-  elsterCertificates    ElsterCertificate[]
-  spainCertificates     SpainCertificate[]
-  zatcaCertificates     ZatcaCertificate[]
-  elsterFilings         ElsterFiling[]
-  taxDocuments          TaxDocument[]
-  processDocumentations ProcessDocumentation[]
-  quickbooksConnections QuickBooksConnection[]
-  xeroConnections       XeroConnection[]
-  emailConnections      EmailConnection[]
-  plaidBankAccounts     PlaidBankAccount[]
-  plaidTransactions     PlaidTransaction[]
-  storageQuota          StorageQuota?
-  extractedInvoices     ExtractedInvoice[]
-  gocardlessConnections GoCardlessConnection[]
+  memberships            Membership[]
+  auditLogs              AuditLog[]
+  auditLogSequences      AuditLogSequence[]     @relation("AuditLogSequence")
+  organisationCountries  OrganisationCountry[]
+  taxCredentials         TaxCredential[]
+  employees              Employee[]
+  payrollPeriods         PayrollPeriod[]
+  hrAuditLogs            HrAuditLog[]
+  employeeDocuments      EmployeeDocument[]
+  w4Forms                W4Form[]
+  i9Forms                I9Form[]
+  transactions           Transaction[]
+  deductionSuggestions   DeductionSuggestion[]
+  taxDeductionSummaries  TaxDeductionSummary[]
+  taxDeductionEntries    TaxDeductionEntry[]
+  fraudAlerts            FraudAlert[]
+  costEntries            CostEntry[]
+  budgets                Budget[]
+  automationSettings     AutomationSettings?
+  automationAuditLogs    AutomationAuditLog[]
+  recurringInvoices      RecurringInvoice[]
+  paymentReminders       PaymentReminder[]
+  correctionRecords      CorrectionRecord[]
+  learningPatterns       LearningPattern[]
+  reminderSettings       ReminderSettings?
+  bankConnections        BankConnection[]
+  elsterCertificates     ElsterCertificate[]
+  spainCertificates      SpainCertificate[]
+  zatcaCertificates      ZatcaCertificate[]
+  elsterFilings          ElsterFiling[]
+  taxDocuments           TaxDocument[]
+  processDocumentations  ProcessDocumentation[]
+  quickbooksConnections  QuickBooksConnection[]
+  xeroConnections        XeroConnection[]
+  emailConnections       EmailConnection[]
+  emailMailboxes         EmailMailbox[]
+  emailForwardingInboxes EmailForwardingInbox[]
+  plaidBankAccounts      PlaidBankAccount[]
+  plaidTransactions      PlaidTransaction[]
+  storageQuota           StorageQuota?
+  extractedInvoices      ExtractedInvoice[]
+  gocardlessConnections  GoCardlessConnection[]
 
   // Usage-based billing relations
   usageEvents        UsageEvent[]
@@ -171,12 +186,52 @@ model Organisation {
   // Vendor Management Relations
   vendors Vendor[]
   bills   Bill[]
+  quotes  Quote[]
+
+  // Product, Payment, and QuickBooks Migration Relations
+  products                 Product[]
+  payments                 Payment[]
+  quickBooksMigrations     QuickBooksMigration[]
+  quickBooksSyncMappings   QuickBooksSyncMapping[]
+  quickBooksEntityMappings QuickBooksEntityMapping[]
+  quickBooksSyncLogs       QuickBooksSyncLog[]
+  freeeConnections         FreeeConnection[]
 
   // Email Intelligence Relations
   relationshipMetrics RelationshipMetrics[]
+  emailFilterConfig   EmailFilterConfig?
+  emailReviewQueue    EmailReviewQueue[]
 
   // Payment Allocation Relations
   paymentAllocations PaymentAllocation[]
+  ScheduledPayment   ScheduledPayment[]
+
+  // Contract Relations
+  contracts         Contract[]
+  contractTemplates ContractTemplate[]
+
+  // Business Health Score Relations
+  businessHealthScores BusinessHealthScore[]
+
+  // Insurance Relations
+  insurancePolicies InsurancePolicy[]
+
+  // Mileage Relations
+  mileageEntries MileageEntry[]
+
+  // Time Tracking Relations
+  projects            Project[]
+  billableTimeEntries BillableTimeEntry[]
+
+  // Smart Tax Assistant Relations
+  taxSuggestions TaxSuggestion[]
+  taxDeadlines   TaxDeadline[]
+
+  // AI Autopilot Relations
+  autopilotConfig    AutopilotConfig?
+  autopilotActions   AutopilotAction[]
+  autopilotSummaries AutopilotSummary[]
+  PaymentInitiation  PaymentInitiation[]
 }
 
 model User {
@@ -201,9 +256,14 @@ model User {
   employees     Employee[]
 
   // HR Relations
-  leaveRequestsReviewed   LeaveRequest[]  @relation("LeaveRequestReviewer")
-  timeEntriesApproved     TimeEntry[]     @relation("TimeEntryApprover")
-  payrollPeriodsProcessed PayrollPeriod[] @relation("PayrollProcessor")
+  leaveRequestsReviewed     LeaveRequest[]     @relation("LeaveRequestReviewer")
+  timeEntriesApproved       TimeEntry[]        @relation("TimeEntryApprover")
+  payrollPeriodsProcessed   PayrollPeriod[]    @relation("PayrollProcessor")
+  hrAuditLogs               HrAuditLog[]       @relation("HrAuditLogUser")
+  employeeDocumentsVerified EmployeeDocument[] @relation("EmployeeDocumentVerifier")
+  employeeDocumentsRejected EmployeeDocument[] @relation("EmployeeDocumentRejecter")
+  employeeDocumentsUploaded EmployeeDocument[] @relation("EmployeeDocumentUploader")
+  w4FormsSigned             W4Form[]           @relation("W4FormSigner")
 
   // AI & Classification Relations
   classificationsReviewed TransactionClassificationReview[] @relation("ClassificationReviewer")
@@ -212,6 +272,7 @@ model User {
   deductionsConfirmed DeductionSuggestion[] @relation("DeductionConfirmer")
   deductionsRejected  DeductionSuggestion[] @relation("DeductionRejecter")
   deductionsModified  DeductionSuggestion[] @relation("DeductionModifier")
+  taxDeductionEntries TaxDeductionEntry[]
 
   // Fraud Prevention Relations
   fraudAlertsResolved  FraudAlert[]    @relation("FraudAlertResolver")
@@ -246,6 +307,7 @@ model User {
   TaxDeadlineReminder TaxDeadlineReminder[]
   EmailConnection     EmailConnection[]
   AmlScreening        AmlScreening[]
+  PaymentInitiation   PaymentInitiation[]
 }
 
 model Membership {
@@ -258,11 +320,15 @@ model Membership {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
-  user         User         @relation(fields: [userId], references: [id])
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@unique([userId, orgId])
   @@index([orgId])
+  @@index([userId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
 }
 
 model Session {
@@ -272,12 +338,27 @@ model Session {
   expiresAt DateTime
   ipAddress String?
   userAgent String?
+  isUsed    Boolean  @default(false) // SEC-005: Track if refresh token has been used for rotation
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+// SEC-005: Token Refresh History for security audit trail
+model TokenRefreshHistory {
+  id           String   @id @default(uuid())
+  userId       String
+  oldTokenHash String // Hash of the old refresh token that was rotated
+  newTokenHash String // Hash of the new refresh token issued
+  ipAddress    String?
+  userAgent    String?
+  refreshedAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([refreshedAt])
 }
 
 // ============================================================================
@@ -387,6 +468,8 @@ model AuditLogSequence {
   // Relations - CRITICAL for multi-tenancy security
   organisation Organisation @relation("AuditLogSequence", fields: [tenantId], references: [id], onDelete: Cascade)
 
+  @@index([tenantId])
+  @@index([lastEntryId])
   @@map("audit_log_sequences")
 }
 
@@ -405,6 +488,7 @@ model OAuthAccount {
 
   @@unique([provider, providerId])
   @@index([userId])
+  @@index([providerId])
 }
 
 // ============================================================================
@@ -585,6 +669,8 @@ model OrganisationCountry {
   @@unique([orgId, countryId])
   @@index([orgId])
   @@index([countryId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 enum TaxCredentialType {
@@ -614,6 +700,8 @@ model TaxCredential {
   @@index([countryCode])
   @@index([type])
   @@index([isActive])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -692,6 +780,8 @@ model CountryTaxConfig {
   // Relations
   country  Country         @relation(fields: [countryId], references: [id], onDelete: Cascade)
   vatRates VatRateConfig[]
+
+  @@index([countryId])
 }
 
 model VatRateConfig {
@@ -828,6 +918,10 @@ model TaxDeadlineReminder {
   @@index([dueDate])
   @@index([status])
   @@index([taxType])
+  @@index([confirmationId])
+  // Compound indexes for performance
+  @@index([organizationId, status])
+  @@index([dueDate, organizationId])
 }
 
 // Log of reminders sent for tax deadlines
@@ -1028,13 +1122,16 @@ model Employee {
   terminationDate DateTime?
 
   // Timestamps
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime? // Soft delete
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
 
   // Relations
   organisation       Organisation                 @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  user               User?                        @relation(fields: [userId], references: [id])
+  user               User?                        @relation(fields: [userId], references: [id], onDelete: SetNull)
   contracts          EmploymentContract[]
   leaveEntitlements  LeaveEntitlement[]
   leaveRequests      LeaveRequest[]
@@ -1044,6 +1141,7 @@ model Employee {
   documents          EmployeeDocument[]
   w4Forms            W4Form[]
   i9Forms            I9Form[]
+  hrAuditLogs        HrAuditLog[]                 @relation("HrAuditLogEmployee")
 
   @@unique([orgId, employeeNumber])
   @@unique([email, orgId])
@@ -1051,6 +1149,12 @@ model Employee {
   @@index([userId])
   @@index([email])
   @@index([status])
+  @@index([taxId])
+  @@index([deletedAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
 }
 
 model EmploymentContract {
@@ -1084,6 +1188,8 @@ model EmploymentContract {
 
   @@index([employeeId])
   @@index([isActive])
+  // Compound indexes for performance
+  @@index([employeeId, startDate])
 }
 
 model LeaveEntitlement {
@@ -1126,11 +1232,14 @@ model LeaveRequest {
   updatedAt DateTime @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  reviewer User?    @relation("LeaveRequestReviewer", fields: [reviewedBy], references: [id])
+  reviewer User?    @relation("LeaveRequestReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
 
   @@index([employeeId])
   @@index([status])
   @@index([startDate, endDate])
+  // Compound indexes for performance
+  @@index([employeeId, status])
+  @@index([employeeId, startDate])
 }
 
 model TimeEntry {
@@ -1156,10 +1265,12 @@ model TimeEntry {
   updatedAt DateTime @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  approver User?    @relation("TimeEntryApprover", fields: [approvedBy], references: [id])
+  approver User?    @relation("TimeEntryApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
 
   @@index([employeeId, date])
   @@index([status])
+  // Compound indexes for performance
+  @@index([employeeId, status])
 }
 
 model PayrollPeriod {
@@ -1177,12 +1288,15 @@ model PayrollPeriod {
   updatedAt DateTime @updatedAt
 
   organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  processor    User?        @relation("PayrollProcessor", fields: [processedBy], references: [id])
+  processor    User?        @relation("PayrollProcessor", fields: [processedBy], references: [id], onDelete: SetNull)
   payslips     Payslip[]
 
   @@unique([orgId, year, month])
   @@index([orgId])
   @@index([status])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 model Payslip {
@@ -1235,6 +1349,10 @@ model SocialSecurityRegistration {
   @@index([employeeId])
   @@index([countryCode])
   @@index([status])
+  @@index([registrationId])
+  // Compound indexes for performance
+  @@index([employeeId, status])
+  @@index([employeeId, startDate])
 }
 
 // ============================================================================
@@ -1280,14 +1398,24 @@ model EmployeeDocument {
   deletedAt DateTime? // Soft delete
 
   // Relations
-  employee Employee                  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  versions EmployeeDocumentVersion[]
+  organisation Organisation              @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employee     Employee                  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  verifier     User?                     @relation("EmployeeDocumentVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
+  rejecter     User?                     @relation("EmployeeDocumentRejecter", fields: [rejectedBy], references: [id], onDelete: SetNull)
+  uploader     User                      @relation("EmployeeDocumentUploader", fields: [uploadedBy], references: [id], onDelete: Restrict)
+  versions     EmployeeDocumentVersion[]
 
   @@index([employeeId])
   @@index([orgId])
   @@index([documentType])
   @@index([status])
   @@index([expirationDate])
+  @@index([encryptionKeyId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([issueDate, orgId])
+  @@index([createdAt, orgId])
+  @@index([employeeId, status])
 }
 
 model EmployeeDocumentVersion {
@@ -1365,12 +1493,16 @@ model W4Form {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  signer       User?        @relation("W4FormSigner", fields: [signedBy], references: [id], onDelete: SetNull)
 
   @@index([employeeId])
   @@index([orgId])
   @@index([taxYear])
   @@index([isActive])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 model I9Form {
@@ -1472,7 +1604,8 @@ model I9Form {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@index([employeeId])
   @@index([orgId])
@@ -1480,6 +1613,8 @@ model I9Form {
   @@index([section2CompletedAt])
   @@index([workAuthorizationExpiry])
   @@index([isActive])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 model HrAuditLog {
@@ -1500,11 +1635,19 @@ model HrAuditLog {
 
   createdAt DateTime @default(now())
 
+  // Relations
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employee     Employee?    @relation("HrAuditLogEmployee", fields: [employeeId], references: [id], onDelete: SetNull)
+  user         User         @relation("HrAuditLogUser", fields: [userId], references: [id], onDelete: Restrict)
+
   @@index([orgId])
   @@index([employeeId])
   @@index([userId])
   @@index([createdAt])
   @@index([entityType, entityId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
 }
 
 // ============================================================================
@@ -1545,13 +1688,17 @@ model TransactionClassificationReview {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  reviewer User? @relation("ClassificationReviewer", fields: [reviewedBy], references: [id])
+  reviewer User? @relation("ClassificationReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
 
   @@index([orgId])
   @@index([status])
   @@index([priority])
   @@index([createdAt])
   @@index([orgId, status, priority])
+  @@index([transactionId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -1585,8 +1732,18 @@ model Transaction {
   // Status
   isReconciled Boolean @default(false)
 
+  // Tax info for deduction tracking
+  taxInfo Json?
+
+  // Relations to invoices and vendors
+  invoiceId String?
+  vendorId  String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Soft delete (compliance)
+  deletedAt DateTime?
 
   organisation         Organisation          @relation(fields: [orgId], references: [id], onDelete: Cascade)
   deductionSuggestions DeductionSuggestion[]
@@ -1594,6 +1751,11 @@ model Transaction {
   @@index([orgId])
   @@index([date])
   @@index([category])
+  @@index([deletedAt])
+  // Compound indexes for performance
+  @@index([date, orgId])
+  @@index([createdAt, orgId])
+  @@index([category, orgId])
 }
 
 model DeductionSuggestion {
@@ -1638,15 +1800,19 @@ model DeductionSuggestion {
 
   transaction  Transaction  @relation(fields: [transactionId], references: [id], onDelete: Cascade)
   organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  confirmer    User?        @relation("DeductionConfirmer", fields: [confirmedBy], references: [id])
-  rejecter     User?        @relation("DeductionRejecter", fields: [rejectedBy], references: [id])
-  modifier     User?        @relation("DeductionModifier", fields: [modifiedBy], references: [id])
+  confirmer    User?        @relation("DeductionConfirmer", fields: [confirmedBy], references: [id], onDelete: SetNull)
+  rejecter     User?        @relation("DeductionRejecter", fields: [rejectedBy], references: [id], onDelete: SetNull)
+  modifier     User?        @relation("DeductionModifier", fields: [modifiedBy], references: [id], onDelete: SetNull)
 
   @@index([transactionId])
   @@index([orgId])
   @@index([status])
   @@index([categoryCode])
   @@index([createdAt])
+  @@index([ruleId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 model TaxDeductionSummary {
@@ -1678,6 +1844,115 @@ model TaxDeductionSummary {
   @@index([orgId])
   @@index([year])
   @@index([countryCode])
+}
+
+enum TaxDeductionType {
+  COMMUTER_ALLOWANCE
+  HOME_OFFICE_FLAT
+  PER_DIEM_MEALS
+  MILEAGE_BUSINESS
+  TRAINING_EDUCATION
+  HOME_OFFICE_ROOM
+  WORK_EQUIPMENT
+  BUSINESS_MEALS
+  OFFICE_SUPPLIES
+  PHONE_INTERNET
+  INSURANCE
+  DONATIONS
+  OTHER
+}
+
+model TaxDeductionEntry {
+  id             String  @id @default(uuid())
+  organisationId String
+  userId         String?
+
+  // Core fields
+  category    TaxDeductionType
+  countryCode String           @db.VarChar(2)
+  taxYear     Int
+
+  // Amounts
+  originalAmount   Decimal @db.Decimal(10, 2)
+  deductibleAmount Decimal @db.Decimal(10, 2)
+  currency         String  @default("EUR") @db.VarChar(3)
+
+  // Category-specific data (JSON)
+  calculatorData Json? // Stores category-specific inputs
+
+  // For COMMUTER_ALLOWANCE
+  distanceKm         Decimal? @db.Decimal(8, 2)
+  workingDays        Int?
+  usePublicTransport Boolean  @default(false)
+
+  // For HOME_OFFICE_FLAT / HOME_OFFICE_ROOM
+  daysWorkedFromHome Int?
+  roomSqm            Decimal? @db.Decimal(6, 2)
+  totalHomeSqm       Decimal? @db.Decimal(6, 2)
+  monthlyRent        Decimal? @db.Decimal(10, 2)
+
+  // For PER_DIEM_MEALS
+  tripStartDate   DateTime?
+  tripEndDate     DateTime?
+  tripDestination String?
+  isInternational Boolean   @default(false)
+
+  // For MILEAGE_BUSINESS
+  vehicleType String? // car, motorcycle, bicycle, electric
+  tripPurpose String?
+
+  // For TRAINING_EDUCATION
+  trainingType String?
+  providerName String?
+
+  // Metadata
+  description     String?
+  notes           String?
+  receiptAttached Boolean  @default(false)
+  documentIds     String[] // Links to uploaded receipts
+
+  // Legal reference
+  legalReference String?
+
+  // Status
+  status DeductionSuggestionStatus @default(CONFIRMED)
+
+  // Timestamps
+  entryDate DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([organisationId, taxYear])
+  @@index([organisationId, category])
+  @@index([userId])
+  @@index([countryCode, taxYear])
+}
+
+model TaxDeductionRateConfig {
+  id          String           @id @default(uuid())
+  countryCode String           @db.VarChar(2)
+  taxYear     Int
+  category    TaxDeductionType
+
+  // Rate configuration (JSON for flexibility)
+  config Json // Stores all rates and limits
+
+  // Metadata
+  legalReference String?
+  effectiveFrom  DateTime
+  effectiveTo    DateTime?
+
+  // Audit
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  @@unique([countryCode, taxYear, category])
+  @@index([countryCode, taxYear])
 }
 
 // ============================================================================
@@ -1724,13 +1999,16 @@ model FraudAlert {
   updatedAt DateTime @updatedAt
 
   organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  resolver     User?        @relation("FraudAlertResolver", fields: [resolvedBy], references: [id])
+  resolver     User?        @relation("FraudAlertResolver", fields: [resolvedBy], references: [id], onDelete: SetNull)
 
   @@index([orgId])
   @@index([transactionId])
   @@index([status])
   @@index([severity])
   @@index([createdAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 model FraudAuditLog {
@@ -1746,12 +2024,14 @@ model FraudAuditLog {
 
   createdAt DateTime @default(now())
 
-  performer User? @relation("FraudAuditPerformer", fields: [performedBy], references: [id])
+  performer User? @relation("FraudAuditPerformer", fields: [performedBy], references: [id], onDelete: SetNull)
 
   @@index([orgId])
   @@index([alertId])
   @@index([transactionId])
   @@index([createdAt])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -1785,6 +2065,9 @@ model Customer {
   @@index([orgId])
   @@index([name])
   @@index([isActive])
+  @@index([vatId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 enum InvoiceStatus {
@@ -1811,20 +2094,25 @@ enum ExpenseStatus {
 }
 
 enum ExpenseCategory {
-  TRAVEL
-  OFFICE
-  SOFTWARE
-  EQUIPMENT
-  MEALS
-  ENTERTAINMENT
-  UTILITIES
-  RENT
-  INSURANCE
-  PROFESSIONAL_SERVICES
-  OTHER
+  TRAVEL // Travel expenses (flights, hotels, transport)
+  OFFICE // Office supplies and materials
+  SOFTWARE // Software licenses and subscriptions
+  EQUIPMENT // Hardware and equipment purchases
+  MEALS // Business meals and catering
+  ENTERTAINMENT // Client entertainment
+  UTILITIES // Utilities (electricity, water, internet)
+  RENT // Office rent and lease payments
+  INSURANCE // Business insurance
+  PROFESSIONAL_SERVICES // Legal, accounting, consulting
+  MARKETING // Marketing and advertising
+  SHIPPING // Shipping and delivery costs
+  TAXES_FEES // Taxes and government fees
+  BANK_FEES // Bank charges and fees
+  OTHER // Other miscellaneous expenses
 }
 
 enum BillStatus {
+  REJECTED
   DRAFT
   PENDING
   APPROVED
@@ -1869,10 +2157,12 @@ model Invoice {
   paidDate  DateTime?
 
   // Amounts
-  subtotal    Decimal @db.Decimal(12, 2)
-  taxAmount   Decimal @db.Decimal(12, 2)
-  totalAmount Decimal @db.Decimal(12, 2)
-  currency    String  @default("EUR")
+  subtotal        Decimal @db.Decimal(12, 2)
+  taxAmount       Decimal @db.Decimal(12, 2)
+  totalAmount     Decimal @db.Decimal(12, 2)
+  total           Decimal @db.Decimal(12, 2) // Alias for totalAmount
+  customerCountry String?
+  currency        String  @default("EUR")
 
   // Multi-currency support (W20-T5)
   exchangeRate       Decimal? @db.Decimal(12, 6) // Exchange rate at time of creation
@@ -1898,13 +2188,17 @@ model Invoice {
 
   // Recurring invoice link
   recurringInvoiceId String?
-  recurringInvoice   RecurringInvoice? @relation(fields: [recurringInvoiceId], references: [id])
+  recurringInvoice   RecurringInvoice? @relation(fields: [recurringInvoiceId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
   // Relations
-  client           Client?             @relation(fields: [clientId], references: [id])
+  client           Client?             @relation(fields: [clientId], references: [id], onDelete: Restrict)
   items            InvoiceItem[]
   paymentReminders PaymentReminder[]
   allocations      PaymentAllocation[]
@@ -1917,6 +2211,13 @@ model Invoice {
   @@index([customerId])
   @@index([clientId])
   @@index([recurringInvoiceId])
+  @@index([customerVatId])
+  @@index([deletedAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([issueDate, orgId])
+  @@index([dueDate, orgId])
+  @@index([createdAt, orgId])
 }
 
 model InvoiceItem {
@@ -1945,6 +2246,70 @@ model InvoiceItem {
   @@index([invoiceId])
 }
 
+model Quote {
+  id             String       @id @default(cuid())
+  quoteNumber    String       @unique
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id])
+  clientId       String?
+
+  title       String
+  description String?
+
+  items QuoteItem[]
+
+  subtotal       Decimal @db.Decimal(19, 4)
+  taxAmount      Decimal @default(0) @db.Decimal(19, 4)
+  discountAmount Decimal @default(0) @db.Decimal(19, 4)
+  total          Decimal @db.Decimal(19, 4)
+  currency       String  @default("EUR")
+
+  status     QuoteStatus @default(DRAFT)
+  validUntil DateTime?
+  sentAt     DateTime?
+  viewedAt   DateTime?
+  acceptedAt DateTime?
+  rejectedAt DateTime?
+
+  convertedToInvoiceId String? @unique
+
+  notes       String?
+  terms       String?
+  publicToken String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([status])
+  @@index([organisationId, status])
+  @@index([createdAt, organisationId])
+}
+
+model QuoteItem {
+  id      String @id @default(cuid())
+  quoteId String
+  quote   Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  description String
+  quantity    Decimal @db.Decimal(19, 4)
+  unitPrice   Decimal @db.Decimal(19, 4)
+  taxRate     Decimal @default(0) @db.Decimal(5, 2)
+  total       Decimal @db.Decimal(19, 4)
+
+  sortOrder Int @default(0)
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  VIEWED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CONVERTED
+}
+
 model Expense {
   id    String @id @default(uuid())
   orgId String
@@ -1960,8 +2325,9 @@ model Expense {
   subcategory String?
 
   // Vendor
-  vendorName  String?
-  vendorVatId String?
+  vendorName    String?
+  vendorVatId   String?
+  vendorCountry String?
 
   // Receipt
   receiptUrl    String?
@@ -1992,6 +2358,10 @@ model Expense {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
   // Relations
   receiptScan ReceiptScan?
 
@@ -2000,6 +2370,86 @@ model Expense {
   @@index([category])
   @@index([status])
   @@index([submittedBy])
+  @@index([vendorVatId])
+  @@index([deletedAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([date, orgId])
+  @@index([createdAt, orgId])
+  @@index([category, orgId])
+}
+
+// ============================================================================
+// MILEAGE TRACKING MODELS
+// ============================================================================
+
+model MileageEntry {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id])
+  userId         String
+
+  clientId  String?
+  projectId String?
+
+  date        DateTime @db.Date
+  description String?
+  purpose     String?
+
+  startLocation String?
+  endLocation   String?
+
+  distanceKm    Decimal @db.Decimal(10, 2)
+  distanceMiles Decimal @db.Decimal(10, 2)
+
+  ratePerKm   Decimal? @db.Decimal(10, 4)
+  ratePerMile Decimal? @db.Decimal(10, 4)
+
+  totalAmount Decimal @db.Decimal(19, 4)
+  currency    String  @default("EUR")
+
+  vehicleType VehicleType @default(CAR)
+  isRoundTrip Boolean     @default(false)
+
+  reimbursed   Boolean   @default(false)
+  reimbursedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([date])
+  @@index([userId])
+  @@index([reimbursed])
+}
+
+model MileageRate {
+  id             String  @id @default(cuid())
+  organisationId String?
+
+  country     String
+  year        Int
+  vehicleType VehicleType
+
+  ratePerKm   Decimal @db.Decimal(10, 4)
+  ratePerMile Decimal @db.Decimal(10, 4)
+
+  isOfficial Boolean @default(false)
+
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([country, year])
+  @@index([organisationId])
+}
+
+enum VehicleType {
+  CAR
+  MOTORCYCLE
+  BICYCLE
+  ELECTRIC_CAR
 }
 
 // ============================================================================
@@ -2022,11 +2472,13 @@ model Bill {
   description String?
 
   // Amounts
-  amount      Decimal @db.Decimal(12, 2) // Subtotal before tax
-  currency    String  @default("EUR")
-  taxAmount   Decimal @default(0) @db.Decimal(12, 2)
-  totalAmount Decimal @db.Decimal(12, 2) // Total including tax
-  paidAmount  Decimal @default(0) @db.Decimal(12, 2) // Amount paid so far
+  amount          Decimal @db.Decimal(12, 2) // Subtotal before tax
+  currency        String  @default("EUR")
+  taxAmount       Decimal @default(0) @db.Decimal(12, 2)
+  totalAmount     Decimal @db.Decimal(12, 2) // Total including tax
+  total           Decimal @db.Decimal(12, 2) // Alias for totalAmount
+  customerCountry String?
+  paidAmount      Decimal @default(0) @db.Decimal(12, 2) // Amount paid so far
 
   // Status
   status        BillStatus    @default(DRAFT)
@@ -2069,11 +2521,16 @@ model Bill {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
   // Relations
-  organisation Organisation   @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  vendor       Vendor?        @relation(fields: [vendorId], references: [id])
-  lineItems    BillLineItem[]
-  payments     BillPayment[]
+  organisation     Organisation       @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  vendor           Vendor?            @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  lineItems        BillLineItem[]
+  payments         BillPayment[]
+  ScheduledPayment ScheduledPayment[]
 
   @@unique([organisationId, billNumber, vendorId])
   @@index([organisationId])
@@ -2084,6 +2541,14 @@ model Bill {
   @@index([dueDate])
   @@index([sourceType])
   @@index([categoryId])
+  @@index([sourceEmailId])
+  @@index([sourceAttachmentId])
+  @@index([extractedDataId])
+  @@index([deletedAt])
+  // Compound indexes for performance
+  @@index([organisationId, status])
+  @@index([issueDate, organisationId])
+  @@index([dueDate, organisationId])
 }
 
 model BillLineItem {
@@ -2142,27 +2607,28 @@ model BillPayment {
   @@index([billId])
   @@index([transactionId])
   @@index([paymentDate])
+  @@index([bankTransactionId])
 }
 
 model ScheduledPayment {
-  id             String                 @id @default(uuid())
+  id             String  @id @default(uuid())
   organisationId String
   billId         String?
   invoiceId      String?
 
   // Payment details
-  amount         Decimal                @db.Decimal(12, 2)
-  currency       String                 @default("EUR")
-  scheduledDate  DateTime               @db.Date
-  status         ScheduledPaymentStatus @default(PENDING)
+  amount        Decimal                @db.Decimal(12, 2)
+  currency      String                 @default("EUR")
+  scheduledDate DateTime               @db.Date
+  status        ScheduledPaymentStatus @default(PENDING)
 
   // Payment method
-  paymentMethod  String? // bank_transfer, card, direct_debit, check
-  bankAccountId  String? // Link to BankAccount if applicable
+  paymentMethod String? // bank_transfer, card, direct_debit, check
+  bankAccountId String? // Link to BankAccount if applicable
 
   // Execution details
-  executedAt     DateTime?
-  failureReason  String?
+  executedAt    DateTime?
+  failureReason String?
 
   // Reference
   reference String?
@@ -2177,13 +2643,16 @@ model ScheduledPayment {
   // Relations
   organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   bill         Bill?        @relation(fields: [billId], references: [id], onDelete: Cascade)
-  bankAccount  BankAccount? @relation(fields: [bankAccountId], references: [id])
+  bankAccount  BankAccount? @relation(fields: [bankAccountId], references: [id], onDelete: Restrict)
 
   @@index([organisationId])
   @@index([billId])
+  @@index([invoiceId])
   @@index([scheduledDate])
   @@index([status])
   @@index([bankAccountId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
 }
 
 model BankAccount {
@@ -2218,11 +2687,21 @@ model BankAccount {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  transactions BankTransaction[]
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  transactions     BankTransaction[]
+  ScheduledPayment ScheduledPayment[]
 
   @@unique([orgId, iban])
   @@index([orgId])
   @@index([isActive])
+  @@index([externalId])
+  @@index([deletedAt])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
 }
 
 model BankTransaction {
@@ -2251,11 +2730,22 @@ model BankTransaction {
   category     String?
   isReconciled Boolean @default(false)
 
+  // Tax info for deduction tracking
+  taxInfo Json?
+
+  // Relations to invoices and vendors
+  invoiceId String?
+  vendorId  String?
+
   // Link to internal transaction
   transactionId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
 
   bankAccount BankAccount         @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
   allocations PaymentAllocation[]
@@ -2264,6 +2754,11 @@ model BankTransaction {
   @@index([date])
   @@index([isReconciled])
   @@index([externalId])
+  @@index([transactionId])
+  @@index([deletedAt])
+  // Compound indexes for performance
+  @@index([bankAccountId, date])
+  @@index([bankAccountId, isReconciled])
 }
 
 model PaymentAllocation {
@@ -2300,6 +2795,9 @@ model PaymentAllocation {
   @@index([orgId])
   @@index([invoiceId])
   @@index([transactionId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -2403,6 +2901,10 @@ model BankConnection {
 
   @@index([orgId, status])
   @@index([providerConnectionId])
+  @@index([institutionId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
 }
 
 model BankAccountNew {
@@ -2437,6 +2939,9 @@ model BankAccountNew {
   @@index([bankConnectionId])
   @@index([accountId])
   @@index([isActive])
+  // Compound indexes for performance
+  @@index([bankConnectionId, isActive])
+  @@index([bankConnectionId, accountId]) // OPTIMIZATION: For batch account sync operations
 }
 
 model BankTransactionNew {
@@ -2485,6 +2990,12 @@ model BankTransactionNew {
   @@index([transactionId])
   @@index([merchantName])
   @@index([category])
+  @@index([matchedExpenseId])
+  @@index([matchedInvoicePaymentId])
+  // Compound indexes for performance
+  @@index([bankAccountId, reconciliationStatus])
+  @@index([bankAccountId, transactionId]) // OPTIMIZATION: For batch duplicate detection in sync
+  @@index([bankAccountId, reconciliationStatus, bookingDate])
 }
 
 model ReconciliationRule {
@@ -2512,6 +3023,10 @@ model ReconciliationRule {
 
   @@index([orgId, isActive])
   @@index([priority])
+  @@index([categoryId])
+  @@index([vendorId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -2567,13 +3082,22 @@ model Document {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  folder DocumentFolder? @relation(fields: [folderId], references: [id])
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  folder DocumentFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
 
   @@index([orgId])
   @@index([type])
   @@index([status])
   @@index([folderId])
   @@index([uploadedBy])
+  @@index([parentId])
+  @@index([deletedAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 model DocumentFolder {
@@ -2589,13 +3113,15 @@ model DocumentFolder {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  parent    DocumentFolder?  @relation("FolderHierarchy", fields: [parentId], references: [id])
+  parent    DocumentFolder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   children  DocumentFolder[] @relation("FolderHierarchy")
   documents Document[]
 
   @@unique([orgId, path])
   @@index([orgId])
   @@index([parentId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -2620,6 +3146,9 @@ model GobdExport {
   errorMessage String?
 
   @@index([orgId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 model SaftExport {
@@ -2641,6 +3170,9 @@ model SaftExport {
   errorMessage String?
 
   @@index([orgId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -2671,6 +3203,11 @@ model ElsterAuditLog {
   @@index([status])
   @@index([submittedAt])
   @@index([orgId, submittedAt])
+  @@index([userId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
 }
 
 // ============================================================================
@@ -2729,13 +3266,14 @@ model AutomationAuditLog {
   outputData Json? // What was created/modified
 
   userId String? // null if fully automated
-  user   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
 
   @@index([organisationId, createdAt])
   @@index([entityType, entityId])
   @@index([feature, action])
+  @@index([userId])
 }
 
 model Notification {
@@ -2754,6 +3292,11 @@ model Notification {
   @@index([userId, status])
   @@index([orgId, type])
   @@index([createdAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
+  @@index([userId, orgId, status, createdAt])
 }
 
 // ============================================================================
@@ -2852,6 +3395,10 @@ model Integration {
   @@index([type])
   @@index([provider])
   @@index([status])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
 }
 
 model IntegrationAccount {
@@ -2906,6 +3453,90 @@ model IntegrationAccount {
   @@index([integrationId])
   @@index([isActive])
   @@index([accountType])
+  @@index([externalId])
+}
+
+// Integration Submission - Track tax filings, return submissions, etc.
+model IntegrationSubmission {
+  id             String @id @default(uuid())
+  organizationId String
+
+  // Submission details
+  provider           String // CRA, HMRC, IRS, etc.
+  submissionType     String // GST34, GST62, VAT100, 1040, etc.
+  status             String // DRAFT, SUBMITTED, ACCEPTED, REJECTED, ERROR
+  confirmationNumber String? @unique
+
+  // Submission data and response
+  details Json // Contains return data, calculations, etc.
+
+  // Timestamps
+  submittedAt DateTime?
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([organizationId])
+  @@index([provider])
+  @@index([status])
+  @@index([confirmationNumber])
+  @@index([organizationId, provider])
+  @@index([createdAt])
+}
+
+// Integration Audit Log - Track all integration actions
+model IntegrationAuditLog {
+  id             String @id @default(uuid())
+  organizationId String
+
+  // Action details
+  provider String // CRA, HMRC, TrueLayer, Tink, etc.
+  action   String // AUTHENTICATE, VALIDATE_RETURN, SUBMIT_RETURN, CHECK_STATUS, etc.
+  details  Json? // Context-specific details
+
+  // Request context
+  ipAddress String?
+  userAgent String?
+
+  // Result
+  success      Boolean @default(true)
+  errorMessage String?
+
+  // Timestamp
+  timestamp DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([provider])
+  @@index([action])
+  @@index([timestamp])
+  @@index([organizationId, provider])
+  @@index([organizationId, timestamp])
+}
+
+// Integration Credentials - Encrypted credentials storage
+model IntegrationCredentials {
+  id             String @id @default(uuid())
+  organizationId String
+  provider       String // CRA, HMRC, IRS, etc.
+
+  // Encrypted credentials
+  encryptedData String  @db.Text // Encrypted JSON containing credentials
+  iv            String // Initialization vector for decryption
+  authTag       String? // Authentication tag for AES-GCM
+
+  // Metadata
+  expiresAt  DateTime?
+  lastUsedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, provider], name: "organizationId_provider")
+  @@index([organizationId])
+  @@index([provider])
+  @@index([expiresAt])
 }
 
 enum OnboardingStepStatus {
@@ -2961,13 +3592,15 @@ model OnboardingProgress {
   @@index([orgId])
   @@index([userId])
   @@index([isCompleted])
+  // Compound indexes for performance
+  @@index([orgId, userId])
 }
 
 // User Onboarding Progress - Tracks individual user onboarding journey
 model UserOnboardingProgress {
   id             String    @id @default(cuid())
   userId         String    @unique
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Restrict)
   currentStep    String    @default("welcome")
   completedSteps String[]  @default([])
   skippedSteps   String[]  @default([])
@@ -2985,7 +3618,7 @@ model UserOnboardingProgress {
 model OnboardingAnalysis {
   id            String         @id @default(cuid())
   userId        String
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Restrict)
   status        AnalysisStatus @default(PENDING)
   bankAnalysis  Json? // { transactionsProcessed, categorized, deductionsFound }
   emailAnalysis Json? // { emailsScanned, invoicesFound, matched }
@@ -3038,6 +3671,8 @@ model CostEntry {
   @@index([orgId, createdAt])
   @@index([category])
   @@index([automationId])
+  // Compound indexes for performance
+  @@index([category, orgId])
   @@map("cost_entries")
 }
 
@@ -3077,7 +3712,7 @@ model Conversation {
 
   // Relations
   organisation Organisation          @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
   messages     Message[]
   summaries    ConversationSummary[]
   memories     ConversationMemory[]
@@ -3086,6 +3721,11 @@ model Conversation {
   @@index([userId])
   @@index([status])
   @@index([lastMessageAt])
+  @@index([contextId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
   @@map("conversations")
 }
 
@@ -3154,6 +3794,7 @@ model Message {
   @@index([role])
   @@index([type])
   @@index([createdAt])
+  @@index([conversationId, createdAt])
   @@map("messages")
 }
 
@@ -3283,6 +3924,11 @@ model Suggestion {
   @@index([priority])
   @@index([showAfter])
   @@index([expiresAt])
+  @@index([entityId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
 }
 
 // ============================================================================
@@ -3403,6 +4049,8 @@ model Client {
   communications ClientCommunication[]
   payments       ClientPayment[]
   invoices       Invoice[]
+  contracts      Contract[]
+  projects       Project[]
 
   @@unique([orgId, clientNumber])
   @@unique([orgId, email])
@@ -3418,6 +4066,9 @@ model Client {
   @@index([isActive])
   @@index([isVip])
   @@index([deletedAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
 }
 
 model ClientAddress {
@@ -3536,6 +4187,10 @@ model ClientCommunication {
   @@index([clientId])
   @@index([type])
   @@index([occurredAt])
+  @@index([userId])
+  @@index([relatedEntityId])
+  @@index([emailMessageId])
+  @@index([emailThreadId])
 }
 
 enum PaymentStatus {
@@ -3583,6 +4238,7 @@ model ClientPayment {
   @@index([status])
   @@index([invoiceId])
   @@index([paidAt])
+  @@index([transactionId])
 }
 
 // ============================================================================
@@ -3645,9 +4301,16 @@ model Vendor {
   // Notes
   notes String?
 
+  // Metadata (for storing additional data like source information)
+  metadata Json?
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Soft delete (compliance)
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
 
   // Relations
   organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
@@ -3659,6 +4322,10 @@ model Vendor {
   @@index([name])
   @@index([email])
   @@index([taxId])
+  @@index([defaultCategoryId])
+  @@index([deletedAt])
+  // Compound indexes for performance
+  @@index([organisationId, status])
 }
 
 // ============================================================================
@@ -3687,6 +4354,40 @@ model RelationshipMetrics {
   @@index([healthScore])
   @@index([healthStatus])
   @@index([lastUpdated])
+  @@index([entityId])
+}
+
+// ============================================================================
+// BUSINESS HEALTH SCORE MODELS
+// ============================================================================
+
+model BusinessHealthScore {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  date DateTime @db.Date
+
+  overallScore Int // 0-100
+
+  cashFlowScore      Int // 0-100
+  arHealthScore      Int // Accounts Receivable 0-100
+  apHealthScore      Int // Accounts Payable 0-100
+  taxComplianceScore Int // 0-100
+  profitabilityScore Int // 0-100
+  runwayScore        Int // 0-100
+
+  metrics         Json // Raw calculation data
+  insights        String[] @default([])
+  recommendations String[] @default([])
+
+  createdAt DateTime @default(now())
+
+  @@unique([organisationId, date])
+  @@index([organisationId])
+  @@index([date])
+  @@index([overallScore])
+  @@index([createdAt, organisationId])
 }
 
 // ============================================================================
@@ -3741,6 +4442,8 @@ model ReportSchedule {
   @@index([orgId])
   @@index([isActive])
   @@index([nextRunAt])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
 }
 
 // ============================================================================
@@ -3784,6 +4487,9 @@ model Budget {
   @@index([orgId])
   @@index([category])
   @@index([periodStart, periodEnd])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([category, orgId])
   @@map("budgets")
 }
 
@@ -3826,7 +4532,7 @@ model RecurringInvoice {
 
   // Template info
   customerId String
-  customer   Customer @relation(fields: [customerId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
 
   // Recurrence settings
   frequency  RecurringFrequency
@@ -3857,10 +4563,12 @@ model RecurringInvoice {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdById String
-  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
 
   @@index([organisationId, isActive])
   @@index([nextRunDate])
+  @@index([customerId])
+  @@index([createdById])
 }
 
 enum PaymentReminderType {
@@ -3931,6 +4639,8 @@ model ReminderSettings {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
 }
 
 // ============================================================================
@@ -3956,13 +4666,14 @@ model CorrectionRecord {
 
   // User who made the correction
   userId String
-  user   User   @relation("CorrectionRecords", fields: [userId], references: [id])
+  user   User   @relation("CorrectionRecords", fields: [userId], references: [id], onDelete: Restrict)
 
   createdAt DateTime @default(now())
 
   @@index([organisationId, entityType, field])
   @@index([organisationId, createdAt])
   @@index([userId])
+  @@index([entityId])
 }
 
 model LearningPattern {
@@ -4105,6 +4816,8 @@ model ElsterFiling {
   @@index([year, period])
   @@index([organisationId, status])
   @@index([submittedAt])
+  @@index([submissionId])
+  @@index([certificateId])
 }
 
 model ElsterFilingStatusEvent {
@@ -4178,6 +4891,8 @@ model ScheduledExport {
   @@index([orgId])
   @@index([nextRunAt])
   @@index([isActive])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
   @@map("scheduled_exports")
 }
 
@@ -4195,6 +4910,7 @@ model ScheduledExportRun {
   @@index([scheduledExportId])
   @@index([status])
   @@index([startedAt])
+  @@index([exportId])
   @@map("scheduled_export_runs")
 }
 
@@ -4267,6 +4983,8 @@ model ArchivedDocument {
   @@index([entityType, entityId])
   @@index([uploadedBy])
   @@index([archivedAt])
+  // Compound indexes for performance
+  @@index([organisationId, status])
   @@map("archived_documents")
 }
 
@@ -4373,8 +5091,9 @@ model QuickBooksConnection {
   updatedAt      DateTime  @updatedAt
 
   // Relations
-  organisation Organisation         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  organisation Organisation          @relation(fields: [orgId], references: [id], onDelete: Cascade)
   auditLogs    QuickBooksAuditLog[]
+  migrations   QuickBooksMigration[]
 
   @@unique([orgId, companyId])
   @@index([orgId])
@@ -4382,6 +5101,9 @@ model QuickBooksConnection {
   @@index([status])
   @@index([isConnected])
   @@index([tokenExpiresAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("quickbooks_connections")
 }
 
@@ -4423,6 +5145,7 @@ model QuickBooksAuditLog {
   @@index([action])
   @@index([createdAt])
   @@index([success])
+  @@index([requestId])
   @@map("quickbooks_audit_logs")
 }
 
@@ -4480,6 +5203,9 @@ model XeroConnection {
   @@index([status])
   @@index([isConnected])
   @@index([tokenExpiresAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("xero_connections")
 }
 
@@ -4521,6 +5247,7 @@ model XeroAuditLog {
   @@index([action])
   @@index([createdAt])
   @@index([success])
+  @@index([requestId])
   @@map("xero_audit_logs")
 }
 
@@ -4568,11 +5295,12 @@ model EmailConnection {
   updatedAt DateTime @updatedAt
 
   // Relations
-  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User            @relation(fields: [userId], references: [id], onDelete: Restrict)
   organisation Organisation    @relation(fields: [orgId], references: [id], onDelete: Cascade)
   auditLogs    EmailAuditLog[]
   SyncedEmail  SyncedEmail[]
   EmailSyncJob EmailSyncJob[]
+  mailboxes    EmailMailbox[]
 
   @@unique([userId, provider, email])
   @@index([userId])
@@ -4580,6 +5308,10 @@ model EmailConnection {
   @@index([provider])
   @@index([syncStatus])
   @@index([lastSyncAt])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
+  @@index([orgId, userId])
   @@map("email_connections")
 }
 
@@ -4622,7 +5354,77 @@ model EmailAuditLog {
   @@index([action])
   @@index([createdAt])
   @@index([success])
+  @@index([requestId])
   @@map("email_audit_logs")
+}
+
+model EmailMailbox {
+  id           String @id @default(cuid())
+  connectionId String
+  orgId        String
+  userId       String
+
+  // Mailbox identity
+  email       String
+  displayName String?
+
+  // Purpose-based configuration
+  purpose     EmailMailboxPurpose @default(GENERAL)
+  description String?
+
+  // Folder selection
+  foldersToScan  String[]
+  scanAllFolders Boolean  @default(true)
+  labelIds       String[] // Gmail labels
+  folderIds      String[] // Outlook folders
+
+  // Status
+  isActive   Boolean   @default(true)
+  lastSyncAt DateTime?
+  syncError  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  connection   EmailConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  organisation Organisation    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([connectionId, email, purpose])
+  @@index([orgId])
+  @@index([connectionId])
+  @@index([purpose])
+  @@index([isActive])
+  @@map("email_mailboxes")
+}
+
+model EmailForwardingInbox {
+  id    String @id @default(cuid())
+  orgId String
+
+  // Unique forwarding address
+  inboxAddress String @unique // e.g., bills-a1b2c3@in.operate.guru
+  inboxPrefix  String // e.g., bills-a1b2c3
+
+  // Purpose
+  purpose     EmailMailboxPurpose @default(BILLS_INVOICES)
+  displayName String? // e.g., "Bills & Invoices"
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Stats
+  emailsReceived Int       @default(0)
+  lastEmailAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([inboxAddress])
+  @@index([purpose])
+  @@map("email_forwarding_inboxes")
 }
 
 // ============================================================================
@@ -4704,6 +5506,9 @@ model PlaidBankAccount {
   @@index([plaidItemId])
   @@index([institutionId])
   @@index([isActive])
+  @@index([plaidAccountId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
   @@map("plaid_bank_accounts")
 }
 
@@ -4808,6 +5613,15 @@ model PlaidTransaction {
   @@index([pending])
   @@index([orgId, date])
   @@index([orgId, isReconciled])
+  @@index([plaidTransactionId])
+  @@index([plaidItemId])
+  @@index([categoryId])
+  @@index([matchedExpenseId])
+  @@index([matchedInvoiceId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([category, orgId])
   @@map("plaid_transactions")
 }
 
@@ -4895,6 +5709,9 @@ model TrueLayerBankAccount {
   @@index([trueLayerConnectionId])
   @@index([providerId])
   @@index([isActive])
+  @@index([trueLayerAccountId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
   @@map("truelayer_bank_accounts")
 }
 
@@ -4976,7 +5793,84 @@ model TrueLayerTransaction {
   @@index([pending])
   @@index([orgId, timestamp])
   @@index([orgId, isReconciled])
+  @@index([trueLayerTransactionId])
+  @@index([trueLayerConnectionId])
+  @@index([matchedExpenseId])
+  @@index([matchedInvoiceId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("truelayer_transactions")
+}
+
+enum PaymentInitiationStatus {
+  PENDING
+  AUTHORIZATION_REQUIRED
+  AUTHORIZING
+  AUTHORIZED
+  EXECUTED
+  SETTLED
+  FAILED
+  CANCELLED
+}
+
+enum PaymentSourceType {
+  BILL
+  EXPENSE
+  INVOICE
+  TAX
+  MANUAL
+}
+
+model PaymentInitiation {
+  id     String @id @default(uuid())
+  orgId  String
+  userId String
+
+  amount   Decimal @db.Decimal(12, 2)
+  currency String  @default("EUR")
+
+  beneficiaryName          String
+  beneficiaryIban          String?
+  beneficiarySortCode      String?
+  beneficiaryAccountNumber String?
+
+  reference   String?
+  description String?
+
+  status             PaymentInitiationStatus @default(PENDING)
+  truelayerPaymentId String?                 @unique
+
+  redirectUri      String?
+  authorizationUri String?
+
+  sourceType PaymentSourceType @default(MANUAL)
+  billId     String?
+  expenseId  String?
+  invoiceId  String?
+
+  ipAddress String?
+  userAgent String?
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  authorizedAt DateTime?
+  executedAt   DateTime?
+  settledAt    DateTime?
+
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([userId])
+  @@index([status])
+  @@index([truelayerPaymentId])
+  @@index([billId])
+  @@index([expenseId])
+  @@index([invoiceId])
+  @@index([sourceType])
+  @@index([createdAt])
+  @@map("payment_initiations")
 }
 
 // ============================================================================
@@ -5085,6 +5979,9 @@ model GoCardlessConnection {
   @@index([creditorId])
   @@index([status])
   @@index([isConnected])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("gocardless_connections")
 }
 
@@ -5106,6 +6003,8 @@ model GoCardlessCustomer {
   @@index([customerId])
   @@index([orgId])
   @@index([gcCustomerId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
   @@map("gocardless_customers")
 }
 
@@ -5137,6 +6036,10 @@ model GoCardlessRedirectFlow {
   @@index([customerId])
   @@index([status])
   @@index([expiresAt])
+  @@index([mandateId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("gocardless_redirect_flows")
 }
 
@@ -5174,6 +6077,11 @@ model GoCardlessMandate {
   @@index([customerId])
   @@index([status])
   @@index([nextPossibleChargeDate])
+  @@index([customerBankAccountId])
+  @@index([creditorId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("gocardless_mandates")
 }
 
@@ -5213,6 +6121,9 @@ model GoCardlessPayment {
   @@index([mandateId])
   @@index([status])
   @@index([chargeDate])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("gocardless_payments")
 }
 
@@ -5292,6 +6203,9 @@ model GoCardlessSubscription {
   @@index([mandateId])
   @@index([status])
   @@index([startDate])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("gocardless_subscriptions")
 }
 
@@ -5374,6 +6288,12 @@ model TaxNexus {
   @@index([state])
   @@index([status])
   @@index([effectiveDate])
+  @@index([nexusTypeId])
+  @@index([localNexusTypeId])
+  @@index([taxRegistrationId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("tax_nexus")
 }
 
@@ -5440,6 +6360,10 @@ model TaxExemptionCertificate {
   @@index([status])
   @@index([expirationDate])
   @@index([exemptionType])
+  @@index([avalaraId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("tax_exemption_certificates")
 }
 
@@ -5515,6 +6439,10 @@ model TaxTransaction {
   @@index([transactionDate])
   @@index([taxDate])
   @@index([avalaraCode])
+  @@index([avalaraId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("tax_transactions")
 }
 
@@ -5575,6 +6503,9 @@ model HmrcConnection {
   @@index([vrn])
   @@index([status])
   @@index([isConnected])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
   @@map("hmrc_connections")
 }
 
@@ -5606,6 +6537,7 @@ model HmrcAuditLog {
   @@index([connectionId])
   @@index([action])
   @@index([createdAt])
+  @@index([requestId])
   @@map("hmrc_audit_logs")
 }
 
@@ -5668,6 +6600,12 @@ model HmrcVatReturn {
   @@index([status])
   @@index([periodFrom, periodTo])
   @@index([dueDate])
+  @@index([connectionId])
+  @@index([hmrcReceiptId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([dueDate, orgId])
+  @@index([createdAt, orgId])
   @@map("hmrc_vat_returns")
 }
 
@@ -5764,7 +6702,7 @@ model UsageEvent {
 
   // User context (optional)
   userId String?
-  user   User?   @relation("UsageEvents", fields: [userId], references: [id])
+  user   User?   @relation("UsageEvents", fields: [userId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
 
@@ -5773,6 +6711,7 @@ model UsageEvent {
   @@index([reportedToStripe])
   @@index([timestamp])
   @@index([userId])
+  @@index([stripeUsageRecordId])
   @@map("usage_events")
 }
 
@@ -5857,6 +6796,7 @@ model UsageSummary {
   @@unique([organisationId, feature, periodStart, periodEnd])
   @@index([organisationId, periodStart, periodEnd])
   @@index([reportedToStripe])
+  @@index([stripeInvoiceItemId])
   @@map("usage_summaries")
 }
 
@@ -5898,6 +6838,7 @@ model StripeUsageRecord {
   @@index([organisationId, status])
   @@index([status])
   @@index([stripeSubscriptionItemId])
+  @@index([stripeUsageRecordId])
   @@map("stripe_usage_records")
 }
 
@@ -5942,6 +6883,7 @@ model SubscriptionTier {
 
   @@index([name])
   @@index([isActive, isVisible])
+  @@index([stripeProductId])
   @@map("subscription_tiers")
 }
 
@@ -5984,6 +6926,7 @@ model RevenueRecognition {
   @@index([organisationId, recognitionMonth])
   @@index([periodStart, periodEnd])
   @@index([subscriptionId])
+  @@index([invoiceId])
   @@map("revenue_recognitions")
 }
 
@@ -6200,7 +7143,7 @@ model UserConsent {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@unique([userId, purpose])
   @@index([userId])
@@ -6234,7 +7177,7 @@ model DataSubjectRequest {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Restrict)
   organisation Organisation? @relation(fields: [organisationId], references: [id], onDelete: SetNull)
 
   @@index([userId])
@@ -6242,6 +7185,10 @@ model DataSubjectRequest {
   @@index([status])
   @@index([dueDate])
   @@index([requestType])
+  @@index([requestId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
+  @@index([dueDate, organisationId])
   @@map("data_subject_requests")
 }
 
@@ -6295,6 +7242,7 @@ model GdprAuditLog {
   @@index([eventType])
   @@index([createdAt])
   @@index([actorId])
+  @@index([resourceId])
   @@map("gdpr_audit_logs")
 }
 
@@ -6356,7 +7304,7 @@ model PersonaInquiry {
   expiresAt         DateTime?
   metadata          Json      @default("{}") // Additional context data
 
-  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
   organization  Organisation?         @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   verifications PersonaVerification[]
 
@@ -6365,6 +7313,10 @@ model PersonaInquiry {
   @@index([status])
   @@index([createdAt])
   @@index([templateId])
+  @@index([inquiryId])
+  @@index([referenceId])
+  // Compound indexes for performance
+  @@index([organizationId, status])
   @@map("persona_inquiries")
 }
 
@@ -6449,8 +7401,8 @@ model AmlScreening {
   updatedAt      DateTime  @updatedAt
   metadata       Json?
 
-  user         User?           @relation(fields: [userId], references: [id])
-  organisation Organisation    @relation(fields: [organisationId], references: [id])
+  user         User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organisation Organisation    @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   alerts       AmlAlert[]
   monitoring   AmlMonitoring[]
 
@@ -6459,6 +7411,8 @@ model AmlScreening {
   @@index([status])
   @@index([riskLevel])
   @@index([searchId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
   @@map("aml_screenings")
 }
 
@@ -6509,6 +7463,7 @@ model AmlMonitoring {
   @@index([screeningId])
   @@index([isActive])
   @@index([nextCheckAt])
+  @@index([monitoringId])
   @@map("aml_monitoring")
 }
 
@@ -6536,7 +7491,7 @@ model KycVerification {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Restrict)
   organisation Organisation  @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   decisions    KycDecision[]
 
@@ -6545,6 +7500,9 @@ model KycVerification {
   @@index([status])
   @@index([riskLevel])
   @@index([expiresAt])
+  @@index([providerRefId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
   @@map("kyc_verifications")
 }
 
@@ -6767,6 +7725,9 @@ model ZatcaCertificate {
   @@index([validTo])
   @@index([environment])
   @@index([certificateType])
+  @@index([encryptionKeyId])
+  @@index([csidRequestId])
+  @@index([previousCertificateId])
   @@map("zatca_certificates")
 }
 
@@ -6805,6 +7766,8 @@ model ZatcaCertificateAuditLog {
   @@index([performedBy])
   @@index([createdAt])
   @@index([success])
+  @@index([zatcaRequestId])
+  @@index([zatcaResponseId])
   @@map("zatca_certificate_audit_logs")
 }
 
@@ -6835,6 +7798,7 @@ model ZatcaCertificateRotation {
   @@index([organisationId])
   @@index([rotationStatus])
   @@index([createdAt])
+  @@index([oldCertificateId])
   @@map("zatca_certificate_rotations")
 }
 
@@ -7123,6 +8087,7 @@ model SyncedEmail {
   // Sync metadata
   syncJobId    String? // Reference to sync job
   lastSyncedAt DateTime @default(now())
+  metadata     Json? // Additional metadata
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -7148,14 +8113,21 @@ model SyncedEmail {
   @@index([classification])
   @@index([classificationPriority])
   @@index([classifiedAt])
+  @@index([externalId])
+  @@index([threadId])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
+  @@index([orgId, userId])
   @@map("synced_emails")
 }
 
 /// Email Sync Job - Tracks sync operations for monitoring and debugging
 /// Each sync operation creates a job record with status and statistics
 model EmailSyncJob {
-  id           String @id @default(cuid())
+  id           String  @id @default(cuid())
   connectionId String
+  mailboxId    String?
   orgId        String
   userId       String
 
@@ -7218,6 +8190,12 @@ model EmailSyncJob {
   @@index([provider])
   @@index([createdAt])
   @@index([startedAt])
+  @@index([lastMessageId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
+  @@index([orgId, userId])
   @@map("email_sync_jobs")
 }
 
@@ -7238,6 +8216,13 @@ enum EmailSyncStatus {
   PARTIAL // Partially completed (some errors)
   CANCELLED // Cancelled by user
   RATE_LIMITED // Paused due to rate limiting
+}
+
+enum EmailMailboxPurpose {
+  BILLS_INVOICES
+  INSURANCE_CONTRACTS
+  CUSTOMER_COMMS
+  GENERAL
 }
 
 /// Email Attachment - Stores downloaded attachments from synced emails
@@ -7314,6 +8299,14 @@ model EmailAttachment {
   @@index([storageBackend])
   @@index([contentHash])
   @@index([createdAt])
+  @@index([externalId])
+  @@index([extractedDataId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, provider])
+  @@index([orgId, userId])
+  @@index([emailId, status])
   @@map("email_attachments")
 }
 
@@ -7358,7 +8351,96 @@ model EmailExtractedEntities {
   @@index([contactEmails])
   @@index([invoiceNumbers])
   @@index([extractedAt])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@index([orgId, userId])
+  @@index([emailId, status])
   @@map("email_extracted_entities")
+}
+
+model EmailFilterConfig {
+  id    String @id @default(uuid())
+  orgId String @unique
+
+  // Domain Filtering
+  personalDomainBlocklist  String[] @default([])
+  serviceProviderWhitelist String[] @default([])
+  customDomainBlacklist    String[] @default([])
+  customDomainWhitelist    String[] @default([])
+
+  // Email Pattern Filtering
+  blockedEmailPatterns String[] @default([])
+
+  // Header Analysis
+  skipAutoReplies   Boolean @default(true)
+  skipBulkMail      Boolean @default(true)
+  skipMarketingMail Boolean @default(true)
+
+  // Confidence Thresholds
+  minEntityConfidence         Float @default(0.6)
+  minClassificationConfidence Float @default(0.7)
+
+  // Auto-create Settings
+  autoCreateCustomers Boolean @default(true)
+  autoCreateVendors   Boolean @default(true)
+  requireManualReview Boolean @default(false)
+
+  // Review Queue Settings
+  reviewLowConfidence    Boolean @default(true)
+  lowConfidenceThreshold Float   @default(0.5)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@map("email_filter_configs")
+}
+
+model EmailReviewQueue {
+  id      String @id @default(uuid())
+  orgId   String
+  emailId String
+
+  // Review Context
+  reviewType   String // 'LOW_CONFIDENCE', 'PATTERN_MATCH', 'DOMAIN_SUSPECT', 'MANUAL_CHECK'
+  reviewReason String
+
+  // Extracted Data (snapshot)
+  senderEmail       String
+  senderDomain      String
+  extractedCompany  String?
+  extractedContacts Json?
+  classification    String?
+  confidence        Float
+
+  // Suggested Action
+  suggestedAction String // 'CREATE_CUSTOMER', 'CREATE_VENDOR', 'SKIP', 'BLOCK_DOMAIN'
+
+  // Review Status
+  status      String    @default("PENDING") // 'PENDING', 'APPROVED', 'REJECTED', 'BLOCKED'
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  reviewNotes String?
+
+  // Result
+  resultAction   String?
+  resultEntityId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([status])
+  @@index([reviewType])
+  @@index([createdAt])
+  @@index([orgId, status])
+  @@index([createdAt, orgId])
+  @@map("email_review_queue")
 }
 
 /// Storage Quota - Tracks storage usage per organization
@@ -7396,6 +8478,8 @@ model StorageQuota {
 
   @@index([orgId])
   @@index([usedSpace])
+  // Compound indexes for performance
+  @@index([createdAt, orgId])
   @@map("storage_quotas")
 }
 
@@ -7484,6 +8568,8 @@ model ExtractedInvoice {
   @@index([status])
   @@index([createdAt])
   @@index([userId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
   @@map("extracted_invoices")
 }
 
@@ -7525,7 +8611,7 @@ model ReceiptScan {
 
   // Relations
   expenseId String?  @unique
-  expense   Expense? @relation(fields: [expenseId], references: [id])
+  expense   Expense? @relation(fields: [expenseId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -7533,6 +8619,11 @@ model ReceiptScan {
   @@index([orgId])
   @@index([status])
   @@index([expenseId])
+  // Compound indexes for performance
+  @@index([orgId, status])
+  @@index([date, orgId])
+  @@index([createdAt, orgId])
+  @@index([category, orgId])
   @@map("receipt_scans")
 }
 
@@ -7657,6 +8748,7 @@ model EmailSuggestion {
   actionType    EmailSuggestionActionType?
   actionPayload Json?
   actionLabel   String?
+  actionTaken   String?
 
   // Metadata
   confidence  Decimal? @db.Decimal(3, 2) // AI confidence (0.00-1.00)
@@ -7679,6 +8771,9 @@ model EmailSuggestion {
   @@index([entityType])
   @@index([createdAt])
   @@index([expiresAt])
+  @@index([sourceEmailId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
   @@map("email_suggestions")
 }
 
@@ -7737,6 +8832,9 @@ model VatReturn {
   @@index([periodStart])
   @@index([periodEnd])
   @@index([submittedAt])
+  @@index([receiptId])
+  // Compound indexes for performance
+  @@index([organisationId, status])
   @@map("vat_returns")
 }
 
@@ -7814,4 +8912,792 @@ model ComplianceBadge {
 
   @@index([isActive])
   @@index([slug])
+}
+
+// ============================================================================
+// CONTRACTS & E-SIGNATURE
+// ============================================================================
+
+model Contract {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  title       String
+  description String?
+
+  templateId String?
+  template   ContractTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  content String @db.Text
+
+  status ContractStatus @default(DRAFT)
+
+  value    Decimal? @db.Decimal(19, 4)
+  currency String   @default("EUR")
+
+  startDate DateTime?
+  endDate   DateTime?
+
+  sentAt   DateTime?
+  viewedAt DateTime?
+  signedAt DateTime?
+
+  signerName    String?
+  signerEmail   String?
+  signerIp      String?
+  signatureData String? @db.Text
+
+  signatureToken String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([clientId])
+  @@index([status])
+  @@index([signatureToken])
+  @@index([organisationId, status])
+  @@map("contracts")
+}
+
+model ContractTemplate {
+  id             String        @id @default(cuid())
+  organisationId String?
+  organisation   Organisation? @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  category    TemplateCategory
+
+  content   String @db.Text
+  variables Json?
+
+  isSystem Boolean @default(false)
+
+  contracts Contract[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([category])
+  @@index([isSystem])
+  @@map("contract_templates")
+}
+
+enum ContractStatus {
+  DRAFT
+  SENT
+  VIEWED
+  SIGNED
+  EXPIRED
+  CANCELLED
+}
+
+enum TemplateCategory {
+  SERVICE_AGREEMENT
+  NDA
+  FREELANCE
+  CONSULTING
+  RETAINER
+  PROJECT
+  CUSTOM
+}
+
+// ============================================================================
+// INSURANCE & POLICY TRACKER
+// ============================================================================
+
+model InsurancePolicy {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  name         String
+  type         InsuranceType
+  provider     String
+  policyNumber String?
+
+  description String?
+
+  coverageAmount Decimal? @db.Decimal(19, 4)
+  deductible     Decimal? @db.Decimal(19, 4)
+  currency       String   @default("EUR")
+
+  premiumAmount    Decimal          @db.Decimal(19, 4)
+  premiumFrequency PaymentFrequency @default(MONTHLY)
+
+  startDate   DateTime
+  endDate     DateTime
+  renewalDate DateTime?
+
+  autoRenew Boolean @default(false)
+
+  status PolicyStatus @default(ACTIVE)
+
+  contactName  String?
+  contactPhone String?
+  contactEmail String?
+
+  documents InsuranceDocument[]
+  payments  InsurancePayment[]
+
+  notes        String?
+  reminderDays Int     @default(30)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([endDate])
+  @@index([status])
+  @@index([organisationId, status])
+  @@map("insurance_policies")
+}
+
+model InsuranceDocument {
+  id       String          @id @default(cuid())
+  policyId String
+  policy   InsurancePolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  name     String
+  fileUrl  String
+  fileType String?
+  fileSize Int?
+
+  uploadedAt DateTime @default(now())
+
+  @@index([policyId])
+  @@map("insurance_documents")
+}
+
+model InsurancePayment {
+  id       String          @id @default(cuid())
+  policyId String
+  policy   InsurancePolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  amount   Decimal @db.Decimal(19, 4)
+  currency String  @default("EUR")
+
+  dueDate  DateTime
+  paidDate DateTime?
+
+  status InsurancePaymentStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+
+  @@index([policyId])
+  @@index([dueDate])
+  @@index([status])
+  @@map("insurance_payments")
+}
+
+enum InsuranceType {
+  LIABILITY
+  PROFESSIONAL_INDEMNITY
+  PROPERTY
+  HEALTH
+  LIFE
+  DISABILITY
+  CYBER
+  VEHICLE
+  WORKERS_COMP
+  OTHER
+}
+
+enum PolicyStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING_RENEWAL
+}
+
+enum PaymentFrequency {
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUAL
+  ANNUAL
+  ONE_TIME
+}
+
+enum InsurancePaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+// ============================================================================
+// TIME TRACKING & PROJECT MANAGEMENT MODELS
+// ============================================================================
+
+enum ProjectStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+model Project {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  clientId       String?
+  client         Client?      @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  name        String
+  description String?
+  color       String? @default("#6366f1")
+
+  budgetHours  Decimal? @db.Decimal(10, 2)
+  budgetAmount Decimal? @db.Decimal(19, 4)
+  hourlyRate   Decimal? @db.Decimal(19, 4)
+  currency     String   @default("EUR")
+
+  status ProjectStatus @default(ACTIVE)
+
+  billableTimeEntries BillableTimeEntry[]
+
+  startDate DateTime?
+  endDate   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([clientId])
+  @@index([status])
+  @@index([organisationId, status])
+}
+
+model BillableTimeEntry {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  userId         String
+
+  clientId  String?
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  description String?
+
+  startTime DateTime
+  endTime   DateTime?
+  duration  Int? // Duration in minutes
+
+  billable   Boolean  @default(true)
+  billed     Boolean  @default(false)
+  hourlyRate Decimal? @db.Decimal(19, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([userId])
+  @@index([projectId])
+  @@index([clientId])
+  @@index([organisationId, userId])
+  @@index([organisationId, projectId])
+  @@index([billed])
+}
+
+// ============================================================================
+// AI AUTOPILOT MODE MODELS
+// ============================================================================
+
+enum AutopilotActionType {
+  CATEGORIZE_TRANSACTION
+  CREATE_INVOICE
+  SEND_REMINDER
+  RECONCILE_TRANSACTION
+  EXTRACT_RECEIPT
+  PAY_BILL
+  FILE_EXPENSE
+  CREATE_CLIENT
+  MATCH_PAYMENT
+}
+
+enum AutopilotActionStatus {
+  PENDING
+  APPROVED
+  EXECUTED
+  REJECTED
+  FAILED
+}
+
+model AutopilotConfig {
+  id             String       @id @default(cuid())
+  organisationId String       @unique
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  enabled Boolean @default(false)
+
+  // Feature toggles
+  autoCategorizeTx    Boolean @default(true)
+  autoCreateInvoices  Boolean @default(false)
+  autoSendReminders   Boolean @default(false)
+  autoReconcile       Boolean @default(true)
+  autoExtractReceipts Boolean @default(true)
+  autoPayBills        Boolean @default(false)
+  autoFileExpenses    Boolean @default(true)
+
+  // Thresholds
+  confidenceThreshold Int      @default(90) // Min confidence for auto-action
+  maxAutoAmount       Decimal? @db.Decimal(19, 4) // Max amount for auto-pay
+
+  // Schedule
+  dailySummaryEnabled Boolean @default(true)
+  dailySummaryTime    String  @default("09:00") // HH:mm
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("autopilot_config")
+}
+
+model AutopilotAction {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  type   AutopilotActionType
+  status AutopilotActionStatus @default(PENDING)
+
+  description String
+
+  entityType String? // "transaction", "invoice", "expense", etc.
+  entityId   String?
+
+  confidence Int? // AI confidence 0-100
+
+  oldValue Json? // Previous state
+  newValue Json? // New state after action
+
+  requiresApproval Boolean   @default(false)
+  approvedAt       DateTime?
+  approvedBy       String?
+  rejectedAt       DateTime?
+  rejectedReason   String?
+
+  executedAt DateTime?
+  error      String?
+
+  createdAt DateTime @default(now())
+
+  @@index([organisationId])
+  @@index([status])
+  @@index([type])
+  @@index([organisationId, status])
+  @@index([organisationId, type])
+  @@map("autopilot_actions")
+}
+
+model AutopilotSummary {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  date DateTime @db.Date
+
+  actionsCompleted Int @default(0)
+  actionsPending   Int @default(0)
+  actionsRejected  Int @default(0)
+
+  transactionsCategorized  Int @default(0)
+  receiptsProcessed        Int @default(0)
+  invoicesCreated          Int @default(0)
+  remindersSent            Int @default(0)
+  reconciliationsCompleted Int @default(0)
+
+  timeSavedMinutes Int @default(0) // Estimated time saved
+
+  summary String? @db.Text // AI-generated summary
+
+  createdAt DateTime @default(now())
+
+  @@unique([organisationId, date])
+  @@index([organisationId])
+  @@index([date])
+  @@map("autopilot_summaries")
+}
+
+// ============================================================================
+// SMART TAX ASSISTANT MODELS
+// ============================================================================
+
+model TaxSuggestion {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  type     TaxSuggestionType
+  category String // "deduction", "deadline", "optimization", "warning"
+
+  title       String
+  description String @db.Text
+
+  potentialSavings Decimal? @db.Decimal(19, 4)
+  currency         String   @default("EUR")
+
+  priority SuggestionPriority @default(MEDIUM)
+  status   SuggestionStatus   @default(PENDING)
+
+  actionUrl   String? // Link to relevant page
+  actionLabel String? // "View Deductions", "File Now"
+
+  expiresAt   DateTime? // For time-sensitive suggestions
+  dismissedAt DateTime?
+  completedAt DateTime?
+
+  metadata Json? // Additional context data
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([status])
+  @@index([type])
+  @@index([organisationId, status])
+  @@index([organisationId, type])
+  @@map("tax_suggestions")
+}
+
+model TaxDeadline {
+  id             String       @id @default(cuid())
+  organisationId String
+  organisation   Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  name        String // "Q4 VAT Return", "Annual Tax Filing"
+  description String?
+
+  country String // ISO country code
+  type    TaxDeadlineType
+
+  dueDate      DateTime
+  reminderDate DateTime?
+
+  status  DeadlineStatus @default(UPCOMING)
+  filedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([organisationId])
+  @@index([dueDate])
+  @@index([status])
+  @@index([organisationId, status])
+  @@index([organisationId, dueDate])
+  @@map("tax_deadlines")
+}
+
+enum TaxSuggestionType {
+  MISSED_DEDUCTION
+  QUARTERLY_ESTIMATE
+  DEADLINE_REMINDER
+  EXPENSE_CATEGORIZATION
+  MILEAGE_DEDUCTION
+  HOME_OFFICE
+  EQUIPMENT_DEPRECIATION
+  RETIREMENT_CONTRIBUTION
+  HEALTH_INSURANCE
+  TAX_OPTIMIZATION
+  COMPLIANCE_WARNING
+}
+
+enum TaxDeadlineType {
+  VAT_RETURN
+  INCOME_TAX
+  CORPORATE_TAX
+  PAYROLL_TAX
+  ESTIMATED_PAYMENT
+  ANNUAL_FILING
+}
+
+enum DeadlineStatus {
+  UPCOMING
+  DUE_SOON
+  OVERDUE
+  FILED
+}
+
+// ============================================================================
+// PRODUCT MODEL
+// ============================================================================
+
+model Product {
+  id           String       @id @default(uuid())
+  orgId        String
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  sku         String?
+  category    String?
+
+  unitPrice Decimal @db.Decimal(12, 2)
+  currency  String  @default("EUR")
+
+  taxRate     Decimal? @db.Decimal(5, 2)
+  taxCategory String?
+
+  isActive Boolean @default(true)
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([orgId, sku])
+  @@index([orgId])
+  @@index([category])
+  @@index([isActive])
+  @@map("products")
+}
+
+// ============================================================================
+// PAYMENT MODEL  
+// ============================================================================
+
+model Payment {
+  id           String       @id @default(uuid())
+  orgId        String
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  type   PaymentType
+  status PaymentStatus @default(PENDING)
+
+  amount   Decimal @db.Decimal(12, 2)
+  currency String  @default("EUR")
+
+  reference   String?
+  description String?
+
+  invoiceId  String?
+  billId     String?
+  customerId String?
+  vendorId   String?
+
+  bankAccountId String?
+  transactionId String?
+
+  method String?
+
+  paymentDate DateTime?
+  dueDate     DateTime?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([status])
+  @@index([type])
+  @@index([invoiceId])
+  @@index([billId])
+  @@index([paymentDate])
+  @@map("payments")
+}
+
+enum PaymentType {
+  INCOMING
+  OUTGOING
+  REFUND
+  TRANSFER
+}
+
+// ============================================================================
+// QUICKBOOKS MIGRATION MODELS
+// ============================================================================
+
+model QuickBooksMigration {
+  id           String               @id @default(cuid())
+  orgId        String
+  organisation Organisation         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  connectionId String
+  connection   QuickBooksConnection @relation(fields: [connectionId], references: [id])
+
+  status   MigrationStatus @default(PENDING)
+  progress Json?
+
+  totalItems     Int @default(0)
+  processedItems Int @default(0)
+  failedItems    Int @default(0)
+
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  config       Json?
+  errorMessage String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  errors QuickBooksMigrationError[]
+
+  @@index([orgId])
+  @@index([connectionId])
+  @@index([status])
+  @@map("quickbooks_migrations")
+}
+
+model QuickBooksMigrationError {
+  id          String              @id @default(cuid())
+  migrationId String
+  migration   QuickBooksMigration @relation(fields: [migrationId], references: [id], onDelete: Cascade)
+
+  entityType String
+  entityId   String?
+  errorCode  String?
+  message    String  @db.Text
+  details    Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([migrationId])
+  @@index([entityType])
+  @@map("quickbooks_migration_errors")
+}
+
+model QuickBooksSyncMapping {
+  id           String       @id @default(cuid())
+  orgId        String
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  connectionId String
+
+  entityType String
+  localId    String
+  externalId String
+
+  lastSyncedAt DateTime?
+  syncStatus   SyncStatus @default(IDLE)
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([connectionId, entityType, localId])
+  @@unique([connectionId, entityType, externalId])
+  @@index([orgId])
+  @@index([connectionId])
+  @@index([entityType])
+  @@map("quickbooks_sync_mappings")
+}
+
+model QuickBooksEntityMapping {
+  id           String       @id @default(cuid())
+  orgId        String
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  connectionId String
+
+  entityType   String
+  quickbooksId String
+  operateId    String
+
+  syncToken    String?
+  lastSyncedAt DateTime?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([connectionId, entityType, quickbooksId])
+  @@unique([connectionId, entityType, operateId])
+  @@index([orgId])
+  @@index([connectionId])
+  @@map("quickbooks_entity_mappings")
+}
+
+model QuickBooksSyncLog {
+  id           String       @id @default(cuid())
+  orgId        String
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  connectionId String
+
+  syncType String
+  status   SyncStatus
+
+  itemsProcessed Int @default(0)
+  itemsFailed    Int @default(0)
+
+  duration     Int?
+  errorMessage String?
+  details      Json?
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@index([orgId])
+  @@index([connectionId])
+  @@index([status])
+  @@map("quickbooks_sync_logs")
+}
+
+// ============================================================================
+// FREEE CONNECTION MODEL
+// ============================================================================
+
+model FreeeConnection {
+  id           String       @id @default(uuid())
+  orgId        String
+  organisation Organisation @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  companyId      Int
+  companyName    String?
+  freeeCompanyId String?
+
+  accessToken  String    @db.Text
+  refreshToken String?   @db.Text
+  expiresAt    DateTime?
+  tokenType    String?
+  scope        String?
+
+  status        ConnectionStatus @default(ACTIVE)
+  isActive      Boolean          @default(true)
+  lastSyncedAt  DateTime?
+  fiscalYearEnd Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  auditLogs FreeeAuditLog[]
+
+  @@unique([orgId])
+  @@index([companyId])
+  @@index([status])
+  @@map("freee_connections")
+}
+
+model FreeeAuditLog {
+  id           String          @id @default(cuid())
+  connectionId String
+  connection   FreeeConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  action       String
+  endpoint     String?
+  requestData  Json?
+  responseData Json?
+
+  status       String
+  errorMessage String?
+
+  createdAt DateTime @default(now())
+
+  @@index([connectionId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("freee_audit_logs")
+}
+
+// Migration Status enum
+enum MigrationStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
 }

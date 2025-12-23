@@ -90,7 +90,7 @@ export class ReceiptExtractorProcessor {
       const result = await this.extractorService.extractReceipt({
         file: fileData,
         mimeType,
-        organisationId,
+        orgId: organisationId,
         userId,
         fileName,
         autoCategorize,
@@ -176,7 +176,7 @@ export class ReceiptExtractorProcessor {
    * Handle queue errors
    */
   @OnQueueError()
-  async onError(error: Error): void {
+  async onError(error: Error): Promise<void> {
     this.logger.error('Queue error:', error);
   }
 
@@ -184,13 +184,13 @@ export class ReceiptExtractorProcessor {
    * Handle failed jobs
    */
   @OnQueueFailed()
-  async onFailed(job: Job, error: Error): void {
+  async onFailed(job: Job, error: Error): Promise<void> {
     this.logger.error(`Job ${job.id} failed:`, error);
 
     // Update extraction status if extraction job failed
     if (job.name === 'extract-receipt' && job.data.extractionId) {
       try {
-        await this.prisma.extractedReceipt.update({
+        await this.prisma.receiptScan.update({
           where: { id: job.data.extractionId },
           data: {
             status: ReceiptExtractionStatus.FAILED,
@@ -218,7 +218,7 @@ export class ReceiptExtractorProcessor {
     const { extractionId, organisationId, userId } = params;
 
     // Get extraction record
-    const extraction = await this.prisma.extractedReceipt.findUnique({
+    const extraction = await this.prisma.receiptScan.findUnique({
       where: { id: extractionId },
     });
 
@@ -250,7 +250,7 @@ export class ReceiptExtractorProcessor {
       description: `${data.merchantName}${data.items?.length > 0 ? ` - ${data.items[0].description}` : ''}`,
       amount: data.total,
       currency: data.currency || 'EUR',
-      date: new Date(data.date),
+      date: data.date ? (typeof data.date === 'string' ? data.date : new Date(data.date).toISOString()) : new Date().toISOString(),
       category,
       subcategory: extraction.suggestedSubcategory,
       vendorName: data.merchantName,
@@ -274,7 +274,7 @@ export class ReceiptExtractorProcessor {
     });
 
     // Link expense to extraction
-    await this.prisma.extractedReceipt.update({
+    await this.prisma.receiptScan.update({
       where: { id: extractionId },
       data: { expenseId: expense.id },
     });

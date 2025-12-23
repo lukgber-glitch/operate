@@ -58,7 +58,7 @@ export class EmployeeDocumentsService {
       data: {
         employeeId,
         orgId,
-        documentType: dto.documentType as Prisma.InputJsonValue,
+        documentType: dto.documentType,
         fileName: file.originalname,
         fileSize: storageResult.fileSize,
         mimeType: storageResult.mimeType,
@@ -219,7 +219,7 @@ export class EmployeeDocumentsService {
     const updated = await this.prisma.employeeDocument.update({
       where: { id: documentId },
       data: {
-        status: 'VERIFIED' as Prisma.InputJsonValue,
+        status: 'VERIFIED',
         verifiedAt: new Date(),
         verifiedBy: userId,
       },
@@ -253,7 +253,7 @@ export class EmployeeDocumentsService {
     const updated = await this.prisma.employeeDocument.update({
       where: { id: documentId },
       data: {
-        status: 'REJECTED' as Prisma.InputJsonValue,
+        status: 'REJECTED',
         rejectedAt: new Date(),
         rejectedBy: userId,
         rejectionReason: dto.reason,
@@ -333,7 +333,7 @@ export class EmployeeDocumentsService {
       where: {
         orgId,
         deletedAt: null,
-        status: 'PENDING' as Prisma.InputJsonValue,
+        status: 'PENDING',
       },
       include: {
         employee: {
@@ -370,7 +370,7 @@ export class EmployeeDocumentsService {
     const terminatedEmployees = await this.prisma.employee.findMany({
       where: {
         orgId,
-        status: 'TERMINATED' as Prisma.InputJsonValue,
+        status: 'TERMINATED',
         terminationDate: { not: null },
       },
       select: {
@@ -392,7 +392,7 @@ export class EmployeeDocumentsService {
         (now.getTime() - terminationDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
 
       for (const document of employee.documents) {
-        let retentionYears = DOCUMENT_RETENTION_PERIODS.GENERAL_DOCUMENT;
+        let retentionYears: number = DOCUMENT_RETENTION_PERIODS.GENERAL_DOCUMENT;
 
         if (document.documentType === 'W4_FORM') {
           retentionYears = DOCUMENT_RETENTION_PERIODS.W4_FORM;

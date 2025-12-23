@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { ExportFormat, DataCategory, ExportResult } from '../types/data-tools.types';
+import { ExportFormat, ExportStatus, DataCategory, ExportResult } from '../types/data-tools.types';
 import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -96,7 +96,7 @@ export class DataExporterService {
 
       return {
         jobId: crypto.randomUUID(),
-        status: 'completed' as Prisma.InputJsonValue,
+        status: ExportStatus.COMPLETED,
         fileUrl,
         fileSize: stats.size,
         downloadToken: this.generateDownloadToken(filePath),
@@ -340,7 +340,7 @@ export class DataExporterService {
 
     return new Promise((resolve, reject) => {
       const output = createWriteStream(filePath);
-      const archive = archiver('zip', { zlib: { level: 9 } });
+      const archive = archiver.default('zip', { zlib: { level: 9 } });
 
       output.on('close', () => resolve(filePath));
       archive.on('error', reject);
@@ -364,7 +364,7 @@ export class DataExporterService {
 
     return new Promise((resolve, reject) => {
       const output = createWriteStream(compressedPath);
-      const archive = archiver('zip', { zlib: { level: 9 } });
+      const archive = archiver.default('zip', { zlib: { level: 9 } });
 
       output.on('close', () => resolve(compressedPath));
       archive.on('error', reject);

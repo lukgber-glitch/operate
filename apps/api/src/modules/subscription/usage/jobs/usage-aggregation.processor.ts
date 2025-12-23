@@ -1,7 +1,7 @@
 import { Processor, Process } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { UsageFeature } from '@prisma/client';
 
 export const USAGE_AGGREGATION_QUEUE = 'usage-aggregation';

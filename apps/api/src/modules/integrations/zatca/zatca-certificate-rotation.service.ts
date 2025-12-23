@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { ZatcaCertificateService } from './zatca-certificate.service';
 import { ZatcaAuditService } from './zatca-audit.service';
 import { ZatcaCertificateValidator } from './zatca-certificate-validator';

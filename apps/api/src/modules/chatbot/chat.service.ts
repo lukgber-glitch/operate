@@ -112,7 +112,8 @@ export class ChatService {
           role: 'ASSISTANT',
           type: 'TEXT',
           content: scenarioResponse.text,
-          metadata: scenarioResponse.data as Prisma.InputJsonValue,
+          // Store scenario data in componentData field (no metadata field in schema)
+          componentData: scenarioResponse.data as unknown as Prisma.InputJsonValue,
         },
       });
 
@@ -211,7 +212,7 @@ export class ChatService {
             type: 'TEXT',
             content: aiResponse.content,
             model: aiResponse.model,
-            tokenCount: aiResponse.usage.inputTokens + aiResponse.usage.outputTokens,
+            tokens: aiResponse.usage.inputTokens + aiResponse.usage.outputTokens,
           },
         });
 
@@ -220,7 +221,7 @@ export class ChatService {
           userId,
           organizationId: orgId,
           conversationId,
-          permissions: await this.getUserPermissions(userId),
+          permissions: await this.getUserPermissions(userId, orgId),
         };
 
         // Execute action
@@ -268,7 +269,7 @@ export class ChatService {
           type: 'TEXT',
           content: aiResponse.content,
           model: aiResponse.model,
-          tokenCount: aiResponse.usage.inputTokens + aiResponse.usage.outputTokens,
+          tokens: aiResponse.usage.inputTokens + aiResponse.usage.outputTokens,
         },
       });
 
@@ -505,20 +506,37 @@ export class ChatService {
 
   /**
    * Get user permissions for action execution
+   * Fetches user role from Membership and maps to permissions
    */
-  private async getUserPermissions(userId: string): Promise<string[]> {
-    // Fetch user with role
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+  private async getUserPermissions(userId: string, orgId: string): Promise<string[]> {
+    // Fetch user's membership to get role
+    const membership = await this.prisma.membership.findUnique({
+      where: {
+        userId_orgId: {
+          userId,
+          orgId,
+        },
+      },
       select: { role: true },
     });
 
-    if (!user) {
+    if (!membership) {
       return [];
     }
 
     // Map roles to permissions (simplified - should use RBAC service)
     const rolePermissions: Record<string, string[]> = {
+      OWNER: [
+        'invoices:create',
+        'invoices:update',
+        'invoices:send',
+        'expenses:create',
+        'expenses:update',
+        'bills:create',
+        'bills:update',
+        'bills:view',
+        'reports:generate',
+      ],
       ADMIN: [
         'invoices:create',
         'invoices:update',
@@ -541,11 +559,11 @@ export class ChatService {
         'bills:view',
         'reports:generate',
       ],
-      EMPLOYEE: ['expenses:create', 'bills:view', 'reports:generate'],
+      MEMBER: ['expenses:create', 'bills:view', 'reports:generate'],
       VIEWER: ['bills:view', 'reports:generate'],
     };
 
-    return rolePermissions[user.role] || [];
+    return rolePermissions[membership.role] || [];
   }
 
   /**

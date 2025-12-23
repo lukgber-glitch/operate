@@ -66,7 +66,8 @@ export class AutomationSettingsService {
       // Create default settings
       settings = await this.prisma.automationSettings.create({
         data: {
-          organisationId,
+          orgId: organisationId,
+          organisation: { connect: { id: organisationId } },
           // Default values from schema
           invoiceCreation: AutomationMode.SEMI_AUTO,
           expenseApproval: AutomationMode.SEMI_AUTO,
@@ -152,7 +153,8 @@ export class AutomationSettingsService {
     const settings = await this.prisma.automationSettings.upsert({
       where: { organisationId },
       create: {
-        organisationId,
+        orgId: organisationId,
+        organisation: { connect: { id: organisationId } },
         invoiceCreation: dto.invoiceCreation ?? AutomationMode.SEMI_AUTO,
         expenseApproval: dto.expenseApproval ?? AutomationMode.SEMI_AUTO,
         bankReconciliation: dto.bankReconciliation ?? AutomationMode.SEMI_AUTO,
@@ -235,7 +237,16 @@ export class AutomationSettingsService {
     await this.prisma.automationSettings.upsert({
       where: { organisationId },
       create: {
-        organisationId,
+        orgId: organisationId,
+        organisation: { connect: { id: organisationId } },
+        invoiceCreation: AutomationMode.SEMI_AUTO,
+        expenseApproval: AutomationMode.SEMI_AUTO,
+        bankReconciliation: AutomationMode.SEMI_AUTO,
+        taxClassification: AutomationMode.SEMI_AUTO,
+        paymentReminders: AutomationMode.SEMI_AUTO,
+        invoiceConfidenceThreshold: 85,
+        expenseConfidenceThreshold: 80,
+        taxConfidenceThreshold: 90,
         ...updateData,
       },
       update: updateData,

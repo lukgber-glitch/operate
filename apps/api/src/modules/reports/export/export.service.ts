@@ -1,7 +1,7 @@
 import { Injectable, Logger, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import PDFDocument from 'pdfkit';
-import * as ExcelJS from 'exceljs';
+import ExcelJS from 'exceljs';
 import { createWriteStream, createReadStream } from 'fs';
 import { promises as fs } from 'fs';
 import { join } from 'path';
@@ -518,8 +518,20 @@ export class ExportService {
         doc.fontSize(11).fillColor('#2563eb').text(section.title);
         doc.moveDown(0.5);
 
-        if (section.data) {
-          this.renderDataTable(doc, section.data.columns || [], section.data.rows || [], section.data.totals);
+        if (section.data && Array.isArray(section.data)) {
+          // section.data is an array of items
+          const firstItem = section.data[0];
+          if (firstItem) {
+            const columns = Object.keys(firstItem).map(key => ({
+              key,
+              header: key.charAt(0).toUpperCase() + key.slice(1),
+            }));
+            this.renderDataTable(doc, columns, section.data, undefined);
+          }
+        } else if (section.data && typeof section.data === 'object' && 'columns' in section.data) {
+          // section.data has columns, rows, totals structure
+          const dataObj = section.data as any;
+          this.renderDataTable(doc, dataObj.columns || [], dataObj.rows || [], dataObj.totals);
         }
 
         doc.moveDown();
@@ -650,7 +662,7 @@ export class ExportService {
 
       // Generate buffer
       const buffer = await workbook.xlsx.writeBuffer();
-      return buffer as Buffer;
+      return Buffer.from(buffer);
     } catch (error) {
       this.logger.error(`Excel generation failed: ${error.message}`, error.stack);
       throw new InternalServerErrorException('Failed to generate Excel');
@@ -828,7 +840,7 @@ export class ExportService {
       worksheet.eachRow((row, rowNumber) => {
         if (rowNumber > 1 && rowNumber % 2 === 0) {
           row.eachCell((cell) => {
-            if (!cell.fill || (cell.fill as Prisma.InputJsonValue).type !== 'pattern') {
+            if (!cell.fill || (typeof cell.fill === 'object' && 'type' in cell.fill && cell.fill.type !== 'pattern')) {
               cell.fill = {
                 type: 'pattern',
                 pattern: 'solid',
@@ -855,10 +867,10 @@ export class ExportService {
     }
 
     // Freeze header
-    if (styleOptions.freezeHeader !== false) {
-      worksheet.views[0] = worksheet.views[0] || {};
-      worksheet.views[0].state = 'frozen';
-      worksheet.views[0].ySplit = 1;
+    if (styleOptions.freezeHeader !== false && worksheet.views && worksheet.views.length > 0) {
+      const view = worksheet.views[0] as any;
+      view.state = 'frozen';
+      view.ySplit = 1;
     }
   }
 
@@ -917,19 +929,25 @@ export class ExportService {
    * Add Data Validation
    */
   private addDataValidation(worksheet: ExcelJS.Worksheet, validations: ExcelDataValidationDto[]): void {
+    // Note: ExcelJS dataValidations API may vary by version
+    // Using type assertion to bypass strict typing
+    const ws = worksheet as any;
+
     validations.forEach(validation => {
       const columnIndex = this.getColumnIndex(worksheet, validation.column);
       if (columnIndex === -1) return;
 
       const range = `${this.getColumnLetter(columnIndex)}2:${this.getColumnLetter(columnIndex)}${worksheet.rowCount}`;
 
-      worksheet.dataValidations.add(range, {
-        type: validation.type as Prisma.InputJsonValue,
-        formulae: validation.values ? [validation.values] : undefined,
-        showErrorMessage: !!validation.errorMessage,
-        errorTitle: 'Invalid Value',
-        error: validation.errorMessage,
-      });
+      if (ws.dataValidations && typeof ws.dataValidations.add === 'function') {
+        ws.dataValidations.add(range, {
+          type: validation.type,
+          formulae: validation.values ? [validation.values] : undefined,
+          showErrorMessage: !!validation.errorMessage,
+          errorTitle: 'Invalid Value',
+          error: validation.errorMessage,
+        });
+      }
     });
   }
 

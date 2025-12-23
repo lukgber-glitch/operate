@@ -328,7 +328,7 @@ export class TaxDeductionAnalyzerService {
     `;
 
     // Aggregate by category
-    const byCategory: QuarterlyDeductions['byCategory'] = {} as Prisma.InputJsonValue;
+    const byCategory: QuarterlyDeductions['byCategory'] = {} as any;
     const eurSummary: Record<number, number> = {};
     let totalExpenses = 0;
     let totalDeductible = 0;
@@ -553,7 +553,7 @@ export class TaxDeductionAnalyzerService {
       GROUP BY metadata->>'taxCategory'
     `;
 
-    const byCategoryAllTime: Record<TaxCategory, any> = {} as Prisma.InputJsonValue;
+    const byCategoryAllTime: Record<TaxCategory, any> = {} as any;
     let totalExpenses = 0;
     let totalDeductible = 0;
     let totalVatReclaimable = 0;

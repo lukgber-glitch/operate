@@ -599,8 +599,8 @@ export class EInvoiceValidationService {
     }
 
     // BR-DE-19: Tax exclusive + tax = tax inclusive
-    const calculatedTotal = invoice.subtotal + invoice.taxAmount;
-    const totalDiff = Math.abs(calculatedTotal - invoice.totalAmount);
+    const calculatedTotal = Number(invoice.subtotal) + Number(invoice.taxAmount);
+    const totalDiff = Math.abs(calculatedTotal - Number(invoice.totalAmount));
     if (totalDiff > 0.01) {
       violations.push({
         rule: BusinessRule.BR_DE_19,

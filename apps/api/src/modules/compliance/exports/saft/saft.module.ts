@@ -7,7 +7,7 @@ import { Module } from '@nestjs/common';
 import { SaftService } from './saft.service';
 import { SaftBuilderService } from './saft-builder.service';
 import { SaftController } from './saft.controller';
-import { DatabaseModule } from '../../../database/database.module';
+import { DatabaseModule } from '@/modules/database/database.module';
 
 /**
  * SAF-T Export Module

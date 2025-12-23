@@ -292,11 +292,11 @@ export class SpainCertificateService {
           name: cert.name,
           description: cert.description,
           cifNif: cert.cifNif,
-          environment: cert.environment,
+          environment: cert.environment as 'production' | 'test',
         },
         validFrom: cert.validFrom,
         validTo: cert.validTo,
-        environment: cert.environment,
+        environment: cert.environment as 'production' | 'test',
       };
     } catch (error) {
       this.logger.error(
@@ -449,7 +449,7 @@ export class SpainCertificateService {
           (1000 * 60 * 60 * 24),
       ),
       serialNumber: cert.serialNumber,
-      environment: cert.environment,
+      environment: cert.environment as 'production' | 'test',
     }));
   }
 
@@ -718,7 +718,7 @@ export class SpainCertificateService {
       thumbprint: cert.thumbprint,
       validFrom: cert.validFrom,
       validTo: cert.validTo,
-      environment: cert.environment,
+      environment: cert.environment as 'production' | 'test',
       isActive: cert.isActive,
       lastUsedAt: cert.lastUsedAt,
       createdAt: cert.createdAt,

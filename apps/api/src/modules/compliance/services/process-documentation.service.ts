@@ -12,7 +12,7 @@
 
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { ProcessDocumentationStatus } from '@prisma/client';
+import { ProcessDocumentationStatus, Prisma } from '@prisma/client';
 import {
   ProcessDocumentation,
   ProcessDocumentationSections,
@@ -71,9 +71,9 @@ export class ProcessDocumentationService {
     const organisation = await this.prisma.organisation.findUnique({
       where: { id: tenantId },
       include: {
-        users: {
+        memberships: {
           include: {
-            role: true,
+            user: true,
           },
         },
       },
@@ -111,7 +111,7 @@ export class ProcessDocumentationService {
         tenantId,
         version,
         status: ProcessDocumentationStatus.DRAFT,
-        sections: sections as Prisma.InputJsonValue,
+        sections: sections as unknown as Prisma.InputJsonValue,
       },
     });
 
@@ -150,7 +150,7 @@ export class ProcessDocumentationService {
     await this.prisma.processDocumentation.update({
       where: { id: doc.id },
       data: {
-        sections: sections as Prisma.InputJsonValue,
+        sections: sections as unknown as Prisma.InputJsonValue,
         updatedAt: new Date(),
       },
     });
@@ -233,7 +233,7 @@ export class ProcessDocumentationService {
       };
     }
 
-    const sections = doc.sections as Prisma.InputJsonValue as ProcessDocumentationSections;
+    const sections = doc.sections as unknown as ProcessDocumentationSections;
     const missingSections: string[] = [];
     const missingFields: string[] = [];
     const warnings: string[] = [];
@@ -395,38 +395,163 @@ export class ProcessDocumentationService {
   ): Promise<ProcessDocumentationSections> {
     // General Description
     const generalDescription: GeneralDescription = {
-      ...GENERAL_DESCRIPTION_TEMPLATE_DE,
       companyInfo: {
-        ...GENERAL_DESCRIPTION_TEMPLATE_DE.companyInfo,
         name: organisation.name || '[Firmenname]',
-        legalForm: organisation.legalForm || 'GmbH',
-        address: organisation.address || '[Adresse]',
-        taxNumber: organisation.taxNumber || '',
-        vatId: organisation.vatId || '',
-        registrationNumber: organisation.registrationNumber || '',
+        legalForm: organisation.companyType || 'GmbH',
+        address: '[Adresse]',
+        taxNumber: organisation.utrNumber || organisation.taxRegistrationNumber || '',
+        vatId: organisation.vatNumber || '',
+        registrationNumber: organisation.companyRegistrationNumber || '',
         industry: organisation.industry || '[Branche]',
-        employees: organisation.employeeCount || 0,
+        employees: 0,
+      },
+      systemInfo: {
+        name: 'OPERATE',
+        version: '1.0.0',
+        vendor: 'OPERATE',
+        purpose: 'Enterprise SaaS for SME operations',
+        implementationDate: organisation.createdAt,
+        lastUpdateDate: organisation.updatedAt,
+        operatingSystem: 'Linux (Cloud)',
+        database: 'PostgreSQL',
+      },
+      scope: {
+        coveredProcesses: ['Invoicing', 'Expense Management', 'Banking', 'Tax Filing'],
+        coveredDepartments: ['Finance', 'Operations', 'HR'],
+        taxRelevantData: ['Invoices', 'Expenses', 'Bank Transactions', 'VAT Returns'],
+        retentionPeriods: {
+          TAX_RELEVANT: 10,
+          BUSINESS: 6,
+          CORRESPONDENCE: 6,
+          HR: 10,
+          LEGAL: 30,
+          TEMPORARY: 1,
+        },
       },
     };
 
     // User Documentation
     const userDocumentation: UserDocumentation = {
-      ...USER_DOCUMENTATION_TEMPLATE_DE,
+      roles: [],
+      processes: [],
+      workflows: [],
+      training: {
+        manualAvailable: false,
+        trainingRequired: true,
+        trainingFrequency: 'Quarterly',
+      },
     };
 
     // Technical Documentation
     const technicalDocumentation: TechnicalDocumentation = {
-      ...TECHNICAL_DOCUMENTATION_TEMPLATE_DE,
+      architecture: {
+        overview: 'Microservices architecture with NestJS backend and Next.js frontend',
+        components: [],
+        infrastructure: 'Cloud-based (Cloudways/DigitalOcean)',
+        hosting: 'Managed cloud hosting',
+        scalability: 'Horizontal scaling via containers',
+      },
+      dataFlow: {
+        description: 'Data flows through REST API endpoints with JWT authentication',
+        inputSources: ['Web UI', 'API', 'Email', 'Banking APIs'],
+        outputDestinations: ['Database', 'File Storage', 'Email', 'Tax Portals'],
+        dataTransformations: ['OCR', 'Classification', 'Validation', 'Encryption'],
+      },
+      interfaces: [],
+      dataStructure: {
+        databaseSchema: 'PostgreSQL with Prisma ORM',
+        keyTables: ['Invoice', 'Expense', 'BankTransaction', 'Document'],
+        dataRetention: 'Per GoBD requirements',
+        archiveFormat: 'Encrypted AES-256-GCM',
+      },
+      security: {
+        encryption: {
+          atRest: true,
+          inTransit: true,
+          algorithm: 'AES-256-GCM',
+        },
+        authentication: {
+          method: 'JWT + OAuth 2.0',
+          mfaEnabled: true,
+          sessionManagement: 'Stateless JWT',
+        },
+        authorization: {
+          model: 'RBAC',
+          accessControl: 'Role-based with tenant isolation',
+        },
+        auditLogging: {
+          enabled: true,
+          immutability: true,
+          hashChain: true,
+          retention: 10,
+        },
+      },
     };
 
     // Operations Documentation
     const operationsDocumentation: OperationsDocumentation = {
-      ...OPERATIONS_DOCUMENTATION_TEMPLATE_DE,
+      backup: {
+        strategy: 'Daily automated backups',
+        frequency: 'Daily',
+        retention: '30 days',
+        storageLocation: 'Cloud storage (encrypted)',
+        encryptionEnabled: true,
+        testFrequency: 'Monthly',
+        restoreProcedure: 'Documented restore procedure',
+      },
+      monitoring: {
+        systemMonitoring: true,
+        alerting: true,
+        logManagement: 'Centralized logging',
+        performanceMetrics: ['Response Time', 'Error Rate', 'Uptime'],
+      },
+      maintenance: {
+        schedule: 'Weekly maintenance windows',
+        updateProcedure: 'Documented update procedure',
+        downtimePolicy: 'Minimal downtime policy',
+        notificationProcess: 'Email notifications',
+      },
+      disasterRecovery: {
+        plan: 'Documented disaster recovery plan',
+        rto: '4 hours',
+        rpo: '1 hour',
+      },
+      dataProtection: {
+        gdprCompliant: true,
+        privacyPolicy: 'GDPR-compliant privacy policy',
+        dataSubjectRights: ['Access', 'Rectification', 'Erasure', 'Portability'],
+        breachNotificationProcedure: 'Within 72 hours',
+      },
     };
 
     // Internal Controls
     const internalControls: InternalControls = {
-      ...INTERNAL_CONTROLS_TEMPLATE_DE,
+      segregationOfDuties: {
+        implemented: true,
+        description: 'Separation of creation, approval, and execution',
+        criticalFunctions: [],
+      },
+      approvalWorkflows: [],
+      accessControls: {
+        userProvisioning: 'Admin-approved provisioning',
+        accessReview: {
+          frequency: 'Quarterly',
+        },
+        privilegedAccessManagement: 'MFA required for privileged access',
+        passwordPolicy: {
+          minLength: 8,
+          complexity: true,
+          expiryDays: 90,
+        },
+      },
+      changeManagement: {
+        processDocumented: true,
+        approvalRequired: true,
+        testingRequired: true,
+        rollbackProcedure: 'Git-based rollback',
+        changeLog: true,
+      },
+      complianceChecks: [],
     };
 
     return {

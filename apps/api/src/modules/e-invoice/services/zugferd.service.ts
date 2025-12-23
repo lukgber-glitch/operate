@@ -286,14 +286,21 @@ export class ZugferdService {
   private mapToUBLInvoice(invoice: InvoiceData): Invoice {
     // Build UBL-compliant Invoice structure
     // This is a minimal implementation - full UBL mapping is extensive
+    const currency = (invoice.currency || 'EUR') as any;
+    const invoiceTypeCode = this.getInvoiceTypeCode(invoice.type) as any;
+    const sellerCountryCode = this.normalizeCountryCode(
+      invoice.seller.address?.country || 'DE',
+    ) as any;
+    const buyerCountryCode = this.normalizeCountryCode(
+      invoice.buyer.address?.country || 'DE',
+    ) as any;
+
     const ublInvoice: Invoice = {
       'ubl:Invoice': {
         'cbc:ID': invoice.number,
         'cbc:IssueDate': invoice.issueDate.toISOString().split('T')[0],
-        'cbc:InvoiceTypeCode': this.getInvoiceTypeCode(
-          invoice.type,
-        ) as Prisma.InputJsonValue,
-        'cbc:DocumentCurrencyCode': (invoice.currency || 'EUR') as Prisma.InputJsonValue,
+        'cbc:InvoiceTypeCode': invoiceTypeCode,
+        'cbc:DocumentCurrencyCode': currency,
 
         'cac:AccountingSupplierParty': {
           'cac:Party': {
@@ -303,9 +310,7 @@ export class ZugferdService {
               'cbc:CityName': invoice.seller.address?.city || '',
               'cbc:PostalZone': invoice.seller.address?.postalCode || '',
               'cac:Country': {
-                'cbc:IdentificationCode': this.normalizeCountryCode(
-                  invoice.seller.address?.country || 'DE',
-                ) as Prisma.InputJsonValue,
+                'cbc:IdentificationCode': sellerCountryCode,
               },
             },
             'cac:PartyLegalEntity': {
@@ -322,9 +327,7 @@ export class ZugferdService {
               'cbc:CityName': invoice.buyer.address?.city || '',
               'cbc:PostalZone': invoice.buyer.address?.postalCode || '',
               'cac:Country': {
-                'cbc:IdentificationCode': this.normalizeCountryCode(
-                  invoice.buyer.address?.country || 'DE',
-                ) as Prisma.InputJsonValue,
+                'cbc:IdentificationCode': buyerCountryCode,
               },
             },
             'cac:PartyLegalEntity': {
@@ -336,19 +339,19 @@ export class ZugferdService {
         'cac:TaxTotal': [
           {
             'cbc:TaxAmount': invoice.taxAmount.toString(),
-            'cbc:TaxAmount@currencyID': (invoice.currency || 'EUR') as Prisma.InputJsonValue,
+            'cbc:TaxAmount@currencyID': currency,
           },
         ],
 
         'cac:LegalMonetaryTotal': {
           'cbc:LineExtensionAmount': invoice.subtotal.toString(),
-          'cbc:LineExtensionAmount@currencyID': invoice.currency || 'EUR'.toString(),
+          'cbc:LineExtensionAmount@currencyID': currency,
           'cbc:TaxExclusiveAmount': invoice.subtotal.toString(),
-          'cbc:TaxExclusiveAmount@currencyID': invoice.currency || 'EUR'.toString(),
+          'cbc:TaxExclusiveAmount@currencyID': currency,
           'cbc:TaxInclusiveAmount': invoice.totalAmount.toString(),
-          'cbc:TaxInclusiveAmount@currencyID': invoice.currency || 'EUR'.toString(),
+          'cbc:TaxInclusiveAmount@currencyID': currency,
           'cbc:PayableAmount': invoice.totalAmount.toString(),
-          'cbc:PayableAmount@currencyID': invoice.currency || 'EUR'.toString(),
+          'cbc:PayableAmount@currencyID': currency,
         },
 
         'cac:InvoiceLine': invoice.items.map((item, index) => ({
@@ -356,15 +359,15 @@ export class ZugferdService {
           'cbc:InvoicedQuantity': item.quantity.toString(),
           'cbc:InvoicedQuantity@unitCode': item.unit || 'C62',
           'cbc:LineExtensionAmount': item.amount.toString(),
-          'cbc:LineExtensionAmount@currencyID': invoice.currency || (invoice.currency || 'EUR') as Prisma.InputJsonValue,
+          'cbc:LineExtensionAmount@currencyID': currency,
           'cac:Item': {
             'cbc:Name': item.description,
           },
           'cac:Price': {
             'cbc:PriceAmount': item.unitPrice.toString(),
-            'cbc:PriceAmount@currencyID': invoice.currency || (invoice.currency || 'EUR') as Prisma.InputJsonValue,
+            'cbc:PriceAmount@currencyID': currency,
           },
-        })) as Prisma.InputJsonValue,
+        })) as any,
       },
     };
 

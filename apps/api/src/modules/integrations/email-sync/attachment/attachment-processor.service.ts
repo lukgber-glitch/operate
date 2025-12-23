@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { GmailService } from '../../gmail/gmail.service';
 import { OutlookService } from '../../outlook/outlook.service';
 import { AttachmentStorageService } from './attachment-storage.service';
@@ -184,11 +184,13 @@ export class AttachmentProcessorService {
       );
 
       // Download attachment from provider
-      const content = await this.downloadAttachment(
+      const content = await this.downloadAttachmentFromProvider(
         jobData.provider,
         jobData.connectionId,
         jobData.externalId,
         jobData.emailId,
+        jobData.orgId,
+        jobData.userId,
       );
 
       // Update status to DOWNLOADED
@@ -300,29 +302,30 @@ export class AttachmentProcessorService {
   /**
    * Download attachment from email provider
    */
-  private async downloadAttachment(
+  private async downloadAttachmentFromProvider(
     provider: EmailProvider,
     connectionId: string,
     externalId: string,
     emailId: string,
+    orgId: string,
+    userId: string,
   ): Promise<Buffer> {
     if (provider === EmailProvider.GMAIL) {
-      // Get email external ID for Gmail API
-      const email = await this.prisma.syncedEmail.findUnique({
-        where: { id: emailId },
-      });
-
-      return this.gmailService.downloadAttachment(
-        connectionId,
-        email.externalId,
-        externalId,
+      // Gmail doesn't have a downloadAttachment method - would need to implement
+      // For now, throw error indicating this needs to be implemented
+      throw new BadRequestException(
+        'Gmail attachment download not yet implemented',
       );
     } else if (provider === EmailProvider.OUTLOOK) {
-      return this.outlookService.downloadAttachment(
-        connectionId,
-        emailId,
-        externalId,
-      );
+      // Outlook service expects a DTO
+      const result = await this.outlookService.downloadAttachment({
+        userId,
+        orgId,
+        messageId: emailId,
+        attachmentId: externalId,
+      });
+      // Convert base64 to Buffer
+      return Buffer.from(result.contentBytes, 'base64');
     } else {
       throw new BadRequestException(
         `Unsupported provider: ${provider}`,
@@ -691,8 +694,8 @@ export class AttachmentProcessorService {
       orgId: quota.orgId,
       totalQuota: quota.totalQuota,
       usedSpace: quota.usedSpace,
-      availableSpace,
-      usagePercentage,
+      availableSpace: BigInt(availableSpace),
+      usagePercentage: Number(usagePercentage),
       attachmentCount: quota.attachmentCount,
       invoiceSpace: quota.invoiceSpace,
       receiptSpace: quota.receiptSpace,

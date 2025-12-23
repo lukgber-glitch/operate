@@ -12,7 +12,7 @@ import {
   ParameterDefinition,
 } from '../action.types';
 import { LeaveService } from '../../../hr/leave/leave.service';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { CreateLeaveRequestDto } from '../../../hr/leave/dto/create-leave-request.dto';
 import { LeaveType } from '@prisma/client';
 

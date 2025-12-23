@@ -173,7 +173,7 @@ export class InvoiceExtractorService {
 
     try {
       // Parse PDF to get page count and text
-      const pdfData = await pdfParse(file);
+      const pdfData = await pdfParse.default(file);
       const pageCount = pdfData.numpages;
 
       this.logger.debug(`PDF has ${pageCount} pages`);
@@ -409,7 +409,7 @@ export class InvoiceExtractorService {
   ): Promise<{ data: GPTExtractionResponse; pageCount: number }> {
     this.logger.debug('Using fallback text extraction');
 
-    const pdfData = await pdfParse(pdfBuffer);
+    const pdfData = await pdfParse.default(pdfBuffer);
     const text = pdfData.text;
 
     // Use GPT-4 (text) to extract from text content
@@ -519,19 +519,21 @@ export class InvoiceExtractorService {
       throw new Error('Invalid extraction response: not an object');
     }
 
-    if (!data.lineItems || !Array.isArray(data.lineItems)) {
+    const response = data as any;
+
+    if (!response.lineItems || !Array.isArray(response.lineItems)) {
       throw new Error('Invalid extraction response: missing lineItems array');
     }
 
-    if (typeof data.total !== 'number') {
+    if (typeof response.total !== 'number') {
       throw new Error('Invalid extraction response: missing or invalid total');
     }
 
-    if (!data.currency || typeof data.currency !== 'string') {
+    if (!response.currency || typeof response.currency !== 'string') {
       throw new Error('Invalid extraction response: missing or invalid currency');
     }
 
-    if (!data.confidence || typeof data.confidence !== 'object') {
+    if (!response.confidence || typeof response.confidence !== 'object') {
       throw new Error('Invalid extraction response: missing confidence scores');
     }
   }
@@ -659,12 +661,12 @@ export class InvoiceExtractorService {
       where: { id },
       data: {
         status: result.status,
-        extractedData: result.data as Prisma.InputJsonValue,
+        extractedData: result.data as unknown as Prisma.InputJsonValue,
         overallConfidence: result.overallConfidence,
-        fieldConfidences: result.fieldConfidences as Prisma.InputJsonValue,
+        fieldConfidences: result.fieldConfidences as unknown as Prisma.InputJsonValue,
         pageCount: result.pageCount,
         processingTime: result.processingTime,
-        rawResponse: rawData as Prisma.InputJsonValue,
+        rawResponse: rawData as unknown as Prisma.InputJsonValue,
       },
     });
   }
@@ -673,10 +675,10 @@ export class InvoiceExtractorService {
     return {
       id: extraction.id,
       organisationId: extraction.organisationId,
-      status: extraction.status,
-      data: extraction.extractedData as ExtractedInvoiceDataDto,
+      status: extraction.status as InvoiceExtractionStatus,
+      data: extraction.extractedData as unknown as ExtractedInvoiceDataDto,
       overallConfidence: extraction.overallConfidence,
-      fieldConfidences: extraction.fieldConfidences as FieldConfidenceDto[],
+      fieldConfidences: extraction.fieldConfidences as unknown as FieldConfidenceDto[],
       pageCount: extraction.pageCount,
       processingTime: extraction.processingTime,
       errorMessage: extraction.errorMessage,

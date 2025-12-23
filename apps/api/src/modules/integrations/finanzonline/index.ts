@@ -33,7 +33,20 @@ export * from './dto/uva.dto';
 // Interfaces
 export * from './interfaces/fon-config.interface';
 export * from './interfaces/fon-response.interface';
-export * from './interfaces/fon-submission.interface';
+// Exclude Address from fon-submission.interface (conflicts with finanzonline.types)
+export {
+  VatPeriodType,
+  TaxPeriod,
+  VatReturnLine,
+  VatReturnSubmission,
+  IncomeTaxSubmission,
+  PersonalInfo,
+  IncomeDetails,
+  DeductionDetails,
+  SpecialExpense,
+  TaxAdvisorInfo,
+  SubmissionMetadata,
+} from './interfaces/fon-submission.interface';
 
 // Utilities
 export * from './utils/fon-auth.util';

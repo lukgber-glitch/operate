@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { DeletionMode, DataCategory, DeletionResult, DeletionPreview } from '../types/data-tools.types';
+import { DeletionMode, DeletionStatus, DataCategory, DeletionResult, DeletionPreview } from '../types/data-tools.types';
 import * as crypto from 'crypto';
 
 /**
@@ -37,7 +37,7 @@ export class DataDeletionService {
         this.logger.log(`Deletion scheduled for ${options.scheduledFor}`);
         return {
           jobId: crypto.randomUUID(),
-          status: 'pending' as Prisma.InputJsonValue,
+          status: DeletionStatus.PENDING,
           recordsDeleted: 0,
           tablesAffected: [],
           categories,
@@ -59,7 +59,7 @@ export class DataDeletionService {
 
       return {
         jobId: crypto.randomUUID(),
-        status: 'completed' as Prisma.InputJsonValue,
+        status: DeletionStatus.COMPLETED,
         recordsDeleted,
         tablesAffected: [...new Set(tablesAffected)], // Remove duplicates
         categories,

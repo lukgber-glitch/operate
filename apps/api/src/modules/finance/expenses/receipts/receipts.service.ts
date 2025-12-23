@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '@/modules/database/prisma.service';
 import { MindeeService } from '../../../integrations/mindee/mindee.service';
 import { ExpensesService } from '../expenses.service';
+import { CreateExpenseDto } from '../dto/create-expense.dto';
 import {
   UploadReceiptDto,
   ReceiptScanResult,
@@ -53,6 +54,7 @@ export class ReceiptsService {
       const scan = await this.prisma.receiptScan.create({
         data: {
           orgId,
+          userId,
           filename: file.originalname,
           mimeType: file.mimetype,
           fileSize: file.size,
@@ -88,7 +90,7 @@ export class ReceiptsService {
           confidence: ocrResult.confidence
             ? new Decimal(ocrResult.confidence * 100)
             : null,
-          ocrData: ocrResult.rawResponse as Prisma.InputJsonValue,
+          ocrData: ocrResult.rawResponse as unknown as Prisma.InputJsonValue,
           aiResponse: {
             merchant: ocrResult.merchant,
             date: ocrResult.date,
@@ -96,7 +98,7 @@ export class ReceiptsService {
             lineItems: ocrResult.lineItems,
             paymentMethod: ocrResult.paymentMethod,
             receiptNumber: ocrResult.receiptNumber,
-          },
+          } as unknown as Prisma.InputJsonValue,
         },
       });
 
@@ -191,7 +193,7 @@ export class ReceiptsService {
     this.logger.log(`Confirming scan ${scanId} and creating expense`);
 
     // Merge scan data with corrections
-    const expenseData = {
+    const expenseData: CreateExpenseDto = {
       description:
         corrections.description ||
         corrections.merchantName ||
@@ -199,18 +201,21 @@ export class ReceiptsService {
         'Expense from receipt',
       vendorName: corrections.merchantName || scan.merchantName || undefined,
       amount: corrections.totalAmount
-        ? new Decimal(corrections.totalAmount)
-        : scan.amount || new Decimal(0),
+        ? Number(corrections.totalAmount)
+        : scan.amount
+          ? Number(scan.amount)
+          : 0,
       currency: corrections.currency || scan.currency || 'EUR',
       date: corrections.date
-        ? new Date(corrections.date)
-        : scan.date || new Date(),
+        ? corrections.date
+        : scan.date
+          ? scan.date.toISOString()
+          : new Date().toISOString(),
       category:
         corrections.category ||
         (scan.category as ExpenseCategory) ||
         ExpenseCategory.OTHER,
       subcategory: corrections.subcategory || scan.subcategory || undefined,
-      status: corrections.approved ? 'APPROVED' : 'PENDING',
       notes: corrections.notes,
       metadata: corrections.metadata,
     };
@@ -218,8 +223,8 @@ export class ReceiptsService {
     // Create expense using the expenses service
     const expense = await this.expensesService.create(
       orgId,
+      expenseData,
       userId,
-      expenseData as Prisma.InputJsonValue,
     );
 
     // Link scan to expense
@@ -256,15 +261,16 @@ export class ReceiptsService {
     this.logger.log(`Rejecting scan ${scanId}, reason: ${reason || 'none'}`);
 
     // Update scan status (we'll use FAILED status to indicate rejection)
+    const existingResponse = (scan.aiResponse as Record<string, any>) || {};
     await this.prisma.receiptScan.update({
       where: { id: scanId },
       data: {
         status: ReceiptScanStatus.FAILED,
         aiResponse: {
-          ...(scan.aiResponse as Prisma.InputJsonValue),
+          ...existingResponse,
           rejectionReason: reason,
           rejectedAt: new Date().toISOString(),
-        },
+        } as unknown as Prisma.InputJsonValue,
       },
     });
   }
@@ -381,7 +387,7 @@ export class ReceiptsService {
    * Helper: Convert Prisma scan to DTO result
    */
   private convertStoredScanToResult(scan: any): ReceiptScanResult {
-    const aiResponse = scan.aiResponse as Prisma.InputJsonValue;
+    const aiResponse = (scan.aiResponse as Record<string, any>) || {};
 
     return {
       scanId: scan.id,
@@ -389,19 +395,19 @@ export class ReceiptsService {
       receiptUrl: `/receipts/${scan.id}/file`, // TODO: Implement file storage
       merchantName: this.createExtractedField(
         scan.merchantName,
-        aiResponse?.merchant?.confidence,
+        aiResponse.merchant?.confidence,
       ),
       date: this.createExtractedField(
         scan.date?.toISOString().split('T')[0],
-        aiResponse?.date?.confidence,
+        aiResponse.date?.confidence,
       ),
       totalAmount: this.createExtractedField(
         scan.amount ? Number(scan.amount) : undefined,
-        aiResponse?.totals?.confidence,
+        aiResponse.totals?.confidence,
       ),
       currency: this.createExtractedField(
         scan.currency,
-        aiResponse?.totals?.confidence,
+        aiResponse.totals?.confidence,
       ),
       category: this.createExtractedField(
         scan.category as ExpenseCategory,
@@ -409,11 +415,11 @@ export class ReceiptsService {
       ),
       subcategory: this.createExtractedField(scan.subcategory, 0.5),
       receiptNumber: this.createExtractedField(
-        aiResponse?.receiptNumber,
+        aiResponse.receiptNumber,
         0.8,
       ),
       paymentMethod: this.createExtractedField(
-        aiResponse?.paymentMethod,
+        aiResponse.paymentMethod,
         0.8,
       ),
       overallConfidence: scan.confidence ? Number(scan.confidence) : 0,

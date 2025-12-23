@@ -114,7 +114,10 @@ export class ReportSectionResponseDto {
   order: number;
 
   @ApiProperty({ type: [ReportLineResponseDto] })
-  data: ReportLineResponseDto[];
+  lines: ReportLineResponseDto[];
+
+  @ApiProperty({ type: Object })
+  data: Record<string, any>;
 
   @ApiPropertyOptional()
   subtotal?: number;
@@ -258,137 +261,168 @@ export class AgingBucketResponseDto {
   items?: AgingItemResponseDto[];
 }
 
+export class ProfitAndLossSummaryDto extends ReportSummaryResponseDto {
+  @ApiProperty()
+  totalRevenue: number;
+
+  @ApiProperty()
+  costOfGoodsSold: number;
+
+  @ApiProperty()
+  grossProfit: number;
+
+  @ApiProperty()
+  grossProfitMargin: number;
+
+  @ApiProperty()
+  operatingExpenses: number;
+
+  @ApiProperty()
+  operatingIncome: number;
+
+  @ApiProperty()
+  operatingMargin: number;
+
+  @ApiProperty()
+  otherIncome: number;
+
+  @ApiProperty()
+  otherExpenses: number;
+
+  @ApiProperty()
+  netIncome: number;
+
+  @ApiProperty()
+  netProfitMargin: number;
+}
+
 export class ProfitAndLossResponseDto extends ReportDataResponseDto {
-  @ApiProperty({
-    type: Object,
-    properties: {
-      totalRevenue: { type: 'number' },
-      costOfGoodsSold: { type: 'number' },
-      grossProfit: { type: 'number' },
-      grossProfitMargin: { type: 'number' },
-      operatingExpenses: { type: 'number' },
-      operatingIncome: { type: 'number' },
-      operatingMargin: { type: 'number' },
-      otherIncome: { type: 'number' },
-      otherExpenses: { type: 'number' },
-      netIncome: { type: 'number' },
-      netProfitMargin: { type: 'number' },
-    },
-  })
-  summary: {
-    totalRevenue: number;
-    costOfGoodsSold: number;
-    grossProfit: number;
-    grossProfitMargin: number;
-    operatingExpenses: number;
-    operatingIncome: number;
-    operatingMargin: number;
-    otherIncome: number;
-    otherExpenses: number;
-    netIncome: number;
-    netProfitMargin: number;
-  };
+  @ApiProperty({ type: ProfitAndLossSummaryDto })
+  summary: ProfitAndLossSummaryDto;
+}
+
+export class CashFlowSummaryDto extends ReportSummaryResponseDto {
+  @ApiProperty()
+  operatingCashFlow: number;
+
+  @ApiProperty()
+  investingCashFlow: number;
+
+  @ApiProperty()
+  financingCashFlow: number;
+
+  @ApiProperty()
+  netCashFlow: number;
+
+  @ApiProperty()
+  beginningBalance: number;
+
+  @ApiProperty()
+  endingBalance: number;
 }
 
 export class CashFlowResponseDto extends ReportDataResponseDto {
-  @ApiProperty({
-    type: Object,
-    properties: {
-      operatingCashFlow: { type: 'number' },
-      investingCashFlow: { type: 'number' },
-      financingCashFlow: { type: 'number' },
-      netCashFlow: { type: 'number' },
-      beginningBalance: { type: 'number' },
-      endingBalance: { type: 'number' },
-    },
-  })
-  summary: {
-    operatingCashFlow: number;
-    investingCashFlow: number;
-    financingCashFlow: number;
-    netCashFlow: number;
-    beginningBalance: number;
-    endingBalance: number;
-  };
+  @ApiProperty({ type: CashFlowSummaryDto })
+  summary: CashFlowSummaryDto;
+}
+
+export class TaxSummarySummaryDto extends ReportSummaryResponseDto {
+  @ApiProperty()
+  totalTaxLiability: number;
+
+  @ApiProperty()
+  totalDeductions: number;
+
+  @ApiProperty()
+  totalCredits: number;
+
+  @ApiProperty()
+  netTaxDue: number;
+
+  @ApiProperty()
+  effectiveTaxRate: number;
 }
 
 export class TaxSummaryResponseDto extends ReportDataResponseDto {
-  @ApiProperty({
-    type: Object,
-    properties: {
-      totalTaxLiability: { type: 'number' },
-      totalDeductions: { type: 'number' },
-      totalCredits: { type: 'number' },
-      netTaxDue: { type: 'number' },
-      effectiveTaxRate: { type: 'number' },
-    },
-  })
-  summary: {
-    totalTaxLiability: number;
-    totalDeductions: number;
-    totalCredits: number;
-    netTaxDue: number;
-    effectiveTaxRate: number;
-  };
+  @ApiProperty({ type: TaxSummarySummaryDto })
+  summary: TaxSummarySummaryDto;
+}
+
+export class VatReportSummaryDto extends ReportSummaryResponseDto {
+  @ApiProperty()
+  vatCollected: number;
+
+  @ApiProperty()
+  vatPaid: number;
+
+  @ApiProperty()
+  netVatPosition: number;
+
+  @ApiProperty()
+  vatRate: number;
 }
 
 export class VatReportResponseDto extends ReportDataResponseDto {
-  @ApiProperty({
-    type: Object,
-    properties: {
-      vatCollected: { type: 'number' },
-      vatPaid: { type: 'number' },
-      netVatPosition: { type: 'number' },
-      vatRate: { type: 'number' },
-    },
-  })
-  summary: {
-    vatCollected: number;
-    vatPaid: number;
-    netVatPosition: number;
-    vatRate: number;
-  };
+  @ApiProperty({ type: VatReportSummaryDto })
+  summary: VatReportSummaryDto;
+}
+
+export class BalanceSheetSummaryDto extends ReportSummaryResponseDto {
+  @ApiProperty()
+  totalAssets: number;
+
+  @ApiProperty()
+  totalLiabilities: number;
+
+  @ApiProperty()
+  totalEquity: number;
+
+  @ApiProperty()
+  currentRatio: number;
+
+  @ApiProperty()
+  debtToEquityRatio: number;
 }
 
 export class BalanceSheetResponseDto extends ReportDataResponseDto {
-  @ApiProperty({
-    type: Object,
-    properties: {
-      totalAssets: { type: 'number' },
-      totalLiabilities: { type: 'number' },
-      totalEquity: { type: 'number' },
-      currentRatio: { type: 'number' },
-      debtToEquityRatio: { type: 'number' },
-    },
-  })
-  summary: {
-    totalAssets: number;
-    totalLiabilities: number;
-    totalEquity: number;
-    currentRatio: number;
-    debtToEquityRatio: number;
-  };
+  @ApiProperty({ type: BalanceSheetSummaryDto })
+  summary: BalanceSheetSummaryDto;
+}
+
+export class AgingReportSummaryDto extends ReportSummaryResponseDto {
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty()
+  current: number;
+
+  @ApiProperty()
+  overdue: number;
+
+  @ApiProperty()
+  averageDaysOutstanding: number;
 }
 
 export class AgingReportResponseDto extends ReportDataResponseDto {
-  @ApiProperty({
-    type: Object,
-    properties: {
-      total: { type: 'number' },
-      current: { type: 'number' },
-      overdue: { type: 'number' },
-      averageDaysOutstanding: { type: 'number' },
-    },
-  })
-  summary: {
-    total: number;
-    current: number;
-    overdue: number;
-    averageDaysOutstanding: number;
-  };
+  @ApiProperty({ type: AgingReportSummaryDto })
+  summary: AgingReportSummaryDto;
 
   @ApiProperty({ type: [AgingBucketResponseDto] })
   buckets: AgingBucketResponseDto[];
+}
+
+export class DateRangeDto {
+  @ApiProperty({ enum: DateRangeType })
+  type: DateRangeType;
+
+  @ApiProperty()
+  startDate: Date;
+
+  @ApiProperty()
+  endDate: Date;
+
+  @ApiPropertyOptional()
+  label?: string;
 }
 
 export class ReportHistoryResponseDto {
@@ -398,21 +432,8 @@ export class ReportHistoryResponseDto {
   @ApiProperty({ enum: ReportType })
   reportType: ReportType;
 
-  @ApiProperty({
-    type: Object,
-    properties: {
-      type: { enum: DateRangeType },
-      startDate: { type: 'string', format: 'date-time' },
-      endDate: { type: 'string', format: 'date-time' },
-      label: { type: 'string' },
-    },
-  })
-  dateRange: {
-    type: DateRangeType;
-    startDate: Date;
-    endDate: Date;
-    label?: string;
-  };
+  @ApiProperty({ type: DateRangeDto })
+  dateRange: DateRangeDto;
 
   @ApiProperty()
   generatedAt: Date;

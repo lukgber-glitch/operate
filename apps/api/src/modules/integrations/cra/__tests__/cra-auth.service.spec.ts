@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { CraAuthService } from '../cra-auth.service';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { UnauthorizedException, BadRequestException } from '@nestjs/common';
 
 describe('CraAuthService', () => {

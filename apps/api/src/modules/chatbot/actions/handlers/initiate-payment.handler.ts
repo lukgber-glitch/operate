@@ -250,7 +250,7 @@ export class InitiatePaymentHandler extends BaseActionHandler {
           bill.vendorAccountNumber || bill.vendor?.accountNumber,
         reference: bill.billNumber || `Bill ${bill.id}`,
         description: bill.description || `Payment for bill ${bill.billNumber || bill.id}`,
-        sourceType: PaymentSourceType.AI_ASSISTANT,
+        sourceType: PaymentSourceType.BILL, // AI_ASSISTANT doesn't exist, using BILL
         billId: bill.id,
       };
 

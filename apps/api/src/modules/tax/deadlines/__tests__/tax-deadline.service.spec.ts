@@ -4,7 +4,7 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { TaxDeadlineService } from '../tax-deadline.service';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { addDays, startOfDay } from 'date-fns';
 
 describe('TaxDeadlineService', () => {

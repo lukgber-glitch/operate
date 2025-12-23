@@ -255,7 +255,7 @@ export class ActionExecutorService {
 
       // Check if confirmation required
       if (action.confirmationRequired && !options.skipConfirmation) {
-        const pending = this.confirmation.storePendingAction(action, context);
+        const pending = await this.confirmation.storePendingAction(action, context);
         return {
           success: false,
           message: `Action requires confirmation. Please confirm action ID: ${pending.id}`,
@@ -336,7 +336,7 @@ export class ActionExecutorService {
     userId: string,
     messageId: string,
   ): Promise<ActionResult> {
-    const pendingAction = this.confirmation.confirmAction(confirmationId, userId);
+    const pendingAction = await this.confirmation.confirmAction(confirmationId, userId);
 
     if (!pendingAction) {
       return {
@@ -358,8 +358,8 @@ export class ActionExecutorService {
   /**
    * Cancel a pending action
    */
-  cancelPendingAction(confirmationId: string, userId: string): boolean {
-    return this.confirmation.cancelAction(confirmationId, userId);
+  async cancelPendingAction(confirmationId: string, userId: string): Promise<boolean> {
+    return await this.confirmation.cancelAction(confirmationId, userId);
   }
 
   /**

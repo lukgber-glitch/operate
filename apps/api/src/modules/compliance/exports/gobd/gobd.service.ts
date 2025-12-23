@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { StreamableFile } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -109,7 +109,7 @@ export class GobdService {
     const response: GobdExportResponseDto = new GobdExportResponseDto({
       id: exportRecord.id,
       orgId: exportRecord.orgId,
-      status: exportRecord.status as ExportStatus,
+      status: exportRecord.status as unknown as ExportStatus,
       filename: exportRecord.filename,
       createdAt: exportRecord.createdAt,
       completedAt: exportRecord.completedAt,
@@ -189,7 +189,7 @@ export class GobdService {
 
     const items: GobdExportListItemDto[] = exports.map((exp) => ({
       id: exp.id,
-      status: exp.status as ExportStatus,
+      status: exp.status as unknown as ExportStatus,
       filename: exp.filename,
       createdAt: exp.createdAt,
       startDate: exp.startDate,

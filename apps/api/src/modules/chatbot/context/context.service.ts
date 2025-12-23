@@ -148,11 +148,10 @@ export class ContextService implements OnModuleDestroy {
     );
 
     // Register context providers
-    this.contextProviders = new Map([
-      ['invoice', this.invoiceProvider],
-      ['expense', this.expenseProvider],
-      ['tax-summary', this.taxProvider],
-    ]);
+    this.contextProviders = new Map<string, any>();
+    this.contextProviders.set('invoice', this.invoiceProvider);
+    this.contextProviders.set('expense', this.expenseProvider);
+    this.contextProviders.set('tax-summary', this.taxProvider);
 
     this.logger.log('Context service initialized with LRU caching');
   }
@@ -250,7 +249,6 @@ export class ContextService implements OnModuleDestroy {
         memberships: {
           select: {
             role: true,
-            permissions: true,
           },
           take: 1,
         },
@@ -268,7 +266,7 @@ export class ContextService implements OnModuleDestroy {
       name: `${user.firstName} ${user.lastName}`,
       email: user.email,
       role: membership?.role,
-      permissions: membership?.permissions as string[] | undefined,
+      permissions: undefined, // Permissions are not stored in Membership model
       locale: user.locale,
     };
 

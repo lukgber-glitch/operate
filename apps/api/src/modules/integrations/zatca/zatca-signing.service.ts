@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import * as crypto from 'crypto';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { ZatcaCertificateService } from './zatca-certificate.service';
 import { ZatcaCertificateValidator } from './zatca-certificate-validator';
 import { ZatcaAuditService } from './zatca-audit.service';

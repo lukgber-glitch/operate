@@ -317,7 +317,12 @@ export class CustomerAutoCreatorService {
     const updates: any = {};
 
     // Get existing metadata
-    const metadata = (customer.metadata as Prisma.InputJsonValue) || {};
+    const metadata = (customer.metadata as unknown as {
+      contacts?: any[];
+      status?: string;
+      lastEmailInteraction?: any;
+      [key: string]: any;
+    }) || {};
     const existingContacts = metadata.contacts || [];
 
     // Update status if promoting from LEAD to ACTIVE
@@ -376,7 +381,7 @@ export class CustomerAutoCreatorService {
       subject: entities.emailSubject,
     };
 
-    updates.metadata = metadata;
+    updates.metadata = metadata as unknown as Prisma.InputJsonValue;
 
     // Only update if there are changes
     if (changes.length === 0) {

@@ -8,5 +8,9 @@ declare global {
       orgId: string;
       role: string;
     }
+
+    interface Request {
+      ip?: string;
+    }
   }
 }

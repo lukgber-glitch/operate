@@ -265,8 +265,8 @@ export class VendorAutoCreatorService {
 
     const bill = await this.prisma.bill.create({
       data: {
-        organisationId: orgId,
-        vendorId: vendor.id,
+        organisation: { connect: { id: orgId } },
+        vendor: { connect: { id: vendor.id } },
         vendorName: vendor.name,
         billNumber: extractedInvoice.invoiceNumber,
         description: `Invoice from ${vendor.name}`,
@@ -274,6 +274,7 @@ export class VendorAutoCreatorService {
         currency: extractedInvoice.currency || 'EUR',
         taxAmount: new Decimal(extractedInvoice.taxAmount || 0),
         totalAmount: new Decimal(extractedInvoice.total),
+        total: new Decimal(extractedInvoice.total),
         paidAmount: new Decimal(0),
         status: 'DRAFT', // Start as DRAFT for review
         paymentStatus: 'PENDING',
@@ -374,7 +375,7 @@ export class VendorAutoCreatorService {
   ): Promise<Vendor> {
     const vendor = await this.prisma.vendor.create({
       data: {
-        organisationId: orgId,
+        organisation: { connect: { id: orgId } },
         name: vendorInfo.companyName || vendorInfo.name || 'Unknown Vendor',
         email: vendorInfo.email,
         phone: vendorInfo.phone,

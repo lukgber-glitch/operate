@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { ScreeningService } from '../services/screening.service';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { SearchType, RiskLevel, ScreeningStatus } from '../types/comply-advantage.types';
 
 describe('ScreeningService', () => {

@@ -41,7 +41,7 @@ export class TaxCalendarService {
     const deadlines: TaxDeadline[] = [];
 
     // Parse tax settings from org.settings JSON
-    const settings = (org.settings as Prisma.InputJsonValue) || {};
+    const settings = (org.settings || {}) as any;
     const taxSettings: OrganizationTaxSettings = {
       country: org.country,
       taxFilingFrequency: settings.taxFilingFrequency || 'quarterly',
@@ -504,12 +504,12 @@ export class TaxCalendarService {
     const elsterFilings = await this.prisma.elsterFiling.findMany({
       where: {
         organisationId: orgId,
-        status: 'submitted',
+        status: 'SUBMITTED',
       },
       select: {
-        taxType: true,
-        taxYear: true,
-        taxPeriod: true,
+        type: true,
+        year: true,
+        period: true,
         submittedAt: true,
       },
     });
@@ -518,21 +518,19 @@ export class TaxCalendarService {
     const completedDeadlineIds = new Set<string>();
 
     elsterFilings.forEach(filing => {
-      if (filing.taxType === 'USt' || filing.taxType === 'UVA') {
-        // VAT filing
-        if (filing.taxPeriod) {
-          const periodMatch = filing.taxPeriod.match(/Q(\d)/);
-          if (periodMatch) {
-            const quarter = periodMatch[1];
-            completedDeadlineIds.add(`vat-${filing.taxYear}-Q${quarter}`);
-          } else {
-            // Monthly period
-            completedDeadlineIds.add(`vat-${filing.taxYear}-${filing.taxPeriod}`);
-          }
+      if (filing.type === 'USTVA' || filing.type === 'UST') {
+        // VAT filing - period is a number (month 1-12 or quarter 1-4)
+        if (filing.period <= 4) {
+          // Quarterly filing
+          completedDeadlineIds.add(`vat-${filing.year}-Q${filing.period}`);
+        } else {
+          // Monthly filing
+          const monthStr = filing.period.toString().padStart(2, '0');
+          completedDeadlineIds.add(`vat-${filing.year}-${monthStr}`);
         }
-      } else if (filing.taxType === 'ESt') {
+      } else if (filing.type === 'ESt') {
         // Income tax
-        completedDeadlineIds.add(`annual-return-${filing.taxYear}`);
+        completedDeadlineIds.add(`annual-return-${filing.year}`);
       }
     });
 

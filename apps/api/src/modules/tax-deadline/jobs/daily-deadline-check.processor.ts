@@ -16,6 +16,7 @@ import { Job } from 'bull';
 import { PrismaService } from '../../database/prisma.service';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { Prisma } from '@prisma/client';
 
 export const DEADLINE_CHECK_QUEUE = 'deadline-check';
 export const DEADLINE_REMINDER_QUEUE = 'deadline-reminder';
@@ -68,11 +69,11 @@ export class DailyDeadlineCheckProcessor {
 
       // Get all active organizations (or specific one if provided)
       const organizations = job.data.organizationId
-        ? await this.prisma.organization.findMany({
+        ? await this.prisma.organisation.findMany({
             where: { id: job.data.organizationId },
             select: { id: true, name: true },
           })
-        : await this.prisma.organization.findMany({
+        : await this.prisma.organisation.findMany({
             where: { status: 'ACTIVE' },
             select: { id: true, name: true },
           });
@@ -102,7 +103,7 @@ export class DailyDeadlineCheckProcessor {
         });
 
         // Find deadlines that need reminders
-        const deadlines = await this.prisma.taxDeadlineReminder.findMany({
+        const deadlines = (await this.prisma.taxDeadlineReminder.findMany({
           where: {
             organizationId: org.id,
             status: {
@@ -127,7 +128,7 @@ export class DailyDeadlineCheckProcessor {
               },
             },
           },
-        });
+        })) as any;
 
         deadlinesFound += deadlines.length;
 

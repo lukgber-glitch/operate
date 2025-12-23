@@ -159,7 +159,7 @@ export class ChatbotController {
     );
 
     // Validate confirmation exists and belongs to user
-    const pendingAction = this.confirmationService.getPendingAction(confirmationId);
+    const pendingAction = await this.confirmationService.getPendingAction(confirmationId);
 
     if (!pendingAction) {
       throw new NotFoundException('Confirmation not found or has expired');
@@ -262,7 +262,7 @@ export class ChatbotController {
     @CurrentUser() user: { id: string },
     @Param('confirmationId') confirmationId: string,
   ): Promise<ActionStatusResponseDto> {
-    const pendingAction = this.confirmationService.getPendingAction(confirmationId);
+    const pendingAction = await this.confirmationService.getPendingAction(confirmationId);
 
     if (!pendingAction) {
       throw new NotFoundException('Confirmation not found or has expired');

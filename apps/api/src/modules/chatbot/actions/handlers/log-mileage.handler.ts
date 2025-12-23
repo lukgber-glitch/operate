@@ -75,21 +75,30 @@ export class LogMileageHandler extends BaseActionHandler {
 
       const normalized = this.normalizeParams(params);
 
-      let distance = normalized.distance;
+      let distanceKm = normalized.distance;
+
+      // Convert miles to km if needed
+      if (normalized.unit === 'miles') {
+        distanceKm = normalized.distance * 1.60934;
+      }
+
+      // Double for round trip
       if (normalized.roundTrip) {
-        distance *= 2;
+        distanceKm *= 2;
       }
 
       const createDto = {
-        distance,
-        unit: normalized.unit,
+        distanceKm,
         purpose: normalized.purpose,
-        date: normalized.date ? new Date(normalized.date) : new Date(),
+        description: normalized.purpose,
+        date: normalized.date || new Date().toISOString().split('T')[0],
+        vehicleType: 'CAR' as const,
+        isRoundTrip: normalized.roundTrip || false,
       };
 
       const entry = await this.mileageService.create(
-        context.userId,
         context.organizationId,
+        context.userId,
         createDto,
       );
 
@@ -97,16 +106,21 @@ export class LogMileageHandler extends BaseActionHandler {
         `Mileage entry ${entry.id} logged by AI assistant for user ${context.userId}`,
       );
 
+      const displayDistance = normalized.unit === 'miles'
+        ? Number(entry.distanceMiles).toFixed(2)
+        : Number(entry.distanceKm).toFixed(2);
+
       return this.success(
-        `Logged ${distance} ${normalized.unit} for "${normalized.purpose}"${normalized.roundTrip ? ' (round trip)' : ''}`,
+        `Logged ${displayDistance} ${normalized.unit} for "${normalized.purpose}"${normalized.roundTrip ? ' (round trip)' : ''}`,
         entry.id,
         'MileageEntry',
         {
           id: entry.id,
-          distance: entry.distance,
-          unit: entry.unit,
+          distanceKm: Number(entry.distanceKm),
+          distanceMiles: Number(entry.distanceMiles),
           purpose: entry.purpose,
-          deduction: entry.deduction,
+          totalAmount: Number(entry.totalAmount),
+          currency: entry.currency,
         },
       );
     } catch (error) {

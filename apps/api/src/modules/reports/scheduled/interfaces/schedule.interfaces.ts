@@ -109,7 +109,7 @@ export interface EmailTemplateVariables {
   period: string;
   generatedAt: string;
   organizationName: string;
-  scheduleNname: string;
+  scheduleName: string;
   [key: string]: string;
 }
 

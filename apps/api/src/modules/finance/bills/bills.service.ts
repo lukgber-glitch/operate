@@ -203,6 +203,7 @@ export class BillsService {
       currency: dto.currency || 'EUR',
       taxAmount: new Decimal(dto.taxAmount || 0),
       totalAmount: new Decimal(totalAmount),
+      total: new Decimal(totalAmount),
       paidAmount: new Decimal(0),
       status: dto.status || BillStatus.DRAFT,
       paymentStatus: dto.paymentStatus || PaymentStatus.PENDING,

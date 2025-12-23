@@ -17,8 +17,8 @@ import {
 } from '@nestjs/common';
 import { InvoiceNowService } from './invoice-now.service';
 import { SendInvoiceDto, ValidateUenDto, InvoiceNowWebhookDto } from './dto';
-import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
-import { CurrentUser } from '../../../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { CurrentUser } from '@/modules/auth/decorators/current-user.decorator';
 
 /**
  * InvoiceNow API Controller

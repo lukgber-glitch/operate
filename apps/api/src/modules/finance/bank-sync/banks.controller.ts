@@ -31,9 +31,9 @@ export class BanksController {
         const providers = await this.tinkService.getProviders(country.toUpperCase());
         // Return array directly - interceptor will wrap in { data: [...] }
         return providers.map(p => ({
-          id: p.name || p.financialInstitution?.id || p.id,
+          id: p.financialInstitution?.id || p.name,
           name: p.displayName || p.financialInstitution?.name || p.name,
-          logo: p.images?.icon || p.image || p.logo || null,
+          logo: p.image || null,
           country: p.market || country.toUpperCase(),
           bic: null,
         }));

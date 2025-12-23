@@ -204,25 +204,13 @@ export class QuickBooksSyncJob {
       const deletedLogs = await this.prisma.quickBooksSyncLog.deleteMany({
         where: {
           status: 'COMPLETED',
-          createdAt: {
+          startedAt: {
             lt: thirtyDaysAgo,
           },
         },
       });
 
       this.logger.log(`Deleted ${deletedLogs.count} old sync logs`);
-
-      // Delete old resolved conflicts (keep for 90 days)
-      const deletedConflicts = await this.prisma.quickBooksSyncConflict.deleteMany({
-        where: {
-          isResolved: true,
-          resolvedAt: {
-            lt: ninetyDaysAgo,
-          },
-        },
-      });
-
-      this.logger.log(`Deleted ${deletedConflicts.count} old resolved conflicts`);
 
       this.logger.log('Cleanup job completed');
     } catch (error) {

@@ -5,7 +5,7 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { EmailAggregatorService } from '../email-aggregator.service';
 import { EmailSuggestionPriority } from '../types/email-suggestions.types';
 

@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { PlaidBankService } from '../services/plaid-bank.service';
 import { PlaidTransactionMatcherService } from '../services/plaid-transaction-matcher.service';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 
 /**
  * Plaid Sync Jobs

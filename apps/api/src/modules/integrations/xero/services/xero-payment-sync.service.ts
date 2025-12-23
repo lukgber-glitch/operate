@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { XeroMappingService, XeroSyncEntityType } from './xero-mapping.service';
 import { XeroClient } from 'xero-node';
 import { Payment } from 'xero-node/dist/gen/model/accounting/payment';

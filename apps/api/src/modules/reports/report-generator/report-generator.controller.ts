@@ -372,7 +372,7 @@ export class ReportGeneratorController {
       },
       options: {
         currency: currency || 'EUR',
-      },
+      } as any,
     };
 
     return this.generateReport(req, params);
@@ -406,7 +406,7 @@ export class ReportGeneratorController {
       },
       options: {
         currency: currency || 'EUR',
-      },
+      } as any,
     };
 
     return this.generateReport(req, params);

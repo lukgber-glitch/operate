@@ -329,9 +329,9 @@ export class FacturXValidatorService {
     }
 
     // Validate total = subtotal + VAT
-    const expectedTotal = invoice.subtotal + invoice.totalVAT;
+    const expectedTotal = Number(invoice.subtotal) + Number(invoice.totalVAT);
     const tolerance = 0.02;
-    if (Math.abs(expectedTotal - invoice.totalAmount) > tolerance) {
+    if (Math.abs(expectedTotal - Number(invoice.totalAmount)) > tolerance) {
       errors.push({
         code: 'BR-CO-15',
         message: `Total amount mismatch: ${invoice.totalAmount.toFixed(2)} != (subtotal ${invoice.subtotal.toFixed(2)} + VAT ${invoice.totalVAT.toFixed(2)})`,

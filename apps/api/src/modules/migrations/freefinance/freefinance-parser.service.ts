@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { parse as csvParse } from 'csv-parse/sync';
 import * as XLSX from 'xlsx';
 import * as moment from 'moment';
+import { Prisma } from '@prisma/client';
 import {
   FreeFinanceMigrationType,
   ParsedMigrationData,
@@ -195,7 +196,7 @@ export class FreeFinanceParserService {
   /**
    * Detect file encoding
    */
-  private detectEncoding(buffer: Buffer): string {
+  private detectEncoding(buffer: Buffer): BufferEncoding {
     // Check for BOM
     if (buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf) {
       return 'utf8';
@@ -204,7 +205,8 @@ export class FreeFinanceParserService {
       return 'utf16le';
     }
     if (buffer[0] === 0xfe && buffer[1] === 0xff) {
-      return 'utf16be';
+      // UTF-16 BE is not a standard Node.js BufferEncoding, fallback to utf16le
+      return 'utf16le';
     }
 
     // Default to UTF-8 for Austrian/German files
@@ -214,7 +216,7 @@ export class FreeFinanceParserService {
   /**
    * Detect CSV delimiter
    */
-  private detectDelimiter(buffer: Buffer, encoding: string): string {
+  private detectDelimiter(buffer: Buffer, encoding: BufferEncoding): string {
     const content = buffer.toString(encoding).substring(0, 1000); // Check first 1000 chars
     const delimiters = [';', ',', '\t', '|'];
     let maxCount = 0;

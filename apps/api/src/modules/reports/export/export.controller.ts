@@ -15,9 +15,9 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Response } from 'express';
-import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../common/guards/roles.guard';
-import { Roles } from '../../../common/decorators/roles.decorator';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '@/modules/auth/guards/roles.guard';
+import { Roles } from '@/modules/auth/decorators/roles.decorator';
 import { ExportService } from './export.service';
 import { createReadStream } from 'fs';
 import { promises as fs } from 'fs';
@@ -432,7 +432,7 @@ export class ExportController {
     const uploadsDir = join(process.cwd(), 'uploads', 'exports');
     const zipPath = join(uploadsDir, zipFilename);
     const output = createWriteStream(zipPath);
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = archiver.default('zip', { zlib: { level: 9 } });
 
     return new Promise((resolve, reject) => {
       output.on('close', () => {

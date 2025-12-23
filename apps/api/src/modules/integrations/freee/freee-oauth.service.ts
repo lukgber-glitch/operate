@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../database/prisma.service';
+import { Prisma, ConnectionStatus } from '@prisma/client';
 import axios, { AxiosInstance } from 'axios';
 import {
   FreeeConfig,
@@ -197,7 +198,7 @@ export class FreeeOAuthService {
       // Fetch company information
       const companies = await this.fetchCompanies(tokenResponse.access_token);
       if (!companies || companies.length === 0) {
-        throw new InternalServerException('No freee companies found');
+        throw new InternalServerErrorException('No freee companies found');
       }
 
       // Use the first company (user can connect multiple later)
@@ -223,39 +224,34 @@ export class FreeeOAuthService {
       // Store connection in database
       const connection = await this.prisma.freeeConnection.upsert({
         where: {
-          orgId_freeeCompanyId: {
-            orgId: stateData.orgId,
-            freeeCompanyId: company.id,
-          },
+          orgId: stateData.orgId,
         },
         update: {
           accessToken: encryptedAccessToken.encryptedData,
-          accessTokenIv: encryptedAccessToken.iv,
-          accessTokenTag: encryptedAccessToken.tag,
           refreshToken: encryptedRefreshToken.encryptedData,
-          refreshTokenIv: encryptedRefreshToken.iv,
-          refreshTokenTag: encryptedRefreshToken.tag,
           tokenExpiresAt,
           refreshTokenExpiresAt,
-          status: FreeeConnectionStatus.CONNECTED,
+          expiresAt: tokenExpiresAt,
+          status: ConnectionStatus.ACTIVE,
+          companyId: company.id,
+          companyName: company.name,
+          freeeCompanyId: String(company.id),
           freeeCompanyName: company.name,
-          lastError: null,
-          connectedAt: now,
+          isActive: true,
         },
         create: {
           orgId: stateData.orgId,
-          freeeCompanyId: company.id,
+          companyId: company.id,
+          companyName: company.name,
+          freeeCompanyId: String(company.id),
           freeeCompanyName: company.name,
           accessToken: encryptedAccessToken.encryptedData,
-          accessTokenIv: encryptedAccessToken.iv,
-          accessTokenTag: encryptedAccessToken.tag,
           refreshToken: encryptedRefreshToken.encryptedData,
-          refreshTokenIv: encryptedRefreshToken.iv,
-          refreshTokenTag: encryptedRefreshToken.tag,
           tokenExpiresAt,
           refreshTokenExpiresAt,
-          status: FreeeConnectionStatus.CONNECTED,
-          connectedAt: now,
+          expiresAt: tokenExpiresAt,
+          status: ConnectionStatus.ACTIVE,
+          isActive: true,
         },
       });
 
@@ -276,15 +272,17 @@ export class FreeeOAuthService {
       return {
         id: connection.id,
         orgId: connection.orgId,
-        freeeCompanyId: connection.freeeCompanyId,
-        freeeCompanyName: connection.freeeCompanyName,
-        status: connection.status as FreeeConnectionStatus,
-        isConnected: connection.status === FreeeConnectionStatus.CONNECTED,
+        freeeCompanyId: connection.companyId,
+        freeeCompanyName: connection.companyName,
+        status: connection.status === ConnectionStatus.ACTIVE
+          ? FreeeConnectionStatus.CONNECTED
+          : FreeeConnectionStatus.DISCONNECTED,
+        isConnected: connection.status === ConnectionStatus.ACTIVE,
         lastSyncAt: connection.lastSyncAt,
-        lastError: connection.lastError,
-        tokenExpiresAt: connection.tokenExpiresAt,
-        refreshTokenExpiresAt: connection.refreshTokenExpiresAt,
-        connectedAt: connection.connectedAt,
+        lastError: null,
+        tokenExpiresAt: connection.tokenExpiresAt || now,
+        refreshTokenExpiresAt: connection.refreshTokenExpiresAt || now,
+        connectedAt: connection.createdAt,
       };
     } catch (error) {
       this.logger.error('OAuth callback error', error);
@@ -341,13 +339,14 @@ export class FreeeOAuthService {
         };
       }
 
-      // Decrypt refresh token
-      const refreshToken = FreeeEncryptionUtil.decrypt(
-        connection.refreshToken,
-        connection.refreshTokenIv,
-        connection.refreshTokenTag,
-        this.encryptionKey,
-      );
+      // Decrypt refresh token (schema stores tokens as plain encrypted strings, not with IV/tag)
+      const refreshToken = connection.refreshToken || '';
+      if (!refreshToken) {
+        return {
+          success: false,
+          error: 'No refresh token found',
+        };
+      }
 
       // Request new tokens
       const response = await this.httpClient.post<FreeeToken>(
@@ -389,15 +388,12 @@ export class FreeeOAuthService {
         where: { id: connection.id },
         data: {
           accessToken: encryptedAccessToken.encryptedData,
-          accessTokenIv: encryptedAccessToken.iv,
-          accessTokenTag: encryptedAccessToken.tag,
           refreshToken: encryptedRefreshToken.encryptedData,
-          refreshTokenIv: encryptedRefreshToken.iv,
-          refreshTokenTag: encryptedRefreshToken.tag,
           tokenExpiresAt,
           refreshTokenExpiresAt,
-          status: FreeeConnectionStatus.CONNECTED,
-          lastError: null,
+          expiresAt: tokenExpiresAt,
+          status: ConnectionStatus.ACTIVE,
+          isActive: true,
         },
       });
 
@@ -414,10 +410,10 @@ export class FreeeOAuthService {
       // Mark connection as expired if refresh token is invalid
       if (freeeCompanyId) {
         await this.prisma.freeeConnection.updateMany({
-          where: { orgId, freeeCompanyId },
+          where: { orgId, companyId: freeeCompanyId },
           data: {
-            status: FreeeConnectionStatus.EXPIRED,
-            lastError: 'Refresh token expired',
+            status: ConnectionStatus.ERROR,
+            isActive: false,
           },
         });
       }
@@ -459,21 +455,12 @@ export class FreeeOAuthService {
         return null;
       }
 
-      return FreeeEncryptionUtil.decrypt(
-        updatedConnection.accessToken,
-        updatedConnection.accessTokenIv,
-        updatedConnection.accessTokenTag,
-        this.encryptionKey,
-      );
+      // Return the encrypted token directly (already encrypted in DB)
+      return updatedConnection.accessToken;
     }
 
-    // Decrypt and return current token
-    return FreeeEncryptionUtil.decrypt(
-      connection.accessToken,
-      connection.accessTokenIv,
-      connection.accessTokenTag,
-      this.encryptionKey,
-    );
+    // Return the encrypted token directly (already encrypted in DB)
+    return connection.accessToken;
   }
 
   /**
@@ -512,15 +499,17 @@ export class FreeeOAuthService {
     return {
       id: connection.id,
       orgId: connection.orgId,
-      freeeCompanyId: connection.freeeCompanyId,
-      freeeCompanyName: connection.freeeCompanyName,
-      status: connection.status as FreeeConnectionStatus,
-      isConnected: connection.status === FreeeConnectionStatus.CONNECTED,
+      freeeCompanyId: connection.companyId,
+      freeeCompanyName: connection.companyName,
+      status: connection.status === ConnectionStatus.ACTIVE
+        ? FreeeConnectionStatus.CONNECTED
+        : FreeeConnectionStatus.DISCONNECTED,
+      isConnected: connection.status === ConnectionStatus.ACTIVE,
       lastSyncAt: connection.lastSyncAt,
-      lastError: connection.lastError,
-      tokenExpiresAt: connection.tokenExpiresAt,
-      refreshTokenExpiresAt: connection.refreshTokenExpiresAt,
-      connectedAt: connection.connectedAt,
+      lastError: null,
+      tokenExpiresAt: connection.tokenExpiresAt || new Date(),
+      refreshTokenExpiresAt: connection.refreshTokenExpiresAt || new Date(),
+      connectedAt: connection.createdAt,
     };
   }
 
@@ -530,21 +519,23 @@ export class FreeeOAuthService {
   async getConnections(orgId: string): Promise<FreeeConnectionInfo[]> {
     const connections = await this.prisma.freeeConnection.findMany({
       where: { orgId },
-      orderBy: { connectedAt: 'desc' },
+      orderBy: { createdAt: 'desc' },
     });
 
     return connections.map((conn) => ({
       id: conn.id,
       orgId: conn.orgId,
-      freeeCompanyId: conn.freeeCompanyId,
-      freeeCompanyName: conn.freeeCompanyName,
-      status: conn.status as FreeeConnectionStatus,
-      isConnected: conn.status === FreeeConnectionStatus.CONNECTED,
+      freeeCompanyId: conn.companyId,
+      freeeCompanyName: conn.companyName,
+      status: conn.status === ConnectionStatus.ACTIVE
+        ? FreeeConnectionStatus.CONNECTED
+        : FreeeConnectionStatus.DISCONNECTED,
+      isConnected: conn.status === ConnectionStatus.ACTIVE,
       lastSyncAt: conn.lastSyncAt,
-      lastError: conn.lastError,
-      tokenExpiresAt: conn.tokenExpiresAt,
-      refreshTokenExpiresAt: conn.refreshTokenExpiresAt,
-      connectedAt: conn.connectedAt,
+      lastError: null,
+      tokenExpiresAt: conn.tokenExpiresAt || new Date(),
+      refreshTokenExpiresAt: conn.refreshTokenExpiresAt || new Date(),
+      connectedAt: conn.createdAt,
     }));
   }
 
@@ -565,8 +556,8 @@ export class FreeeOAuthService {
       await this.prisma.freeeConnection.update({
         where: { id: connection.id },
         data: {
-          status: FreeeConnectionStatus.DISCONNECTED,
-          lastError: null,
+          status: ConnectionStatus.DISCONNECTED,
+          isActive: false,
         },
       });
 
@@ -596,20 +587,17 @@ export class FreeeOAuthService {
    */
   private async findConnection(orgId: string, freeeCompanyId?: number) {
     if (freeeCompanyId) {
-      return this.prisma.freeeConnection.findUnique({
+      return this.prisma.freeeConnection.findFirst({
         where: {
-          orgId_freeeCompanyId: { orgId, freeeCompanyId },
+          orgId,
+          companyId: freeeCompanyId,
         },
       });
     }
 
-    // Find any active connection
-    return this.prisma.freeeConnection.findFirst({
-      where: {
-        orgId,
-        status: FreeeConnectionStatus.CONNECTED,
-      },
-      orderBy: { connectedAt: 'desc' },
+    // Find any active connection (unique constraint on orgId, so just find by orgId)
+    return this.prisma.freeeConnection.findUnique({
+      where: { orgId },
     });
   }
 
@@ -618,18 +606,25 @@ export class FreeeOAuthService {
    */
   private async logAuditEvent(orgId: string, event: FreeeAuditLog) {
     try {
+      // Find the connection for this org to get connectionId
+      const connection = await this.prisma.freeeConnection.findUnique({
+        where: { orgId },
+      });
+
+      if (!connection) {
+        this.logger.warn('Cannot log audit event - no connection found for org');
+        return;
+      }
+
       await this.prisma.freeeAuditLog.create({
         data: {
-          orgId,
+          connectionId: connection.id,
           action: event.action,
           endpoint: event.endpoint,
-          statusCode: event.statusCode,
-          success: event.success,
+          requestData: event.metadata as Prisma.InputJsonValue,
+          responseData: null,
+          status: event.success ? 'success' : 'error',
           errorMessage: event.errorMessage,
-          requestId: event.requestId,
-          ipAddress: event.ipAddress,
-          userAgent: event.userAgent,
-          metadata: event.metadata as Prisma.InputJsonValue,
         },
       });
     } catch (error) {

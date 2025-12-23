@@ -1,16 +1,26 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { QuickBooksAuthService } from '../quickbooks-auth.service';
-import { QuickBooksMappingService } from './quickbooks-mapping.service';
+import { QuickBooksMappingService, QuickBooksSyncEntityType } from './quickbooks-mapping.service';
 import { QuickBooksCustomerSyncService } from './quickbooks-customer-sync.service';
 import { QuickBooksInvoiceSyncService } from './quickbooks-invoice-sync.service';
 import { QuickBooksPaymentSyncService } from './quickbooks-payment-sync.service';
-import { QuickBooksSyncEntityType, QuickBooksSyncDirection, QuickBooksSyncStatus } from '@prisma/client';
+import { SyncStatus } from '@prisma/client';
 
 /**
  * Sync mode types
  */
 export type SyncMode = 'full' | 'incremental' | 'realtime';
+
+/**
+ * Sync direction types
+ */
+export type QuickBooksSyncDirection = 'TO_QUICKBOOKS' | 'FROM_QUICKBOOKS' | 'BIDIRECTIONAL';
+
+/**
+ * Sync status types (using Prisma SyncStatus)
+ */
+export type QuickBooksSyncStatus = SyncStatus;
 
 /**
  * Sync result summary
@@ -196,10 +206,12 @@ export class QuickBooksSyncService {
         connectionId,
         orgId,
         syncType: 'CUSTOMER',
-        direction: 'FROM_QUICKBOOKS',
-        status: 'IN_PROGRESS',
-        syncMode,
-        triggeredBy,
+        status: 'SYNCING',
+        details: {
+          direction: 'FROM_QUICKBOOKS',
+          syncMode,
+          triggeredBy,
+        },
       },
     });
 
@@ -224,9 +236,9 @@ export class QuickBooksSyncService {
           completedAt: new Date(),
           duration,
           itemsProcessed: result.created + result.updated + result.failed,
-          itemsSuccess: result.created + result.updated,
           itemsFailed: result.failed,
-          changesSummary: {
+          details: {
+            direction: 'FROM_QUICKBOOKS',
             created: result.created,
             updated: result.updated,
             failed: result.failed,
@@ -256,8 +268,8 @@ export class QuickBooksSyncService {
           status: 'FAILED',
           completedAt: new Date(),
           duration,
-          error: error.message,
-          errorDetails: {
+          errorMessage: error.message,
+          details: {
             stack: error.stack,
             name: error.name,
           },
@@ -287,10 +299,12 @@ export class QuickBooksSyncService {
         connectionId,
         orgId,
         syncType: 'INVOICE',
-        direction: 'FROM_QUICKBOOKS',
-        status: 'IN_PROGRESS',
-        syncMode,
-        triggeredBy,
+        status: 'SYNCING',
+        details: {
+          direction: 'FROM_QUICKBOOKS',
+          syncMode,
+          triggeredBy,
+        },
       },
     });
 
@@ -313,9 +327,9 @@ export class QuickBooksSyncService {
           completedAt: new Date(),
           duration,
           itemsProcessed: result.created + result.updated + result.failed,
-          itemsSuccess: result.created + result.updated,
           itemsFailed: result.failed,
-          changesSummary: {
+          details: {
+            direction: 'FROM_QUICKBOOKS',
             created: result.created,
             updated: result.updated,
             failed: result.failed,
@@ -344,8 +358,8 @@ export class QuickBooksSyncService {
           status: 'FAILED',
           completedAt: new Date(),
           duration,
-          error: error.message,
-          errorDetails: {
+          errorMessage: error.message,
+          details: {
             stack: error.stack,
             name: error.name,
           },
@@ -375,10 +389,12 @@ export class QuickBooksSyncService {
         connectionId,
         orgId,
         syncType: 'PAYMENT',
-        direction: 'FROM_QUICKBOOKS',
-        status: 'IN_PROGRESS',
-        syncMode,
-        triggeredBy,
+        status: 'SYNCING',
+        details: {
+          direction: 'FROM_QUICKBOOKS',
+          syncMode,
+          triggeredBy,
+        },
       },
     });
 
@@ -401,9 +417,9 @@ export class QuickBooksSyncService {
           completedAt: new Date(),
           duration,
           itemsProcessed: result.created + result.updated + result.failed,
-          itemsSuccess: result.created + result.updated,
           itemsFailed: result.failed,
-          changesSummary: {
+          details: {
+            direction: 'FROM_QUICKBOOKS',
             created: result.created,
             updated: result.updated,
             failed: result.failed,
@@ -432,8 +448,8 @@ export class QuickBooksSyncService {
           status: 'FAILED',
           completedAt: new Date(),
           duration,
-          error: error.message,
-          errorDetails: {
+          errorMessage: error.message,
+          details: {
             stack: error.stack,
             name: error.name,
           },

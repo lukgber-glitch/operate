@@ -14,7 +14,7 @@ import { PeppolService } from '../../peppol.service';
 import { PeppolCertificateService } from '../../services/peppol-certificate.service';
 import { PeppolParticipantService } from '../../services/peppol-participant.service';
 import { PeppolMessageService } from '../../services/peppol-message.service';
-import { PrismaService } from '../../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import {
   JP_PEPPOL_SCHEME,
   JP_CURRENCY,

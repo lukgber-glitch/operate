@@ -38,7 +38,7 @@ export class AvalaraService {
       appVersion: this.config.appVersion,
       environment: this.config.environment,
       machineName: this.config.machineName,
-    }).withSecurity(this.config.accountId, this.config.licenseKey);
+    }).withSecurity(`${this.config.accountId}:${this.config.licenseKey}`);
 
     this.logger.log(
       `Avalara AvaTax service initialized in ${this.config.environment} mode`,

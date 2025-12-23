@@ -39,19 +39,27 @@ export class GetBusinessHealthHandler extends BaseActionHandler {
         );
       }
 
-      const health = await this.healthScoreService.getScore(
+      const health = await this.healthScoreService.getCurrentScore(
         context.organizationId,
       );
 
       return this.success(
-        `Business health score: ${health.overall}/100`,
+        `Business health score: ${health.overallScore}/100`,
         undefined,
         'HealthScore',
         {
-          overall: health.overall,
-          breakdown: health.breakdown,
-          status: health.status,
-          lastUpdated: health.lastUpdated,
+          overall: health.overallScore,
+          components: {
+            cashFlow: health.cashFlowScore,
+            arHealth: health.arHealthScore,
+            apHealth: health.apHealthScore,
+            taxCompliance: health.taxComplianceScore,
+            profitability: health.profitabilityScore,
+            runway: health.runwayScore,
+          },
+          insights: health.insights,
+          recommendations: health.recommendations,
+          lastUpdated: health.date,
         },
       );
     } catch (error) {

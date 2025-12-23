@@ -49,10 +49,13 @@ export class GetMileageSummaryHandler extends BaseActionHandler {
       const normalized = this.normalizeParams(params);
       const year = normalized.year || new Date().getFullYear();
 
+      const startDate = `${year}-01-01`;
+      const endDate = `${year}-12-31`;
+
       const summary = await this.mileageService.getSummary(
-        context.userId,
         context.organizationId,
-        year,
+        startDate,
+        endDate,
       );
 
       return this.success(
@@ -61,10 +64,13 @@ export class GetMileageSummaryHandler extends BaseActionHandler {
         'MileageSummary',
         {
           year,
-          totalDistance: summary.totalDistance,
-          totalDeduction: summary.totalDeduction,
-          entries: summary.entries,
-          currency: summary.currency,
+          totalDistanceKm: summary.totalDistanceKm,
+          totalDistanceMiles: summary.totalDistanceMiles,
+          totalAmount: summary.totalAmount,
+          totalReimbursed: summary.totalReimbursed,
+          totalPending: summary.totalPending,
+          entries: summary.totalEntries,
+          byVehicleType: summary.byVehicleType,
         },
       );
     } catch (error) {

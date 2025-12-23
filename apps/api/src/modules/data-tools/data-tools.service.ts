@@ -7,7 +7,9 @@ import { AuditTrailService } from '../gdpr/services/audit-trail.service';
 import { GdprEventType, ActorType } from '../gdpr/types/gdpr.types';
 import { ExportRequestDto, ExportResultDto, DeletionRequestDto, DeletionResultDto } from './dto';
 import {
+  ExportStatus,
   ExportFormat,
+  DeletionStatus,
   DataCategory,
   DeletionMode,
   DeletionPreview,
@@ -111,7 +113,7 @@ export class DataToolsService {
     // Placeholder implementation
     return {
       jobId,
-      status: 'completed' as Prisma.InputJsonValue,
+      status: ExportStatus.COMPLETED,
       categoriesExported: [DataCategory.PROFILE],
     };
   }
@@ -155,7 +157,7 @@ export class DataToolsService {
 
         return {
           jobId: crypto.randomUUID(),
-          status: 'pending' as Prisma.InputJsonValue,
+          status: DeletionStatus.PENDING,
           recordsDeleted: 0,
           tablesAffected: [],
           categories: dto.categories,
@@ -220,7 +222,7 @@ export class DataToolsService {
     // Placeholder implementation
     return {
       jobId,
-      status: 'completed' as Prisma.InputJsonValue,
+      status: DeletionStatus.COMPLETED,
       recordsDeleted: 0,
       tablesAffected: [],
       categories: [DataCategory.PROFILE],

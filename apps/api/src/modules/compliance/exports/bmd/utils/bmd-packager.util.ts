@@ -66,7 +66,7 @@ export class BmdPackagerUtil {
 
       // Create write stream
       const output = fs.createWriteStream(targetPath);
-      const archive = archiver('zip', {
+      const archive = archiver.default('zip', {
         zlib: { level: 9 }, // Maximum compression
       });
 

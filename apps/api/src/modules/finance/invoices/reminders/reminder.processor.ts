@@ -3,7 +3,7 @@ import { Job } from 'bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { PaymentReminderService } from './payment-reminder.service';
 import { ReminderEscalationService } from './reminder-escalation.service';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { InvoiceStatus } from '@prisma/client';
 
 /**

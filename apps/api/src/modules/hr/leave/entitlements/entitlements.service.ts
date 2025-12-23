@@ -1,5 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { EntitlementsCalculator } from './entitlements.calculator';
 import { LeaveType, LeaveEntitlement } from '@prisma/client';
 

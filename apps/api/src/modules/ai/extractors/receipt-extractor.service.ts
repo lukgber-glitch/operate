@@ -115,10 +115,10 @@ export class ReceiptExtractorService {
     request: ExtractReceiptRequestDto,
   ): Promise<ReceiptExtractionResultDto> {
     const startTime = Date.now();
-    const { file, mimeType, organisationId, userId, fileName, autoCategorize, autoCreateExpense } = request;
+    const { file, mimeType, orgId, userId, fileName, autoCategorize, autoCreateExpense } = request;
 
     this.logger.log(
-      `Starting receipt extraction for org ${organisationId}, file: ${fileName || 'unnamed'}`,
+      `Starting receipt extraction for org ${orgId}, file: ${fileName || 'unnamed'}`,
     );
 
     // Validate file type
@@ -130,7 +130,7 @@ export class ReceiptExtractorService {
 
     // Create extraction record
     const extraction = await this.createExtractionRecord({
-      organisationId,
+      orgId,
       userId,
       fileName: fileName || `receipt-${Date.now()}.${this.getFileExtension(mimeType)}`,
       mimeType,
@@ -177,7 +177,7 @@ export class ReceiptExtractorService {
 
       // Queue expense creation if requested
       if (autoCreateExpense && status === ReceiptExtractionStatus.COMPLETED) {
-        await this.queueExpenseCreation(extraction.id, organisationId, userId);
+        await this.queueExpenseCreation(extraction.id, orgId, userId);
       }
 
       return result;
@@ -199,7 +199,7 @@ export class ReceiptExtractorService {
    * Get extraction by ID
    */
   async getExtraction(extractionId: string): Promise<ReceiptExtractionResultDto> {
-    const extraction = await this.prisma.extractedReceipt.findUnique({
+    const extraction = await this.prisma.receiptScan.findUnique({
       where: { id: extractionId },
     });
 
@@ -214,7 +214,7 @@ export class ReceiptExtractorService {
    * Get extraction history with filters
    */
   async getExtractionHistory(
-    organisationId: string,
+    orgId: string,
     filters?: any,
   ): Promise<{ data: ReceiptExtractionResultDto[]; total: number; page: number; pageSize: number }> {
     const {
@@ -228,7 +228,7 @@ export class ReceiptExtractorService {
       pageSize = 20,
     } = filters || {};
 
-    const where: any = { organisationId };
+    const where: any = { orgId };
 
     if (status) where.status = status;
     if (userId) where.userId = userId;
@@ -244,13 +244,13 @@ export class ReceiptExtractorService {
     const skip = (page - 1) * pageSize;
 
     const [extractions, total] = await Promise.all([
-      this.prisma.extractedReceipt.findMany({
+      this.prisma.receiptScan.findMany({
         where,
         skip,
         take: pageSize,
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.extractedReceipt.count({ where }),
+      this.prisma.receiptScan.count({ where }),
     ]);
 
     return {
@@ -478,7 +478,7 @@ export class ReceiptExtractorService {
         throw new Error('No categorization response');
       }
 
-      return this.parseGPT4Response(content) as CategorizationResponse;
+      return this.parseGPT4Response(content) as unknown as CategorizationResponse;
     } catch (error) {
       this.logger.warn('Categorization failed:', error.message);
       // Return default categorization
@@ -496,16 +496,17 @@ export class ReceiptExtractorService {
    * Create extraction record in database
    */
   private async createExtractionRecord(params: {
-    organisationId: string;
+    orgId: string;
     userId: string;
     fileName: string;
     mimeType: string;
     fileSize: number;
   }) {
-    return await this.prisma.extractedReceipt.create({
+    return await this.prisma.receiptScan.create({
       data: {
-        organisationId: params.organisationId,
+        organisation: { connect: { id: params.orgId } },
         userId: params.userId,
+        filename: params.fileName,
         fileName: params.fileName,
         mimeType: params.mimeType,
         fileSize: params.fileSize,
@@ -525,7 +526,7 @@ export class ReceiptExtractorService {
     status: ReceiptExtractionStatus,
     errorMessage?: string,
   ) {
-    return await this.prisma.extractedReceipt.update({
+    return await this.prisma.receiptScan.update({
       where: { id: extractionId },
       data: {
         status,
@@ -544,19 +545,17 @@ export class ReceiptExtractorService {
     status: ReceiptExtractionStatus;
     processingTimeMs: number;
   }) {
-    const updated = await this.prisma.extractedReceipt.update({
+    const updated = await this.prisma.receiptScan.update({
       where: { id: params.extractionId },
       data: {
         status: params.status,
-        extractedData: params.extractedData as Prisma.InputJsonValue,
+        extractedData: params.extractedData as unknown as Prisma.InputJsonValue,
         overallConfidence: params.extractedData.overallConfidence,
-        fieldConfidences: params.extractedData.fieldConfidences as Prisma.InputJsonValue,
+        fieldConfidences: params.extractedData.fieldConfidences as unknown as Prisma.InputJsonValue,
         receiptType: params.extractedData.receiptType,
         suggestedCategory: params.categorization?.category,
         suggestedSubcategory: params.categorization?.subcategory,
-        categorizationConfidence: params.categorization?.confidence,
         taxDeductible: params.categorization?.taxDeductible,
-        processingTimeMs: params.processingTimeMs,
       },
     });
 
@@ -568,13 +567,13 @@ export class ReceiptExtractorService {
    */
   private async queueExpenseCreation(
     extractionId: string,
-    organisationId: string,
+    orgId: string,
     userId: string,
   ) {
     try {
       await this.extractionQueue.add('create-expense', {
         extractionId,
-        organisationId,
+        orgId,
         userId,
       });
       this.logger.debug(`Queued expense creation for extraction ${extractionId}`);
@@ -589,14 +588,14 @@ export class ReceiptExtractorService {
   private mapToDto(extraction: any): ReceiptExtractionResultDto {
     return {
       id: extraction.id,
-      organisationId: extraction.organisationId,
+      orgId: extraction.orgId,
       userId: extraction.userId,
       fileName: extraction.fileName,
       mimeType: extraction.mimeType,
       status: extraction.status,
-      extractedData: extraction.extractedData as ExtractedReceiptDataDto,
+      extractedData: extraction.extractedData as unknown as ExtractedReceiptDataDto,
       overallConfidence: extraction.overallConfidence,
-      fieldConfidences: extraction.fieldConfidences as FieldConfidenceDto[],
+      fieldConfidences: extraction.fieldConfidences as unknown as FieldConfidenceDto[],
       suggestedCategory: extraction.suggestedCategory,
       suggestedSubcategory: extraction.suggestedSubcategory,
       categorizationConfidence: extraction.categorizationConfidence,

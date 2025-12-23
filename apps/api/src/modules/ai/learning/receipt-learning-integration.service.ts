@@ -214,7 +214,7 @@ export class ReceiptLearningIntegrationService {
 
       // Find patterns matching this merchant
       const merchantPatterns = patterns.filter((p) => {
-        const condition = p.condition as Prisma.InputJsonValue;
+        const condition = p.condition as unknown as { merchant?: string; [key: string]: any };
         return condition.merchant && merchant.toLowerCase().includes(condition.merchant);
       });
 
@@ -229,7 +229,13 @@ export class ReceiptLearningIntegrationService {
       };
 
       merchantPatterns.forEach((pattern) => {
-        const adjustment = pattern.adjustment as Prisma.InputJsonValue;
+        const adjustment = pattern.adjustment as unknown as {
+          category?: string;
+          subcategory?: string;
+          taxDeductible?: boolean;
+          deductionPercentage?: number;
+          [key: string]: any;
+        };
 
         if (adjustment.category) {
           insights.category = adjustment.category;

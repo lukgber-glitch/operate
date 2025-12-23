@@ -83,7 +83,7 @@ export class CraEfilerService {
       // Map to validation result
       const result: CraValidationResult = {
         valid: craResponse.status === CraFilingStatus.VALIDATED,
-        errors: craResponse.errors || [],
+        errors: (craResponse.errors || []).map(e => ({ ...e, severity: 'error' as const })),
         warnings: craResponse.warnings,
       };
 
@@ -427,13 +427,13 @@ export class CraEfilerService {
         submissionType: returnData.returnType,
         status: response.status,
         confirmationNumber: response.confirmationNumber,
-        details: {
+        details: JSON.parse(JSON.stringify({
           businessNumber: returnData.businessNumber,
           reportingPeriod: returnData.reportingPeriod,
           netTax: returnData.line109_netTax,
           returnData,
           response,
-        },
+        })),
         submittedAt: response.filedAt || new Date(),
       },
     });

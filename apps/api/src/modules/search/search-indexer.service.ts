@@ -264,24 +264,15 @@ export class SearchIndexerService implements OnModuleInit {
    * Re-index all expenses
    */
   private async reindexExpenses(orgId: string): Promise<number> {
-    const expenses = await this.prisma.transaction.findMany({
+    const expenses = await this.prisma.expense.findMany({
       where: {
         orgId,
-        type: 'EXPENSE',
-      },
-      select: {
-        id: true,
-        description: true,
-        amount: true,
-        category: true,
-        date: true,
-        vendor: true,
       },
     });
 
     for (const expense of expenses) {
       const searchableText = [
-        expense.vendor || '',
+        expense.vendorName || '',
         expense.description || '',
         expense.category || '',
         expense.amount?.toString() || '',
@@ -294,7 +285,7 @@ export class SearchIndexerService implements OnModuleInit {
         expense.id,
         searchableText,
         {
-          vendor: expense.vendor,
+          vendor: expense.vendorName,
           category: expense.category,
           amount: expense.amount,
           date: expense.date,

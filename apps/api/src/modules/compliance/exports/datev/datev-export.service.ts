@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { StreamableFile } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -739,7 +739,7 @@ export class DatevExportService {
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       const output = fs.createWriteStream(targetPath);
-      const archive = archiver('zip', {
+      const archive = archiver.default('zip', {
         zlib: { level: 9 },
       });
 

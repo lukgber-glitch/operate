@@ -545,6 +545,10 @@ export class TransactionCategorizationService {
       [ExpenseCategory.RENT]: 'Rent & Facilities',
       [ExpenseCategory.INSURANCE]: 'Insurance',
       [ExpenseCategory.PROFESSIONAL_SERVICES]: 'Professional Services',
+      [ExpenseCategory.MARKETING]: 'Marketing & Advertising',
+      [ExpenseCategory.SHIPPING]: 'Shipping & Delivery',
+      [ExpenseCategory.TAXES_FEES]: 'Taxes & Fees',
+      [ExpenseCategory.BANK_FEES]: 'Bank Fees',
       [ExpenseCategory.OTHER]: 'Other',
     };
 

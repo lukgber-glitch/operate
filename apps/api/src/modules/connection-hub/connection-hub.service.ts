@@ -18,6 +18,8 @@ import {
   IntegrationStatus,
   SyncStatus,
   OnboardingStepStatus as PrismaOnboardingStepStatus,
+  IntegrationType,
+  IntegrationProvider,
   Prisma,
 } from '@prisma/client';
 
@@ -79,8 +81,8 @@ export class ConnectionHubService {
 
     const integration = await this.repository.createIntegration({
       orgId,
-      type: dto.type as Prisma.InputJsonValue,
-      provider: dto.provider as Prisma.InputJsonValue,
+      type: dto.type as IntegrationType,
+      provider: dto.provider as IntegrationProvider,
       name: dto.name,
       config: dto.config,
       metadata: dto.metadata,
@@ -514,8 +516,8 @@ export class ConnectionHubService {
     if (!integration) {
       integration = await this.repository.createIntegration({
         orgId: data.orgId,
-        type: this.getTypeForProvider(data.provider as Prisma.InputJsonValue),
-        provider: data.provider as Prisma.InputJsonValue,
+        type: this.getTypeForProvider(data.provider),
+        provider: data.provider as IntegrationProvider,
         name: `${data.provider} Connection`,
         status: IntegrationStatus.CONNECTED,
         connectedAt: new Date(),
@@ -567,25 +569,25 @@ export class ConnectionHubService {
   /**
    * Get integration type for provider
    */
-  private getTypeForProvider(provider: string): any {
-    const typeMap: Record<string, string> = {
-      GOCARDLESS: 'BANKING',
-      TINK: 'BANKING',
-      PLAID: 'BANKING',
-      FINAPI: 'BANKING',
-      GMAIL: 'EMAIL',
-      OUTLOOK: 'EMAIL',
-      IMAP: 'EMAIL',
-      LEXOFFICE: 'ACCOUNTING',
-      SEVDESK: 'ACCOUNTING',
-      DATEV: 'ACCOUNTING',
-      ELSTER: 'TAX',
-      FINANZONLINE: 'TAX',
-      GOOGLE_DRIVE: 'STORAGE',
-      DROPBOX: 'STORAGE',
-      ONEDRIVE: 'STORAGE',
+  private getTypeForProvider(provider: string): IntegrationType {
+    const typeMap: Record<string, IntegrationType> = {
+      GOCARDLESS: IntegrationType.BANKING,
+      TINK: IntegrationType.BANKING,
+      PLAID: IntegrationType.BANKING,
+      FINAPI: IntegrationType.BANKING,
+      GMAIL: IntegrationType.EMAIL,
+      OUTLOOK: IntegrationType.EMAIL,
+      IMAP: IntegrationType.EMAIL,
+      LEXOFFICE: IntegrationType.ACCOUNTING,
+      SEVDESK: IntegrationType.ACCOUNTING,
+      DATEV: IntegrationType.ACCOUNTING,
+      ELSTER: IntegrationType.TAX,
+      FINANZONLINE: IntegrationType.TAX,
+      GOOGLE_DRIVE: IntegrationType.STORAGE,
+      DROPBOX: IntegrationType.STORAGE,
+      ONEDRIVE: IntegrationType.STORAGE,
     };
-    return typeMap[provider] || 'OTHER';
+    return typeMap[provider] || IntegrationType.OTHER;
   }
 
   /**

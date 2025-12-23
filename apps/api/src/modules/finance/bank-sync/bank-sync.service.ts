@@ -595,7 +595,20 @@ export class BankSyncService {
 
     // OPTIMIZATION: Use transaction for batch operations
     await this.prisma.$transaction(async (tx) => {
-      const toCreate: Parameters<typeof tx.bankAccountNew.create>[0]['data'][] = [];
+      const toCreate: Array<{
+        accountId: string;
+        accountType: BankAccountType;
+        name: string;
+        iban: string | null;
+        accountNumber: string | null;
+        sortCode: string | null;
+        currency: string;
+        currentBalance: number;
+        availableBalance: number | null;
+        lastBalanceUpdate: Date;
+        isActive: boolean;
+        bankConnectionId: string;
+      }> = [];
       const updateOperations: Promise<unknown>[] = [];
 
       for (const account of accounts) {
@@ -714,7 +727,7 @@ export class BankSyncService {
       transactionType: tx.amount.value >= 0 ? BankTransactionType.CREDIT : BankTransactionType.DEBIT,
       status: tx.status === 'BOOKED' ? BankTransactionStatus.BOOKED : BankTransactionStatus.PENDING,
       reconciliationStatus: ReconciliationStatus.UNMATCHED,
-      rawData: tx as Prisma.InputJsonValue,
+      rawData: tx as unknown as Prisma.InputJsonValue,
     }));
 
     await this.prisma.bankTransactionNew.createMany({

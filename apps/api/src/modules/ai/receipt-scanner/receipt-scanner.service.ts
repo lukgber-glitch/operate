@@ -20,7 +20,7 @@ import {
   ScanHistoryFiltersDto,
   ReceiptScan,
 } from './dto/receipt-scanner.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, ReceiptScanStatus, ExpenseCategory } from '@prisma/client';
 
 @Injectable()
 export class ReceiptScannerService {
@@ -40,22 +40,22 @@ export class ReceiptScannerService {
    * Main scan method - processes receipt through OCR and AI classification
    */
   async scanReceipt(params: {
-    organisationId: string;
+    orgId: string;
     file: Buffer;
     mimeType: string;
     userId: string;
     fileName?: string;
     autoApprove?: boolean;
   }): Promise<ReceiptScanResult> {
-    const { organisationId, file, mimeType, userId, fileName, autoApprove = true } = params;
+    const { orgId, file, mimeType, userId, fileName, autoApprove = true } = params;
 
     this.logger.log(
-      `Scanning receipt for org ${organisationId}, user ${userId}, auto-approve: ${autoApprove}`,
+      `Scanning receipt for org ${orgId}, user ${userId}, auto-approve: ${autoApprove}`,
     );
 
     // Create scan record
     const scanId = await this.createScanRecord({
-      organisationId,
+      orgId,
       userId,
       fileName: fileName || `receipt-${Date.now()}.jpg`,
       fileSize: file.length,
@@ -78,7 +78,7 @@ export class ReceiptScannerService {
 
       // Step 3: Check automation settings and auto-approval eligibility
       const autoApprovalDecision = await this.evaluateAutoApproval({
-        organisationId,
+        orgId,
         classification,
         amount: ocrResult.totalAmount,
         autoApprove,
@@ -88,7 +88,7 @@ export class ReceiptScannerService {
       let expenseId: string | undefined;
       if (autoApprovalDecision.approved) {
         expenseId = await this.createExpenseFromOcr({
-          organisationId,
+          orgId,
           userId,
           ocrResult,
           classification,
@@ -107,7 +107,7 @@ export class ReceiptScannerService {
 
       // Emit WebSocket event
       this.emitScanCompletedEvent({
-        organisationId,
+        orgId,
         scanId,
         autoApproved: autoApprovalDecision.approved,
         expenseId,
@@ -154,13 +154,13 @@ export class ReceiptScannerService {
       description,
       amount: ocrResult.totalAmount || 0,
       currency: ocrResult.currency || 'EUR',
-      date: ocrResult.date || new Date(),
+      date: ocrResult.date ? (ocrResult.date instanceof Date ? ocrResult.date.toISOString() : ocrResult.date) : new Date().toISOString(),
       counterparty: ocrResult.merchantName,
     });
 
     return {
       category: classificationResult.category,
-      subcategory: classificationResult.subcategory,
+      subcategory: classificationResult.suggestedDeductionCategory,
       taxDeductible: classificationResult.taxRelevant,
       taxDeductionPercentage: classificationResult.taxDeductionPercentage,
       suggestedAccount: classificationResult.suggestedAccount,
@@ -173,12 +173,12 @@ export class ReceiptScannerService {
    * Create expense from scan result
    */
   async createExpenseFromScan(params: {
-    organisationId: string;
+    orgId: string;
     scanId: string;
     userId: string;
     autoApprove?: boolean;
   }): Promise<string> {
-    const { organisationId, scanId, userId, autoApprove = false } = params;
+    const { orgId, scanId, userId, autoApprove = false } = params;
 
     this.logger.log(`Creating expense from scan ${scanId}`);
 
@@ -204,7 +204,7 @@ export class ReceiptScannerService {
 
     // Create expense
     const expenseId = await this.createExpenseFromOcr({
-      organisationId,
+      orgId,
       userId,
       ocrResult,
       classification,
@@ -228,14 +228,14 @@ export class ReceiptScannerService {
    * Get scan history with filters
    */
   async getScanHistory(
-    organisationId: string,
+    orgId: string,
     filters?: ScanHistoryFiltersDto,
   ): Promise<{ data: ReceiptScan[]; total: number; page: number; pageSize: number }> {
     const { status, userId, fromDate, toDate, page = 1, pageSize = 20 } = filters || {};
 
     const where: Prisma.ReceiptScanWhereInput = {
-      organisationId,
-      ...(status && { status: status.toUpperCase() as Prisma.InputJsonValue }),
+      orgId,
+      ...(status && { status: status.toUpperCase() as ReceiptScanStatus }),
       ...(userId && { userId }),
     };
 
@@ -263,7 +263,7 @@ export class ReceiptScannerService {
     ]);
 
     return {
-      data: scans as Prisma.InputJsonValue,
+      data: scans as unknown as ReceiptScan[],
       total,
       page,
       pageSize,
@@ -278,7 +278,7 @@ export class ReceiptScannerService {
       where: { id: scanId },
     });
 
-    return scan as Prisma.InputJsonValue;
+    return scan as unknown as ReceiptScan;
   }
 
   // ============================================================================
@@ -289,7 +289,7 @@ export class ReceiptScannerService {
    * Create initial scan record
    */
   private async createScanRecord(params: {
-    organisationId: string;
+    orgId: string;
     userId: string;
     fileName: string;
     fileSize: number;
@@ -297,8 +297,9 @@ export class ReceiptScannerService {
   }): Promise<string> {
     const scan = await this.prisma.receiptScan.create({
       data: {
-        organisationId: params.organisationId,
+        organisation: { connect: { id: params.orgId } },
         userId: params.userId,
+        filename: params.fileName,
         fileName: params.fileName,
         fileSize: params.fileSize,
         mimeType: params.mimeType,
@@ -342,7 +343,7 @@ export class ReceiptScannerService {
     await this.prisma.receiptScan.update({
       where: { id: params.scanId },
       data: {
-        ocrData: params.ocrResult as Prisma.InputJsonValue,
+        ocrData: params.ocrResult as unknown as Prisma.InputJsonValue,
         ocrConfidence: params.ocrResult.confidence,
         category: params.classification.category,
         subcategory: params.classification.subcategory,
@@ -357,7 +358,7 @@ export class ReceiptScannerService {
    * Evaluate auto-approval decision
    */
   private async evaluateAutoApproval(params: {
-    organisationId: string;
+    orgId: string;
     classification: ReceiptClassificationResult;
     amount?: number;
     autoApprove: boolean;
@@ -372,7 +373,7 @@ export class ReceiptScannerService {
 
     // Check automation settings
     const decision = await this.autoApproveService.shouldAutoApprove({
-      organisationId: params.organisationId,
+      organisationId: params.orgId,
       feature: 'expenses',
       confidenceScore: params.classification.confidence,
       amount: params.amount,
@@ -389,22 +390,25 @@ export class ReceiptScannerService {
    * Create expense from OCR result
    */
   private async createExpenseFromOcr(params: {
-    organisationId: string;
+    orgId: string;
     userId: string;
     ocrResult: ReceiptParseResult;
     classification: ReceiptClassificationResult;
     scanId: string;
     autoApprove?: boolean;
   }): Promise<string> {
-    const { organisationId, userId, ocrResult, classification, scanId } = params;
+    const { orgId, userId, ocrResult, classification, scanId } = params;
+
+    // Map AI category to ExpenseCategory
+    const expenseCategory = this.mapToExpenseCategory(classification.category);
 
     // Create expense via ExpensesService
-    const expense = await this.expensesService.create(organisationId, {
+    const expense = await this.expensesService.create(orgId, {
       description: ocrResult.merchantName || 'Receipt expense',
       amount: ocrResult.totalAmount || 0,
       currency: ocrResult.currency || 'EUR',
-      date: ocrResult.date || new Date(),
-      category: classification.category as Prisma.InputJsonValue,
+      date: ocrResult.date ? (ocrResult.date instanceof Date ? ocrResult.date.toISOString() : ocrResult.date) : new Date().toISOString(),
+      category: expenseCategory,
       subcategory: classification.subcategory,
       vendorName: ocrResult.merchantName,
       vendorVatId: ocrResult.merchantVatId,
@@ -428,6 +432,28 @@ export class ReceiptScannerService {
     }
 
     return expense.id;
+  }
+
+  /**
+   * Map TransactionCategory (from AI classifier) to ExpenseCategory (Prisma)
+   */
+  private mapToExpenseCategory(aiCategory: string): ExpenseCategory {
+    // Map from TransactionCategory enum values to Prisma ExpenseCategory enum values
+    const categoryMap: Record<string, ExpenseCategory> = {
+      office_supplies: ExpenseCategory.OFFICE,
+      travel_business: ExpenseCategory.TRAVEL,
+      meals_business: ExpenseCategory.MEALS,
+      software_subscriptions: ExpenseCategory.SOFTWARE,
+      professional_services: ExpenseCategory.PROFESSIONAL_SERVICES,
+      marketing: ExpenseCategory.MARKETING,
+      utilities: ExpenseCategory.UTILITIES,
+      rent: ExpenseCategory.RENT,
+      equipment: ExpenseCategory.EQUIPMENT,
+      insurance_business: ExpenseCategory.INSURANCE,
+      vehicle_business: ExpenseCategory.TRAVEL, // Map vehicle to travel as closest match
+    };
+
+    return categoryMap[aiCategory] || ExpenseCategory.OTHER;
   }
 
   /**
@@ -459,14 +485,14 @@ export class ReceiptScannerService {
    * Emit WebSocket event for scan completion
    */
   private emitScanCompletedEvent(params: {
-    organisationId: string;
+    orgId: string;
     scanId: string;
     autoApproved: boolean;
     expenseId?: string;
   }): void {
     try {
       const payload: AutomationEventPayload = {
-        organizationId: params.organisationId,
+        organizationId: params.orgId,
         entityType: 'receipt_scan',
         entityId: params.scanId,
         feature: 'receipt_scanner',
@@ -482,7 +508,7 @@ export class ReceiptScannerService {
         ? AutomationEvent.AUTO_APPROVED
         : AutomationEvent.CLASSIFICATION_COMPLETE;
 
-      this.eventsGateway.emitToOrganization(params.organisationId, event, payload);
+      this.eventsGateway.emitToOrganization(params.orgId, event, payload);
 
       this.logger.debug(`Emitted scan event ${event} for scan ${params.scanId}`);
     } catch (error) {

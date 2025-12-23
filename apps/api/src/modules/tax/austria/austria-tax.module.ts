@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AustriaTaxController } from './austria-tax.controller';
 import { AustriaTaxService } from './austria-tax.service';
-import { PrismaModule } from '../../../prisma/prisma.module';
 import { TaxContextService } from '../shared/tax-context.service';
 
 @Module({
-  imports: [PrismaModule],
   controllers: [AustriaTaxController],
   providers: [AustriaTaxService, TaxContextService],
   exports: [AustriaTaxService],

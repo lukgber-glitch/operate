@@ -337,7 +337,7 @@ export class EnhancedTransactionClassifierService {
           const errorMsg =
             result.status === 'rejected'
               ? result.reason?.message
-              : (result.value as Prisma.InputJsonValue)?.error?.message;
+              : (result.value as any)?.error?.message;
           results.push({
             classification: this.getDefaultClassification(batch[idx]),
             error: errorMsg || 'Unknown error',
@@ -626,8 +626,9 @@ export class EnhancedTransactionClassifierService {
         const occurrences = existingPattern.occurrences + 1;
         // Simple accuracy calculation: if corrected to same category, increase accuracy
         const currentAccuracy = parseFloat(existingPattern.accuracy.toString());
+        const adjustment = existingPattern.adjustment as unknown as { category: string; taxCategory: TaxCategory };
         const newAccuracy =
-          (existingPattern.adjustment as Prisma.InputJsonValue).category === correctCategory
+          adjustment.category === correctCategory
             ? Math.min(1.0, currentAccuracy + 0.1)
             : Math.max(0.5, currentAccuracy - 0.1);
 
@@ -637,7 +638,7 @@ export class EnhancedTransactionClassifierService {
             adjustment: {
               category: correctCategory,
               taxCategory: correctTaxCategory,
-            },
+            } as unknown as Prisma.InputJsonValue,
             occurrences,
             accuracy: newAccuracy,
             updatedAt: new Date(),
@@ -656,11 +657,11 @@ export class EnhancedTransactionClassifierService {
             condition: {
               vendor: normalizedVendor,
               vendorOriginal: vendor,
-            },
+            } as unknown as Prisma.InputJsonValue,
             adjustment: {
               category: correctCategory,
               taxCategory: correctTaxCategory,
-            },
+            } as unknown as Prisma.InputJsonValue,
             occurrences: 1,
             accuracy: 1.0,
             isActive: true,
@@ -693,11 +694,11 @@ export class EnhancedTransactionClassifierService {
               condition: {
                 amountRange,
                 description: transaction.description.substring(0, 100),
-              },
+              } as unknown as Prisma.InputJsonValue,
               adjustment: {
                 category: correctCategory,
                 taxCategory: correctTaxCategory,
-              },
+              } as unknown as Prisma.InputJsonValue,
               occurrences: 1,
               accuracy: 0.7, // Lower initial accuracy for amount-based patterns
               isActive: true,
@@ -746,7 +747,7 @@ export class EnhancedTransactionClassifierService {
       return null;
     }
 
-    const adjustment = pattern.adjustment as Prisma.InputJsonValue;
+    const adjustment = pattern.adjustment as unknown as { category: string; taxCategory: TaxCategory };
     const accuracy = parseFloat(pattern.accuracy.toString());
 
     this.logger.debug(
@@ -754,7 +755,7 @@ export class EnhancedTransactionClassifierService {
     );
 
     // Build classification from learned pattern
-    const taxCategory = adjustment.taxCategory as TaxCategory;
+    const taxCategory = adjustment.taxCategory;
     const eurInfo = getEurLineInfo(taxCategory);
     const deductibleAmount = calculateDeductibleAmount(
       Math.abs(transaction.amount),

@@ -12,7 +12,7 @@ import {
   ParameterDefinition,
 } from '../action.types';
 import { LeaveService } from '../../../hr/leave/leave.service';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 
 @Injectable()
 export class ApproveLeaveHandler extends BaseActionHandler {

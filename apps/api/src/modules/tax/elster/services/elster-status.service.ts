@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { Prisma } from '@prisma/client';
 import {
   StatusDetails,
   StatusEvent,
@@ -410,9 +411,9 @@ export class ElsterStatusService {
       filingId: e.filingId,
       fromStatus: e.fromStatus as ElsterFilingStatus | null,
       toStatus: e.toStatus as ElsterFilingStatus,
-      details: e.details as Prisma.InputJsonValue,
+      details: e.details,
       createdAt: e.createdAt,
-    }));
+    } as unknown as StatusEvent));
   }
 
   /**
@@ -481,8 +482,8 @@ export class ElsterStatusService {
         period: `${filing.year}/${filing.period}`,
         status: filing.status as ElsterFilingStatus,
         timestamp: new Date(),
-        message: (filing.errors as Prisma.InputJsonValue)?.message,
-        errors: (filing.errors as Prisma.InputJsonValue)?.errors,
+        message: (filing.errors as any)?.message,
+        errors: (filing.errors as any)?.errors,
         transferTicket: filing.transferTicket,
       };
 
@@ -496,7 +497,7 @@ export class ElsterStatusService {
           type: 'elster_status_change',
           title: `ELSTER Filing Status: ${filing.status}`,
           message: this.buildNotificationMessage(templateData),
-          data: templateData as Prisma.InputJsonValue,
+          data: templateData as unknown as Prisma.InputJsonValue,
           priority,
           status: 'UNREAD',
         },
@@ -557,7 +558,7 @@ export class ElsterStatusService {
         filingId,
         fromStatus,
         toStatus,
-        details: details as Prisma.InputJsonValue,
+        details: details as unknown as Prisma.InputJsonValue,
       },
     });
   }

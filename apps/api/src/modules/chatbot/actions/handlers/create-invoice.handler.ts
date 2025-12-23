@@ -105,6 +105,7 @@ export class CreateInvoiceHandler extends BaseActionHandler {
 
       // Build invoice DTO
       const invoiceDto: CreateInvoiceDto = {
+        type: 'STANDARD', // Default to STANDARD type
         customerId: normalized.customerId,
         customerName: normalized.customerName,
         customerEmail: normalized.customerEmail,
@@ -116,7 +117,7 @@ export class CreateInvoiceHandler extends BaseActionHandler {
             description: normalized.description,
             quantity: 1,
             unitPrice: normalized.amount,
-            vatRate: normalized.vatRate || 19,
+            taxRate: normalized.vatRate || 19,
             sortOrder: 0,
           },
         ],

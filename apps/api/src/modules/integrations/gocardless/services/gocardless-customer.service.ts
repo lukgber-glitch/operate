@@ -1,5 +1,5 @@
 import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { GoCardlessService } from '../gocardless.service';
 import { GoCardlessAuthService } from './gocardless-auth.service';
 import { GoCardlessCustomerBankAccount } from '../gocardless.types';

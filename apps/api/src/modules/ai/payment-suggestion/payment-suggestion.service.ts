@@ -15,7 +15,7 @@ export interface PaymentSuggestion {
       id: string;
       name: string;
       email: string | null;
-      paymentTerms: string | null;
+      paymentTerms: number;
     } | null;
   };
   priority: 'URGENT' | 'HIGH' | 'MEDIUM' | 'LOW';
@@ -345,7 +345,7 @@ export class PaymentSuggestionService {
         id: string;
         name: string;
         email: string | null;
-        paymentTerms: string | null;
+        paymentTerms: number;
       } | null;
     },
     today: Date,

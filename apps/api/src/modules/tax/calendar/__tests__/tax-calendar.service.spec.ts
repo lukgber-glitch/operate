@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TaxCalendarService } from '../tax-calendar.service';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 
 describe('TaxCalendarService', () => {
   let service: TaxCalendarService;

@@ -9,7 +9,7 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { DatevImportParserService } from './datev-import-parser.service';
 import { DatevImportMapperService } from './datev-import-mapper.service';
 import {

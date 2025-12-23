@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { BaseSuggestionGenerator } from './base.generator';
 import {
   GeneratorResult,
@@ -30,9 +30,9 @@ export class TaxSuggestionsGenerator extends BaseSuggestionGenerator {
 
     try {
       // Get organization details for country-specific rules
-      const org = await this.prisma.organization.findUnique({
+      const org = await this.prisma.organisation.findUnique({
         where: { id: context.orgId },
-        select: { country: true, taxRegime: true },
+        select: { country: true },
       });
 
       if (!org) {

@@ -576,10 +576,13 @@ export class GoBDComplianceReportService {
    * Check retention policy compliance
    */
   private async checkRetentionPolicy(tenantId: string): Promise<ComplianceCheck> {
-    const violations = await this.retentionPolicy.findRetentionViolations(tenantId);
+    const expiredDocs = await this.retentionPolicy.getExpiredDocuments(tenantId);
     const total = await this.prisma.archivedDocument.count({
       where: { organisationId: tenantId },
     });
+
+    // Count expired documents that can be deleted (not on hold, past grace period)
+    const violations = expiredDocs.filter(doc => doc.canDelete && !doc.hasLegalHold);
 
     const score = total > 0 ? Math.round(((total - violations.length) / total) * 100) : 100;
     const status = violations.length === 0 ? ComplianceCheckStatus.PASSED : ComplianceCheckStatus.WARNING;
@@ -593,6 +596,7 @@ export class GoBDComplianceReportService {
       weight: this.CHECK_WEIGHTS[ComplianceCheckType.RETENTION_POLICY],
       details: {
         totalDocuments: total,
+        expiredDocuments: expiredDocs.length,
         violations: violations.length,
       },
       checkedAt: new Date(),
@@ -679,11 +683,9 @@ export class GoBDComplianceReportService {
    * Check access control (RBAC)
    */
   private async checkAccessControl(tenantId: string): Promise<ComplianceCheck> {
-    const users = await this.prisma.user.count({
+    const users = await this.prisma.membership.count({
       where: {
-        organisations: {
-          some: { id: tenantId },
-        },
+        orgId: tenantId,
       },
     });
 

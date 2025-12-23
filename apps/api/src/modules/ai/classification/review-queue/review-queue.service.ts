@@ -4,7 +4,7 @@
  */
 
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
+import { PrismaService } from '@/modules/database/prisma.service';
 import { ClassificationResult } from '@operate/ai';
 
 export enum ReviewStatus {
