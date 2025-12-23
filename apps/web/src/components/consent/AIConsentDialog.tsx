@@ -65,7 +65,7 @@ export function AIConsentDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-2xl w-[calc(100vw-2rem)] sm:w-full flex flex-col overflow-hidden" style={{ maxHeight: 'min(85vh, 700px)' }}
+        className="max-w-2xl w-[calc(100vw-2rem)] sm:w-full flex flex-col overflow-hidden max-h-[calc(100vh-4rem)] sm:max-h-[min(85vh,700px)]"
         aria-describedby="ai-consent-description"
       >
         <DialogHeader className="flex-shrink-0 pb-2">
@@ -88,7 +88,7 @@ export function AIConsentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 min-h-0 pr-4 overflow-y-auto">
+        <ScrollArea className="flex-1 min-h-0 max-h-[50vh] pr-4">
           <div className="space-y-6">
             {/* What is AI Processing */}
             <section>
