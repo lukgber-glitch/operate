@@ -46,12 +46,12 @@ export function MobileNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-slate-200 bg-white px-4 py-2 dark:border-slate-800 dark:bg-slate-900 lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-white/10 bg-slate-900/95 backdrop-blur-sm px-4 py-2 lg:hidden">
       {/* Active indicator background */}
       {activeIndex !== -1 && (
         <motion.div
           layoutId="mobile-nav-indicator"
-          className="absolute inset-x-0 bottom-0 mx-auto h-1 bg-slate-900 dark:bg-white"
+          className="absolute inset-x-0 bottom-0 mx-auto h-1 bg-primary"
           style={{
             width: `${100 / mobileNavItems.length}%`,
             left: `${(activeIndex * 100) / mobileNavItems.length}%`,
@@ -71,8 +71,8 @@ export function MobileNav() {
               className={cn(
                 'flex flex-col items-center justify-center gap-1 rounded-md px-3 py-2 text-xs font-medium transition-colors min-h-[48px] min-w-[48px]',
                 isActive
-                  ? 'text-slate-900 dark:text-white'
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                  ? 'text-white'
+                  : 'text-white/60 hover:text-white'
               )}
             >
               <motion.div

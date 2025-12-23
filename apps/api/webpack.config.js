@@ -78,5 +78,10 @@ module.exports = function (options) {
       maxEntrypointSize: 512000,
       maxAssetSize: 512000,
     },
+    // Disable type checker plugin during build (run typecheck separately)
+    // This avoids memory issues and allows faster builds
+    plugins: [
+      ...(options.plugins || []).filter(p => p.constructor.name !== 'ForkTsCheckerWebpackPlugin'),
+    ],
   };
 };

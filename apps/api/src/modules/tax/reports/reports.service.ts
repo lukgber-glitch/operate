@@ -62,7 +62,7 @@ export class ReportsService {
           status: true,
         },
       }),
-      this.prisma.vATReturn.findMany({
+      this.prisma.vatReturn.findMany({
         where: {
           orgId,
           year: yearNum,
@@ -400,7 +400,7 @@ export class ReportsService {
     }
 
     // Check for unfiled VAT returns
-    const unfiledVAT = await this.prisma.vATReturn.count({
+    const unfiledVAT = await this.prisma.vatReturn.count({
       where: {
         orgId,
         status: 'OPEN',

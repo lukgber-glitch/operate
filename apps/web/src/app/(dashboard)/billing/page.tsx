@@ -233,12 +233,12 @@ export default function BillingPage() {
         <motion.div variants={fadeUp} className="lg:col-span-2 space-y-6">
           {/* Billing Cycle Toggle */}
           <div className="flex justify-center">
-            <div className="inline-flex rounded-[16px] bg-gray-100 p-1 dark:bg-gray-800">
+            <div className="inline-flex rounded-[16px] bg-slate-800/50 p-1">
               <button
                 onClick={() => setBillingCycle('monthly')}
                 className={`px-6 py-2 rounded-[12px] text-sm font-medium transition-all ${
                   billingCycle === 'monthly'
-                    ? 'bg-white shadow text-primary dark:bg-gray-900'
+                    ? 'bg-slate-700 shadow text-white'
                     : 'text-white/70 hover:text-white'
                 }`}
               >
@@ -248,7 +248,7 @@ export default function BillingPage() {
                 onClick={() => setBillingCycle('yearly')}
                 className={`px-6 py-2 rounded-[12px] text-sm font-medium transition-all ${
                   billingCycle === 'yearly'
-                    ? 'bg-white shadow text-primary dark:bg-gray-900'
+                    ? 'bg-slate-700 shadow text-white'
                     : 'text-white/70 hover:text-white'
                 }`}
               >

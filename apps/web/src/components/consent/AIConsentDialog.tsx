@@ -65,7 +65,7 @@ export function AIConsentDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-2xl w-[calc(100vw-2rem)] sm:w-full max-h-[calc(100vh-4rem)] sm:max-h-[calc(100vh-6rem)] flex flex-col overflow-hidden"
+        className="max-w-2xl w-[calc(100vw-2rem)] sm:w-full flex flex-col overflow-hidden" style={{ maxHeight: 'min(85vh, 700px)' }}
         aria-describedby="ai-consent-description"
       >
         <DialogHeader className="flex-shrink-0 pb-2">

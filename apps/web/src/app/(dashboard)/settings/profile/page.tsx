@@ -112,7 +112,7 @@ export default function ProfileSettingsPage() {
             </Avatar>
             <div className="space-y-2">
               <Label htmlFor="avatar-upload" className="cursor-pointer">
-                <div className="flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 hover:bg-accent hover:text-accent-foreground">
+                <div className="flex items-center gap-2 rounded-md border border-white/20 bg-slate-800/50 px-4 py-2 hover:bg-slate-700/50 text-white">
                   <Camera className="h-4 w-4" />
                   <span className="text-sm font-medium">Upload Photo</span>
                 </div>

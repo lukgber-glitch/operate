@@ -797,7 +797,7 @@ export class TimeTrackingService {
       'Amount',
     ];
 
-    const rows = entries.map((entry) => {
+    const rows = entries.data.map((entry) => {
       const duration = entry.duration ? (entry.duration / 60).toFixed(2) : '0.00';
       const rate = entry.hourlyRate ? entry.hourlyRate.toNumber() : '';
       const amount =

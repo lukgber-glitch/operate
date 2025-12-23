@@ -438,16 +438,16 @@ export default function AutomationSettingsPage() {
 
       {/* Additional Info */}
       <motion.div variants={fadeUp}>
-        <GlassCard className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950">
+        <GlassCard className="border-amber-400/30 bg-amber-900/30">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-            <CardTitle className="text-base text-amber-900 dark:text-amber-100">
+            <AlertCircle className="h-5 w-5 text-amber-400" />
+            <CardTitle className="text-base text-amber-200">
               Important Notes
             </CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-amber-800 dark:text-amber-200">
+        <CardContent className="space-y-2 text-sm text-amber-100">
           <p>
             • Confidence thresholds determine how certain the AI must be before taking action
           </p>

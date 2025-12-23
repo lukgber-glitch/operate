@@ -191,10 +191,10 @@ export default function CalendarPage() {
                   return (
                     <div
                       key={index}
-                      className={`min-h-[100px] border rounded-lg p-2 ${
+                      className={`min-h-[100px] border border-white/10 rounded-lg p-2 ${
                         day
-                          ? 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors'
-                          : 'bg-gray-50 dark:bg-gray-950'
+                          ? 'bg-slate-800/50 hover:bg-slate-700/50 cursor-pointer transition-colors'
+                          : 'bg-slate-900/30'
                       } ${today ? 'ring-2 ring-primary' : ''}`}
                     >
                       {day && (

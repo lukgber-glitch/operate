@@ -225,7 +225,7 @@ export default function ContractDetailPage() {
                   <p className="text-sm text-muted-foreground mb-2">
                     Signature
                   </p>
-                  <div className="border rounded-lg p-4 bg-white dark:bg-gray-950">
+                  <div className="border border-white/20 rounded-lg p-4 bg-slate-800/50">
                     <img
                       src={contract.signatureUrl}
                       alt="Signature"

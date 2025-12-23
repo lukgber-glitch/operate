@@ -47,7 +47,7 @@ export class VatService {
       where.year = yearNum;
     }
 
-    const periods = await this.prisma.vATReturn.findMany({
+    const periods = await this.prisma.vatReturn.findMany({
       where,
       orderBy: {
         startDate: 'desc',
@@ -83,7 +83,7 @@ export class VatService {
   async getCurrentVatPeriod(orgId: string) {
     const now = new Date();
 
-    const period = await this.prisma.vATReturn.findFirst({
+    const period = await this.prisma.vatReturn.findFirst({
       where: {
         orgId,
         startDate: {
@@ -122,7 +122,7 @@ export class VatService {
    * Get VAT period by ID
    */
   async getVatPeriodById(orgId: string, id: string) {
-    const period = await this.prisma.vATReturn.findFirst({
+    const period = await this.prisma.vatReturn.findFirst({
       where: {
         id,
         orgId,
@@ -156,7 +156,7 @@ export class VatService {
    * Get VAT transactions for a period
    */
   async getVatTransactions(orgId: string, periodId: string) {
-    const period = await this.prisma.vATReturn.findFirst({
+    const period = await this.prisma.vatReturn.findFirst({
       where: {
         id: periodId,
         orgId,
@@ -250,7 +250,7 @@ export class VatService {
    * File VAT return
    */
   async fileVatReturn(orgId: string, periodId: string, userId: string) {
-    const period = await this.prisma.vATReturn.update({
+    const period = await this.prisma.vatReturn.update({
       where: {
         id: periodId,
         orgId,
