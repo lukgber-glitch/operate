@@ -29,6 +29,15 @@ export class ApiClientError extends Error {
   }
 }
 
+/**
+ * Get CSRF token from cookie for Double Submit Cookie pattern
+ */
+function getCsrfToken(): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+  return match ? match[1] : undefined;
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -43,11 +52,16 @@ class ApiClient {
     try {
       const url = endpoint.startsWith('http') ? endpoint : `${this.baseUrl}${endpoint}`;
 
+      // Get CSRF token for state-changing requests
+      const csrfToken = getCsrfToken();
+      const csrfHeader = csrfToken ? { 'x-xsrf-token': csrfToken } : {};
+
       // Use pinned fetch (falls back to standard fetch on web)
       const response = await pinnedFetch(url, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeader,
           ...options.headers,
         },
         credentials: 'include',
