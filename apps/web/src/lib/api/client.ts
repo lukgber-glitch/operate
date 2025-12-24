@@ -62,9 +62,9 @@ class ApiClient {
       }
       // Merge with any custom headers from options
       if (options.headers) {
-        const optHeaders = options.headers as Record<string, string>;
-        Object.keys(optHeaders).forEach(key => {
-          headers[key] = optHeaders[key];
+        const optHeaders = new Headers(options.headers as HeadersInit);
+        optHeaders.forEach((value, key) => {
+          headers[key] = value;
         });
       }
 
