@@ -12,8 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Shield, Brain, Lock, ExternalLink, AlertCircle } from 'lucide-react';
+import { Brain, Shield, Lock, ExternalLink, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface AIConsentDialogProps {
@@ -25,24 +24,7 @@ interface AIConsentDialogProps {
 }
 
 /**
- * AI Consent Dialog Component
- *
- * GDPR & App Store compliant consent dialog for AI data processing.
- *
- * Features:
- * - Clear explanation of AI usage
- * - Data processing transparency
- * - User rights information
- * - Privacy policy links
- * - Accept/Decline options
- * - Mobile-responsive
- * - Accessible (ARIA labels)
- *
- * Compliance:
- * - GDPR Article 7 (Conditions for consent)
- * - GDPR Article 13 (Information to be provided)
- * - Apple App Store Review Guidelines 5.1.2
- * - Google Play User Data Policy
+ * AI Consent Dialog - Simplified and properly constrained
  */
 export function AIConsentDialog({
   open,
@@ -58,207 +40,92 @@ export function AIConsentDialog({
     onAccept();
   };
 
-  const handleDecline = () => {
-    onDecline();
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-xl w-[calc(100vw-2rem)] sm:w-full flex flex-col"
+        className="sm:max-w-lg"
         aria-describedby="ai-consent-description"
       >
-        <DialogHeader className="flex-shrink-0 pb-2 pr-8">
+        <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
-            <div
-              className="p-2 rounded-lg"
-              style={{ background: 'var(--color-accent-light)' }}
-            >
-              <Brain
-                className="h-5 w-5"
-                style={{ color: 'var(--color-primary)' }}
-              />
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Brain className="h-5 w-5 text-primary" />
             </div>
-            <DialogTitle className="text-xl">
-              AI Assistant Data Processing
-            </DialogTitle>
+            <DialogTitle>AI Assistant Data Processing</DialogTitle>
           </div>
-          <DialogDescription id="ai-consent-description" className="text-sm">
+          <DialogDescription id="ai-consent-description">
             Review how we process your data before using AI features
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 min-h-0 overflow-y-auto pr-4">
-          <div className="space-y-6">
-            {/* What is AI Processing */}
-            <section>
-              <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                <Brain className="h-5 w-5" />
-                What is AI Processing?
-              </h3>
-              <p className="text-sm text-muted-foreground mb-2">
-                Operate uses Claude AI by Anthropic to help you manage your
-                business. Our AI assistant can:
-              </p>
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 ml-2">
-                <li>Answer questions about your finances</li>
-                <li>Analyze invoices and transactions</li>
-                <li>Provide business insights and suggestions</li>
-                <li>Help with tax filing and compliance</li>
-                <li>Automate document processing</li>
-              </ul>
-            </section>
+        {/* Scrollable content with fixed max height */}
+        <div className="max-h-[40vh] overflow-y-auto pr-2 space-y-4">
+          <section>
+            <h4 className="font-medium mb-2 flex items-center gap-2">
+              <Brain className="h-4 w-4" /> What AI Can Do
+            </h4>
+            <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
+              <li>Answer questions about your finances</li>
+              <li>Analyze invoices and transactions</li>
+              <li>Provide business insights</li>
+              <li>Help with tax filing</li>
+            </ul>
+          </section>
 
-            {/* Data Processing */}
-            <section>
-              <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                What Data Will Be Processed?
-              </h3>
-              <p className="text-sm text-muted-foreground mb-2">
-                To provide AI assistance, we may process:
-              </p>
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 ml-2">
-                <li>
-                  <strong>Financial data:</strong> Invoices, transactions, bank
-                  statements
-                </li>
-                <li>
-                  <strong>Business data:</strong> Client information, vendor
-                  details
-                </li>
-                <li>
-                  <strong>Documents:</strong> Uploaded receipts, contracts, tax
-                  forms
-                </li>
-                <li>
-                  <strong>Conversations:</strong> Your chat messages with the AI
-                  assistant
-                </li>
-                <li>
-                  <strong>Usage data:</strong> Feature usage, preferences
-                </li>
-              </ul>
-            </section>
+          <section>
+            <h4 className="font-medium mb-2 flex items-center gap-2">
+              <Shield className="h-4 w-4" /> Data We Process
+            </h4>
+            <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
+              <li>Financial data (invoices, transactions)</li>
+              <li>Business data (clients, vendors)</li>
+              <li>Documents you upload</li>
+              <li>Your chat messages</li>
+            </ul>
+          </section>
 
-            {/* Security */}
-            <section>
-              <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                <Lock className="h-5 w-5" />
-                How Is Your Data Protected?
-              </h3>
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 ml-2">
-                <li>All data is encrypted in transit and at rest</li>
-                <li>
-                  AI processing is done by Anthropic (Claude), a trusted AI
-                  provider
-                </li>
-                <li>
-                  Your data is not used to train AI models without explicit
-                  consent
-                </li>
-                <li>
-                  You can request data deletion at any time via Settings
-                </li>
-                <li>We comply with GDPR, CCPA, and other privacy regulations</li>
-              </ul>
-            </section>
+          <section>
+            <h4 className="font-medium mb-2 flex items-center gap-2">
+              <Lock className="h-4 w-4" /> Your Protection
+            </h4>
+            <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
+              <li>Data encrypted in transit and at rest</li>
+              <li>Not used to train AI models</li>
+              <li>Delete your data anytime in Settings</li>
+              <li>GDPR & CCPA compliant</li>
+            </ul>
+          </section>
 
-            {/* User Rights */}
-            <section>
-              <h3 className="font-semibold text-lg mb-3">Your Rights</h3>
-              <p className="text-sm text-muted-foreground">
-                You have the right to:
-              </p>
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 ml-2">
-                <li>
-                  <strong>Opt-out:</strong> Disable AI processing at any time
-                  in Settings
-                </li>
-                <li>
-                  <strong>Access:</strong> Request a copy of your AI-processed
-                  data
-                </li>
-                <li>
-                  <strong>Delete:</strong> Request deletion of your AI data
-                </li>
-                <li>
-                  <strong>Revoke:</strong> Withdraw consent at any time
-                </li>
-              </ul>
-            </section>
-
-            {/* Third-Party Provider */}
-            <section className="pt-2">
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-sm">
-                  AI processing is provided by{' '}
-                  <a
-                    href="https://www.anthropic.com/privacy"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline font-medium"
-                  >
-                    Anthropic
-                  </a>
-                  . Your data may be processed in accordance with their privacy
-                  policy.
-                </AlertDescription>
-              </Alert>
-            </section>
-
-            {/* Privacy Policy Link */}
-            <section className="pt-2 pb-4">
-              <a
-                href="/privacy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline flex items-center gap-1"
-              >
-                Read our full Privacy Policy
-                <ExternalLink className="h-3 w-3" />
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-xs">
+              AI by{' '}
+              <a href="https://anthropic.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">
+                Anthropic
               </a>
-            </section>
-          </div>
-        </ScrollArea>
+              . You can opt-out anytime.
+            </AlertDescription>
+          </Alert>
+        </div>
 
-        <div className="space-y-4 flex-shrink-0 pt-4 border-t">
-          {/* Acknowledgment Checkbox */}
-          <div className="flex items-start gap-3 p-3 sm:p-4 rounded-lg bg-muted">
+        {/* Fixed footer */}
+        <div className="pt-4 border-t space-y-4">
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted">
             <Checkbox
               id="ai-consent-acknowledge"
               checked={hasRead}
               onCheckedChange={(checked) => setHasRead(checked as boolean)}
-              aria-label="I have read and understood the AI data processing information"
             />
-            <div className="flex-1">
-              <Label
-                htmlFor="ai-consent-acknowledge"
-                className="text-sm font-medium cursor-pointer leading-relaxed"
-              >
-                I have read and understood how Operate processes my data using
-                AI technology. I consent to AI processing of my business data
-                as described above.
-              </Label>
-            </div>
+            <Label htmlFor="ai-consent-acknowledge" className="text-sm cursor-pointer">
+              I consent to AI processing of my business data as described above.
+            </Label>
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="ghost"
-              onClick={handleDecline}
-              disabled={isLoading}
-              aria-label="Decline AI processing and continue without AI features"
-            >
+          <DialogFooter>
+            <Button variant="ghost" onClick={onDecline} disabled={isLoading}>
               Decline
             </Button>
-            <Button
-              variant="primary"
-              onClick={handleAccept}
-              disabled={!hasRead || isLoading}
-              aria-label="Accept AI processing and enable AI features"
-            >
+            <Button onClick={handleAccept} disabled={!hasRead || isLoading}>
               {isLoading ? 'Processing...' : 'Accept & Continue'}
             </Button>
           </DialogFooter>
