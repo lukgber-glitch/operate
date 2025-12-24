@@ -54,16 +54,24 @@ class ApiClient {
 
       // Get CSRF token for state-changing requests
       const csrfToken = getCsrfToken();
-      const csrfHeader = csrfToken ? { 'x-xsrf-token': csrfToken } : {};
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (csrfToken) {
+        headers['x-xsrf-token'] = csrfToken;
+      }
+      // Merge with any custom headers from options
+      if (options.headers) {
+        const optHeaders = options.headers as Record<string, string>;
+        Object.keys(optHeaders).forEach(key => {
+          headers[key] = optHeaders[key];
+        });
+      }
 
       // Use pinned fetch (falls back to standard fetch on web)
       const response = await pinnedFetch(url, {
         ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          ...csrfHeader,
-          ...options.headers,
-        },
+        headers,
         credentials: 'include',
       });
 
