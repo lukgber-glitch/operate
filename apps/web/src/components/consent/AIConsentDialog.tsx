@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Brain, Shield, Lock, ExternalLink, AlertCircle } from 'lucide-react';
+import { Brain, Shield, Lock, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface AIConsentDialogProps {
@@ -46,7 +46,7 @@ export function AIConsentDialog({
         className="sm:max-w-lg"
         aria-describedby="ai-consent-description"
       >
-        <DialogHeader>
+        <DialogHeader className="flex-shrink-0">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 rounded-lg bg-primary/10">
               <Brain className="h-5 w-5 text-primary" />
@@ -58,8 +58,8 @@ export function AIConsentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Scrollable content with fixed max height */}
-        <div className="max-h-[40vh] overflow-y-auto pr-2 space-y-4">
+        {/* Scrollable content - shrinks to fit, scrolls if needed */}
+        <div className="flex-1 min-h-0 overflow-y-auto pr-2 space-y-4">
           <section>
             <h4 className="font-medium mb-2 flex items-center gap-2">
               <Brain className="h-4 w-4" /> What AI Can Do
@@ -108,8 +108,8 @@ export function AIConsentDialog({
           </Alert>
         </div>
 
-        {/* Fixed footer */}
-        <div className="pt-4 border-t space-y-4">
+        {/* Fixed footer - never shrinks */}
+        <div className="flex-shrink-0 pt-4 border-t space-y-4">
           <div className="flex items-start gap-3 p-3 rounded-lg bg-muted">
             <Checkbox
               id="ai-consent-acknowledge"
