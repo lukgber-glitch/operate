@@ -12,8 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Brain, Shield, Lock, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Brain, Shield, Lock } from 'lucide-react';
 
 interface AIConsentDialogProps {
   open: boolean;
@@ -24,7 +23,7 @@ interface AIConsentDialogProps {
 }
 
 /**
- * AI Consent Dialog - Simplified and properly constrained
+ * AI Consent Dialog - Compact version that always fits in viewport
  */
 export function AIConsentDialog({
   open,
@@ -43,90 +42,60 @@ export function AIConsentDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-lg"
+        className="sm:max-w-md max-h-[500px]"
         aria-describedby="ai-consent-description"
       >
-        <DialogHeader className="flex-shrink-0">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Brain className="h-5 w-5 text-primary" />
-            </div>
-            <DialogTitle>AI Assistant Data Processing</DialogTitle>
+        <DialogHeader>
+          <div className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-primary" />
+            <DialogTitle className="text-base">AI Data Processing</DialogTitle>
           </div>
-          <DialogDescription id="ai-consent-description">
-            Review how we process your data before using AI features
+          <DialogDescription id="ai-consent-description" className="text-xs">
+            Review before using AI features
           </DialogDescription>
         </DialogHeader>
 
-        {/* Scrollable content - shrinks to fit, scrolls if needed */}
-        <div className="flex-1 min-h-0 overflow-y-auto pr-2 space-y-4">
-          <section>
-            <h4 className="font-medium mb-2 flex items-center gap-2">
-              <Brain className="h-4 w-4" /> What AI Can Do
-            </h4>
-            <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
-              <li>Answer questions about your finances</li>
-              <li>Analyze invoices and transactions</li>
-              <li>Provide business insights</li>
-              <li>Help with tax filing</li>
-            </ul>
-          </section>
-
-          <section>
-            <h4 className="font-medium mb-2 flex items-center gap-2">
-              <Shield className="h-4 w-4" /> Data We Process
-            </h4>
-            <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
-              <li>Financial data (invoices, transactions)</li>
-              <li>Business data (clients, vendors)</li>
-              <li>Documents you upload</li>
-              <li>Your chat messages</li>
-            </ul>
-          </section>
-
-          <section>
-            <h4 className="font-medium mb-2 flex items-center gap-2">
-              <Lock className="h-4 w-4" /> Your Protection
-            </h4>
-            <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
-              <li>Data encrypted in transit and at rest</li>
-              <li>Not used to train AI models</li>
-              <li>Delete your data anytime in Settings</li>
-              <li>GDPR & CCPA compliant</li>
-            </ul>
-          </section>
-
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="text-xs">
-              AI by{' '}
-              <a href="https://anthropic.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">
-                Anthropic
-              </a>
-              . You can opt-out anytime.
-            </AlertDescription>
-          </Alert>
+        {/* Scrollable content - fixed small height */}
+        <div className="max-h-[180px] overflow-y-auto text-sm space-y-2">
+          <div className="flex gap-2">
+            <Brain className="h-4 w-4 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-medium">AI Can:</span> Answer questions, analyze invoices, provide insights
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Shield className="h-4 w-4 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-medium">Data Used:</span> Financial data, documents, chat messages
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Lock className="h-4 w-4 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-medium">Protected:</span> Encrypted, not used for training, GDPR compliant
+            </div>
+          </div>
         </div>
 
-        {/* Fixed footer - never shrinks */}
-        <div className="flex-shrink-0 pt-4 border-t space-y-4">
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted">
+        {/* Footer - always visible */}
+        <div className="pt-3 border-t space-y-3">
+          <div className="flex items-start gap-2 p-2 rounded bg-muted">
             <Checkbox
               id="ai-consent-acknowledge"
               checked={hasRead}
               onCheckedChange={(checked) => setHasRead(checked as boolean)}
             />
-            <Label htmlFor="ai-consent-acknowledge" className="text-sm cursor-pointer">
-              I consent to AI processing of my business data as described above.
+            <Label htmlFor="ai-consent-acknowledge" className="text-xs cursor-pointer leading-tight">
+              I consent to AI processing of my data as described
             </Label>
           </div>
 
-          <DialogFooter>
-            <Button variant="ghost" onClick={onDecline} disabled={isLoading}>
+          <DialogFooter className="gap-2">
+            <Button variant="ghost" size="sm" onClick={onDecline} disabled={isLoading}>
               Decline
             </Button>
-            <Button onClick={handleAccept} disabled={!hasRead || isLoading}>
-              {isLoading ? 'Processing...' : 'Accept & Continue'}
+            <Button size="sm" onClick={handleAccept} disabled={!hasRead || isLoading}>
+              {isLoading ? 'Processing...' : 'Accept'}
             </Button>
           </DialogFooter>
         </div>
