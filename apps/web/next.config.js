@@ -352,6 +352,16 @@ const nextConfig = {
     ];
   },
 
+  // Proxy API requests to backend
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:3001/api/:path*',
+      },
+    ];
+  },
+
   // Image optimization configuration
   images: {
     // Use modern formats for better compression
