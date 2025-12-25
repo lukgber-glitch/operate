@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { api } from '@/lib/api/client';
 
 import { ChatMessage, Message } from './ChatMessage';
 
@@ -58,15 +59,10 @@ export function ChatPanel({ isOpen }: ChatPanelProps) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/v1/chatbot/quick-ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: userMessage.content }),
+      // Use apiClient for CSRF token support
+      const { data } = await api.post<{ content: string }>('/chatbot/quick-ask', {
+        content: userMessage.content
       });
-
-      if (!response.ok) throw new Error('Failed to get response');
-
-      const data = await response.json();
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),

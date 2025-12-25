@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import { api } from '@/lib/api/client';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 import { useSuggestions } from '@/hooks/useSuggestions';
 
@@ -155,18 +156,8 @@ export function ChatContainer({ isOpen, onClose }: ChatContainerProps) {
     setIsLoading(true);
 
     try {
-      // Call API
-      const response = await fetch('/api/v1/chatbot/quick-ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get response');
-      }
-
-      const data = await response.json();
+      // Call API with CSRF token via apiClient
+      const { data } = await api.post<{ content: string }>('/chatbot/quick-ask', { content });
 
       // Update user message status
       setMessages((prev) =>

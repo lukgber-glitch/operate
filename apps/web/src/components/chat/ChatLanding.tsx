@@ -8,6 +8,7 @@ import { useAIConsent } from '@/hooks/useAIConsent';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { api } from '@/lib/api/client';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { SuggestionPills } from './SuggestionPills';
@@ -176,20 +177,31 @@ export function ChatLanding({ className }: ChatLandingProps) {
       setInputValue('');
 
       try {
-        const response = await fetch(
-          `/api/v1/chatbot/conversations/${conversationId}/messages`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ content }),
-          }
+        // Use apiClient for CSRF token support
+        interface MessageResponse {
+          id: string;
+          content: string;
+          createdAt?: string;
+          actionType?: string;
+          actionParams?: Record<string, unknown>;
+          actionResult?: {
+            success: boolean;
+            message: string;
+            entityId?: string;
+            entityType?: string;
+            data?: unknown;
+          };
+          actionStatus?: string;
+        }
+        const { data } = await api.post<MessageResponse[]>(
+          `/chatbot/conversations/${conversationId}/messages`,
+          { content }
         );
+        const [userResp, assistantResp] = data || [];
 
-        if (!response.ok) throw new Error('Failed to send message');
-
-        const data = await response.json();
-        const [userResp, assistantResp] = data;
+        if (!userResp || !assistantResp) {
+          throw new Error('Invalid response from server');
+        }
 
         // Update user message
         setMessages((prev) =>
@@ -207,7 +219,7 @@ export function ChatLanding({ className }: ChatLandingProps) {
           conversationId,
           role: 'assistant',
           content: assistantResp.content,
-          timestamp: new Date(assistantResp.createdAt),
+          timestamp: assistantResp.createdAt ? new Date(assistantResp.createdAt) : new Date(),
           status: 'sent',
           metadata: {
             actionType: assistantResp.actionType,
