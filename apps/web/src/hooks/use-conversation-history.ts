@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { ChatConversation, ChatMessage } from '@/types/chat';
+import { api } from '@/lib/api/client';
 
 /**
  * useConversationHistory - Hook for managing conversation history
@@ -31,33 +32,28 @@ export function useConversationHistory() {
 
   const loadConversations = async () => {
     try {
-      // Try to fetch from backend first - OPTIMIZED: Only fetch metadata, not full messages
-      const response = await fetch('/api/v1/chatbot/conversations?limit=20&includeMessages=false', {
-        credentials: 'include',
-      });
+      // Try to fetch from backend first - OPTIMIZED: Only fetch metadata, not full messages (use apiClient for consistency)
+      const { data: rawData } = await api.get<{
+        data?: { conversations?: unknown[] };
+        conversations?: unknown[];
+      }>('/chatbot/conversations', { params: { limit: 20, includeMessages: false } });
 
-      if (response.ok) {
-        const rawData = await response.json();
-        // Handle wrapped API response {data: {...}, meta: {...}}
-        const data = rawData?.data || rawData;
-        // Ensure conversations is an array
-        const conversationsArray = Array.isArray(data?.conversations)
-          ? data.conversations
-          : Array.isArray(data)
-            ? data
-            : [];
-        const backendConversations = conversationsArray.map((conv: any) => ({
-          id: conv.id,
-          title: conv.title || 'New Conversation',
-          messages: [], // Messages loaded on demand when conversation is opened
-          createdAt: new Date(conv.createdAt),
-          updatedAt: new Date(conv.updatedAt),
-        }));
-        setConversations(backendConversations);
-      } else {
-        // Fallback to localStorage if backend fails
-        loadFromLocalStorage();
-      }
+      // Handle wrapped API response {data: {...}, meta: {...}}
+      const data = rawData?.data || rawData;
+      // Ensure conversations is an array
+      const conversationsArray = Array.isArray(data?.conversations)
+        ? data.conversations
+        : Array.isArray(data)
+          ? data
+          : [];
+      const backendConversations = conversationsArray.map((conv: any) => ({
+        id: conv.id,
+        title: conv.title || 'New Conversation',
+        messages: [], // Messages loaded on demand when conversation is opened
+        createdAt: new Date(conv.createdAt),
+        updatedAt: new Date(conv.updatedAt),
+      }));
+      setConversations(backendConversations);
     } catch (error) {
       // Fallback to localStorage on API error
       loadFromLocalStorage();
@@ -101,32 +97,29 @@ export function useConversationHistory() {
     const title = firstMessage ? generateTitle(firstMessage.content) : 'New Conversation';
 
     try {
-      // Try to create on backend first
-      const response = await fetch('/api/v1/chatbot/conversations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ title }),
+      // Try to create on backend first (use apiClient for CSRF token)
+      const { data } = await api.post<{
+        id: string;
+        title: string;
+        createdAt: string;
+        updatedAt: string;
+      }>('/chatbot/conversations', { title });
+
+      const newConversation: ChatConversation = {
+        id: data.id,
+        title: data.title || title,
+        messages: firstMessage ? [firstMessage] : [],
+        createdAt: new Date(data.createdAt),
+        updatedAt: new Date(data.updatedAt),
+      };
+
+      setConversations((prev) => {
+        const updated = [newConversation, ...prev].slice(0, MAX_CONVERSATIONS);
+        return updated;
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        const newConversation: ChatConversation = {
-          id: data.id,
-          title: data.title || title,
-          messages: firstMessage ? [firstMessage] : [],
-          createdAt: new Date(data.createdAt),
-          updatedAt: new Date(data.updatedAt),
-        };
-
-        setConversations((prev) => {
-          const updated = [newConversation, ...prev].slice(0, MAX_CONVERSATIONS);
-          return updated;
-        });
-
-        setActiveConversationId(newConversation.id);
-        return newConversation;
-      }
+      setActiveConversationId(newConversation.id);
+      return newConversation;
     } catch (error) {
       // Fallback to local-only conversation
     }
@@ -193,11 +186,8 @@ export function useConversationHistory() {
   // Delete a conversation
   const deleteConversation = useCallback(async (conversationId: string) => {
     try {
-      // Try to delete on backend
-      await fetch(`/api/v1/chatbot/conversations/${conversationId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
+      // Try to delete on backend (use apiClient for CSRF token)
+      await api.delete(`/chatbot/conversations/${conversationId}`);
     } catch (error) {
       // Continue with local deletion
     }

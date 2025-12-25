@@ -55,7 +55,8 @@ export default () => ({
   },
 
   redis: {
-    host: process.env.REDIS_HOST || 'localhost',
+    enabled: process.env.REDIS_ENABLED !== 'false', // Default to true if REDIS_HOST is set
+    host: process.env.REDIS_HOST,
     port: parseInt(process.env.REDIS_PORT || '6379', 10),
     username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASSWORD,

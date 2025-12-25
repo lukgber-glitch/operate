@@ -97,6 +97,43 @@ test.describe.serial('Full Application E2E Tests', () => {
     await page.screenshot({ path: 'test-results/01-after-login.png' });
 
     console.log(`[LOGIN] Redirected to: ${page.url()}`);
+
+    // If landed on onboarding, complete minimal onboarding to access main app
+    if (page.url().includes('/onboarding')) {
+      console.log('[LOGIN] On onboarding page, completing onboarding...');
+
+      // Click "Get Started" to proceed
+      const getStartedBtn = page.locator('button:has-text("Get Started")');
+      if (await getStartedBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await getStartedBtn.click();
+        await page.waitForTimeout(2000);
+        console.log('[LOGIN] Clicked Get Started');
+      }
+
+      // If still on onboarding, try to find skip or continue buttons
+      for (let i = 0; i < 5; i++) {
+        if (!page.url().includes('/onboarding')) break;
+
+        // Try various buttons to progress through onboarding
+        const skipBtn = page.locator('button:has-text("Skip"), button:has-text("Continue"), button:has-text("Next"), button:has-text("Finish")').first();
+        if (await skipBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+          await skipBtn.click();
+          await page.waitForTimeout(1500);
+          console.log(`[LOGIN] Clicked progress button, now at: ${page.url()}`);
+        } else {
+          break;
+        }
+      }
+
+      // Final attempt: force navigate to chat if still stuck
+      if (page.url().includes('/onboarding')) {
+        console.log('[LOGIN] Still on onboarding, force navigating to /chat');
+        await page.evaluate(() => window.location.href = '/chat');
+        await page.waitForTimeout(3000);
+      }
+
+      console.log(`[LOGIN] Final URL: ${page.url()}`);
+    }
   });
 
   test('2. Handle AI consent dialog if shown', async () => {

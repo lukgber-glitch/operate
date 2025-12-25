@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useToast } from '@/components/ui/use-toast';
+import { api } from '@/lib/api/client';
 
 // Types
 export interface AutopilotConfig {
@@ -92,68 +93,29 @@ export interface AutopilotActionFilters {
 }
 
 class AutopilotApi {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
-
   /**
-   * Get organisation ID from auth context
-   * First tries window.__orgId, then falls back to parsing JWT from cookie
+   * Make API request using apiClient for CSRF support
+   * Backend autopilot endpoints are at /autopilot/* (not /organisations/{id}/autopilot/*)
    */
-  private getOrgId(): string {
-    if (typeof window !== 'undefined') {
-      // First try window.__orgId (set by useAuth)
-      if ((window as any).__orgId) {
-        return (window as any).__orgId;
-      }
-
-      // Fallback: try to parse from cookie
-      const authCookie = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('op_auth='));
-
-      if (authCookie) {
-        try {
-          const authValue = decodeURIComponent(authCookie.split('=')[1] || '');
-          const authData = JSON.parse(authValue);
-
-          // Parse JWT to extract orgId
-          if (authData.a) {
-            const payload = JSON.parse(atob(authData.a.split('.')[1]));
-            if (payload.orgId) {
-              return payload.orgId;
-            }
-          }
-        } catch (e) {
-          console.warn('[AutopilotAPI] Failed to parse auth cookie:', e);
-        }
-      }
-    }
-    return '';
-  }
-
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: { method?: string; body?: any } = {}
   ): Promise<T> {
-    const orgId = this.getOrgId();
-    const url = `${this.baseUrl}/organisations/${orgId}/autopilot${endpoint}`;
+    const url = `/autopilot${endpoint}`;
 
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: 'An error occurred',
-      }));
-      throw new Error(error.message || `HTTP ${response.status}`);
+    if (options.method === 'POST') {
+      const { data } = await api.post<T>(url, options.body);
+      return data;
+    } else if (options.method === 'PATCH') {
+      const { data } = await api.patch<T>(url, options.body);
+      return data;
+    } else if (options.method === 'DELETE') {
+      const { data } = await api.delete<T>(url);
+      return data;
+    } else {
+      const { data } = await api.get<T>(url);
+      return data;
     }
-
-    return response.json();
   }
 
   async getConfig(): Promise<AutopilotConfig> {

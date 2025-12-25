@@ -165,16 +165,40 @@ export function useNotifications() {
     },
   })
 
-  // Fetch preferences
+  // Default preferences when endpoint doesn't exist
+  const defaultChannel = { inApp: true, email: true, push: true }
+  const defaultPreferences: NotificationPreferences = {
+    doNotDisturb: false,
+    quietHoursStart: '22:00',
+    quietHoursEnd: '08:00',
+    INVOICE_DUE: defaultChannel,
+    PAYMENT_RECEIVED: defaultChannel,
+    TASK_ASSIGNED: defaultChannel,
+    DOCUMENT_CLASSIFIED: defaultChannel,
+    TAX_DEADLINE: defaultChannel,
+    SYSTEM_UPDATE: defaultChannel,
+    SYSTEM: defaultChannel,
+  }
+
+  // Fetch preferences - returns defaults if endpoint doesn't exist
   const { data: preferences } = useQuery<NotificationPreferences>({
     queryKey: ['notification-preferences'],
     queryFn: async () => {
-      const response = await axios.get(`${API_BASE_URL}/notifications/preferences`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
-      return response.data
+      try {
+        const response = await axios.get(`${API_BASE_URL}/notifications/preferences`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        })
+        return response.data
+      } catch (error: any) {
+        // Return defaults if endpoint doesn't exist (404)
+        if (error?.response?.status === 404) {
+          console.debug('[Notifications] Preferences endpoint not available, using defaults')
+          return defaultPreferences
+        }
+        throw error
+      }
     },
   })
 

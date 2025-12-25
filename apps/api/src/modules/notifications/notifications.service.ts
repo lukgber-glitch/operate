@@ -11,6 +11,11 @@ import {
   NotificationResponseDto,
   UnreadCountDto,
 } from './dto/notification-filter.dto';
+import {
+  NotificationPreferencesDto,
+  UpdateNotificationPreferencesDto,
+  NotificationChannelSettings,
+} from './dto/notification-preferences.dto';
 
 /**
  * Notifications Service
@@ -268,5 +273,171 @@ export class NotificationsService {
       count: result.count,
       deleted: ids, // Return all requested IDs
     };
+  }
+
+  /**
+   * Get default channel preferences
+   * Returns sensible defaults for all notification types
+   */
+  private getDefaultChannelPreferences(): Record<
+    string,
+    NotificationChannelSettings
+  > {
+    const defaultSettings: NotificationChannelSettings = {
+      inApp: true,
+      email: true,
+      push: true,
+    };
+
+    return {
+      INVOICE_DUE: { ...defaultSettings },
+      PAYMENT_RECEIVED: { ...defaultSettings },
+      TASK_ASSIGNED: { ...defaultSettings },
+      DOCUMENT_CLASSIFIED: { inApp: true, email: false, push: false },
+      TAX_DEADLINE: { ...defaultSettings },
+      SYSTEM_UPDATE: { inApp: true, email: false, push: false },
+      SYSTEM: { inApp: true, email: false, push: false },
+    };
+  }
+
+  /**
+   * Get notification preferences for a user
+   * Returns defaults if no preferences exist
+   */
+  async getNotificationPreferences(
+    userId: string,
+    orgId: string,
+  ): Promise<NotificationPreferencesDto> {
+    try {
+      // Try to find existing preferences
+      let preferences = await this.prisma.notificationPreferences.findUnique({
+        where: { userId },
+      });
+
+      // If no preferences exist, create default ones
+      if (!preferences) {
+        this.logger.log(
+          `No preferences found for user ${userId}, creating defaults`,
+        );
+
+        preferences = await this.prisma.notificationPreferences.create({
+          data: {
+            userId,
+            orgId,
+            doNotDisturb: false,
+            quietHoursStart: null,
+            quietHoursEnd: null,
+            channelPreferences: this.getDefaultChannelPreferences() as any,
+          },
+        });
+      }
+
+      this.logger.log(`Retrieved notification preferences for user ${userId}`);
+
+      return {
+        id: preferences.id,
+        userId: preferences.userId,
+        orgId: preferences.orgId,
+        doNotDisturb: preferences.doNotDisturb,
+        quietHoursStart: preferences.quietHoursStart || undefined,
+        quietHoursEnd: preferences.quietHoursEnd || undefined,
+        channelPreferences: preferences.channelPreferences as any,
+        createdAt: preferences.createdAt,
+        updatedAt: preferences.updatedAt,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Failed to get notification preferences for user ${userId}`,
+        error,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Update notification preferences for a user
+   */
+  async updateNotificationPreferences(
+    userId: string,
+    orgId: string,
+    updateDto: UpdateNotificationPreferencesDto,
+  ): Promise<NotificationPreferencesDto> {
+    try {
+      // First, try to find existing preferences
+      let preferences = await this.prisma.notificationPreferences.findUnique({
+        where: { userId },
+      });
+
+      // Prepare update data
+      const updateData: any = {};
+
+      if (updateDto.doNotDisturb !== undefined) {
+        updateData.doNotDisturb = updateDto.doNotDisturb;
+      }
+
+      if (updateDto.quietHoursStart !== undefined) {
+        updateData.quietHoursStart = updateDto.quietHoursStart;
+      }
+
+      if (updateDto.quietHoursEnd !== undefined) {
+        updateData.quietHoursEnd = updateDto.quietHoursEnd;
+      }
+
+      if (updateDto.channelPreferences !== undefined) {
+        // Merge with existing preferences
+        const existingPrefs = preferences
+          ? (preferences.channelPreferences as any)
+          : this.getDefaultChannelPreferences();
+
+        updateData.channelPreferences = {
+          ...existingPrefs,
+          ...updateDto.channelPreferences,
+        };
+      }
+
+      // Update or create preferences
+      if (preferences) {
+        preferences = await this.prisma.notificationPreferences.update({
+          where: { userId },
+          data: updateData,
+        });
+
+        this.logger.log(`Updated notification preferences for user ${userId}`);
+      } else {
+        // Create new preferences with defaults + updates
+        preferences = await this.prisma.notificationPreferences.create({
+          data: {
+            userId,
+            orgId,
+            doNotDisturb: updateData.doNotDisturb ?? false,
+            quietHoursStart: updateData.quietHoursStart ?? null,
+            quietHoursEnd: updateData.quietHoursEnd ?? null,
+            channelPreferences:
+              (updateData.channelPreferences ??
+              this.getDefaultChannelPreferences()) as any,
+          },
+        });
+
+        this.logger.log(`Created notification preferences for user ${userId}`);
+      }
+
+      return {
+        id: preferences.id,
+        userId: preferences.userId,
+        orgId: preferences.orgId,
+        doNotDisturb: preferences.doNotDisturb,
+        quietHoursStart: preferences.quietHoursStart || undefined,
+        quietHoursEnd: preferences.quietHoursEnd || undefined,
+        channelPreferences: preferences.channelPreferences as any,
+        createdAt: preferences.createdAt,
+        updatedAt: preferences.updatedAt,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Failed to update notification preferences for user ${userId}`,
+        error,
+      );
+      throw error;
+    }
   }
 }

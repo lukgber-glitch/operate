@@ -3338,6 +3338,28 @@ model Notification {
   @@index([userId, orgId, status, createdAt])
 }
 
+model NotificationPreferences {
+  id     String @id @default(uuid())
+  userId String @unique
+  orgId  String
+
+  // Do Not Disturb settings
+  doNotDisturb    Boolean @default(false)
+  quietHoursStart String? // HH:mm format, e.g., "22:00"
+  quietHoursEnd   String? // HH:mm format, e.g., "08:00"
+
+  // Channel preferences per notification type
+  // Stored as JSON with structure: { INVOICE_DUE: { inApp: true, email: true, push: false }, ... }
+  channelPreferences Json @default("{}")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([orgId])
+  @@index([userId, orgId])
+}
+
 // ============================================================================
 // CONNECTION HUB MODELS (Phase 1)
 // ============================================================================

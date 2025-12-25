@@ -8,6 +8,7 @@ import { useBankAccounts, useBankTransactions } from '@/hooks/use-banking';
 import { useInvoices } from '@/hooks/use-invoices';
 import { useCurrencyFormat } from '@/hooks/use-currency-format';
 import { useAIConsent } from '@/hooks/useAIConsent';
+import { api } from '@/lib/api/client';
 import { ChatMessage as ChatMessageType } from '@/types/chat';
 import { ExtractionReviewStatus } from '@/types/extracted-invoice';
 import { useRef, useEffect, useState, Suspense, lazy } from 'react';
@@ -186,21 +187,33 @@ function ChatPageContent() {
     setIsLoading(true);
 
     try {
-      // Send message to API using correct backend endpoint
-      const response = await fetch(`/api/v1/chatbot/conversations/${conversationId}/messages`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ content }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send message');
+      // Send message to API using apiClient for CSRF support
+      interface MessageResponse {
+        id: string;
+        content: string;
+        createdAt?: string;
+        actionType?: string;
+        actionParams?: Record<string, unknown>;
+        actionResult?: {
+          success: boolean;
+          message: string;
+          entityId?: string;
+          entityType?: string;
+          data?: unknown;
+        };
+        actionStatus?: string;
       }
+      const { data } = await api.post<MessageResponse[]>(
+        `/chatbot/conversations/${conversationId}/messages`,
+        { content }
+      );
 
-      const data = await response.json();
       // Backend returns array of [userMessage, assistantMessage]
-      const [userResp, assistantResp] = data;
+      const [userResp, assistantResp] = data || [];
+
+      if (!userResp || !assistantResp) {
+        throw new Error('Invalid response from server');
+      }
 
       // Update user message status
       const sentUserMessage = { ...userMessage, status: 'sent' as const, id: userResp.id };
@@ -217,7 +230,7 @@ function ChatPageContent() {
         conversationId,
         role: 'assistant',
         content: assistantResp.content,
-        timestamp: new Date(assistantResp.createdAt),
+        timestamp: assistantResp.createdAt ? new Date(assistantResp.createdAt) : new Date(),
         status: 'sent',
         metadata: {
           actionType: assistantResp.actionType,

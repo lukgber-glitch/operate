@@ -26,6 +26,10 @@ import {
   NotificationResponseDto,
   UnreadCountDto,
 } from './dto/notification-filter.dto';
+import {
+  NotificationPreferencesDto,
+  UpdateNotificationPreferencesDto,
+} from './dto/notification-preferences.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 /**
@@ -276,5 +280,96 @@ export class NotificationsController {
   ): Promise<{ count: number; deleted: string[] }> {
     const { userId, orgId } = req.user as any;
     return this.notificationsService.batchDelete(body.ids, userId, orgId);
+  }
+
+  /**
+   * Get notification preferences
+   */
+  @Get('preferences')
+  @ApiOperation({
+    summary: 'Get notification preferences',
+    description: "Get the user's notification preferences (returns defaults if none exist)",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Notification preferences retrieved successfully',
+    type: NotificationPreferencesDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  async getPreferences(@Req() req: Request): Promise<NotificationPreferencesDto> {
+    const { userId, orgId } = req.user as any;
+    return this.notificationsService.getNotificationPreferences(userId, orgId);
+  }
+
+  /**
+   * Update notification preferences
+   */
+  @Patch('preferences')
+  @ApiOperation({
+    summary: 'Update notification preferences',
+    description: 'Update the user\'s notification preferences',
+  })
+  @ApiBody({
+    type: UpdateNotificationPreferencesDto,
+    description: 'Notification preferences to update',
+    examples: {
+      doNotDisturb: {
+        value: {
+          doNotDisturb: true,
+        },
+        description: 'Enable Do Not Disturb mode',
+      },
+      quietHours: {
+        value: {
+          quietHoursStart: '22:00',
+          quietHoursEnd: '08:00',
+        },
+        description: 'Set quiet hours',
+      },
+      channelPreferences: {
+        value: {
+          channelPreferences: {
+            INVOICE_DUE: {
+              inApp: true,
+              email: true,
+              push: false,
+            },
+            SYSTEM: {
+              inApp: true,
+              email: false,
+              push: false,
+            },
+          },
+        },
+        description: 'Update channel preferences for specific notification types',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Notification preferences updated successfully',
+    type: NotificationPreferencesDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request data',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  async updatePreferences(
+    @Req() req: Request,
+    @Body() updateDto: UpdateNotificationPreferencesDto,
+  ): Promise<NotificationPreferencesDto> {
+    const { userId, orgId } = req.user as any;
+    return this.notificationsService.updateNotificationPreferences(
+      userId,
+      orgId,
+      updateDto,
+    );
   }
 }

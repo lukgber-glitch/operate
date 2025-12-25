@@ -56,8 +56,8 @@ export class CacheInterceptor implements NestInterceptor {
       );
     }
 
-    // Skip caching if no cache key is set
-    if (!cacheKey) {
+    // Skip caching if no cache key is set or Redis is not connected
+    if (!cacheKey || !this.redisService.isRedisConnected()) {
       return next.handle();
     }
 

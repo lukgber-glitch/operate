@@ -68,6 +68,7 @@ import { MileageModule } from './modules/mileage/mileage.module';
 import { TimeTrackingModule } from './modules/time-tracking/time-tracking.module';
 import { PaymentSuggestionModule } from './modules/ai/payment-suggestion/payment-suggestion.module';
 import { BillingModule } from './modules/billing/billing.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -197,7 +198,8 @@ import configuration from './config/configuration';
     AnalyticsModule,
     // Health Score module (business health metrics)
     HealthScoreModule,
-
+    // Dashboard module (real-time business metrics widgets)
+    DashboardModule,
 
     // Feature modules
     HealthModule,

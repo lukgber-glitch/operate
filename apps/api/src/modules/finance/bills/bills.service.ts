@@ -622,6 +622,49 @@ export class BillsService {
   }
 
   /**
+   * Get upcoming bills (7-14 days out)
+   */
+  async getUpcoming(organisationId: string, limit: number = 5) {
+    const today = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + 7);
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 14);
+
+    const bills = await this.billsRepository.findAll({
+      where: {
+        organisationId,
+        dueDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+        paymentStatus: { not: PaymentStatus.COMPLETED },
+      },
+      include: {
+        vendor: true,
+      },
+      orderBy: {
+        dueDate: 'asc',
+      },
+      take: limit,
+    });
+
+    // Transform to match required response structure
+    const data = bills.map((bill) => ({
+      id: bill.id,
+      vendorName: bill.vendorName,
+      amount: Number(bill.totalAmount),
+      dueDate: bill.dueDate,
+      status: bill.status,
+    }));
+
+    return {
+      data,
+      total: data.length,
+    };
+  }
+
+  /**
    * Get bill summary statistics
    */
   async getSummary(organisationId: string) {

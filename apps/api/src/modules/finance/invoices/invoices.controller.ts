@@ -116,20 +116,48 @@ export class InvoicesController {
   @RequirePermissions(Permission.INVOICES_READ)
   @ApiOperation({
     summary: 'Get overdue invoices',
-    description: 'Get all invoices past due date',
+    description: 'Get all invoices past due date with limit',
   })
   @ApiParam({
     name: 'orgId',
     description: 'Organisation ID',
     type: 'string',
   })
+  @ApiQuery({
+    name: 'limit',
+    description: 'Maximum number of results',
+    required: false,
+    type: 'number',
+  })
   @ApiResponse({
     status: 200,
     description: 'Overdue invoices retrieved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              clientName: { type: 'string' },
+              amount: { type: 'number' },
+              dueDate: { type: 'string', format: 'date-time' },
+              daysPastDue: { type: 'number' },
+            },
+          },
+        },
+        total: { type: 'number' },
+      },
+    },
   })
-  async getOverdue(@Param('orgId') orgId: string) {
+  async getOverdue(
+    @Param('orgId') orgId: string,
+    @Query('limit') limit?: number,
+  ) {
     try {
-      return await this.invoicesService.getOverdue(orgId);
+      return await this.invoicesService.getOverdue(orgId, limit || 5);
     } catch (error) {
       throw error;
     }

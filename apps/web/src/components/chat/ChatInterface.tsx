@@ -6,6 +6,7 @@ import { useSuggestions, ChatbotSuggestion } from '@/hooks/useSuggestions';
 import { Suggestion, SuggestionType } from '@/types/suggestions';
 import { useConversationHistory } from '@/hooks/use-conversation-history';
 import { useActionExecution } from '@/hooks/useActionExecution';
+import { api } from '@/lib/api/client';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { SuggestionCard } from './SuggestionCard';
@@ -132,21 +133,33 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
     setIsLoading(true);
 
     try {
-      // Send message to API using correct backend endpoint
-      const response = await fetch(`/api/v1/chatbot/conversations/${conversationId}/messages`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ content }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send message');
+      // Send message to API using apiClient for CSRF support
+      interface MessageResponse {
+        id: string;
+        content: string;
+        createdAt?: string;
+        actionType?: string;
+        actionParams?: Record<string, unknown>;
+        actionResult?: {
+          success: boolean;
+          message: string;
+          entityId?: string;
+          entityType?: string;
+          data?: unknown;
+        };
+        actionStatus?: string;
       }
+      const { data } = await api.post<MessageResponse[]>(
+        `/chatbot/conversations/${conversationId}/messages`,
+        { content }
+      );
 
-      const data = await response.json();
       // Backend returns array of [userMessage, assistantMessage]
-      const [userResp, assistantResp] = data;
+      const [userResp, assistantResp] = data || [];
+
+      if (!userResp || !assistantResp) {
+        throw new Error('Invalid response from server');
+      }
 
       // Update user message status
       const sentUserMessage = { ...userMessage, status: 'sent' as const, id: userResp.id };
@@ -163,7 +176,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
         conversationId,
         role: 'assistant',
         content: assistantResp.content,
-        timestamp: new Date(assistantResp.createdAt),
+        timestamp: assistantResp.createdAt ? new Date(assistantResp.createdAt) : new Date(),
         status: 'sent',
         metadata: {
           actionType: assistantResp.actionType,

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { ChatConversation, ChatMessage } from '@/types/chat';
+import { api } from '@/lib/api/client';
 
 /**
  * useConversationHistoryAPI - Hook for managing conversation history with API integration
@@ -43,13 +44,9 @@ export function useConversationHistoryAPI(options: UseConversationHistoryOptions
 
     try {
       setError(null);
-      const response = await fetch('/api/v1/chatbot/conversations?limit=100&offset=0');
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch conversations');
-      }
-
-      const data = await response.json();
+      const { data } = await api.get<any[]>('/chatbot/conversations', {
+        params: { limit: 100, offset: 0 }
+      });
 
       // Transform API response to ChatConversation format
       const apiConversations: ChatConversation[] = data.map((conv: any) => ({
@@ -139,14 +136,14 @@ export function useConversationHistoryAPI(options: UseConversationHistoryOptions
       // Sync to API if enabled
       if (enableSync) {
         try {
-          const response = await fetch('/api/v1/chatbot/conversations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title }),
-          });
+          const { data: apiConversation } = await api.post<{
+            id: string;
+            title: string;
+            createdAt: string;
+            updatedAt: string;
+          }>('/chatbot/conversations', { title });
 
-          if (response.ok) {
-            const apiConversation = await response.json();
+          if (apiConversation) {
             // Update with server ID
             setConversations((prev) =>
               prev.map((conv) =>
@@ -232,10 +229,10 @@ export function useConversationHistoryAPI(options: UseConversationHistoryOptions
       // Sync to API if enabled
       if (enableSync) {
         try {
-          await fetch(`/api/v1/chatbot/conversations/${conversationId}`, {
-            method: 'DELETE',
-          });
-        } catch (error) {        }
+          await api.delete(`/chatbot/conversations/${conversationId}`);
+        } catch (error) {
+          // Silent fail - local state already updated
+        }
       }
 
       // Update localStorage

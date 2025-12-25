@@ -117,10 +117,31 @@ export class InvoicesService {
   }
 
   /**
-   * Get overdue invoices
+   * Get overdue invoices with limit and days past due calculation
    */
-  async getOverdue(orgId: string) {
-    return this.repository.getOverdueInvoices(orgId);
+  async getOverdue(orgId: string, limit: number = 5) {
+    const invoices = await this.repository.getOverdueInvoices(orgId);
+
+    // Calculate days past due for each invoice
+    const today = new Date();
+    const data = invoices.slice(0, limit).map((invoice) => {
+      const dueDate = new Date(invoice.dueDate);
+      const diffTime = today.getTime() - dueDate.getTime();
+      const daysPastDue = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      return {
+        id: invoice.id,
+        clientName: invoice.customerName,
+        amount: Number(invoice.totalAmount),
+        dueDate: invoice.dueDate,
+        daysPastDue: daysPastDue > 0 ? daysPastDue : 0,
+      };
+    });
+
+    return {
+      data,
+      total: data.length,
+    };
   }
 
   /**

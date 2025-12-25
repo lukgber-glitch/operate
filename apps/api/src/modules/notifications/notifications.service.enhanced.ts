@@ -249,8 +249,13 @@ export class NotificationsServiceEnhanced {
       }),
     );
 
+    // Get channel settings for this notification type
+    const typeSettings = preferences.channelPreferences[notification.type];
+    const defaultSettings = { inApp: true, email: true, push: true };
+    const channelSettings = typeSettings || defaultSettings;
+
     // Email
-    if (preferences.channels.email && this.emailService.isEnabled()) {
+    if (channelSettings.email && this.emailService.isEnabled()) {
       promises.push(
         this.emailService.send({
           to: await this.getUserEmail(notification.userId),
@@ -263,7 +268,7 @@ export class NotificationsServiceEnhanced {
     }
 
     // Push
-    if (preferences.channels.push && this.pushService.isEnabled()) {
+    if (channelSettings.push && this.pushService.isEnabled()) {
       promises.push(
         this.pushService.send({
           userId: notification.userId,
@@ -294,42 +299,51 @@ export class NotificationsServiceEnhanced {
       return JSON.parse(typeof cached === 'string' ? cached : JSON.stringify(cached));
     }
 
-    // Get from settings or return defaults
-    const userSettings = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, email: true },
+    // Try to find existing preferences
+    let preferences = await this.prisma.notificationPreferences.findUnique({
+      where: { userId },
     });
 
-    if (!userSettings) {
-      throw new NotFoundException(`User ${userId} not found`);
+    // If no preferences exist, create default ones
+    if (!preferences) {
+      const defaultSettings = { inApp: true, email: true, push: true };
+
+      preferences = await this.prisma.notificationPreferences.create({
+        data: {
+          userId,
+          orgId,
+          doNotDisturb: false,
+          quietHoursStart: null,
+          quietHoursEnd: null,
+          channelPreferences: {
+            INVOICE_DUE: defaultSettings,
+            PAYMENT_RECEIVED: defaultSettings,
+            TASK_ASSIGNED: defaultSettings,
+            DOCUMENT_CLASSIFIED: { inApp: true, email: false, push: false },
+            TAX_DEADLINE: defaultSettings,
+            SYSTEM_UPDATE: { inApp: true, email: false, push: false },
+            SYSTEM: { inApp: true, email: false, push: false },
+          },
+        },
+      });
     }
 
-    // Return default preferences
-    const preferences: NotificationPreferencesDto = {
-      userId,
-      orgId,
-      channels: {
-        email: true,
-        push: true,
-        inApp: true,
-      },
-      types: {
-        invoice_due: true,
-        task_assigned: true,
-        document_classified: true,
-        tax_deadline: true,
-        approval_needed: true,
-        fraud_alert: true,
-        system: true,
-      },
-      doNotDisturb: false,
-      updatedAt: new Date(),
+    const result: NotificationPreferencesDto = {
+      id: preferences.id,
+      userId: preferences.userId,
+      orgId: preferences.orgId,
+      doNotDisturb: preferences.doNotDisturb,
+      quietHoursStart: preferences.quietHoursStart || undefined,
+      quietHoursEnd: preferences.quietHoursEnd || undefined,
+      channelPreferences: preferences.channelPreferences as any,
+      createdAt: preferences.createdAt,
+      updatedAt: preferences.updatedAt,
     };
 
     // Cache for 1 hour
-    await this.cache.set(cacheKey, JSON.stringify(preferences), 3600);
+    await this.cache.set(cacheKey, JSON.stringify(result), 3600);
 
-    return preferences;
+    return result;
   }
 
   /**
@@ -342,27 +356,53 @@ export class NotificationsServiceEnhanced {
   ): Promise<NotificationPreferencesDto> {
     const current = await this.getPreferences(userId, orgId);
 
-    const updated: NotificationPreferencesDto = {
-      ...current,
-      ...updates,
-      channels: {
-        ...current.channels,
-        ...updates.channels,
-      },
-      types: {
-        ...current.types,
-        ...updates.types,
-      },
-      updatedAt: new Date(),
+    // Prepare update data
+    const updateData: any = {};
+
+    if (updates.doNotDisturb !== undefined) {
+      updateData.doNotDisturb = updates.doNotDisturb;
+    }
+
+    if (updates.quietHoursStart !== undefined) {
+      updateData.quietHoursStart = updates.quietHoursStart;
+    }
+
+    if (updates.quietHoursEnd !== undefined) {
+      updateData.quietHoursEnd = updates.quietHoursEnd;
+    }
+
+    if (updates.channelPreferences !== undefined) {
+      updateData.channelPreferences = {
+        ...current.channelPreferences,
+        ...updates.channelPreferences,
+      };
+    }
+
+    // Update in database
+    const preferences = await this.prisma.notificationPreferences.update({
+      where: { userId },
+      data: updateData,
+    });
+
+    const result: NotificationPreferencesDto = {
+      id: preferences.id,
+      userId: preferences.userId,
+      orgId: preferences.orgId,
+      doNotDisturb: preferences.doNotDisturb,
+      quietHoursStart: preferences.quietHoursStart || undefined,
+      quietHoursEnd: preferences.quietHoursEnd || undefined,
+      channelPreferences: preferences.channelPreferences as any,
+      createdAt: preferences.createdAt,
+      updatedAt: preferences.updatedAt,
     };
 
     // Update cache
     const cacheKey = `notification:preferences:${userId}:${orgId}`;
-    await this.cache.set(cacheKey, JSON.stringify(updated), 3600);
+    await this.cache.set(cacheKey, JSON.stringify(result), 3600);
 
     this.logger.log(`Updated notification preferences for user ${userId}`);
 
-    return updated;
+    return result;
   }
 
   /**
@@ -381,10 +421,11 @@ export class NotificationsServiceEnhanced {
       return false;
     }
 
-    // Check type preferences
-    const typeKey = type.toLowerCase();
-    if (typeKey in preferences.types) {
-      return preferences.types[typeKey];
+    // Check channel preferences for this notification type
+    const typeSettings = preferences.channelPreferences[type];
+    if (typeSettings) {
+      // Return true if at least one channel is enabled
+      return typeSettings.inApp || typeSettings.email || typeSettings.push;
     }
 
     return true;

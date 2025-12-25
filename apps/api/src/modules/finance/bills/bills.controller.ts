@@ -18,6 +18,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { BillsService } from './bills.service';
 import { CreateBillDto } from './dto/create-bill.dto';
@@ -140,6 +141,56 @@ export class BillsController {
     @Query('days') days?: number,
   ) {
     return this.billsService.getDueSoon(orgId, days || 7);
+  }
+
+  /**
+   * Get upcoming bills (7-14 days out)
+   */
+  @Get('upcoming')
+  @RequirePermissions(Permission.BILLS_READ)
+  @ApiOperation({
+    summary: 'Get upcoming bills',
+    description: 'Get bills due in next 7-14 days with limit',
+  })
+  @ApiParam({
+    name: 'orgId',
+    description: 'Organisation ID',
+    type: 'string',
+  })
+  @ApiQuery({
+    name: 'limit',
+    description: 'Maximum number of results',
+    required: false,
+    type: 'number',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Upcoming bills retrieved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              vendorName: { type: 'string' },
+              amount: { type: 'number' },
+              dueDate: { type: 'string', format: 'date-time' },
+              status: { type: 'string' },
+            },
+          },
+        },
+        total: { type: 'number' },
+      },
+    },
+  })
+  async getUpcoming(
+    @Param('orgId') orgId: string,
+    @Query('limit') limit?: number,
+  ) {
+    return this.billsService.getUpcoming(orgId, limit || 5);
   }
 
   /**
