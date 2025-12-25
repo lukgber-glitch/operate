@@ -19,6 +19,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SkipCsrf } from '../../common/guards/csrf.guard';
 import { OnboardingService } from './onboarding.service';
 import { FirstAnalysisService } from './first-analysis.service';
 import { AuthService } from '../auth/auth.service';
@@ -64,6 +65,7 @@ export class OnboardingController {
    * Complete a specific onboarding step
    */
   @Post('step/:step')
+  @SkipCsrf()
   @ApiOperation({ summary: 'Complete an onboarding step' })
   @ApiParam({
     name: 'step',
@@ -98,6 +100,7 @@ export class OnboardingController {
    * Skip a specific onboarding step
    */
   @Post('skip/:step')
+  @SkipCsrf()
   @ApiOperation({ summary: 'Skip an onboarding step' })
   @ApiParam({
     name: 'step',
@@ -131,6 +134,7 @@ export class OnboardingController {
    * Mark onboarding as complete
    */
   @Post('complete')
+  @SkipCsrf()
   @ApiOperation({ summary: 'Mark onboarding as complete' })
   @ApiResponse({
     status: 200,
@@ -188,6 +192,7 @@ export class OnboardingController {
    * Trigger first AI analysis after onboarding
    */
   @Post('trigger-analysis')
+  @SkipCsrf()
   @ApiOperation({
     summary: 'Trigger first AI analysis',
     description:

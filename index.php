@@ -53,7 +53,8 @@ http_response_code($httpCode);
 // Forward relevant response headers
 foreach (explode("\r\n", $headerText) as $header) {
     if (preg_match('/^(Content-Type|Set-Cookie|Location|Cache-Control|X-CSRF-Token):/i', $header)) {
-        header($header);
+        // Use false as second arg to allow multiple Set-Cookie headers
+        header($header, false);
     }
 }
 
