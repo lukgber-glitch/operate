@@ -78,6 +78,24 @@ export function RegisterPageWithAnimation() {
           <span>GDPR compliant</span>
         </div>
       </motion.div>
+
+      {/* Legal links */}
+      <motion.div
+        variants={fadeUpVariants}
+        className="flex items-center justify-center gap-4 text-xs text-gray-500 mt-4"
+      >
+        <a href="/privacy" className="hover:text-gray-300 transition-colors">
+          Privacy Policy
+        </a>
+        <span>·</span>
+        <a href="/terms" className="hover:text-gray-300 transition-colors">
+          Terms of Service
+        </a>
+        <span>·</span>
+        <a href="/impressum" className="hover:text-gray-300 transition-colors">
+          Impressum
+        </a>
+      </motion.div>
     </motion.div>
   );
 }
