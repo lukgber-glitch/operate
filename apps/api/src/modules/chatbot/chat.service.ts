@@ -524,30 +524,59 @@ export class ChatService {
       return [];
     }
 
-    // Map roles to permissions (simplified - should use RBAC service)
+    // Map roles to permissions for chatbot actions
+    // These permissions control what chat actions users can perform
+    const fullPermissions = [
+      // Invoices
+      'invoices:create',
+      'invoices:update',
+      'invoices:send',
+      // Expenses
+      'expenses:create',
+      'expenses:update',
+      // Bills
+      'bills:create',
+      'bills:update',
+      'bills:view',
+      // Banking
+      'banking:view',
+      // Clients/Customers
+      'clients:create',
+      // Contracts
+      'contracts:create',
+      'contracts:view',
+      'contracts:send',
+      // Quotes
+      'quotes:create',
+      'quotes:view',
+      'quotes:send',
+      'quotes:convert',
+      // Projects
+      'projects:create',
+      'projects:view',
+      // Time tracking
+      'time:view',
+      'time:track',
+      // Mileage
+      'mileage:view',
+      'mileage:create',
+      // HR
+      'hr:employees:create',
+      'hr:employees:terminate',
+      'hr:leave:approve',
+      'hr:leave:request',
+      // Reports
+      'reports:generate',
+      'reports:view',
+      // Tax
+      'tax:read',
+      // Documents
+      'documents:view',
+    ];
+
     const rolePermissions: Record<string, string[]> = {
-      OWNER: [
-        'invoices:create',
-        'invoices:update',
-        'invoices:send',
-        'expenses:create',
-        'expenses:update',
-        'bills:create',
-        'bills:update',
-        'bills:view',
-        'reports:generate',
-      ],
-      ADMIN: [
-        'invoices:create',
-        'invoices:update',
-        'invoices:send',
-        'expenses:create',
-        'expenses:update',
-        'bills:create',
-        'bills:update',
-        'bills:view',
-        'reports:generate',
-      ],
+      OWNER: fullPermissions,
+      ADMIN: fullPermissions,
       ACCOUNTANT: [
         'invoices:create',
         'invoices:update',
@@ -557,10 +586,24 @@ export class ChatService {
         'bills:create',
         'bills:update',
         'bills:view',
+        'banking:view',
         'reports:generate',
+        'reports:view',
+        'tax:read',
+        'documents:view',
       ],
-      MEMBER: ['expenses:create', 'bills:view', 'reports:generate'],
-      VIEWER: ['bills:view', 'reports:generate'],
+      MEMBER: [
+        'expenses:create',
+        'bills:view',
+        'time:view',
+        'time:track',
+        'mileage:view',
+        'mileage:create',
+        'hr:leave:request',
+        'reports:view',
+        'documents:view',
+      ],
+      VIEWER: ['bills:view', 'reports:view', 'documents:view'],
     };
 
     return rolePermissions[membership.role] || [];
