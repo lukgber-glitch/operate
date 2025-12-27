@@ -74,7 +74,19 @@ export class CsrfGuard implements CanActivate {
       return true;
     }
 
-    // Validate CSRF token for state-changing requests
+    // SECURITY: Skip CSRF for Bearer token authentication
+    // CSRF attacks only affect cookie-based authentication because:
+    // 1. Cookies are automatically sent with cross-site requests
+    // 2. Bearer tokens must be explicitly included by JavaScript
+    // 3. Cross-origin requests cannot read localStorage/sessionStorage
+    // Therefore, Bearer token requests are immune to CSRF attacks
+    const authHeader = request.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      this.logger.debug(`CSRF check skipped for Bearer token auth: ${method} ${request.path}`);
+      return true;
+    }
+
+    // Validate CSRF token for cookie-based state-changing requests
     return this.validateCsrfToken(request);
   }
 
