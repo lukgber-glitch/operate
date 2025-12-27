@@ -577,7 +577,8 @@ export class ChatService {
     const rolePermissions: Record<string, string[]> = {
       OWNER: fullPermissions,
       ADMIN: fullPermissions,
-      ACCOUNTANT: [
+      MANAGER: [
+        // Full finance permissions
         'invoices:create',
         'invoices:update',
         'invoices:send',
@@ -587,23 +588,56 @@ export class ChatService {
         'bills:update',
         'bills:view',
         'banking:view',
+        // Reports
         'reports:generate',
         'reports:view',
+        // Tax
         'tax:read',
+        // Documents
         'documents:view',
+        // Time & Mileage
+        'time:view',
+        'time:track',
+        'mileage:view',
+        'mileage:create',
+        // HR
+        'hr:employees:create',
+        'hr:leave:approve',
+        'hr:leave:request',
+        // Clients & Projects
+        'clients:create',
+        'projects:create',
+        'projects:view',
+        // Quotes & Contracts
+        'quotes:create',
+        'quotes:view',
+        'quotes:send',
+        'quotes:convert',
+        'contracts:create',
+        'contracts:view',
+        'contracts:send',
       ],
       MEMBER: [
+        'invoices:create',
+        'invoices:update',
         'expenses:create',
+        'expenses:update',
         'bills:view',
+        'banking:view',
         'time:view',
         'time:track',
         'mileage:view',
         'mileage:create',
         'hr:leave:request',
         'reports:view',
+        'reports:generate',
         'documents:view',
+        'clients:create',
+        'projects:view',
+        'quotes:view',
+        'contracts:view',
       ],
-      VIEWER: ['bills:view', 'reports:view', 'documents:view'],
+      VIEWER: ['bills:view', 'reports:view', 'documents:view', 'projects:view', 'quotes:view', 'contracts:view'],
     };
 
     return rolePermissions[membership.role] || [];
