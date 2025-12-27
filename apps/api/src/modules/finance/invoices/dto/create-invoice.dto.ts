@@ -12,6 +12,7 @@ import {
   Min,
   Length,
   IsObject,
+  IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { InvoiceType, InvoiceStatus } from '@prisma/client';
@@ -87,6 +88,8 @@ export class CreateInvoiceDto {
     enum: InvoiceType,
     example: 'STANDARD',
   })
+  @IsNotEmpty()
+  @IsEnum(InvoiceType)
   type: InvoiceType;
 
   @ApiPropertyOptional({
