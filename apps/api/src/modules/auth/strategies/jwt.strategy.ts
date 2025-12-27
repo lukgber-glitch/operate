@@ -118,7 +118,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (cachedExists === true) {
       // User exists in cache, skip DB lookup
       return {
-        userId: payload.sub,
+        id: payload.sub,     // For controllers using user.id
+        userId: payload.sub, // For backwards compatibility
         email: payload.email,
         orgId: payload.orgId,
         role: payload.role,
@@ -142,7 +143,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     // Return user data that will be attached to request.user
     return {
-      userId: payload.sub,
+      id: payload.sub,     // For controllers using user.id
+      userId: payload.sub, // For backwards compatibility
       email: payload.email,
       orgId: payload.orgId,
       role: payload.role,
